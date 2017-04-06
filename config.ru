@@ -20,7 +20,7 @@ class App < Roda
       session[:request_token] = request_token
 
       r.get do
-        render('foo') # renders views/foo.erb inside views/layout.erb
+        render('welcome') # renders views/foo.erb inside views/layout.erb
       end
     end
     r.get 'bar' do
@@ -44,9 +44,22 @@ class App < Roda
       #   end
       # end
 
-      binding.pry
       render 'bar'
     end
+
+    r.post do
+      session[:username] = username
+      session[:password] = password
+      render 'welcome'
+    end
+    # POST /hello request
+    r.post do
+      puts "Someone said #{@greeting}!"
+      r.redirect
+    end
+
+
+
   end
 end
 

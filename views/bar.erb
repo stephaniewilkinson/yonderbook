@@ -1,11 +1,30 @@
 <h1>Success</h1>
 you logged in
-
+<br>
 here are your books
+<br>
 
 you have <%= @numpages %> pages of books on your wishlist
 <br>
+here is page one
+<br>
 
+To send these to your bookmooch wishlist, fill out this form:
+(These are your credentials to log into Bookmooch.com)
+<form action="bookmooch">
+  Username: <input type="text" name="username"><br>
+  Password: <input type="password" name="password"><br>
+  <input type="submit" value="Submit">
+</form>
+
+<br>
+<select name="select">
+  <% for num in (1..@numpages).to_a %>
+  <option value="num"><%= num %></option>
+  <% end %>
+</select>
+<br>
 <% @isbnset.each do |isbn| %>
+<br>
 <%= isbn %>
 <% end %>
