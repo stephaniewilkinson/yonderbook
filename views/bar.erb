@@ -1,0 +1,11 @@
+<h1>Success</h1>
+you logged in
+
+here are your books
+
+you have <%= @numpages %> pages of books on your wishlist
+<br>
+
+<% @isbnset.each do |isbn| %>
+<%= isbn %>
+<% end %>
