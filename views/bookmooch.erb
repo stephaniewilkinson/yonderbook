@@ -1,1 +1,41 @@
-gremlins!!!
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+
+  <body>
+    <div class="container">
+        <% unless @books_added.length == 0 %>
+          <h1 class="green">Sucess!</h1>
+        <% else %>
+          <h1>No books added. Your credentials may have been typed incorrectly. </h1>
+          <a href="https://bookmooch.herokuapp.com">Try again</a> or <a href="http://twitter.com/stephanieblack">contact the developer.</a>
+        <% end %>
+        <div class="row">
+          <div class="col s6">
+            <h3>Added <%= @books_added.count %> Books</h3>
+            <% @books_added.each do |book| %>
+              <p>ISBN: <%= book %></p>
+            <% end %>
+          </div>
+          <div class="col s6">
+            <h3>Couldn't Add <%= @books_failed.count %> Books</h3>
+            <p>If some books imported but not others, it's possible that bookmooch doesn't have them listed. </p>
+            <% @books_failed.each do |book| %>
+              <p>ISBN: <%= book %></p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+  <!--Import jQuery before materialize.js-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+  </body>
+</html>

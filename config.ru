@@ -4,6 +4,7 @@ require 'nokogiri'
 require 'oauth'
 require 'http'
 require 'uri'
+require 'pry'
 
 class App < Roda
   CACHE = Roda::RodaCache.new
@@ -70,6 +71,8 @@ class App < Roda
       r.post do
         isbns = CACHE[session[:session_id]]
         auth = {user: r['username'], pass: r['password']}
+        @books_added = []
+        @books_failed = []
 
         HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
           isbns.each do |isbn|
@@ -77,15 +80,23 @@ class App < Roda
             puts "Params: #{URI.encode_www_form params}"
             puts 'Adding to wishlist with bookmooch api...'
             response = http.get '/api/userbook', params: params
-            puts response
+            if response.body.to_s.strip == isbn
+              @books_added.push isbn
+            else
+              @books_failed.push isbn
+            end
           end
         end
 
+        CACHE[session[:books_added]] = @books_added
+        CACHE[session[:books_failed]] = @books_failed
         r.redirect '/bookmooch'
       end
 
       # GET /bookmooch
       r.get do
+        @books_added = CACHE[session[:session_id]]
+        @books_failed = CACHE[session[:books_failed]]
         render 'bookmooch'
       end
     end
