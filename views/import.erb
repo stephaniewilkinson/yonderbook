@@ -14,7 +14,7 @@
   <body>
     <div class="container">
       <h1>Success</h1>
-      <p>You logged in. Here are your books. </p>
+      <p>You logged in to goodreads successfully! </p>
       <p>To send these to your bookmooch wishlist, fill out this form:
       (These are your credentials to log into Bookmooch.com)</p>
       <div class="row">
@@ -30,8 +30,10 @@
           </button>
        </form>
       </div>
+      <h3>Here are the isbns of the books on your Goodreads to-read shelf:</h3>
+      <p>If this is empty, go back to goodreads and add books to your to-read shelf.</p>
         <% @isbnset.each do |isbn| %>
-            <%= isbn %> | 
+            <%= isbn %> |
         <% end %>
     </div>
 
