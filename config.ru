@@ -21,7 +21,7 @@ class App < Roda
 
     r.root do
       consumer = OAuth::Consumer.new session[:api_key], session[:secret], site: GOODREADS_URI
-      request_token = consumer.get_request_token oauth_callback: "#{APP_URI}/bar"
+      request_token = consumer.get_request_token oauth_callback: "#{APP_URI}/import"
 
       session[:request_token] = request_token
       @auth_url = request_token.authorize_url
@@ -32,8 +32,8 @@ class App < Roda
       end
     end
 
-    r.on 'bar' do
-      # GET /bar
+    r.on 'import' do
+      # GET /import
       r.get do
         access_token = session[:request_token].get_access_token
         response = access_token.get "#{GOODREADS_URI}/api/auth_user"
@@ -61,7 +61,7 @@ class App < Roda
 
         CACHE[session[:session_id]] = @isbnset
 
-        render 'bar'
+        render 'import'
       end
     end
 
