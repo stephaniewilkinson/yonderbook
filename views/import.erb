@@ -30,12 +30,13 @@
           </button>
        </form>
       </div>
-
-      <% @isbnset.each do |isbn| %>
-      <div class="col s1 hover">
-        <%= isbn %>
+      <div class="row">
+        <% @isbnset.each do |isbn| %>
+          <div class="col s1 hover">
+            <%= isbn %>
+          </div>
+        <% end %>
       </div>
-      <% end %>
     </div>
 
 <!--Import jQuery before materialize.js-->
