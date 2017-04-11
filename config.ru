@@ -4,7 +4,6 @@ require 'nokogiri'
 require 'oauth'
 require 'http'
 require 'uri'
-require 'pry'
 
 class App < Roda
   CACHE = Roda::RodaCache.new
