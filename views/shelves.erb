@@ -15,26 +15,36 @@
     <div class="container">
       <h1>Success</h1>
       <p>You logged in to goodreads successfully! </p>
-      <p>To send these to your bookmooch wishlist, fill out this form:
-      (These are your credentials to log into Bookmooch.com)</p>
-      <div class="row">
-        <form action="bookmooch" method="post">
-          <div class="input-field col s6">
-            Username: <input type="text" name="username">
-          </div>
-          <div class="input-field col s6">
-            Password: <input type="password" name="password">
-          </div>
-          <button class="btn waves-effect waves-light" type="submit" name="action">Submit
-            <i class="material-icons right"></i>
-          </button>
-       </form>
-      </div>
-      <h3>Here are the isbns of the books on your Goodreads to-read shelf:</h3>
-      <p>If this is empty, go back to goodreads and add books to your to-read shelf.</p>
-        <% @isbnset.each do |isbn| %>
-            <%= isbn %> |
-        <% end %>
+      <p>Here are your Goodreads Bookshelves</p>
+
+      <table>
+        <thead>
+          <tr>
+              <th>Shelf Name</th>
+              <th>Number of Books on Shelf</th>
+              <th>Send this shelf to Bookmooch</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @shelves.each do |shelf| %>
+            <tr>
+              <td><%= shelf[0] %></td>
+              <td><%= shelf[1] %></td>
+              <form action="books" method="post">
+                <input type="hidden" name="shelf_name" value=\"<%= shelf[0] %>\" >
+                <td>
+                  <button class="btn waves-effect waves-light" type="submit" name="action">Choose this shelf
+                    <i class="material-icons right">send</i>
+                  </button>
+                </td>
+              </form>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+
     </div>
 
 <!--Import jQuery before materialize.js-->

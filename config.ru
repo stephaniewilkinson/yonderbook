@@ -4,6 +4,7 @@ require 'nokogiri'
 require 'oauth'
 require 'http'
 require 'uri'
+require 'pry'
 
 class App < Roda
   CACHE = Roda::RodaCache.new
@@ -32,17 +33,52 @@ class App < Roda
       end
     end
 
-    r.on 'import' do
+    r.on 'shelves' do
       # GET /import
       r.get do
         access_token = session[:request_token].get_access_token
         response = access_token.get "#{GOODREADS_URI}/api/auth_user"
         xml = Nokogiri::XML response.body
         user_id = xml.xpath('//user').first.attributes.first[1].value
-        params = URI.encode_www_form({shelf: 'to-read',
+
+        session[:goodreads_user_id] = user_id
+
+        params = URI.encode_www_form({user_id: user_id,
+                                      key: session[:api_key]})
+
+        path = "/shelf/list.xml?#{params}}"
+
+        HTTP.persistent GOODREADS_URI do |http|
+          doc = Nokogiri::XML http.get(path).body
+
+          puts 'Getting shelves...'
+
+          @shelf_names = doc.xpath('//shelves//name').children.to_a
+          @shelf_books = doc.xpath('//shelves//book_count').children.to_a
+        end
+
+        @shelves = @shelf_names.zip(@shelf_books)
+        render 'shelves'
+      end
+    end
+
+
+
+    r.on 'books' do
+      # POST /books
+      r.post do
+
+        session[:shelf_name] = r['shelf_name'].gsub('\"', '')
+
+        r.redirect '/books'
+      end
+
+      # GET /books
+      r.get do
+        params = URI.encode_www_form({shelf: session[:shelf_name],
                                       per_page: '20',
                                       key: session[:api_key]})
-        path = "/review/list/#{user_id}.xml?#{params}}"
+        path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
 
         HTTP.persistent GOODREADS_URI do |http|
           doc = Nokogiri::XML http.get(path).body
@@ -61,7 +97,7 @@ class App < Roda
 
         CACHE[session[:session_id]] = @isbnset
 
-        render 'import'
+        render 'books'
       end
     end
 
