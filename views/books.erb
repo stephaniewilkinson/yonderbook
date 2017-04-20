@@ -47,7 +47,8 @@
           <small>If this is empty, go to Goodreads and add books to your shelf.</small>
           <hr>
           <% @isbnset.each do |isbn| %>
-          <%= isbn %>  |
+          <img src="<%= isbn[1] %>">  |
+          <%= isbn[0] %>
           <% end %>
         </div>
       </div>

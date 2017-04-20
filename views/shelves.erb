@@ -27,6 +27,7 @@
         </thead>
 
         <tbody>
+          <% if @shelves %>
           <% @shelves.each do |shelf| %>
             <tr>
               <td><%= shelf[0] %></td>
@@ -41,8 +42,12 @@
               </form>
             </tr>
           <% end %>
+
         </tbody>
       </table>
+      <% else %>
+      <p>No Shelves found. You may have waited too long, the Goodreads authentication token is only good for 30 seconds. Make sure you are using a modern browser, like Firefox, Safari, or Chrome and have the latest version.</p>
+      <% end %>
 
 
     </div>

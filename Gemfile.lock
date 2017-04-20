@@ -18,11 +18,13 @@ GEM
     nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
     oauth (0.5.1)
+    pg (0.20.0)
     public_suffix (2.0.5)
     rack (2.0.1)
     roda (2.24.0)
       rack
     ruby (0.1.0)
+    sequel (4.45.0)
     tilt (2.0.7)
     unf (0.1.4)
       unf_ext
@@ -35,9 +37,11 @@ DEPENDENCIES
   http
   nokogiri
   oauth
+  pg
   rack
   roda
   ruby
+  sequel
   tilt
 
 BUNDLED WITH
