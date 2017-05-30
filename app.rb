@@ -16,7 +16,7 @@ DB = Sequel.connect(adapter: "postgres", database: database, host: "127.0.0.1", 
 
 
 class App < Roda
-  use Rollbar::Middleware::Sinatra
+  use Rollbar::Middleware::Rack
 
   CACHE = Roda::RodaCache.new
 

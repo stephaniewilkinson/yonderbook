@@ -15,6 +15,7 @@ GEM
     http-form_data (1.0.1)
     http_parser.rb (0.6.0)
     mini_portile2 (2.1.0)
+    multi_json (1.12.1)
     nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
     oauth (0.5.1)
@@ -23,6 +24,8 @@ GEM
     rack (2.0.1)
     roda (2.24.0)
       rack
+    rollbar (2.14.1)
+      multi_json
     ruby (0.1.0)
     sequel (4.45.0)
     tilt (2.0.7)
@@ -40,6 +43,7 @@ DEPENDENCIES
   pg
   rack
   roda
+  rollbar
   ruby
   sequel
   tilt
