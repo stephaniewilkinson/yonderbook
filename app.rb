@@ -16,6 +16,7 @@ DB = Sequel.connect(adapter: "postgres", database: database, host: "127.0.0.1", 
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :render
+  plugin :static, ['/images'], root: 'assets'
 
   CACHE = Roda::RodaCache.new
 
@@ -26,6 +27,7 @@ class App < Roda
   use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
 
   route do |r|
+    r.assets
     session[:secret] = ENV['GOODREADS_SECRET']
     session[:api_key] = ENV['GOODREADS_API_KEY']
 
@@ -148,5 +150,13 @@ class App < Roda
         view 'bookmooch'
       end
     end
+
+    # GET /about
+    r.on 'about' do
+      r.get do
+        view 'about'
+      end
+    end
+
   end
 end
