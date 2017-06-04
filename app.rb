@@ -15,6 +15,7 @@ DB = Sequel.connect(adapter: "postgres", database: database, host: "127.0.0.1", 
 
 class App < Roda
   use Rollbar::Middleware::Rack
+  plugin :render
 
   CACHE = Roda::RodaCache.new
 
@@ -23,7 +24,6 @@ class App < Roda
   APP_URI       = 'http://localhost:9292'.freeze
 
   use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
-  plugin :render
 
   route do |r|
     session[:secret] = ENV['GOODREADS_SECRET']
@@ -38,7 +38,7 @@ class App < Roda
 
       # GET /
       r.get do
-        render 'welcome' # renders views/foo.erb inside views/layout.erb
+        view 'welcome' # renders views/foo.erb inside views/layout.erb
       end
     end
 
@@ -67,7 +67,7 @@ class App < Roda
         end
 
         @shelves = @shelf_names.zip(@shelf_books)
-        render 'shelves'
+        view 'shelves'
       end
     end
 
@@ -109,7 +109,7 @@ class App < Roda
 
         CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
 
-        render 'books'
+        view 'books'
       end
     end
 
@@ -145,7 +145,7 @@ class App < Roda
       r.get do
         @books_added = CACHE["#{session[:session_id]}/books_added"]
         @books_failed = CACHE["#{session[:session_id]}/books_failed"]
-        render 'bookmooch'
+        view 'bookmooch'
       end
     end
   end
