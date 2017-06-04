@@ -8,12 +8,10 @@ require 'sequel'
 require 'pg'
 require 'rollbar/middleware/rack'
 
-
 database = "myapp_development"
 user     = ENV["PGUSER"]
 password = ENV["PGPASSWORD"]
 DB = Sequel.connect(adapter: "postgres", database: database, host: "127.0.0.1", user: user, password: password)
-
 
 class App < Roda
   use Rollbar::Middleware::Rack
@@ -109,7 +107,7 @@ class App < Roda
           end
         end
 
-        CACHE[session[:session_id]] = @isbnset
+        CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
 
         render 'books'
       end
@@ -118,34 +116,35 @@ class App < Roda
     r.on 'bookmooch' do
       # POST /bookmooch?username=foo&password=baz
       r.post do
-        isbns = CACHE[session[:session_id]]
+        isbns_and_image_urls = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
         auth = {user: r['username'], pass: r['password']}
         @books_added = []
         @books_failed = []
 
         HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
-          isbns.each do |isbn|
+          isbns_and_image_urls.each do |isbn, image_url|
             params = {asins: isbn, target: 'wishlist', action: 'add'}
             puts "Params: #{URI.encode_www_form params}"
             puts 'Adding to wishlist with bookmooch api...'
             response = http.get '/api/userbook', params: params
+
             if response.body.to_s.strip == isbn
-              @books_added.push isbn
+              @books_added << [isbn, image_url]
             else
-              @books_failed.push isbn
+              @books_failed << [isbn, image_url]
             end
           end
         end
 
-        CACHE[session[:books_added]] = @books_added
-        CACHE[session[:books_failed]] = @books_failed
+        CACHE["#{session[:session_id]}/books_added"] = @books_added
+        CACHE["#{session[:session_id]}/books_failed"] = @books_failed
         r.redirect '/bookmooch'
       end
 
       # GET /bookmooch
       r.get do
-        @books_added = CACHE[session[:session_id]]
-        @books_failed = CACHE[session[:books_failed]]
+        @books_added = CACHE["#{session[:session_id]}/books_added"]
+        @books_failed = CACHE["#{session[:session_id]}/books_failed"]
         render 'bookmooch'
       end
     end
