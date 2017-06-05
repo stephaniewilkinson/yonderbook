@@ -1,37 +1,37 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.5.0)
+    addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
-    domain_name (0.5.20170223)
+    domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
-    http (2.2.1)
+    http (2.2.2)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
       http-form_data (~> 1.0.1)
       http_parser.rb (~> 0.6.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    http-form_data (1.0.1)
+    http-form_data (1.0.3)
     http_parser.rb (0.6.0)
-    mini_portile2 (2.1.0)
+    mini_portile2 (2.2.0)
     multi_json (1.12.1)
-    nokogiri (1.7.1)
-      mini_portile2 (~> 2.1.0)
-    oauth (0.5.1)
+    nokogiri (1.8.0)
+      mini_portile2 (~> 2.2.0)
+    oauth (0.5.3)
     pg (0.20.0)
     public_suffix (2.0.5)
-    puma (3.8.2)
-    rack (2.0.1)
-    roda (2.24.0)
+    puma (3.9.1)
+    rack (2.0.3)
+    roda (2.26.0)
       rack
     rollbar (2.14.1)
       multi_json
-    sequel (4.45.0)
+    sequel (4.47.0)
     tilt (2.0.7)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.2)
+    unf_ext (0.0.7.4)
 
 PLATFORMS
   ruby
