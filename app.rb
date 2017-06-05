@@ -53,8 +53,6 @@ class App < Roda
         params = URI.encode_www_form({user_id: session[:goodreads_user_id],
                                       key: session[:api_key]})
 
-
-
         path = "/shelf/list.xml?#{params}}"
 
         HTTP.persistent GOODREADS_URI do |http|
