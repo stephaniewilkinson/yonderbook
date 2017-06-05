@@ -1,6 +1,6 @@
-<div class="row">
   <p>Successfully retrieved the books from your "<%= session[:shelf_name] %>" shelf.</p>
   <hr>
+<div class="row">
   <div class="col s9">
     <h4>Add these books to your bookmooch wishlist</h4>
     <div class="card horizontal blue-grey darken-1">
@@ -26,11 +26,12 @@
     </div>
   </div>
 </div>
+<h5>Here are the ISBNs of the books on your Goodreads "<%= session[:shelf_name] %>" shelf:</h5>
+<small>If this is empty, go to Goodreads and add books to your shelf.</small>
+<hr>
+
 <div class="row">
-  <h5>Here are the ISBNs of the books on your Goodreads "<%= session[:shelf_name] %>" shelf:</h5>
-  <small>If this is empty, go to Goodreads and add books to your shelf.</small>
-  <hr>
-  <% @isbnset.each do |isbn| %>
+<% @isbnset.each do |isbn| %>
   <div class="card col s2">
     <div class="card-image">
       <img src="<%= isbn[1] %>">
@@ -39,5 +40,5 @@
       <%= isbn[0] %>
     </div>
   </div>
-  <% end %>
+<% end %>
 </div>
