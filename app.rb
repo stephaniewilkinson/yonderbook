@@ -7,13 +7,14 @@ require 'uri'
 require 'sequel'
 require 'pg'
 require 'rollbar/middleware/rack'
+require_relative 'tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :render
   plugin :static, ['/images'], root: 'assets'
 
-  CACHE = Roda::RodaCache.new
+  CACHE = ::TupleSpace.new
 
   BOOKMOOCH_URI = 'http://api.bookmooch.com'.freeze
   GOODREADS_URI = 'http://www.goodreads.com'.freeze
@@ -101,8 +102,7 @@ class App < Roda
             doc = Nokogiri::XML http.get("#{path}&page=#{page}").body
 
             isbns = doc.xpath('//isbn').children.map &:text
-            image_urls = doc.xpath('//image_url').children.map &:text
-
+            image_urls = doc.xpath('//small_image_url').children.map &:text
             isbns.zip(image_urls)
           end
         end
