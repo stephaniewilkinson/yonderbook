@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 gem 'rack'
-gem 'ruby'
+gem 'puma'
 gem 'roda'
 gem 'tilt'
 gem 'nokogiri'

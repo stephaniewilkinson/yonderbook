@@ -21,12 +21,12 @@ GEM
     oauth (0.5.1)
     pg (0.20.0)
     public_suffix (2.0.5)
+    puma (3.8.2)
     rack (2.0.1)
     roda (2.24.0)
       rack
     rollbar (2.14.1)
       multi_json
-    ruby (0.1.0)
     sequel (4.45.0)
     tilt (2.0.7)
     unf (0.1.4)
@@ -41,10 +41,10 @@ DEPENDENCIES
   nokogiri
   oauth
   pg
+  puma
   rack
   roda
   rollbar
-  ruby
   sequel
   tilt
 
