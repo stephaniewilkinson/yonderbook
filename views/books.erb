@@ -31,14 +31,18 @@
 <hr>
 
 <div class="row">
-<% @isbnset.each do |isbn| %>
-  <div class="card col s2">
-    <div class="card-image">
-      <img src="<%= isbn[1] %>">
+  <div class="col s12 cards-container">
+
+  <% @isbnset.each do |isbn| %>
+    <div class="card col s2">
+      <div class="card-image">
+        <img src="<%= isbn[1] %>">
+      </div>
+      <div class="card-content">
+        <%= isbn[0] %>
+      </div>
     </div>
-    <div class="card-content">
-      <%= isbn[0] %>
-    </div>
+  <% end %>
+
   </div>
-<% end %>
 </div>

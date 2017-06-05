@@ -13,3 +13,11 @@ task :environment do
     config.access_token = 'ee0a8b14155148c28004d3e9b7519abd'
   end
 end
+
+namespace :assets do
+  desc "Precompile the assets"
+  task :precompile do
+    require './app'
+    App.compile_assets
+  end
+end

@@ -12,7 +12,8 @@ require_relative 'tuple_space'
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :render
-  plugin :static, ['/images'], root: 'assets'
+  plugin :assets, :css => 'styles.css'
+  compile_assets
 
   CACHE = ::TupleSpace.new
 
@@ -23,10 +24,13 @@ class App < Roda
   use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
 
   route do |r|
+    r.assets
+
     session[:secret] = ENV['GOODREADS_SECRET']
     session[:api_key] = ENV['GOODREADS_API_KEY']
 
     r.root do
+
       consumer = OAuth::Consumer.new session[:api_key], session[:secret], site: GOODREADS_URI
       request_token = consumer.get_request_token oauth_callback: "#{APP_URI}/import"
 
@@ -102,7 +106,8 @@ class App < Roda
             doc = Nokogiri::XML http.get("#{path}&page=#{page}").body
 
             isbns = doc.xpath('//isbn').children.map &:text
-            image_urls = doc.xpath('//small_image_url').children.map &:text
+            image_urls = doc.xpath('//image_url').children.map(&:text).grep_v /\A\n\z/
+
             isbns.zip(image_urls)
           end
         end

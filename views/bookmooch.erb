@@ -1,9 +1,12 @@
+<div class="row">
+
 <% unless @books_added.length == 0 %>
   <h1 class="green-text">Success!</h1>
 <% else %>
   <h1>No books added. Your credentials may have been typed incorrectly. </h1>
   <a href="https://bookmooch.herokuapp.com">Try again</a> or <a href="http://twitter.com/stephanieblack">contact the developer.</a>
 <% end %>
+</div>
 <div class="row">
   <div class="col s6 green lighten-5">
     <h3>Added (or re-added) <%= @books_added.count %> Books</h3>
