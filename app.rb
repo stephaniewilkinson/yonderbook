@@ -8,11 +8,6 @@ require 'sequel'
 require 'pg'
 require 'rollbar/middleware/rack'
 
-database = "myapp_development"
-user     = ENV["PGUSER"]
-password = ENV["PGPASSWORD"]
-DB = Sequel.connect(adapter: "postgres", database: database, host: "127.0.0.1", user: user, password: password)
-
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :render
@@ -46,15 +41,19 @@ class App < Roda
     r.on 'shelves' do
       # GET /import
       r.get do
-        access_token = session[:request_token].get_access_token
-        response = access_token.get "#{GOODREADS_URI}/api/auth_user"
-        xml = Nokogiri::XML response.body
-        user_id = xml.xpath('//user').first.attributes.first[1].value
+        unless session[:goodreads_user_id]
+          access_token = session[:request_token].get_access_token
+          response = access_token.get "#{GOODREADS_URI}/api/auth_user"
+          xml = Nokogiri::XML response.body
+          user_id = xml.xpath('//user').first.attributes.first[1].value
 
-        session[:goodreads_user_id] = user_id
+          session[:goodreads_user_id] = user_id
+        end
 
-        params = URI.encode_www_form({user_id: user_id,
+        params = URI.encode_www_form({user_id: session[:goodreads_user_id],
                                       key: session[:api_key]})
+
+
 
         path = "/shelf/list.xml?#{params}}"
 
@@ -70,9 +69,11 @@ class App < Roda
         @shelves = @shelf_names.zip(@shelf_books)
         view 'shelves'
       end
+
+      error do |e|
+      end
+
     end
-
-
 
     r.on 'books' do
       # POST /books
