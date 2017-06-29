@@ -18,7 +18,6 @@
 
     <nav>
       <div class="nav-wrapper green darken-3">
-        <div class="container">
           <a href="/" class="brand-logo center" style="font-family:Astloch">bookwyrm</a>
           <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href="about"><i class="material-icons left">info_outline</i>About</a></li>
@@ -26,15 +25,12 @@
               <li><a href="shelves"><i class="material-icons left">library_books</i>Your Shelves</a></li>
             <% end %>
           </ul>
-        </div>
       </div>
     </nav>
 
-    <div class="container">
 
       <%= yield %>
 
-    </div>
     <!--Import jQuery before materialize.js-->
     <script
       src="https://code.jquery.com/jquery-3.2.1.min.js"

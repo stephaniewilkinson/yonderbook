@@ -11,7 +11,7 @@
   <div class="col s6 green lighten-5">
     <h3>Added (or re-added) <%= @books_added.count %> Books</h3>
     <% @books_added.each do |book| %>
-      <p>ISBN: <%= book[0] %></p>
+      <p><%= book[0] %></p>
       <img src="<%= book[1] %>">
     <% end %>
   </div>
@@ -19,7 +19,7 @@
     <h3>Couldn't Add <%= @books_failed.count %> Books</h3>
     <p>If some books imported but not others, it's possible that bookmooch doesn't have them listed. </p>
     <% @books_failed.each do |book| %>
-      <p>ISBN: <%= book[0] %></p>
+      <p><%= book[0] %></p>
       <img src="<%= book[1] %>">
     <% end %>
   </div>

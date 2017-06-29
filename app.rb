@@ -11,6 +11,7 @@ class App < Roda
   use Rollbar::Middleware::Rack
   plugin :render
   plugin :assets, :css => 'styles.css'
+  plugin :public, root: 'assets'
   compile_assets
 
   CACHE = ::TupleSpace.new
@@ -22,6 +23,7 @@ class App < Roda
   use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
 
   route do |r|
+    r.public
     r.assets
 
     session[:secret] = ENV['GOODREADS_SECRET']
@@ -102,11 +104,10 @@ class App < Roda
           @isbnset = 1.upto(@number_of_pages).flat_map do |page|
             "Fetching page #{page}..."
             doc = Nokogiri::XML http.get("#{path}&page=#{page}").body
-
             isbns = doc.xpath('//isbn').children.map &:text
-            image_urls = doc.xpath('//image_url').children.map(&:text).grep_v /\A\n\z/
-
-            isbns.zip(image_urls)
+            image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v /\A\n\z/
+            titles = doc.xpath('//title').children.map &:text
+            isbns.zip(image_urls, titles)
           end
         end
 
@@ -125,16 +126,16 @@ class App < Roda
         @books_failed = []
 
         HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
-          isbns_and_image_urls.each do |isbn, image_url|
+          isbns_and_image_urls.each do |isbn, image_url, title|
             params = {asins: isbn, target: 'wishlist', action: 'add'}
             puts "Params: #{URI.encode_www_form params}"
             puts 'Adding to wishlist with bookmooch api...'
             response = http.get '/api/userbook', params: params
 
             if response.body.to_s.strip == isbn
-              @books_added << [isbn, image_url]
+              @books_added << [title, image_url]
             else
-              @books_failed << [isbn, image_url]
+              @books_failed << [title, image_url]
             end
           end
         end
