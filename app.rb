@@ -4,8 +4,6 @@ require 'nokogiri'
 require 'oauth'
 require 'http'
 require 'uri'
-require 'sequel'
-require 'pg'
 require 'rollbar/middleware/rack'
 require_relative 'tuple_space'
 

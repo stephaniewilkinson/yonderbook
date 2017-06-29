@@ -19,7 +19,6 @@ GEM
     nokogiri (1.8.0)
       mini_portile2 (~> 2.2.0)
     oauth (0.5.3)
-    pg (0.20.0)
     public_suffix (2.0.5)
     puma (3.9.1)
     rack (2.0.3)
@@ -28,7 +27,6 @@ GEM
       rack
     rollbar (2.14.1)
       multi_json
-    sequel (4.47.0)
     tilt (2.0.7)
     unf (0.1.4)
       unf_ext
@@ -41,13 +39,11 @@ DEPENDENCIES
   http
   nokogiri
   oauth
-  pg
   puma
   rack
   rake
   roda
   rollbar
-  sequel
   tilt
 
 RUBY VERSION
