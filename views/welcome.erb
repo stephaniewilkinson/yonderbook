@@ -1,22 +1,42 @@
 <div class="container">
 
-<div class="row grey-lighten">
-  <div class="col s6 offset-s3">
-  <p>This app is a tool for bookworms. It copies books from your <a href="http://goodreads.com">Goodreads</a> shelves and imports them to your <a href="http://bookmooch.com">Bookmooch</a> wishlist. </p>
-</div>
-</div>
 
-<div class="row">
-  <div class="col s6 offset-s3">
-    <div class="card blue-grey darken">
-      <div class="card-image">
-        <img src="http://benzackheim.com/wp-content/uploads/2014/03/goodreads.jpg">
-      </div>
-      <div class="card-content white-text">
-        <span class="card-title">Connect your Goodreads account</span>
-        <a href='<%= @auth_url %>' class="btn-large green waves-effect waves-light btn"><i class="material-icons left">cloud</i>Log in with goodreads</a>
+  <div class="row">
+    <div class="col m6">
+      <br>
+      <div class="card blue-grey darken">
+        <div class="card-image">
+          <img src="http://benzackheim.com/wp-content/uploads/2014/03/goodreads.jpg">
+        </div>
+        <div class="card-content white-text">
+          <span class="card-title">Connect your Goodreads account</span>
+          <a href='<%= @auth_url %>' class="btn-large green waves-effect waves-light btn"><i class="material-icons left">cloud</i>Log in with goodreads</a>
+        </div>
       </div>
     </div>
+
+  <div class="col m6">
+    <p class="flow-text">Bookwyrm is a tool for readers that uses your curated <a href="http://goodreads.com">Goodreads</a> 'shelves'. </p>
+    <div class="row">
+      <div class="col m3">
+        <i class="medium material-icons">find_replace</i>
+      </div>
+      <p>You can log into Goodreads here, and then see if the books on your shelves are available to mooch in hardcopy or download digitally.</p>
+    </div>
+    <div class="row">
+      <div class="col m3">
+        <i class="medium material-icons">book</i>
+      </div>
+      <p>Save money and read more books by trading with other readers and downloading ebooks from your local library.</p>
+    </div>
+    <div class="row">
+      <div class="col m3">
+        <i class="medium material-icons">explore</i>
+      </div>
+      <p>Explore new books and keep your book apps synced. New features to come! <a href="/about">Read more here</a> about why I made this app.</p>
+    </div>
+
+    </div>
   </div>
-</div>
+
 </div>
