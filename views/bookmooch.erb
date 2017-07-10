@@ -9,18 +9,32 @@
 </div>
 <div class="row">
   <div class="col s6 green lighten-5">
-    <h3>Added (or re-added) <%= @books_added.count %> Books</h3>
-    <% @books_added.each do |book| %>
-      <p><%= book[0] %></p>
-      <img src="<%= book[1] %>">
-    <% end %>
+    <div class="cards-container">
+      <h3>Added (or re-added) <%= @books_added.count %> Books</h3>
+      <% @books_added.each do |book| %>
+        <div class="card hoverable">
+          <div class="card-image">
+            <img src="<%= book[1] %>">
+          </div>
+          <div class="card-content">
+            <small><%= book[0] %></small>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
   <div class="col s6 red lighten-5">
     <h3>Couldn't Add <%= @books_failed.count %> Books</h3>
     <p>If some books imported but not others, it's possible that bookmooch doesn't have them listed. </p>
     <% @books_failed.each do |book| %>
-      <p><%= book[0] %></p>
-      <img src="<%= book[1] %>">
+      <div class="card hoverable">
+        <div class="card-image">
+          <img src="<%= book[1] %>">
+        </div>
+        <div class="card-content">
+          <small><%= book[0] %></small>
+        </div>
+      </div>
     <% end %>
   </div>
 </div>
