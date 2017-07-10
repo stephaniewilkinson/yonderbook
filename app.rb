@@ -153,10 +153,10 @@ class App < Roda
       end
     end
 
-    # GET /overdrive
-    r.on 'overdrive' do
+    # GET /library
+    r.on 'library' do
       r.get do
-        view 'overdrive'
+        view 'library'
       end
     end
 
