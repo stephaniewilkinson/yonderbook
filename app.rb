@@ -126,17 +126,21 @@ class App < Roda
         @books_failed = []
 
         HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
-          isbns_and_image_urls.each do |isbn, image_url, title|
-            params = {asins: isbn, target: 'wishlist', action: 'add'}
-            puts "Params: #{URI.encode_www_form params}"
-            puts 'Adding to wishlist with bookmooch api...'
-            response = http.get '/api/userbook', params: params
+          if isbns_and_image_urls
+            isbns_and_image_urls.each do |isbn, image_url, title|
+              params = {asins: isbn, target: 'wishlist', action: 'add'}
+              puts "Params: #{URI.encode_www_form params}"
+              puts 'Adding to wishlist with bookmooch api...'
+              response = http.get '/api/userbook', params: params
 
-            if response.body.to_s.strip == isbn
-              @books_added << [title, image_url]
-            else
-              @books_failed << [title, image_url]
+              if response.body.to_s.strip == isbn
+                @books_added << [title, image_url]
+              else
+                @books_failed << [title, image_url]
+              end
             end
+          else
+            r.redirect '/books'
           end
         end
 
