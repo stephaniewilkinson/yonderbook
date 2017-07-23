@@ -12,7 +12,7 @@ require_relative 'tuple_space'
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :render
-  plugin :assets, :css => 'styles.css'
+  plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
   compile_assets
 
@@ -57,8 +57,8 @@ class App < Roda
           session[:goodreads_user_id] = user_id
         end
 
-        params = URI.encode_www_form({user_id: session[:goodreads_user_id],
-                                      key: session[:api_key]})
+        params = URI.encode_www_form(user_id: session[:goodreads_user_id],
+                                     key: session[:api_key])
 
         path = "/shelf/list.xml?#{params}}"
 
@@ -91,9 +91,9 @@ class App < Roda
 
       # GET /books
       r.get do
-        params = URI.encode_www_form({shelf: session[:shelf_name],
-                                      per_page: '20',
-                                      key: session[:api_key]})
+        params = URI.encode_www_form(shelf: session[:shelf_name],
+                                     per_page: '20',
+                                     key: session[:api_key])
         path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
 
         HTTP.persistent GOODREADS_URI do |http|

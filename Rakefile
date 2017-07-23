@@ -17,7 +17,7 @@ task :environment do
 end
 
 namespace :assets do
-  desc "Precompile the assets"
+  desc 'Precompile the assets'
   task :precompile do
     require_relative 'app'
     App.compile_assets
