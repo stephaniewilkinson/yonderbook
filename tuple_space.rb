@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rinda/tuplespace'
 
 class TupleSpace < Rinda::TupleSpace

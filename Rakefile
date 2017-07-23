@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rollbar/rake_tasks'
 
 task :app do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'roda'
 require 'tilt'
 require 'nokogiri'
@@ -16,9 +18,9 @@ class App < Roda
 
   CACHE = ::TupleSpace.new
 
-  BOOKMOOCH_URI = 'http://api.bookmooch.com'.freeze
-  GOODREADS_URI = 'http://www.goodreads.com'.freeze
-  APP_URI       = 'http://localhost:9292'.freeze
+  BOOKMOOCH_URI = 'http://api.bookmooch.com'
+  GOODREADS_URI = 'http://www.goodreads.com'
+  APP_URI       = 'http://localhost:9292'
 
   use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
 
