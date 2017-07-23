@@ -6,8 +6,8 @@ task :app do
   require_relative 'app'
 end
 
-Dir[__dir__ + "/lib/tasks/*.rb"].sort.each do |path|
-  require path
+Dir['lib/tasks/*.rb'].sort.each do |path|
+  require_relative path
 end
 
 task :environment do
@@ -19,7 +19,7 @@ end
 namespace :assets do
   desc "Precompile the assets"
   task :precompile do
-    require './app'
+    require_relative 'app'
     App.compile_assets
   end
 end
