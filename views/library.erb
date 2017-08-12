@@ -1,22 +1,4 @@
 <div class="container">
   <h1>Coming Soon...</h1>
 
-  <tbody>
-    <% if @libraries %>
-    <% @libraries.each do |library| %>
-      <tr>
-        <td><%= library[0] %></td>
-        <td><%= library[1] %></td>
-        <form action="overdrive" method="post">
-          <input type="hidden" name="library_name" value=\"<%= library[0] %>\" >
-          <td>
-            <button class="btn waves-effect waves-light green" type="submit" name="action">Choose this library
-              <i class="material-icons right">send</i>
-            </button>
-          </td>
-        </form>
-      </tr>
-    <% end %>
-
-  </tbody>
 </div>
