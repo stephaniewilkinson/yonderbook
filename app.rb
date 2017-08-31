@@ -164,7 +164,6 @@ class App < Roda
       end
     end
 
-    # GET /library
     r.on 'library' do
       # POST /library?zipcode=90029
       r.post do
@@ -190,6 +189,18 @@ class App < Roda
         @local_libraries = CACHE["#{session[:session_id]}/libraries"]
         session[:libraries] = @local_libraries
         view 'library'
+      end
+    end
+
+    r.on 'availability' do
+      # POST /availability?zipcode=90029
+      r.post do
+        consortium_id = r['consortium']
+      end
+
+      # GET /availability
+      r.get do
+        view 'availability'
       end
     end
 
