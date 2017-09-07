@@ -183,7 +183,6 @@ class App < Roda
           consortium_id = l["consortiumId"]
           consortium_name = l["consortiumName"]
           p "consortium id #{consortium_id}"
-          p "library #{l}"
           @local_libraries << [consortium_id, consortium_name]
         end
 
@@ -202,7 +201,30 @@ class App < Roda
     r.on 'availability' do
       # POST /availability?zipcode=90029
       r.post do
-        consortium_id = r['consortium']
+
+        # Getting auth token from overdrive
+        client = OAuth2::Client.new(OVERDRIVE_KEY, OVERDRIVE_SECRET, :token_url => '/token', :site =>'https://oauth.overdrive.com')
+        token_request = client.client_credentials.get_token
+        token = token_request.token
+
+        # Four digit library id from user submitted form
+        consortium_id = r['consortium'].gsub('\"', '') # 1047
+
+        # Getting the library-specific endpoint
+        library_uri = OVERDRIVE_LIBRARY_URI + "#{consortium_id}"
+        response = HTTP.auth("Bearer #{token}").get(library_uri)
+        res = JSON.parse(response.body)
+        collectionToken = res["collectionToken"] # "v1L1BDAAAAA2R"
+
+        # Here's where I need to figure out what the relationship between ISBN and product ID is
+
+
+        # Making the API call to Library Availability endpoint
+        availability_uri = "https://api.overdrive.com/v2/collections/#{collectionToken}/products/622708F6-78D7-453A-A7C5-3FE6853F3167/availability"
+        p availability_uri
+        response = HTTP.auth("Bearer #{token}").get(availability_uri)
+        p JSON.parse(response.body)
+
         r.redirect '/availability'
       end
 
