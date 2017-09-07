@@ -20,10 +20,11 @@ class App < Roda
 
   CACHE = ::TupleSpace.new
 
-  BOOKMOOCH_URI        = 'http://api.bookmooch.com'
-  GOODREADS_URI        = 'http://www.goodreads.com'
-  APP_URI              = 'http://localhost:9292'
-  OVERDRIVE_MAPBOX_URI = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
+  BOOKMOOCH_URI         = 'http://api.bookmooch.com'
+  GOODREADS_URI         = 'http://www.goodreads.com'
+  APP_URI               = 'http://localhost:9292'
+  OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
+  OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
 
   use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
 
@@ -177,6 +178,8 @@ class App < Roda
         libraries.first(10).each do |l|
           consortium_id = l["consortiumId"]
           consortium_name = l["consortiumName"]
+          p "consortium id #{consortium_id}"
+          p "library #{l}"
           @local_libraries << [consortium_id, consortium_name]
         end
 
