@@ -196,6 +196,7 @@ class App < Roda
       # POST /availability?zipcode=90029
       r.post do
         consortium_id = r['consortium']
+        r.redirect '/availability'
       end
 
       # GET /availability
