@@ -27,6 +27,8 @@ class App < Roda
   APP_URI               = 'http://localhost:9292'
   OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
   OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
+  OVERDRIVE_KEY         = ENV['OVERDRIVE_KEY']
+  OVERDRIVE_SECRET      = ENV['OVERDRIVE_SECRET']
 
   use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
 
