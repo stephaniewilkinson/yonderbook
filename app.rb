@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
-require 'roda'
-require 'tilt'
+require 'area'
+require "base64"
+require 'http'
 require 'nokogiri'
 require 'oauth'
-require 'http'
-require 'uri'
-require 'rollbar/middleware/rack'
-require_relative 'tuple_space'
+require 'oauth2'
 require 'pry'
-require 'area'
+require 'roda'
+require 'rollbar/middleware/rack'
+require 'tilt'
+require 'uri'
+require_relative 'tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
