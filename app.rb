@@ -167,8 +167,9 @@ class App < Roda
     r.on 'library' do
       # POST /library?zipcode=90029
       r.post do
-        latlon = r['zipcode'].to_latlon.delete ' '
         @local_libraries = []
+        CACHE["#{session[:session_id]}/libraries"] = @local_libraries
+        latlon = r['zipcode'].to_latlon.delete ' '
 
         response = HTTP.get(OVERDRIVE_MAPBOX_URI, :params => {:latLng => latlon, :radius => 50})
         libraries = JSON.parse response.body
@@ -187,7 +188,6 @@ class App < Roda
       # GET /library
       r.get do
         @local_libraries = CACHE["#{session[:session_id]}/libraries"]
-        session[:libraries] = @local_libraries
         view 'library'
       end
     end
