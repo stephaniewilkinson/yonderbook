@@ -204,8 +204,7 @@ class App < Roda
     r.on 'availability' do
       # POST /availability?zipcode=90029
       r.post do
-        p "overdrive key"
-        p OVERDRIVE_KEY
+
         # Getting auth token from overdrive
         client = OAuth2::Client.new(OVERDRIVE_KEY, OVERDRIVE_SECRET, :token_url => '/token', :site =>'https://oauth.overdrive.com')
         token_request = client.client_credentials.get_token
@@ -226,7 +225,6 @@ class App < Roda
 
         p @titles.first
 
-
         # Making the API call to Library Availability endpoint
         availability_uri = "https://api.overdrive.com/v1/collections/#{collectionToken}/products?q=#{@titles.first}"
         p availability_uri
@@ -234,7 +232,6 @@ class App < Roda
         p "response"
         res = JSON.parse(response.body)
         book_availibility_url = res["products"].first["links"].assoc("availability").last["href"]
-        binding.pry
         r.redirect '/availability'
       end
 
