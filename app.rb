@@ -12,6 +12,8 @@ require 'rollbar/middleware/rack'
 require 'tilt'
 require 'uri'
 require_relative 'tuple_space'
+require_relative 'models'
+
 
 class App < Roda
   use Rollbar::Middleware::Rack
@@ -217,14 +219,20 @@ class App < Roda
         collectionToken = res["collectionToken"] # "v1L1BDAAAAA2R"
 
         # Here's where I need to figure out what the relationship between ISBN and product ID is
+        @isbnset = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
+        @titles = @isbnset.map {|book| URI.encode(book[2])}
+
+        p @titles.first
 
 
         # Making the API call to Library Availability endpoint
-        availability_uri = "https://api.overdrive.com/v2/collections/#{collectionToken}/products/622708F6-78D7-453A-A7C5-3FE6853F3167/availability"
+        availability_uri = "https://api.overdrive.com/v1/collections/#{collectionToken}/products?q=#{@titles.first}"
         p availability_uri
         response = HTTP.auth("Bearer #{token}").get(availability_uri)
-        p JSON.parse(response.body)
-
+        p "response"
+        res = JSON.parse(response.body)
+        book_availibility_url = res["products"].first["links"].assoc("availability").last["href"]
+        binding.pry
         r.redirect '/availability'
       end
 
