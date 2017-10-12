@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dotenv/load'
 require 'area'
 require "base64"
 require 'http'
@@ -203,7 +204,8 @@ class App < Roda
     r.on 'availability' do
       # POST /availability?zipcode=90029
       r.post do
-
+        p "overdrive key"
+        p OVERDRIVE_KEY
         # Getting auth token from overdrive
         client = OAuth2::Client.new(OVERDRIVE_KEY, OVERDRIVE_SECRET, :token_url => '/token', :site =>'https://oauth.overdrive.com')
         token_request = client.client_credentials.get_token

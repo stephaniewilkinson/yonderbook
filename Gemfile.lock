@@ -9,6 +9,7 @@ GEM
     concurrent-ruby (1.0.5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.2.1)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
@@ -67,6 +68,7 @@ PLATFORMS
 
 DEPENDENCIES
   area
+  dotenv
   http
   nokogiri
   oauth
