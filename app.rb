@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dotenv/load'
 require 'area'
 require "base64"
 require 'http'
@@ -224,7 +225,6 @@ class App < Roda
 
         p @titles.first
 
-
         # Making the API call to Library Availability endpoint
         availability_uri = "https://api.overdrive.com/v1/collections/#{collectionToken}/products?q=#{@titles.first}"
         p availability_uri
@@ -232,7 +232,6 @@ class App < Roda
         p "response"
         res = JSON.parse(response.body)
         book_availibility_url = res["products"].first["links"].assoc("availability").last["href"]
-        binding.pry
         r.redirect '/availability'
       end
 

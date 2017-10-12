@@ -20,3 +20,5 @@ gem 'area'
 gem 'sequel'
 gem 'sequel_pg'
 gem 'rack-unreloader'
+
+gem 'dotenv', groups: [:development, :test]
