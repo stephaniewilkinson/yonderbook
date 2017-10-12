@@ -185,7 +185,6 @@ class App < Roda
         libraries.first(10).each do |l|
           consortium_id = l["consortiumId"]
           consortium_name = l["consortiumName"]
-          p "consortium id #{consortium_id}"
           @local_libraries << [consortium_id, consortium_name]
         end
 
@@ -205,6 +204,10 @@ class App < Roda
       # POST /availability?zipcode=90029
       r.post do
 
+        # Pulling book info from the cache
+        @isbnset = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
+        @titles = @isbnset.map {|book| URI.encode(book[2])}
+
         # Getting auth token from overdrive
         client = OAuth2::Client.new(OVERDRIVE_KEY, OVERDRIVE_SECRET, :token_url => '/token', :site =>'https://oauth.overdrive.com')
         token_request = client.client_credentials.get_token
@@ -219,19 +222,27 @@ class App < Roda
         res = JSON.parse(response.body)
         collectionToken = res["collectionToken"] # "v1L1BDAAAAA2R"
 
-        # Here's where I need to figure out what the relationship between ISBN and product ID is
-        @isbnset = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
-        @titles = @isbnset.map {|book| URI.encode(book[2])}
-
-        p @titles.first
+        # The URL that I need to provide to the user to actually click on and
+        # visit so that they can check out the book is in this format:
+        # https://lapl.overdrive.com/media/c8a88fb7-c369-454c-b113-9703b1816d57
+        # where the id is at the end of the url
+        # the only thing i need to figure out is the subdomain at the beginning, AKA 'lapl'
+        # because the book id stays the same
 
         # Making the API call to Library Availability endpoint
         availability_uri = "https://api.overdrive.com/v1/collections/#{collectionToken}/products?q=#{@titles.first}"
-        p availability_uri
         response = HTTP.auth("Bearer #{token}").get(availability_uri)
-        p "response"
         res = JSON.parse(response.body)
+        p res
         book_availibility_url = res["products"].first["links"].assoc("availability").last["href"]
+        p book_availibility_url
+
+        # Checking if the book is available
+        response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
+        res = JSON.parse(response.body)
+        copiesOwned = res["copiesOwned"]
+        copiesAvailable = res["copiesAvailable"]
+
         r.redirect '/availability'
       end
 
