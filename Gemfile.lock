@@ -58,7 +58,7 @@ GEM
     slop (3.6.0)
     sucker_punch (2.0.2)
       concurrent-ruby (~> 1.0.0)
-    tilt (2.0.7)
+    tilt (2.0.8)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.4)
