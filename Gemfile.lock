@@ -56,7 +56,7 @@ GEM
       pg (>= 0.8.0)
       sequel (>= 4.0.0)
     slop (3.6.0)
-    sucker_punch (2.0.2)
+    sucker_punch (2.0.4)
       concurrent-ruby (~> 1.0.0)
     tilt (2.0.7)
     unf (0.1.4)
