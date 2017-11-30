@@ -26,7 +26,7 @@ class App < Roda
   CACHE = ::TupleSpace.new
 
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
-  GOODREADS_URI         = 'http://www.goodreads.com'
+  GOODREADS_URI         = 'https://www.goodreads.com'
   APP_URI               = 'http://localhost:9292'
   OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
   OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
