@@ -46,7 +46,7 @@
         <p>Enter your zip code so we can find libraries near you.</p>
         <form action="library" method="post">
           <div class="input-field col s12">
-            Your zip code: <input type="text" name="zipcode">
+            Your zip code: <input type="text" pattern="[0-9]{5}" name="zipcode">
           </div>
           <button class="btn waves-effect waves-light" type="submit" name="action">Find a library
             <i class="material-icons right">send</i>
