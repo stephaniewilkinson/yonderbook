@@ -125,6 +125,7 @@ class App < Roda
         end
 
         CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
+        @invalidzip = r.params['invalidzip']
 
         view 'books'
       end
@@ -177,11 +178,12 @@ class App < Roda
       r.post do
         @local_libraries = []
         CACHE["#{session[:session_id]}/libraries"] = @local_libraries
+        zip = r['zipcode']
 
-        if r['zipcode'].to_latlon
+        if zip.to_latlon
           latlon = r['zipcode'].to_latlon.delete ' '
         else
-          view 'books'
+          r.redirect "books?invalidzip=#{zip}"
         end
 
         response = HTTP.get(OVERDRIVE_MAPBOX_URI, :params => {:latLng => latlon, :radius => 50})
