@@ -51,10 +51,10 @@ GEM
       rack
     rollbar (2.15.0)
       multi_json
-    sequel (5.0.0)
-    sequel_pg (1.7.1)
-      pg (>= 0.8.0)
-      sequel (>= 4.0.0)
+    sequel (5.2.0)
+    sequel_pg (1.8.0)
+      pg (>= 0.18.0)
+      sequel (>= 4.34.0)
     slop (3.6.0)
     sucker_punch (2.0.4)
       concurrent-ruby (~> 1.0.0)
