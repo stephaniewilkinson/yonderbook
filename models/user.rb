@@ -1,2 +1,2 @@
-class User < Sequel::Model
-end
+# class User < Sequel::Model
+# end
