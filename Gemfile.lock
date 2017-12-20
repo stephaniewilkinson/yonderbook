@@ -25,7 +25,7 @@ GEM
     jwt (1.5.6)
     method_source (0.8.2)
     mini_portile2 (2.3.0)
-    multi_json (1.12.1)
+    multi_json (1.12.2)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
     nokogiri (1.8.1)
@@ -49,7 +49,7 @@ GEM
     rake (12.0.0)
     roda (2.28.0)
       rack
-    rollbar (2.15.0)
+    rollbar (2.15.5)
       multi_json
     sequel (5.0.0)
     sequel_pg (1.7.1)
