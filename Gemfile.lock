@@ -50,7 +50,7 @@ GEM
       rack
     rollbar (2.15.5)
       multi_json
-    sequel (5.3.0)
+    sequel (5.4.0)
     sequel_pg (1.8.1)
       pg (>= 0.18.0)
       sequel (>= 4.34.0)
