@@ -3,4 +3,6 @@
 ## Installation
 
 $ git clone
-$ rackup
+
+
+$ bundle exec rackup config.ru
