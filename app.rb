@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'area'
+require 'dotenv/load'
 require "base64"
 require 'http'
 require 'nokogiri'
