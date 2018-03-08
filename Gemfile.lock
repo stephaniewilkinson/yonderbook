@@ -46,7 +46,7 @@ GEM
     rack (2.0.4)
     rack-unreloader (1.6.0)
     rake (12.3.0)
-    roda (3.3.0)
+    roda (3.5.0)
       rack
     rollbar (2.15.5)
       multi_json
