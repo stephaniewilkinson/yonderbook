@@ -61,19 +61,18 @@
 
 
 <div class="row">
-<div class="cards-container">
-
-<% @isbnset.each do |isbn| %>
-  <div class="card hoverable">
-    <div class="card-image">
-      <img src="<%= isbn[1] %>">
-    </div>
-    <div class="card-content">
-      <small><%= isbn[2] %></small>
-    </div>
+  <div class="cards-container">
+    <% @isbnset.each do |isbn| %>
+      <div class="card hoverable">
+        <div class="card-image">
+          <img src="<%= isbn[1] %>">
+        </div>
+        <div class="card-content">
+          <small><%= isbn[2] %></small>
+        </div>
+      </div>
+    <% end %>
   </div>
-<% end %>
-
 </div>
 
 <!-- Compiled and minified CSS -->
