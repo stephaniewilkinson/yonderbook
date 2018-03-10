@@ -60,7 +60,9 @@ class App < Roda
     r.on 'shelves' do
       # GET /import
       r.get do
-        unless session[:goodreads_user_id]
+        if session[:goodreads_user_id]
+          users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
+        else
           access_token = session[:request_token].get_access_token
           response = access_token.get "#{GOODREADS_URI}/api/auth_user"
           xml = Nokogiri::XML response.body
@@ -95,13 +97,13 @@ class App < Roda
 
     end
 
-    r.on 'books' do
+    r.on 'request_books' do
       # POST /books
       r.post do
 
         session[:shelf_name] = r['shelf_name'].gsub('\"', '')
 
-        r.redirect '/books'
+        r.redirect '/request_books'
       end
 
       # GET /books
@@ -131,7 +133,7 @@ class App < Roda
         CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
         @invalidzip = r.params['invalidzip']
 
-        view 'books'
+        view 'request_books'
       end
     end
 
