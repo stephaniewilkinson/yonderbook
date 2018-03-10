@@ -265,21 +265,22 @@ class App < Roda
       end
     end
 
-    # GET /about
     r.on 'about' do
+      # GET /about
       r.get do
         view 'about'
       end
     end
 
-    # GET /books
     r.on 'inventory' do
       r.on 'new' do
+        # GET /inventory/new
         r.get do
           view 'inventory/new'
         end
       end
 
+      # GET /inventory
       r.get do
         view 'inventory'
       end
