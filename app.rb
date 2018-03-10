@@ -67,7 +67,7 @@ class App < Roda
           user_id = xml.xpath('//user').first.attributes.first[1].value
           first_name = xml.xpath('//user').first.children[1].children.text
 
-          users.insert(first_name: first_name, goodreads_user_id: user_id)
+          # users.insert(first_name: first_name, goodreads_user_id: user_id)
 
           session[:goodreads_user_id] = user_id
         end
