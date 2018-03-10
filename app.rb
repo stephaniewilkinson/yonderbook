@@ -13,7 +13,7 @@ require 'tilt'
 require 'uri'
 require_relative 'tuple_space'
 require_relative 'models'
-require_relative 'db'
+# require_relative 'db'
 
 
 class App < Roda
@@ -41,7 +41,7 @@ class App < Roda
 
     session[:secret] = ENV['GOODREADS_SECRET']
     session[:api_key] = ENV['GOODREADS_API_KEY']
-    users = DB[:users]
+    # users = DB[:users]
 
     r.root do
 
