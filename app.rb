@@ -13,6 +13,7 @@ require 'tilt'
 require 'uri'
 require_relative 'tuple_space'
 require_relative 'models'
+require_relative 'db'
 
 
 class App < Roda
@@ -40,6 +41,7 @@ class App < Roda
 
     session[:secret] = ENV['GOODREADS_SECRET']
     session[:api_key] = ENV['GOODREADS_API_KEY']
+    users = DB[:users]
 
     r.root do
 
@@ -63,6 +65,9 @@ class App < Roda
           response = access_token.get "#{GOODREADS_URI}/api/auth_user"
           xml = Nokogiri::XML response.body
           user_id = xml.xpath('//user').first.attributes.first[1].value
+          first_name = xml.xpath('//user').first.children[1].children.text
+
+          users.insert(first_name: first_name, goodreads_user_id: user_id)
 
           session[:goodreads_user_id] = user_id
         end
