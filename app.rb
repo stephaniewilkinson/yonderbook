@@ -272,5 +272,12 @@ class App < Roda
       end
     end
 
+    # GET /books
+    r.on 'books' do
+      r.get do
+        view 'books'
+      end
+    end
+
   end
 end
