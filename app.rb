@@ -273,9 +273,15 @@ class App < Roda
     end
 
     # GET /books
-    r.on 'books' do
+    r.on 'inventory' do
+      r.on 'new' do
+        r.get do
+          view 'inventory/new'
+        end
+      end
+
       r.get do
-        view 'books'
+        view 'inventory'
       end
     end
 
