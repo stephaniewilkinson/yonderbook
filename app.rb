@@ -56,7 +56,7 @@ class App < Roda
       end
     end
 
-    r.on 'shelves/index' do
+    r.on 'shelves' do
       # GET /shelves/index
       r.get do
         if session[:goodreads_user_id]
@@ -97,7 +97,7 @@ class App < Roda
     end
 
     # GET /shelves/to-read
-    r.get 'shelves', String do |shelf_name|
+    r.get 'bookshelves', String do |shelf_name|
       @shelf_name = shelf_name
       params = URI.encode_www_form(shelf: @shelf_name,
                                    per_page: '20',
@@ -124,7 +124,7 @@ class App < Roda
       CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
       @invalidzip = r.params['invalidzip']
 
-      view 'shelves/show'
+      view 'bookshelves'
     end
 
     r.on 'bookmooch' do
