@@ -22,15 +22,16 @@ class App < Roda
   compile_assets
 
   CACHE                 = ::TupleSpace.new
-  APP_URI               = 'http://localhost:9292'
+
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
   GOODREADS_URI         = 'https://www.goodreads.com'
   OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
   OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
-  OVERDRIVE_KEY         = ENV.fetch 'OVERDRIVE_KEY'
-  OVERDRIVE_SECRET      = ENV.fetch 'OVERDRIVE_SECRET'
+
   GOODREADS_API_KEY     = ENV.fetch 'GOODREADS_API_KEY'
   GOODREADS_SECRET      = ENV.fetch 'GOODREADS_SECRET'
+  OVERDRIVE_KEY         = ENV.fetch 'OVERDRIVE_KEY'
+  OVERDRIVE_SECRET      = ENV.fetch 'OVERDRIVE_SECRET'
 
   use Rack::Session::Cookie, secret: GOODREADS_SECRET, api_key: GOODREADS_API_KEY
 
@@ -43,7 +44,7 @@ class App < Roda
 
     r.root do
       consumer = OAuth::Consumer.new GOODREADS_API_KEY, GOODREADS_SECRET, site: GOODREADS_URI
-      request_token = consumer.get_request_token oauth_callback: "#{APP_URI}/import"
+      request_token = consumer.get_request_token
 
       session[:request_token] = request_token
       @auth_url = request_token.authorize_url
