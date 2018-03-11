@@ -99,7 +99,7 @@ class App < Roda
     end
 
     r.on 'request_books' do
-      # POST /books
+      # POST /request_books
       r.post do
 
         session[:shelf_name] = r['shelf_name'].gsub('\"', '')
@@ -214,7 +214,7 @@ class App < Roda
     end
 
     r.on 'availability' do
-      # POST /availability?zipcode=90029
+      # POST /availability?consortium=1047
       r.post do
 
         # Pulling book info from the cache
