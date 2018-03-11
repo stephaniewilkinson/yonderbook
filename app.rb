@@ -281,6 +281,14 @@ class App < Roda
         end
       end
 
+      r.on 'create' do
+        # POST /inventory/create
+        r.post do
+          # isbn = ZBar::Image.from_jpeg(File.binread('isbn.jpg')).process.first.data
+          r.redirect '/inventory'
+        end
+      end
+
       # GET /inventory
       r.get do
         view 'inventory'
