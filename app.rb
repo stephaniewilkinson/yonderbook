@@ -56,8 +56,8 @@ class App < Roda
       end
     end
 
-    r.on 'shelves' do
-      # GET /shelves
+    r.on 'shelves/index' do
+      # GET /shelves/index
       r.get do
         if session[:goodreads_user_id]
           users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
@@ -88,7 +88,7 @@ class App < Roda
         end
 
         @shelves = @shelf_names.zip(@shelf_books)
-        view 'shelves'
+        view 'shelves/index'
       end
 
       error do |e|
@@ -96,16 +96,16 @@ class App < Roda
 
     end
 
-    r.on 'request_books' do
-      # POST /request_books?shelf_name="to-read"
+    r.on 'shelves/show' do
+      # POST /shelves/show?shelf_name="to-read"
       r.post do
 
         session[:shelf_name] = r['shelf_name'].gsub('\"', '')
 
-        r.redirect '/request_books'
+        r.redirect '/shelves/show'
       end
 
-      # GET /request_books
+      # GET /shelves/show
       r.get do
         params = URI.encode_www_form(shelf: session[:shelf_name],
                                      per_page: '20',
@@ -132,7 +132,7 @@ class App < Roda
         CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
         @invalidzip = r.params['invalidzip']
 
-        view 'request_books'
+        view 'shelves/show'
       end
     end
 
