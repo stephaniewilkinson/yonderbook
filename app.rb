@@ -96,44 +96,35 @@ class App < Roda
 
     end
 
-    r.on 'shelves/show' do
-      # POST /shelves/show?shelf_name="to-read"
-      r.post do
+    # GET /shelves/to-read
+    r.get 'shelves', String do |shelf_name|
+      @shelf_name = shelf_name
+      params = URI.encode_www_form(shelf: @shelf_name,
+                                   per_page: '20',
+                                   key: session[:api_key])
+      path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
 
-        session[:shelf_name] = r['shelf_name'].gsub('\"', '')
+      HTTP.persistent GOODREADS_URI do |http|
+        doc = Nokogiri::XML http.get(path).body
 
-        r.redirect '/shelves/show'
-      end
+        puts 'Counting pages...'
+        @number_of_pages = doc.xpath('//books').first['numpages'].to_i
+        puts "Found #{@number_of_pages} pages..."
 
-      # GET /shelves/show
-      r.get do
-        params = URI.encode_www_form(shelf: session[:shelf_name],
-                                     per_page: '20',
-                                     key: session[:api_key])
-        path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
-
-        HTTP.persistent GOODREADS_URI do |http|
-          doc = Nokogiri::XML http.get(path).body
-
-          puts 'Counting pages...'
-          @number_of_pages = doc.xpath('//books').first['numpages'].to_i
-          puts "Found #{@number_of_pages} pages..."
-
-          @isbnset = 1.upto(@number_of_pages).flat_map do |page|
-            "Fetching page #{page}..."
-            doc = Nokogiri::XML http.get("#{path}&page=#{page}").body
-            isbns = doc.xpath('//isbn').children.map &:text
-            image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v /\A\n\z/
-            titles = doc.xpath('//title').children.map &:text
-            isbns.zip(image_urls, titles)
-          end
+        @isbnset = 1.upto(@number_of_pages).flat_map do |page|
+          "Fetching page #{page}..."
+          doc = Nokogiri::XML http.get("#{path}&page=#{page}").body
+          isbns = doc.xpath('//isbn').children.map &:text
+          image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v /\A\n\z/
+          titles = doc.xpath('//title').children.map &:text
+          isbns.zip(image_urls, titles)
         end
-
-        CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
-        @invalidzip = r.params['invalidzip']
-
-        view 'shelves/show'
       end
+
+      CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
+      @invalidzip = r.params['invalidzip']
+
+      view 'shelves/show'
     end
 
     r.on 'bookmooch' do

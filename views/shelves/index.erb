@@ -14,14 +14,11 @@
       <tr>
         <td><%= shelf[0] %></td>
         <td><%= shelf[1] %></td>
-        <form action="/shelves/show" method="post">
-          <input type="hidden" name="shelf_name" value=\"<%= shelf[0] %>\" >
-          <td>
-            <button class="btn waves-effect waves-light green" type="submit" name="action">Choose this shelf
-              <i class="material-icons right">send</i>
-            </button>
-          </td>
-        </form>
+        <td>
+          <a href="/shelves/<%= shelf[0] %>" class="btn waves-effect waves-light green">Choose this shelf
+            <i class="material-icons right">send</i>
+          </a>
+        </td>
       </tr>
     <% end %>
 
