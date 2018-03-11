@@ -40,6 +40,7 @@ class App < Roda
     session[:secret] = ENV.fetch 'GOODREADS_SECRET'
     session[:api_key] = ENV.fetch 'GOODREADS_API_KEY'
     users = DB[:users]
+    books = DB[:books]
 
     r.root do
 
@@ -273,16 +274,25 @@ class App < Roda
       r.on 'new' do
         # GET /inventory/new
         r.get do
-          # isbn = ZBar::Image.from_jpeg(File.binread('isbn.jpg')).process.first.data
           view 'inventory/new'
         end
       end
 
       r.on 'create' do
-        # POST /inventory/create
+        # POST /inventory/create?barcode_image="isbn.jpg"
         r.post do
-          # isbn = ZBar::Image.from_jpeg(File.binread('isbn.jpg')).process.first.data
-          r.redirect '/inventory'
+          image = r[:barcode_image][:tempfile]
+
+          isbns = ZBar::Image.from_jpeg(image).process
+          if isbns.any?
+            isbn = isbns.first.data
+            user = users.first(goodreads_user_id: session[:goodreads_user_id])
+
+            books.insert(isbn: isbn, user_id: user[:id])
+            r.redirect '/inventory'
+          else
+            r.redirect '/inventory/new'
+          end
         end
       end
 
