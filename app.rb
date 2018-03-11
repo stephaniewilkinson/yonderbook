@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'area'
-require "base64"
+require 'base64'
 require 'http'
 require 'nokogiri'
 require 'oauth'
@@ -11,9 +11,10 @@ require 'roda'
 require 'rollbar/middleware/rack'
 require 'tilt'
 require 'uri'
-require_relative 'tuple_space'
-require_relative 'models'
+require 'zbar'
 require_relative 'db'
+require_relative 'models'
+require_relative 'tuple_space'
 
 
 class App < Roda
@@ -276,6 +277,7 @@ class App < Roda
       r.on 'new' do
         # GET /inventory/new
         r.get do
+          # isbn = ZBar::Image.from_jpeg(File.binread('isbn.jpg')).process.first.data
           view 'inventory/new'
         end
       end
