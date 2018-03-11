@@ -298,6 +298,8 @@ class App < Roda
 
       # GET /inventory
       r.get do
+        user = users.first(goodreads_user_id: session[:goodreads_user_id])
+        @books = books.where(user_id: user[:id])
         view 'inventory'
       end
     end
