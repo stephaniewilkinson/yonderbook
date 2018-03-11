@@ -13,6 +13,7 @@ GEM
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
+    ffi (1.9.23)
     http (3.0.0)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -60,6 +61,8 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.4)
+    zbar (0.3.0)
+      ffi (~> 1.0)
 
 PLATFORMS
   ruby
@@ -82,6 +85,7 @@ DEPENDENCIES
   sequel_pg
   sucker_punch
   tilt
+  zbar
 
 RUBY VERSION
    ruby 2.5.0p0
