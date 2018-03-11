@@ -254,45 +254,39 @@ class App < Roda
       end
     end
 
+    r.on 'inventory' do
+
+      # GET /inventory/new
+      r.get 'new' do
+        view 'inventory/new'
+      end
+
+      # POST /inventory/create?barcode_image="isbn.jpg"
+      r.post 'create' do
+        image = r[:barcode_image][:tempfile]
+        isbns = ZBar::Image.from_jpeg(image).process
+        if isbns.any?
+          isbn = isbns.first.data
+          user = users.first(goodreads_user_id: session[:goodreads_user_id])
+          books.insert(isbn: isbn, user_id: user[:id])
+          r.redirect '/inventory/index'
+        else
+          r.redirect '/inventory/new'
+        end
+      end
+
+      # GET /inventory/index
+      r.get 'index' do
+        @books = books
+        view 'inventory/index'
+      end
+    # end of /inventory
+    end
+
     r.on 'about' do
       # GET /about
       r.get do
         view 'about'
-      end
-    end
-
-    r.on 'inventory' do
-      r.on 'new' do
-        # GET /inventory/new
-        r.get do
-          view 'inventory/new'
-        end
-      end
-
-      r.on 'create' do
-        # POST /inventory/create?barcode_image="isbn.jpg"
-        r.post do
-          image = r[:barcode_image][:tempfile]
-
-          isbns = ZBar::Image.from_jpeg(image).process
-          if isbns.any?
-            isbn = isbns.first.data
-            user = users.first(goodreads_user_id: session[:goodreads_user_id])
-
-            books.insert(isbn: isbn, user_id: user[:id])
-            r.redirect '/inventory'
-          else
-            r.redirect '/inventory/new'
-          end
-        end
-      end
-
-      r.on 'index' do
-        # GET /inventory/index
-        r.get do
-          @books = books
-          view 'inventory/index'
-        end
       end
     end
 
