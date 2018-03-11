@@ -280,8 +280,7 @@ class App < Roda
         @books = books
         view 'inventory/index'
       end
-    # end of /inventory
-    end
+    end # end of /inventory
 
     r.on 'about' do
       # GET /about
@@ -290,5 +289,5 @@ class App < Roda
       end
     end
 
-  end
+  end # end of routing
 end
