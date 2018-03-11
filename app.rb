@@ -19,19 +19,19 @@ require_relative 'tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
-  plugin :render
   plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
+  plugin :render
   compile_assets
 
   CACHE = ::TupleSpace.new
 
+  APP_URI               = 'http://localhost:9292'
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
   GOODREADS_URI         = 'https://www.goodreads.com'
-  APP_URI               = 'http://localhost:9292'
-  OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
-  OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
   OVERDRIVE_KEY         = ENV['OVERDRIVE_KEY']
+  OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
+  OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
   OVERDRIVE_SECRET      = ENV['OVERDRIVE_SECRET']
 
   use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
@@ -205,7 +205,6 @@ class App < Roda
         CACHE["#{session[:session_id]}/libraries"] = @local_libraries
         r.redirect '/library'
       end
-
 
       # GET /library
       r.get do
