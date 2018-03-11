@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'area'
-require 'base64'
 require 'http'
 require 'nokogiri'
 require 'oauth'
@@ -15,7 +13,6 @@ require 'zbar'
 require_relative 'db'
 require_relative 'models'
 require_relative 'tuple_space'
-
 
 class App < Roda
   use Rollbar::Middleware::Rack

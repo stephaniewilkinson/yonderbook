@@ -1,4 +1,4 @@
-require_relative "../db.rb"
+require_relative "../db"
 
 DB.create_table(:books) do
   primary_key :id
