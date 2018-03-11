@@ -21,30 +21,28 @@ class App < Roda
   plugin :render
   compile_assets
 
-  CACHE = ::TupleSpace.new
-
+  CACHE                 = ::TupleSpace.new
   APP_URI               = 'http://localhost:9292'
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
   GOODREADS_URI         = 'https://www.goodreads.com'
-  OVERDRIVE_KEY         = ENV.fetch 'OVERDRIVE_KEY'
   OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
   OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
+  OVERDRIVE_KEY         = ENV.fetch 'OVERDRIVE_KEY'
   OVERDRIVE_SECRET      = ENV.fetch 'OVERDRIVE_SECRET'
+  GOODREADS_API_KEY     = ENV.fetch 'GOODREADS_API_KEY'
+  GOODREADS_SECRET      = ENV.fetch 'GOODREADS_SECRET'
 
-  use Rack::Session::Cookie, secret: ENV.fetch('GOODREADS_SECRET'), api_key: ENV.fetch('GOODREADS_API_KEY')
+  use Rack::Session::Cookie, secret: GOODREADS_SECRET, api_key: GOODREADS_API_KEY
 
   route do |r|
     r.public
     r.assets
 
-    session[:api_key] = ENV.fetch 'GOODREADS_API_KEY'
-    session[:secret] = ENV.fetch 'GOODREADS_SECRET'
     books = DB[:books]
     users = DB[:users]
 
     r.root do
-
-      consumer = OAuth::Consumer.new session[:api_key], session[:secret], site: GOODREADS_URI
+      consumer = OAuth::Consumer.new GOODREADS_API_KEY, GOODREADS_SECRET, site: GOODREADS_URI
       request_token = consumer.get_request_token oauth_callback: "#{APP_URI}/import"
 
       session[:request_token] = request_token
@@ -57,7 +55,7 @@ class App < Roda
     end
 
     r.on 'shelves' do
-      # GET /shelves/index
+      # GET /shelves
       r.get do
         if session[:goodreads_user_id]
           users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
@@ -74,7 +72,7 @@ class App < Roda
         end
 
         params = URI.encode_www_form(user_id: session[:goodreads_user_id],
-                                     key: session[:api_key])
+                                     key: GOODREADS_API_KEY)
 
         path = "/shelf/list.xml?#{params}}"
 
@@ -90,18 +88,16 @@ class App < Roda
         @shelves = @shelf_names.zip(@shelf_books)
         view 'shelves/index'
       end
-
-      error do |e|
-      end
-
     end
 
     # GET /shelves/to-read
     r.get 'bookshelves', String do |shelf_name|
       @shelf_name = shelf_name
-      params = URI.encode_www_form(shelf: @shelf_name,
-                                   per_page: '20',
-                                   key: session[:api_key])
+      params = URI.encode_www_form(
+        shelf: @shelf_name,
+        per_page: '20',
+        key: GOODREADS_API_KEY
+      )
       path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
 
       HTTP.persistent GOODREADS_URI do |http|

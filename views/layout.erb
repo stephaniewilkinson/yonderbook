@@ -25,7 +25,7 @@
           <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href="/about"><i class="material-icons left">info_outline</i>About</a></li>
             <% if session.key? :goodreads_user_id %>
-              <li><a href="/shelves/index"><i class="material-icons left">library_books</i>Shelves</a></li>
+              <li><a href="/shelves"><i class="material-icons left">library_books</i>Shelves</a></li>
             <% end %>
             <% if CACHE["#{session[:session_id]}/libraries"] %>
               <li><a href="/library"><i class="material-icons left">local_library</i>Libraries</a></li>
