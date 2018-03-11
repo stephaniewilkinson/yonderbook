@@ -37,10 +37,10 @@ class App < Roda
     r.public
     r.assets
 
-    session[:secret] = ENV.fetch 'GOODREADS_SECRET'
     session[:api_key] = ENV.fetch 'GOODREADS_API_KEY'
-    users = DB[:users]
+    session[:secret] = ENV.fetch 'GOODREADS_SECRET'
     books = DB[:books]
+    users = DB[:users]
 
     r.root do
 
@@ -52,7 +52,7 @@ class App < Roda
 
       # GET /
       r.get do
-        view 'welcome' # renders views/foo.erb inside views/layout.erb
+        view 'welcome' # renders views/welcome.erb inside views/layout.erb
       end
     end
 
