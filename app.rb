@@ -26,19 +26,19 @@ class App < Roda
   APP_URI               = 'http://localhost:9292'
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
   GOODREADS_URI         = 'https://www.goodreads.com'
-  OVERDRIVE_KEY         = ENV['OVERDRIVE_KEY']
+  OVERDRIVE_KEY         = ENV.fetch 'OVERDRIVE_KEY'
   OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
   OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
-  OVERDRIVE_SECRET      = ENV['OVERDRIVE_SECRET']
+  OVERDRIVE_SECRET      = ENV.fetch 'OVERDRIVE_SECRET'
 
-  use Rack::Session::Cookie, secret: ENV['GOODREADS_SECRET'], api_key: ENV['GOODREADS_API_KEY']
+  use Rack::Session::Cookie, secret: ENV.fetch('GOODREADS_SECRET'), api_key: ENV.fetch('GOODREADS_API_KEY')
 
   route do |r|
     r.public
     r.assets
 
-    session[:secret] = ENV['GOODREADS_SECRET']
-    session[:api_key] = ENV['GOODREADS_API_KEY']
+    session[:secret] = ENV.fetch 'GOODREADS_SECRET'
+    session[:api_key] = ENV.fetch 'GOODREADS_API_KEY'
     users = DB[:users]
 
     r.root do
@@ -96,7 +96,7 @@ class App < Roda
     end
 
     r.on 'request_books' do
-      # POST /request_books
+      # POST /request_books?shelf_name="to-read"
       r.post do
 
         session[:shelf_name] = r['shelf_name'].gsub('\"', '')
