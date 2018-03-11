@@ -57,7 +57,7 @@ class App < Roda
     end
 
     r.on 'shelves' do
-      # GET /import
+      # GET /shelves
       r.get do
         if session[:goodreads_user_id]
           users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
@@ -105,7 +105,7 @@ class App < Roda
         r.redirect '/request_books'
       end
 
-      # GET /books
+      # GET /request_books
       r.get do
         params = URI.encode_www_form(shelf: session[:shelf_name],
                                      per_page: '20',
@@ -296,11 +296,12 @@ class App < Roda
         end
       end
 
-      # GET /inventory
-      r.get do
-        user = users.first(goodreads_user_id: session[:goodreads_user_id])
-        @books = books.where(user_id: user[:id])
-        view 'inventory'
+      r.on 'index' do
+        # GET /inventory/index
+        r.get do
+          @books = books
+          view 'inventory/index'
+        end
       end
     end
 
