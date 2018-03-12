@@ -23,5 +23,4 @@ group :development, :test do
   gem 'dotenv'
   gem 'pry'
   gem 'rack-unreloader'
-  gem 'rubocop'
 end
