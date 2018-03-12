@@ -8,7 +8,7 @@ if dev
   require 'pry'
   require 'rack/unreloader'
   logger = Logger.new $stdout
-  Unreloader = Rack::Unreloader.new(subclasses: %w'Roda Sequel::Model', logger: logger, reload: dev) { App }
+  Unreloader = Rack::Unreloader.new(subclasses: %w[Roda Sequel::Model], logger: logger, reload: dev) { App }
   Unreloader.require('app.rb') { 'App' }
 end
 

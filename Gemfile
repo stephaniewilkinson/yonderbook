@@ -14,8 +14,8 @@ gem 'rack'
 gem 'rake'
 gem 'roda'
 gem 'rollbar'
-gem 'sequel_pg'
 gem 'sequel'
+gem 'sequel_pg'
 gem 'tilt'
 gem 'zbar'
 
@@ -23,4 +23,5 @@ group :development, :test do
   gem 'dotenv'
   gem 'pry'
   gem 'rack-unreloader'
+  gem 'rubocop'
 end

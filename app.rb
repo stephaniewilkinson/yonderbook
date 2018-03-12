@@ -140,7 +140,7 @@ class App < Roda
         isbns_and_image_urls = cache_get :isbns_and_image_urls
 
         unless r['username'] == 'susanb'
-          auth = {user: r['username'], pass: r['password']}
+          auth = { user: r['username'], pass: r['password'] }
         end
         @books_added = []
         @books_failed = []
