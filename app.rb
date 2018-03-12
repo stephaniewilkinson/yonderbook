@@ -287,5 +287,12 @@ class App < Roda
         view 'about'
       end
     end
+
+    r.on 'users' do
+      # route: GET /users/index
+      r.get 'index' do
+        view 'users/index'
+      end
+    end
   end # end of routing
 end

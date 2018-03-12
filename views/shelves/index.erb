@@ -1,29 +1,22 @@
-<p>Here are your Goodreads Bookshelves:</p>
+<h4>Your Goodreads Bookshelves</h4>
+<br>
 
-<table class="striped">
-  <thead>
-    <tr>
-        <th>Shelf Name</th>
-        <th>Number of Books on Shelf</th>
-        <th>See if you can acquire these books</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% if @shelves %>
+<% if @shelves %>
+  <div class="row">
     <% @shelves.each do |shelf| %>
-      <tr>
-        <td><%= shelf[0] %></td>
-        <td><%= shelf[1] %></td>
-        <td>
-          <a href="/bookshelves/<%= shelf[0] %>" class="btn waves-effect waves-light green">Choose this shelf
-            <i class="material-icons right">send</i>
-          </a>
-        </td>
-      </tr>
+      <div class="col s6 m4">
+        <a href="/bookshelves/<%= shelf[0] %>">
+          <div class="card blue-grey">
+            <span class="card-title white-text"><%= shelf[0] %></span>
+            <div class="card-action white-text">
+              <i class="material-icons green-text right">send</i>
+              <p>See which of the <%= shelf[1] %> books on this shelf are available to request.</p>
+            </div>
+          </div>
+        </a>
+      </div>
     <% end %>
-
-  </tbody>
-</table>
+  </div>
 <% else %>
-<p>No Shelves found. You may have waited too long, the Goodreads authentication token is only good for 30 seconds. Make sure you are using a modern browser, like Firefox, Safari, or Chrome and have the latest version.</p>
+  <p>No Shelves found. You may have waited too long, the Goodreads authentication token is only good for 30 seconds. Make sure you are using a modern browser, like Firefox, Safari, or Chrome and have the latest version.</p>
 <% end %>
