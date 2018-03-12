@@ -19,6 +19,7 @@ class App < Roda
   use Rollbar::Middleware::Rack
   plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
+  plugin :flash
   plugin :render
   compile_assets
 
@@ -99,6 +100,7 @@ class App < Roda
     # route: GET /shelves/to-read
     r.get 'bookshelves', String do |shelf_name|
       @shelf_name = shelf_name
+      cache_set shelf_name: @shelf_name
       params = URI.encode_www_form(
         shelf: @shelf_name,
         per_page: '20',
@@ -165,7 +167,8 @@ class App < Roda
         if zip.to_latlon
           latlon = r['zipcode'].to_latlon.delete ' '
         else
-          r.redirect "books?invalidzip=#{zip}"
+          flash[:error] = true
+          r.redirect "bookshelves/#{cache_get :shelf_name}"
         end
 
         response = HTTP.get OVERDRIVE_MAPBOX_URI, params: {latLng: latlon, radius: 50}
