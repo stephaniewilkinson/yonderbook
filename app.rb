@@ -24,8 +24,8 @@ class App < Roda
 
   CACHE                 = ::TupleSpace.new
 
+  GOODREADS_URI         =  Goodreads::URI
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
-  GOODREADS_URI         = 'https://www.goodreads.com'
   OVERDRIVE_API_URI     = 'https://api.overdrive.com/v1'
   OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
   OVERDRIVE_OAUTH_URI   = 'https://oauth.overdrive.com'
@@ -113,21 +113,7 @@ class App < Roda
       )
       path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
 
-      HTTP.persistent GOODREADS_URI do |http|
-        doc = Nokogiri::XML http.get(path).body
-
-        @number_of_pages = doc.xpath('//books').first['numpages'].to_i
-
-        @isbnset = 1.upto(@number_of_pages).flat_map do |page|
-          "Fetching page #{page}..."
-          doc = Nokogiri::XML http.get("#{path}&page=#{page}").body
-          isbns = doc.xpath('//isbn').children.map &:text
-          image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v /\A\n\z/
-          titles = doc.xpath('//title').children.map &:text
-          isbns.zip(image_urls, titles)
-        end
-      end
-
+      @isbnset = Goodreads.get_books(path)
       cache_set isbns_and_image_urls: @isbnset
       @invalidzip = r.params['invalidzip']
 
