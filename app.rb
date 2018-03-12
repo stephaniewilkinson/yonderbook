@@ -50,14 +50,14 @@ class App < Roda
       session[:request_token] = request_token
       @auth_url = request_token.authorize_url
 
-      # GET /
+      # route: GET /
       r.get do
         view 'welcome' # renders views/welcome.erb inside views/layout.erb
       end
     end
 
     r.on 'shelves' do
-      # GET /shelves
+      # route: GET /shelves
       r.get do
         if session[:goodreads_user_id]
           users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
@@ -92,7 +92,7 @@ class App < Roda
       end
     end
 
-    # GET /shelves/to-read
+    # route: GET /shelves/to-read
     r.get 'bookshelves', String do |shelf_name|
       @shelf_name = shelf_name
       params = URI.encode_www_form(
@@ -124,7 +124,7 @@ class App < Roda
     end
 
     r.on 'bookmooch' do
-      # POST /bookmooch?username=foo&password=baz
+      # route: POST /bookmooch?username=foo&password=baz
       r.post do
         isbns_and_image_urls = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
         unless r['username'] == 'susanb'
@@ -156,7 +156,7 @@ class App < Roda
         r.redirect '/bookmooch'
       end
 
-      # GET /bookmooch
+      # route: GET /bookmooch
       r.get do
         @books_added = CACHE["#{session[:session_id]}/books_added"]
         @books_failed = CACHE["#{session[:session_id]}/books_failed"]
@@ -165,7 +165,7 @@ class App < Roda
     end
 
     r.on 'library' do
-      # POST /library?zipcode=90029
+      # route: POST /library?zipcode=90029
       r.post do
         @local_libraries = []
         CACHE["#{session[:session_id]}/libraries"] = @local_libraries
@@ -177,7 +177,7 @@ class App < Roda
           r.redirect "books?invalidzip=#{zip}"
         end
 
-        response = HTTP.get(OVERDRIVE_MAPBOX_URI, :params => {:latLng => latlon, :radius => 50})
+        response = HTTP.get OVERDRIVE_MAPBOX_URI, params: {latLng: latlon, radius: 50}
         libraries = JSON.parse response.body
 
         libraries.first(10).each do |l|
@@ -190,21 +190,23 @@ class App < Roda
         r.redirect '/library'
       end
 
-      # GET /library
+      # route: GET /library
       r.get do
         @local_libraries = CACHE["#{session[:session_id]}/libraries"]
         view 'library'
       end
     end
 
+    ##
+    # FEATURE IN PROGRESS \o/
     r.on 'availability' do
-      # POST /availability?consortium=1047
+      # route: POST /availability?consortium=1047
       r.post do
         # Pulling book info from the cache
         @isbnset = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
         @titles = @isbnset.map { |book| URI.encode(book[2]) }
 
-        # Getting auth token from overdrive
+        # Fetching auth token from overdrive
         client = OAuth2::Client.new(OVERDRIVE_KEY, OVERDRIVE_SECRET, token_url: '/token', site: OVERDRIVE_OAUTH_URI)
         token_request = client.client_credentials.get_token
         token = token_request.token
@@ -212,7 +214,7 @@ class App < Roda
         # Four digit library id from user submitted form
         consortium_id = r['consortium'].delete('\"') # 1047
 
-        # Getting the library-specific endpoint
+        # Fetching the library-specific endpoint
         library_uri = "#{OVERDRIVE_API_URI}/libraries/#{consortium_id}"
         response = HTTP.auth("Bearer #{token}").get(library_uri)
         res = JSON.parse(response.body)
@@ -240,34 +242,35 @@ class App < Roda
         r.redirect '/availability'
       end
 
-      # GET /availability
+      # route: GET /availability
       r.get do
         view 'availability'
       end
     end
 
     r.on 'inventory' do
-
-      # GET /inventory/new
+      # route: GET /inventory/new
       r.get 'new' do
         view 'inventory/new'
       end
 
-      # POST /inventory/create?barcode_image="isbn.jpg"
+      # route: POST /inventory/create?barcode_image="isbn.jpg"
       r.post 'create' do
         image = r[:barcode_image][:tempfile]
         isbns = ZBar::Image.from_jpeg(image).process
+
         if isbns.any?
           isbn = isbns.first.data
           user = users.first(goodreads_user_id: session[:goodreads_user_id])
           books.insert(isbn: isbn, user_id: user[:id])
           r.redirect '/inventory/index'
         else
+          # TODO: add error message 'unable to read barcode'
           r.redirect '/inventory/new'
         end
       end
 
-      # GET /inventory/index
+      # route: GET /inventory/index
       r.get 'index' do
         @books = books
         view 'inventory/index'
@@ -275,7 +278,7 @@ class App < Roda
     end # end of /inventory
 
     r.on 'about' do
-      # GET /about
+      # route: GET /about
       r.get do
         view 'about'
       end
