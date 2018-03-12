@@ -37,6 +37,16 @@ class App < Roda
 
   use Rack::Session::Cookie, secret: GOODREADS_SECRET, api_key: GOODREADS_API_KEY
 
+  def cache_set **pairs
+    pairs.each do |k, v|
+      CACHE["#{session[:session_id]}/#{k}"] = v
+    end
+  end
+
+  def cache_get key
+    CACHE["#{session[:session_id]}/#{key}"]
+  end
+
   route do |r|
     r.public
     r.assets
@@ -49,7 +59,7 @@ class App < Roda
       request_token = consumer.get_request_token
       @auth_url = request_token.authorize_url
 
-      CACHE["#{session[:session_id]}/request_token"] = request_token
+      cache_set request_token: request_token
 
       # route: GET /
       r.get do
@@ -63,7 +73,7 @@ class App < Roda
         if session[:goodreads_user_id]
           @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
         else
-          access_token = CACHE["#{session[:session_id]}/request_token"].get_access_token
+          access_token = cache_get(:request_token).get_access_token
           response = access_token.get "#{GOODREADS_URI}/api/auth_user"
           xml = Nokogiri::XML response.body
           user_id = xml.xpath('//user').first.attributes.first[1].value
@@ -118,7 +128,7 @@ class App < Roda
         end
       end
 
-      CACHE["#{session[:session_id]}/isbns_and_image_urls"] = @isbnset
+      cache_set isbns_and_image_urls: @isbnset
       @invalidzip = r.params['invalidzip']
 
       view 'bookshelves'
@@ -127,7 +137,8 @@ class App < Roda
     r.on 'bookmooch' do
       # route: POST /bookmooch?username=foo&password=baz
       r.post do
-        isbns_and_image_urls = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
+        isbns_and_image_urls = cache_get :isbns_and_image_urls
+
         unless r['username'] == 'susanb'
           auth = {user: r['username'], pass: r['password']}
         end
@@ -152,15 +163,17 @@ class App < Roda
           end
         end
 
-        CACHE["#{session[:session_id]}/books_added"] = @books_added
-        CACHE["#{session[:session_id]}/books_failed"] = @books_failed
+        cache_set books_added: @books_added
+        cache_set books_failed: @books_failed
+
         r.redirect '/bookmooch'
       end
 
       # route: GET /bookmooch
       r.get do
-        @books_added = CACHE["#{session[:session_id]}/books_added"]
-        @books_failed = CACHE["#{session[:session_id]}/books_failed"]
+        @books_added = cache_get :books_added
+        @books_failed = cache_get :books_failed
+
         view 'bookmooch'
       end
     end
@@ -186,13 +199,13 @@ class App < Roda
           [consortium_id, consortium_name]
         end
 
-        CACHE["#{session[:session_id]}/libraries"] = @local_libraries
+        cache_set libraries: @local_libraries
         r.redirect '/library'
       end
 
       # route: GET /library
       r.get do
-        @local_libraries = CACHE["#{session[:session_id]}/libraries"]
+        @local_libraries = cache_get :libraries
         view 'library'
       end
     end
@@ -203,7 +216,8 @@ class App < Roda
       # route: POST /availability?consortium=1047
       r.post do
         # Pulling book info from the cache
-        @isbnset = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
+        @isbnset = cache_get :isbns_and_image_urls
+
         @titles = @isbnset.map { |book| URI.encode(book[2]) }
 
         # Fetching auth token from overdrive
