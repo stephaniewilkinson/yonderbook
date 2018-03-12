@@ -250,12 +250,20 @@ class App < Roda
       # route: POST /inventory/create?barcode_image="isbn.jpg"
       r.post 'create' do
         image = r[:barcode_image][:tempfile]
-        isbns = ZBar::Image.from_jpeg(image).process
+        barcodes = ZBar::Image.from_jpeg(image).process
 
-        if isbns.any?
+        if barcodes.any?
           user = @users.first goodreads_user_id: session[:goodreads_user_id]
-          isbns.each do |isbn|
-            @books.insert isbn: isbn.data, user_id: user[:id]
+          barcodes.each do |barcode|
+            isbn = barcode.data
+
+            status, book = Goodreads.fetch_book_data isbn
+
+            if status == :ok
+              @books.insert isbn: isbn, user_id: user[:id], cover_image_url: book.image_url, title: book.title
+            else
+              raise "#{status}: #{book}"
+            end
           end
           r.redirect '/inventory/index'
         else

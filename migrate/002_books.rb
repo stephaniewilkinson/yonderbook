@@ -9,5 +9,4 @@ DB.create_table(:books) do
   String :isbn, null: false
   String :title
   String :cover_image_url
-  String :barcode_image_url
 end

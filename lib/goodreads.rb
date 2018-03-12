@@ -3,6 +3,8 @@
 require 'nokogiri'
 
 module Goodreads
+  Book = Struct.new :title, :image_url, :isbn, keyword_init: true
+
   URI = 'https://www.goodreads.com'
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   SECRET  = ENV.fetch 'GOODREADS_SECRET'
@@ -33,5 +35,20 @@ module Goodreads
     first_name = xml.xpath('//user').first.children[1].children.text
 
     [user_id, first_name]
+  end
+
+  def fetch_book_data isbn
+    response = HTTP.get "#{URI}/book/isbn/#{isbn}", params: {key: API_KEY}
+    case response.code
+    when 200
+      doc = Nokogiri::XML(response.body)
+      title = Nokogiri::XML(response.body).xpath('//title').text
+      image_url = Nokogiri::XML(response.body).xpath('//image_url').first.text
+
+      book = Book.new title: title, image_url: image_url, isbn: isbn
+      [:ok, book]
+    else
+      [:error, response.code]
+    end
   end
 end
