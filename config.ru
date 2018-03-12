@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rollbar'
+require_relative 'app'
 require_relative 'lib/models'
 
 Rollbar.configure do |config|
