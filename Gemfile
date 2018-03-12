@@ -9,9 +9,7 @@ gem 'http'
 gem 'nokogiri'
 gem 'oauth'
 gem 'oauth2'
-gem 'pry'
 gem 'puma'
-gem 'rack-unreloader'
 gem 'rack'
 gem 'rake'
 gem 'roda'
@@ -21,4 +19,8 @@ gem 'sequel'
 gem 'tilt'
 gem 'zbar'
 
-gem 'dotenv', groups: [:development, :test]
+group :development, :test do
+  gem 'dotenv'
+  gem 'pry'
+  gem 'rack-unreloader'
+end

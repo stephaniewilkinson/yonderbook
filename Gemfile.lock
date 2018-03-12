@@ -6,7 +6,6 @@ GEM
     area (0.10.0)
       fastercsv (~> 1.5)
     coderay (1.1.2)
-    concurrent-ruby (1.0.5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     dotenv (2.2.1)
@@ -55,8 +54,6 @@ GEM
     sequel_pg (1.8.1)
       pg (>= 0.18.0)
       sequel (>= 4.34.0)
-    sucker_punch (2.0.4)
-      concurrent-ruby (~> 1.0.0)
     tilt (2.0.8)
     unf (0.1.4)
       unf_ext
@@ -83,7 +80,6 @@ DEPENDENCIES
   rollbar
   sequel
   sequel_pg
-  sucker_punch
   tilt
   zbar
 
