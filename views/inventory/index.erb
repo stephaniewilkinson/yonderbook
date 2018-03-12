@@ -12,6 +12,7 @@
       <img src="<%= book[:cover_image_url] %>" alt="">
     </div>
     <%= book[:title] %>
+    <em>User: <%= @users.first(id: 1)[:first_name] %></em>
     <hr>
     <a href="#">Mooch Me</a>
   </div>
