@@ -1,6 +1,6 @@
 ENV['RACK_ENV'] = 'test'
 
-require 'dotenv/load'
+# require 'dotenv/load'
 require 'minitest/autorun'
 require 'rack/test'
 
