@@ -1,17 +1,18 @@
 # frozen_string_literal: true
+require_relative '../db'
 
 namespace :db do
   namespace :migrate do
     desc 'Perform migration up to latest migration available'
     task up: :app do
       Sequel.extension(:migration)
-      Sequel::Migrator.run(Sequel::Model.db, 'db/migrate')
+      Sequel::Migrator.run(DB, "migrations")
       puts '<= db:migrate:up executed'
     end
     desc 'Perform migration down (erase all data)'
     task down: :app do
       Sequel.extension(:migration)
-      Sequel::Migrator.run(Sequel::Model.db, 'db/migrate', target: 0)
+      Sequel::Migrator.run(DB, 'migrate', target: 0)
       puts '<= db:migrate:down executed'
     end
   end
@@ -21,7 +22,7 @@ namespace :db do
 
   desc 'Create the database'
   task create: :app do
-    config = Sequel::Model.db.opts
+    config = DB.opts
     config[:charset] = 'utf8' unless config[:charset]
     puts "=> Creating database '#{config[:database]}'"
     create_db(config)
@@ -29,8 +30,8 @@ namespace :db do
   end
   desc 'Drop the database'
   task drop: :app do
-    Sequel::Model.db.disconnect
-    config = Sequel::Model.db.opts
+    DB.disconnect
+    config = DB.opts
     puts "=> Dropping database '#{config[:database]}'"
     drop_db(config)
     puts '<= db:drop executed'
