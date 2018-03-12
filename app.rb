@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'area'
 require 'http'
 require 'nokogiri'
 require 'oauth'
@@ -25,8 +26,9 @@ class App < Roda
 
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
   GOODREADS_URI         = 'https://www.goodreads.com'
-  OVERDRIVE_LIBRARY_URI = 'https://api.overdrive.com/v1/libraries/'
+  OVERDRIVE_API_URI     = 'https://api.overdrive.com/v1'
   OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
+  OVERDRIVE_OAUTH_URI   = 'https://oauth.overdrive.com'
 
   GOODREADS_API_KEY     = ENV.fetch 'GOODREADS_API_KEY'
   GOODREADS_SECRET      = ENV.fetch 'GOODREADS_SECRET'
@@ -45,7 +47,6 @@ class App < Roda
     r.root do
       consumer = OAuth::Consumer.new GOODREADS_API_KEY, GOODREADS_SECRET, site: GOODREADS_URI
       request_token = consumer.get_request_token
-
       session[:request_token] = request_token
       @auth_url = request_token.authorize_url
 
@@ -72,15 +73,15 @@ class App < Roda
           session[:goodreads_user_id] = user_id
         end
 
-        params = URI.encode_www_form(user_id: session[:goodreads_user_id],
-                                     key: GOODREADS_API_KEY)
+        params = URI.encode_www_form(
+          user_id: session[:goodreads_user_id],
+          key: GOODREADS_API_KEY
+        )
 
         path = "/shelf/list.xml?#{params}}"
 
         HTTP.persistent GOODREADS_URI do |http|
           doc = Nokogiri::XML http.get(path).body
-
-          puts 'Getting shelves...'
 
           @shelf_names = doc.xpath('//shelves//name').children.to_a
           @shelf_books = doc.xpath('//shelves//book_count').children.to_a
@@ -104,9 +105,7 @@ class App < Roda
       HTTP.persistent GOODREADS_URI do |http|
         doc = Nokogiri::XML http.get(path).body
 
-        puts 'Counting pages...'
         @number_of_pages = doc.xpath('//books').first['numpages'].to_i
-        puts "Found #{@number_of_pages} pages..."
 
         @isbnset = 1.upto(@number_of_pages).flat_map do |page|
           "Fetching page #{page}..."
@@ -138,8 +137,7 @@ class App < Roda
           if isbns_and_image_urls
             isbns_and_image_urls.each do |isbn, image_url, title|
               params = {asins: isbn, target: 'wishlist', action: 'add'}
-              puts "Params: #{URI.encode_www_form params}"
-              puts 'Adding to wishlist with bookmooch api...'
+
               response = http.get '/api/userbook', params: params
 
               if response.body.to_s.strip == isbn
@@ -202,24 +200,23 @@ class App < Roda
     r.on 'availability' do
       # POST /availability?consortium=1047
       r.post do
-
         # Pulling book info from the cache
         @isbnset = CACHE["#{session[:session_id]}/isbns_and_image_urls"]
-        @titles = @isbnset.map {|book| URI.encode(book[2])}
+        @titles = @isbnset.map { |book| URI.encode(book[2]) }
 
         # Getting auth token from overdrive
-        client = OAuth2::Client.new(OVERDRIVE_KEY, OVERDRIVE_SECRET, :token_url => '/token', :site =>'https://oauth.overdrive.com')
+        client = OAuth2::Client.new(OVERDRIVE_KEY, OVERDRIVE_SECRET, token_url: '/token', site: OVERDRIVE_OAUTH_URI)
         token_request = client.client_credentials.get_token
         token = token_request.token
 
         # Four digit library id from user submitted form
-        consortium_id = r['consortium'].gsub('\"', '') # 1047
+        consortium_id = r['consortium'].delete('\"') # 1047
 
         # Getting the library-specific endpoint
-        library_uri = OVERDRIVE_LIBRARY_URI + "#{consortium_id}"
+        library_uri = "#{OVERDRIVE_API_URI}/libraries/#{consortium_id}"
         response = HTTP.auth("Bearer #{token}").get(library_uri)
         res = JSON.parse(response.body)
-        collectionToken = res["collectionToken"] # "v1L1BDAAAAA2R"
+        collectionToken = res['collectionToken'] # "v1L1BDAAAAA2R"
 
         # The URL that I need to provide to the user to actually click on and
         # visit so that they can check out the book is in this format:
@@ -229,18 +226,16 @@ class App < Roda
         # because the book id stays the same
 
         # Making the API call to Library Availability endpoint
-        availability_uri = "https://api.overdrive.com/v1/collections/#{collectionToken}/products?q=#{@titles.first}"
+        availability_uri = "#{OVERDRIVE_API_URI}/collections/#{collectionToken}/products?q=#{@titles.first}"
         response = HTTP.auth("Bearer #{token}").get(availability_uri)
         res = JSON.parse(response.body)
-        p res
-        book_availibility_url = res["products"].first["links"].assoc("availability").last["href"]
-        p book_availibility_url
+        book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
 
         # Checking if the book is available
         response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
         res = JSON.parse(response.body)
-        copiesOwned = res["copiesOwned"]
-        copiesAvailable = res["copiesAvailable"]
+        copiesOwned = res['copiesOwned']
+        copiesAvailable = res['copiesAvailable']
 
         r.redirect '/availability'
       end
@@ -285,6 +280,5 @@ class App < Roda
         view 'about'
       end
     end
-
   end # end of routing
 end
