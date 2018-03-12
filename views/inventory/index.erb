@@ -3,8 +3,18 @@
   <i class="material-icons right">library_add</i>
 </a>
 
+<div class="row">
 
 <% @books.each do |book| %>
-  <hr>
-  <%= book[:isbn] %>
+<div class="col s3 m2">
+  <div class="card hoverable">
+    <div class="card-image">
+      <img src="<%= book[:cover_image_url] %>" alt="">
+    </div>
+    <%= book[:title] %>
+    <hr>
+    <a href="#">Mooch Me</a>
+  </div>
+</div>
 <% end %>
+</div>
