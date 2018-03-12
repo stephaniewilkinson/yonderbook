@@ -2,8 +2,9 @@
 dev = ENV['RACK_ENV'] == 'development'
 
 if dev
-  require 'logger'
   require 'dotenv/load'
+  require 'logger'
+  require 'pry'
   logger = Logger.new($stdout)
 end
 
