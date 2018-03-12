@@ -41,8 +41,8 @@ class App < Roda
     r.public
     r.assets
 
-    books = DB[:books]
-    users = DB[:users]
+    @books = DB[:books]
+    @users = DB[:users]
 
     r.root do
       consumer = OAuth::Consumer.new GOODREADS_API_KEY, GOODREADS_SECRET, site: GOODREADS_URI
@@ -61,7 +61,7 @@ class App < Roda
       # route: GET /shelves
       r.get do
         if session[:goodreads_user_id]
-          users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
+          @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
         else
           access_token = CACHE["#{session[:session_id]}/request_token"].get_access_token
           response = access_token.get "#{GOODREADS_URI}/api/auth_user"
@@ -69,7 +69,7 @@ class App < Roda
           user_id = xml.xpath('//user').first.attributes.first[1].value
           first_name = xml.xpath('//user').first.children[1].children.text
 
-          users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
+          @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
 
           session[:goodreads_user_id] = user_id
         end
@@ -261,9 +261,9 @@ class App < Roda
         isbns = ZBar::Image.from_jpeg(image).process
 
         if isbns.any?
-          user = users.first goodreads_user_id: session[:goodreads_user_id]
+          user = @users.first goodreads_user_id: session[:goodreads_user_id]
           isbns.each do |isbn|
-            books.insert isbn: isbn.data, user_id: user[:id]
+            @books.insert isbn: isbn.data, user_id: user[:id]
           end
           r.redirect '/inventory/index'
         else
@@ -274,7 +274,6 @@ class App < Roda
 
       # route: GET /inventory/index
       r.get 'index' do
-        @books = books
         view 'inventory/index'
       end
     end # end of /inventory
