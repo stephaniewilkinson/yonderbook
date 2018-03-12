@@ -11,9 +11,10 @@ require 'rollbar/middleware/rack'
 require 'tilt'
 require 'uri'
 require 'zbar'
-require_relative 'db'
-require_relative 'models'
-require_relative 'tuple_space'
+require_relative 'lib/db'
+require_relative 'lib/models'
+require_relative 'lib/goodreads'
+require_relative 'lib/tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
