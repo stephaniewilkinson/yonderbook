@@ -2,6 +2,7 @@ ENV['RACK_ENV'] = 'test'
 
 # require 'dotenv/load'
 require 'minitest/autorun'
+require 'minitest/pride'
 require 'rack/test'
 
 require_relative 'spec_helper'
