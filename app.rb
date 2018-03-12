@@ -250,6 +250,12 @@ class App < Roda
         view 'inventory/new'
       end
 
+      r.get Integer do |book_id|
+        @book = @books.first(id: book_id)
+        @user = @users.first(id: @book[:user_id])
+        view 'inventory/show'
+      end
+
       # route: POST /inventory/create?barcode_image="isbn.jpg"
       r.post 'create' do
         image = r[:barcode_image][:tempfile]

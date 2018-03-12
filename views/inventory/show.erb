@@ -1,0 +1,16 @@
+<div class="col s12 m7">
+  <div class="card horizontal">
+    <div class="card-image">
+      <img src="<%= @book[:cover_image_url] %>">
+    </div>
+    <div class="card-stacked">
+      <div class="card-content">
+        <span class="card-title"><%= @book[:title] unless @book[:cover_image_url] %></span>
+        <p>Owned by: <%= @user[:first_name] %></p>
+      </div>
+      <div class="card-action">
+        <a href="#">Mooch me</a>
+      </div>
+    </div>
+  </div>
+</div>

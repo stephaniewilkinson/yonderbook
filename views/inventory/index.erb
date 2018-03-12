@@ -14,7 +14,7 @@
     <%= book[:title] %>
     <em>User: <%= @users.first(id: 1)[:first_name] %></em>
     <hr>
-    <a href="#">Mooch Me</a>
+    <a href="/inventory/<%= book[:id] %>">View</a>
   </div>
 </div>
 <% end %>
