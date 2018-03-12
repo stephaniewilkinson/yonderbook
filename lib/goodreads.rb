@@ -2,6 +2,8 @@
 
 module Goodreads
   URI = 'https://www.goodreads.com'
+  API_KEY = ENV.fetch 'GOODREADS_API_KEY'
+  SECRET  = ENV.fetch 'GOODREADS_SECRET'
 
   module_function
 

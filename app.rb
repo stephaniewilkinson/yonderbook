@@ -24,18 +24,15 @@ class App < Roda
 
   CACHE                 = ::TupleSpace.new
 
-  GOODREADS_URI         =  Goodreads::URI
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
   OVERDRIVE_API_URI     = 'https://api.overdrive.com/v1'
   OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
   OVERDRIVE_OAUTH_URI   = 'https://oauth.overdrive.com'
 
-  GOODREADS_API_KEY     = ENV.fetch 'GOODREADS_API_KEY'
-  GOODREADS_SECRET      = ENV.fetch 'GOODREADS_SECRET'
   OVERDRIVE_KEY         = ENV.fetch 'OVERDRIVE_KEY'
   OVERDRIVE_SECRET      = ENV.fetch 'OVERDRIVE_SECRET'
 
-  use Rack::Session::Cookie, secret: GOODREADS_SECRET, api_key: GOODREADS_API_KEY
+  use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
   def cache_set **pairs
     pairs.each do |key, value|
@@ -55,7 +52,7 @@ class App < Roda
     @users = DB[:users]
 
     r.root do
-      consumer = OAuth::Consumer.new GOODREADS_API_KEY, GOODREADS_SECRET, site: GOODREADS_URI
+      consumer = OAuth::Consumer.new Goodreads::API_KEY, Goodreads::SECRET, site: Goodreads::URI
       request_token = consumer.get_request_token
       @auth_url = request_token.authorize_url
 
@@ -74,7 +71,7 @@ class App < Roda
           @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
         else
           access_token = cache_get(:request_token).get_access_token
-          response = access_token.get "#{GOODREADS_URI}/api/auth_user"
+          response = access_token.get "#{Goodreads::URI}/api/auth_user"
           xml = Nokogiri::XML response.body
           user_id = xml.xpath('//user').first.attributes.first[1].value
           first_name = xml.xpath('//user').first.children[1].children.text
@@ -86,12 +83,12 @@ class App < Roda
 
         params = URI.encode_www_form(
           user_id: session[:goodreads_user_id],
-          key: GOODREADS_API_KEY
+          key: Goodreads::API_KEY
         )
 
         path = "/shelf/list.xml?#{params}}"
 
-        HTTP.persistent GOODREADS_URI do |http|
+        HTTP.persistent Goodreads::URI do |http|
           doc = Nokogiri::XML http.get(path).body
 
           @shelf_names = doc.xpath('//shelves//name').children.to_a
@@ -109,7 +106,7 @@ class App < Roda
       params = URI.encode_www_form(
         shelf: @shelf_name,
         per_page: '20',
-        key: GOODREADS_API_KEY
+        key: Goodreads::API_KEY
       )
       path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
 
