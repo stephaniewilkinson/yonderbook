@@ -71,14 +71,10 @@ class App < Roda
           @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
         else
           access_token = cache_get(:request_token).get_access_token
-          response = access_token.get "#{Goodreads::URI}/api/auth_user"
-          xml = Nokogiri::XML response.body
-          user_id = xml.xpath('//user').first.attributes.first[1].value
-          first_name = xml.xpath('//user').first.children[1].children.text
-
-          @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
+          first_name, user_id = Goodreads.fetch_user access_token
 
           session[:goodreads_user_id] = user_id
+          @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
         end
 
         params = URI.encode_www_form(

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nokogiri'
+
 module Goodreads
   URI = 'https://www.goodreads.com'
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
@@ -22,5 +24,14 @@ module Goodreads
         isbns.zip(image_urls, titles)
       end
     end
+  end
+
+  def fetch_user access_token
+    response = access_token.get "#{URI}/api/auth_user"
+    xml = Nokogiri::XML response.body
+    user_id = xml.xpath('//user').first.attributes.first[1].value
+    first_name = xml.xpath('//user').first.children[1].children.text
+
+    [user_id, first_name]
   end
 end
