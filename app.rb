@@ -260,9 +260,10 @@ class App < Roda
         isbns = ZBar::Image.from_jpeg(image).process
 
         if isbns.any?
-          isbn = isbns.first.data
-          user = users.first(goodreads_user_id: session[:goodreads_user_id])
-          books.insert(isbn: isbn, user_id: user[:id])
+          user = users.first goodreads_user_id: session[:goodreads_user_id]
+          isbns.each do |isbn|
+            books.insert isbn: isbn.data, user_id: user[:id]
+          end
           r.redirect '/inventory/index'
         else
           # TODO: add error message 'unable to read barcode'
