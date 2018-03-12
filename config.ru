@@ -9,7 +9,7 @@ end
 
 require 'rack/unreloader'
 Unreloader = Rack::Unreloader.new(:subclasses=>%w'Roda Sequel::Model', :logger=>logger, :reload=>dev){App}
-require_relative 'models'
+require_relative 'lib/models'
 Unreloader.require('app.rb'){'App'}
 
 Rollbar.configure do |config|
