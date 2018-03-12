@@ -168,8 +168,6 @@ class App < Roda
     r.on 'library' do
       # route: POST /library?zipcode=90029
       r.post do
-        @local_libraries = []
-        CACHE["#{session[:session_id]}/libraries"] = @local_libraries
         zip = r['zipcode']
 
         if zip.to_latlon
@@ -181,10 +179,11 @@ class App < Roda
         response = HTTP.get OVERDRIVE_MAPBOX_URI, params: {latLng: latlon, radius: 50}
         libraries = JSON.parse response.body
 
-        libraries.first(10).each do |l|
-          consortium_id = l["consortiumId"]
-          consortium_name = l["consortiumName"]
-          @local_libraries << [consortium_id, consortium_name]
+        @local_libraries = libraries.first(10).map do |l|
+          consortium_id = l['consortiumId']
+          consortium_name = l['consortiumName']
+
+          [consortium_id, consortium_name]
         end
 
         CACHE["#{session[:session_id]}/libraries"] = @local_libraries
