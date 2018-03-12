@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rollbar'
+require_relative 'lib/models'
+
 dev = ENV['RACK_ENV'] == 'development'
 
 if dev
@@ -11,8 +14,6 @@ if dev
   Unreloader = Rack::Unreloader.new(subclasses: %w[Roda Sequel::Model], logger: logger, reload: dev) { App }
   Unreloader.require('app.rb') { 'App' }
 end
-
-require_relative 'lib/models'
 
 Rollbar.configure do |config|
   config.access_token = 'ee0a8b14155148c28004d3e9b7519abd'
