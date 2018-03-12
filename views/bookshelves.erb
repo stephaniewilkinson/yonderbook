@@ -75,13 +75,9 @@
   </div>
 </div>
 
-<!-- Compiled and minified CSS -->
-
-  <!-- Compiled and minified JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <% if flash[:error] %>
   <script type="text/javascript">
-    Materialize.toast('Please try another zip code', 4000)
+    Materialize.toast("<%= flash[:error] %>", 4000)
   </script>
 <% end %>

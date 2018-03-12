@@ -167,7 +167,7 @@ class App < Roda
         if zip.to_latlon
           latlon = r['zipcode'].to_latlon.delete ' '
         else
-          flash[:error] = true
+          flash[:error] = 'please try a different zip code'
           r.redirect "bookshelves/#{cache_get :shelf_name}"
         end
 
@@ -270,7 +270,7 @@ class App < Roda
           end
           r.redirect '/inventory/index'
         else
-          # TODO: add error message 'unable to read barcode'
+          flash[:error] = "no barcode detected, please try again"
           r.redirect '/inventory/new'
         end
       end
