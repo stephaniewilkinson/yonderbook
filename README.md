@@ -5,4 +5,4 @@
 $ git clone
 
 
-$ bundle exec rackup config.ru
+$ bundle exec rackup

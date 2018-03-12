@@ -1,4 +1,6 @@
-require_relative "../db"
+# frozen_string_literal: true
+
+require_relative '../lib/db'
 
 DB.create_table(:books) do
   primary_key :id

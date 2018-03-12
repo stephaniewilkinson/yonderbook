@@ -1,5 +1,6 @@
-require_relative '../.env.rb'
+# frozen_string_literal: true
 
+require_relative '../.env.rb'
 require 'sequel'
 
 # Delete DATABASE_URL from the environment, so it isn't accidently

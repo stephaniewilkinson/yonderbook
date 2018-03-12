@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 dev = ENV['RACK_ENV'] == 'development'
 
 if dev
