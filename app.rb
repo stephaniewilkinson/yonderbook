@@ -47,8 +47,9 @@ class App < Roda
     r.root do
       consumer = OAuth::Consumer.new GOODREADS_API_KEY, GOODREADS_SECRET, site: GOODREADS_URI
       request_token = consumer.get_request_token
-      session[:request_token] = request_token
       @auth_url = request_token.authorize_url
+
+      CACHE["#{session[:session_id]}/request_token"] = request_token
 
       # route: GET /
       r.get do
@@ -62,7 +63,7 @@ class App < Roda
         if session[:goodreads_user_id]
           users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
         else
-          access_token = session[:request_token].get_access_token
+          access_token = CACHE["#{session[:session_id]}/request_token"].get_access_token
           response = access_token.get "#{GOODREADS_URI}/api/auth_user"
           xml = Nokogiri::XML response.body
           user_id = xml.xpath('//user').first.attributes.first[1].value
