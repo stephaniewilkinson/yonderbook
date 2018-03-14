@@ -52,6 +52,10 @@ class App < Roda
     @books = DB[:books]
     @users = DB[:users]
 
+    unless session[:goodreads_user_id] && %w[/ /about].include?(request.path)
+      r.redirect '/'
+    end
+
     r.root do
       consumer = OAuth::Consumer.new Goodreads::API_KEY, Goodreads::SECRET, site: Goodreads::URI
       request_token = consumer.get_request_token
