@@ -33,3 +33,11 @@
     </div>
   </div>
 </div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<% if flash[:error] %>
+  <script type="text/javascript">
+    Materialize.toast("<%= flash[:error] %>", 4000)
+  </script>
+<% end %>

@@ -52,6 +52,11 @@ class App < Roda
     @books = DB[:books]
     @users = DB[:users]
 
+    if !session.key?(:goodreads_user_id) && !%w[/ /about /login].include?(request.path)
+      flash[:error] = 'Please login first'
+      r.redirect '/'
+    end
+
     r.root do
       consumer = OAuth::Consumer.new Goodreads::API_KEY, Goodreads::SECRET, site: Goodreads::URI
       request_token = consumer.get_request_token
@@ -65,19 +70,24 @@ class App < Roda
       end
     end
 
-    r.on 'shelves' do
-      # route: GET /shelves
+    r.on 'login' do
       r.get do
         if session[:goodreads_user_id]
           @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
         else
           access_token = cache_get(:request_token).get_access_token
-          first_name, user_id = Goodreads.fetch_user access_token
+          user_id, first_name = Goodreads.fetch_user access_token
 
           session[:goodreads_user_id] = user_id
           @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
         end
+        r.redirect '/shelves'
+      end
+    end
 
+    r.on 'shelves' do
+      # route: GET /shelves
+      r.get do
         params = URI.encode_www_form(
           user_id: session[:goodreads_user_id],
           key: Goodreads::API_KEY
