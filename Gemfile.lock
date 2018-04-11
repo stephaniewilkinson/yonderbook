@@ -8,7 +8,7 @@ GEM
     coderay (1.1.2)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
-    dotenv (2.2.1)
+    dotenv (2.2.2)
     faraday (0.12.2)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
