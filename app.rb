@@ -11,8 +11,9 @@ require 'tilt'
 require 'uri'
 require 'zbar'
 require_relative 'lib/db'
-require_relative 'lib/models'
 require_relative 'lib/goodreads'
+require_relative 'lib/models'
+require_relative 'lib/overdrive'
 require_relative 'lib/tuple_space'
 
 class App < Roda
@@ -24,14 +25,7 @@ class App < Roda
   compile_assets
 
   CACHE                 = ::TupleSpace.new
-
   BOOKMOOCH_URI         = 'http://api.bookmooch.com'
-  OVERDRIVE_API_URI     = 'https://api.overdrive.com/v1'
-  OVERDRIVE_MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
-  OVERDRIVE_OAUTH_URI   = 'https://oauth.overdrive.com'
-
-  OVERDRIVE_KEY         = ENV.fetch 'OVERDRIVE_KEY'
-  OVERDRIVE_SECRET      = ENV.fetch 'OVERDRIVE_SECRET'
 
   use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
@@ -177,7 +171,7 @@ class App < Roda
           r.redirect "bookshelves/#{cache_get :shelf_name}"
         end
 
-        response = HTTP.get OVERDRIVE_MAPBOX_URI, params: {latLng: latlon, radius: 50}
+        response = HTTP.get Overdrive::MAPBOX_URI, params: {latLng: latlon, radius: 50}
         libraries = JSON.parse response.body
 
         @local_libraries = libraries.first(10).map do |l|
@@ -209,7 +203,7 @@ class App < Roda
         @titles = @isbnset.map { |book| URI.encode(book[2]) }
 
         # Fetching auth token from overdrive
-        client = OAuth2::Client.new(OVERDRIVE_KEY, OVERDRIVE_SECRET, token_url: '/token', site: OVERDRIVE_OAUTH_URI)
+        client = OAuth2::Client.new(Overdrive::KEY, Overdrive::SECRET, token_url: '/token', site: Overdrive::OAUTH_URI)
         token_request = client.client_credentials.get_token
         token = token_request.token
 
@@ -217,7 +211,7 @@ class App < Roda
         consortium_id = r['consortium'].delete('\"') # 1047
 
         # Fetching the library-specific endpoint
-        library_uri = "#{OVERDRIVE_API_URI}/libraries/#{consortium_id}"
+        library_uri = "#{Overdrive::API_URI}/libraries/#{consortium_id}"
         response = HTTP.auth("Bearer #{token}").get(library_uri)
         res = JSON.parse(response.body)
         collectionToken = res['collectionToken'] # "v1L1BDAAAAA2R"
@@ -230,7 +224,7 @@ class App < Roda
         # because the book id stays the same
 
         # Making the API call to Library Availability endpoint
-        availability_uri = "#{OVERDRIVE_API_URI}/collections/#{collectionToken}/products?q=#{@titles.first}"
+        availability_uri = "#{Overdrive::API_URI}/collections/#{collectionToken}/products?q=#{@titles.first}"
         response = HTTP.auth("Bearer #{token}").get(availability_uri)
         res = JSON.parse(response.body)
         book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
