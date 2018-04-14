@@ -11,6 +11,11 @@ describe App do
     App
   end
 
+  headers = {}
+  # Rack::Utils.set_cookie_header!(headers, key, value)
+  cookie_string = headers['Set-Cookie']
+  Capybara.current_session.driver.browser.set_cookie(cookie_string)
+
   it 'responds to root' do
     get '/'
     assert last_response.ok?
