@@ -1,4 +1,12 @@
+language: ruby
+cache: bundler
+dist: trusty
+sudo: false
 addons:
   chrome: stable
+  postgresql: 10
 before_install:
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+  - gem update --system
+services:
+  - postgresql
