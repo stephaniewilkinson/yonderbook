@@ -6,6 +6,7 @@ ruby '2.5.0'
 
 gem 'area'
 gem 'dotenv'
+gem 'minitest-capybara'
 gem 'chromedriver-helper'
 gem 'http'
 gem 'minitest'
