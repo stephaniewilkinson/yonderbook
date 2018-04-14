@@ -15,7 +15,7 @@ def app
 end
 
 describe App do
-  include Capybara::DSL # it will bitch if you put this elsewhere and make it global
+  include Capybara::DSL
 
   it 'responds to root' do
     get '/'
