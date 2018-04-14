@@ -17,6 +17,11 @@ end
 describe App do
   include Capybara::DSL
 
+  headers = {}
+  # Rack::Utils.set_cookie_header!(headers, key, value)
+  cookie_string = headers['Set-Cookie']
+  Capybara.current_session.driver.browser.set_cookie(cookie_string)
+
   it 'responds to root' do
     get '/'
     assert last_response.ok?
@@ -38,6 +43,6 @@ describe App do
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
 
-    # assert_text 'Your Goodreads Bookshelves'
+    assert_text 'Your Goodreads Bookshelves'
   end
 end
