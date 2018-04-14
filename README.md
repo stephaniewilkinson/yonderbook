@@ -1,5 +1,4 @@
-[ ![Codeship Status for stephaniewilkinson/bookmooch](https://app.codeship.com/projects/c08bd7c0-083e-0136-babb-6685fd843c27/status?branch=master)](https://app.codeship.com/projects/281150)
-
+[![Build Status](https://travis-ci.org/stephaniewilkinson/bookmooch.svg?branch=master)](https://travis-ci.org/stephaniewilkinson/bookmooch)
 # Tools for Bookworms 📒
 
 ## Installation
