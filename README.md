@@ -35,3 +35,13 @@ rackup
 ## Testing
 
 $ ruby spec/spec.rb
+
+
+## Set up db
+
+```
+createuser -U postgres bookmooch
+createdb -U postgres -O bookmooch bookmooch_production
+createdb -U postgres -O bookmooch bookmooch_test
+createdb -U postgres -O bookmooch bookmooch_development
+```
