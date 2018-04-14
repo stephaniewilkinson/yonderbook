@@ -14,7 +14,7 @@ when 'test'
   require 'dotenv/load'
   require 'pry'
   require_relative 'app'
-  logger = Logger.new $stdout
+  logger = Logger.new('logger.log', 'daily')
   logger.level = Logger::DEBUG
   run App.freeze.app
 else
