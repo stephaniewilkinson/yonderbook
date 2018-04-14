@@ -43,7 +43,7 @@ describe App do
     fill_in 'Email Address', with: 'what.happens@gmail.com'
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
-
+    binding.pry
     assert_text 'Your Goodreads Bookshelves'
   end
 end
