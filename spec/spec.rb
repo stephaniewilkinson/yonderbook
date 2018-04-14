@@ -31,13 +31,13 @@ describe App do
     visit '/'
     assert_text 'Bookwyrm'
   end
-  # it 'lets user log in' do
-  #   visit '/'
-  #   click_on 'Log in with goodreads'
-  #   fill_in 'Email Address', with: 'what.happens@gmail.com'
-  #   fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
-  #   click_on 'Sign in'
-  #
-  #   assert_text 'Your Goodreads Bookshelves'
-  # end
+  it 'lets user log in' do
+    visit '/'
+    click_on 'Log in with goodreads'
+    fill_in 'Email Address', with: 'what.happens@gmail.com'
+    fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
+    click_on 'Sign in'
+
+    # assert_text 'Your Goodreads Bookshelves'
+  end
 end
