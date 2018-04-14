@@ -15,6 +15,8 @@ def app
 end
 
 describe App do
+  include Capybara::DSL
+
   it 'responds to root' do
     get '/'
     assert last_response.ok?
@@ -24,5 +26,8 @@ describe App do
     get '/about'
     assert last_response.ok?
     assert_includes last_response.body, 'About'
+  end
+  it 'lets user log in' do
+    visit "/"
   end
 end

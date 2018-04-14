@@ -2,11 +2,14 @@
 
 source 'https://rubygems.org'
 
-ruby '2.5.0'
+ruby '2.5.1'
 
 gem 'area'
+gem 'capybara-selenium'
+gem 'chromedriver-helper'
 gem 'dotenv'
 gem 'http'
+gem 'minitest-capybara'
 gem 'minitest'
 gem 'nokogiri'
 gem 'oauth'
@@ -19,6 +22,7 @@ gem 'rack'
 gem 'rake'
 gem 'roda'
 gem 'rollbar'
+gem 'rubocop'
 gem 'sequel_pg'
 gem 'sequel'
 gem 'tilt'
