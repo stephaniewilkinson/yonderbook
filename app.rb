@@ -74,7 +74,7 @@ class App < Roda
         else
           access_token = cache_get(:request_token).get_access_token
           user_id, first_name = Goodreads.fetch_user access_token
-
+          session = nil
           session[:goodreads_user_id] = user_id
           # @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
         end
