@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+ENV['RACK_ENV'] = 'test'
 require 'dotenv/load'
 require 'logger'
 require 'minitest/autorun'
@@ -10,7 +11,9 @@ require 'rack/test'
 require 'selenium/webdriver'
 require_relative '../app'
 
-ENV['RACK_ENV'] = 'test'
+def app
+  App
+end
 
 logger = Logger.new $stdout
 
