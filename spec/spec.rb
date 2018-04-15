@@ -43,7 +43,7 @@ describe App do
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
     assert_text 'Libraries'
-    click_on 'Choose San Francisco'
+    click_on 'Check San Francisco'
     assert_text 'Coming soon'
   end
 end
