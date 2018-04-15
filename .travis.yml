@@ -21,4 +21,4 @@ before_install:
   - createuser -U postgres bookmooch
   - createdb -U postgres -O bookmooch bookmooch_test
 script:
-  - ruby spec/spec.rb
+  - bundle exec ruby spec/spec.rb
