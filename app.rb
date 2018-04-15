@@ -16,7 +16,6 @@ require_relative 'lib/models'
 require_relative 'lib/overdrive'
 require_relative 'lib/tuple_space'
 
-# the only class with class
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :assets, css: 'styles.css'

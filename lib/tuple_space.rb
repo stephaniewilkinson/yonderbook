@@ -2,7 +2,6 @@
 
 require 'rinda/tuplespace'
 
-# setting up a tuplespace cache
 class TupleSpace < Rinda::TupleSpace
   def new(reaper_period_in_secs = 600)
     super reaper_period_in_secs

@@ -2,7 +2,6 @@
 
 require 'nokogiri'
 
-# methods and constants for goodreads
 module Goodreads
   Book = Struct.new :title, :image_url, :isbn, keyword_init: true
 
