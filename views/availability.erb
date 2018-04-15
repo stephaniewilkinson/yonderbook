@@ -4,14 +4,15 @@
 
 <div class="row">
     <% @titles.sort_by { |t| t.copies_available }.reverse.each do |title| %>
-    <div class="col m6">
+    <div class="col m8">
       <div class="card hoverable horizontal">
         <div class="card-image">
           <img src="<%= title.image %>">
         </div>
         <div class="card-content">
-          <h5><%= title.title.slice(0..20) %></h5>
+          <h5><%= title.title %></h5>
           <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
+          <br>
           <a href="<%= title.url %>" class="btn waves-effect waves-light btn-small"><i class="material-icons left">book</i>Check it Out</a>
         </div>
       </div>
