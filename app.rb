@@ -225,22 +225,30 @@ class App < Roda
         # because the book id stays the same
 
         # Making the API call to Library Availability endpoint
-        availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{@titles.first}"
-        response = HTTP.auth("Bearer #{token}").get(availability_uri)
-        res = JSON.parse(response.body)
-        book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
+        titles = []
+        Title = Struct.new :title, :copies_available, :copies_owned, :isbn, :url, keyword_init: true
 
-        # Checking if the book is available
-        response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
-        res = JSON.parse(response.body)
-        @copies_owned = res['copiesOwned']
-        @copies_available = res['copiesAvailable']
+        @titles.each do |title|
+          availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{title}"
+          response = HTTP.auth("Bearer #{token}").get(availability_uri)
+          res = JSON.parse(response.body)
+          book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
+
+          # Checking if the book is available
+          response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
+          res = JSON.parse(response.body)
+          title = Title.new title: title, copies_available: res['copiesAvailable'], copies_owned: res['copiesOwned']
+          titles << title
+        end
+
+        cache_set titles: titles
 
         r.redirect '/availability'
       end
 
       # route: GET /availability
       r.get do
+        @titles = cache_get :titles
         view 'availability'
       end
     end
