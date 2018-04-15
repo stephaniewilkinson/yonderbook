@@ -208,7 +208,7 @@ class App < Roda
         token = token_request.token
 
         # Four digit library id from user submitted form
-        consortium_id = r['consortium'].delete('\"') # 1047
+        consortium_id = r['consortium'] # 1047
 
         # Fetching the library-specific endpoint
         library_uri = "#{Overdrive::API_URI}/libraries/#{consortium_id}"
