@@ -42,8 +42,8 @@ module Goodreads
     case response.code
     when 200
       doc = Nokogiri::XML(response.body)
-      title = Nokogiri::XML(response.body).xpath('//title').text
-      image_url = Nokogiri::XML(response.body).xpath('//image_url').first.text
+      title = doc.xpath('//title').text
+      image_url = doc.xpath('//image_url').first.text
 
       book = Book.new title: title, image_url: image_url, isbn: isbn
       [:ok, book]
