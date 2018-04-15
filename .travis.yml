@@ -10,7 +10,6 @@ addons:
     packages:
       - libzbar-dev
 before_install:
-  - google-chrome --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
   - gem update --system
   - gem install bundler
   - gem update
