@@ -17,12 +17,6 @@ end
 describe App do
   include Capybara::DSL
 
-  headers = {}
-
-  Rack::Utils.set_cookie_header! headers, :secret, Goodreads::SECRET
-  Rack::Utils.set_cookie_header! headers, :api_key, Goodreads::API_KEY
-  Capybara.current_session.driver.browser.set_cookie headers['Set-Cookie']
-
   it 'responds to root' do
     get '/'
     assert last_response.ok?
