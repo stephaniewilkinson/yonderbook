@@ -202,7 +202,7 @@ class App < Roda
         @isbnset = cache_get :isbns_and_image_urls
 
         unless @isbnset
-          flash[:error] = 'please select a bookshelf'
+          flash[:error] = 'Select a bookshelf first'
           r.redirect '/shelves/index'
         end
 
@@ -226,7 +226,6 @@ class App < Roda
         # where the id is at the end of the url
         # the only thing i need to figure out is the subdomain at the beginning, AKA 'lapl'
         # because the book id stays the same
-
 
         # Making the API call to Library Availability endpoint
         titles = []
