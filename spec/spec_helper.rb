@@ -2,10 +2,15 @@
 
 require 'dotenv/load'
 require 'logger'
-require 'pry'
+require 'minitest/autorun'
 require 'minitest/capybara'
-require "selenium/webdriver"
+require 'minitest/pride'
+require 'pry'
+require 'rack/test'
+require 'selenium/webdriver'
 require_relative '../app'
+
+ENV['RACK_ENV'] = 'test'
 
 logger = Logger.new $stdout
 
