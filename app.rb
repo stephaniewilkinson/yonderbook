@@ -103,7 +103,7 @@ class App < Roda
       cache_set shelf_name: @shelf_name
       params = URI.encode_www_form(
         shelf: @shelf_name,
-        per_page: '20',
+        per_page: '200',
         key: Goodreads::API_KEY
       )
       path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"

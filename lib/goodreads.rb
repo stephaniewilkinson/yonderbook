@@ -18,7 +18,6 @@ module Goodreads
       number_of_pages = doc.xpath('//books').first['numpages'].to_i
 
       1.upto(number_of_pages).flat_map do |page|
-        "Fetching page #{page}..."
         doc = Nokogiri::XML http.get("#{path}&page=#{page}").body
         isbns = doc.xpath('//isbn').children.map &:text
         image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v /\A\n\z/
