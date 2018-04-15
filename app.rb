@@ -198,6 +198,14 @@ class App < Roda
     r.on 'availability' do
       # route: POST /availability?consortium=1047
       r.post do
+        # Pulling book info from the cache
+        @isbnset = cache_get :isbns_and_image_urls
+
+        unless @isbnset
+          flash[:error] = 'Select a bookshelf first'
+          r.redirect '/shelves/index'
+        end
+
         # Fetching auth token from overdrive
         client = OAuth2::Client.new(Overdrive::KEY, Overdrive::SECRET, token_url: '/token', site: Overdrive::OAUTH_URI)
         token_request = client.client_credentials.get_token
@@ -219,30 +227,28 @@ class App < Roda
         # the only thing i need to figure out is the subdomain at the beginning, AKA 'lapl'
         # because the book id stays the same
 
-        # Pulling book info from the cache
-        @isbnset = cache_get :isbns_and_image_urls
-
         # Making the API call to Library Availability endpoint
         titles = []
         Title = Struct.new :title, :image, :copies_available, :copies_owned, :isbn, :url, keyword_init: true
 
         @isbnset.each do |book|
-          isbn = book[0]
-          image = book[1]
-          title = book[2]
-          availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode(title)}"
+          availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode(book[2])}"
           response = HTTP.auth("Bearer #{token}").get(availability_uri)
           res = JSON.parse(response.body)
-          book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
 
-          # Checking if the book is available
-          response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
-          res = JSON.parse(response.body)
-          title = Title.new title: URI.decode(title),
-                            copies_available: res['copiesAvailable'],
-                            copies_owned: res['copiesOwned'],
-                            isbn: isbn,
-                            image: image
+          if res['products']
+            book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
+            response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
+            book_res = JSON.parse(response.body)
+            copies_available = book_res['copiesAvailable']
+            copies_owned = book_res['copiesOwned']
+          end
+
+          title = Title.new title: book[2],
+                            copies_available: copies_available || 0,
+                            copies_owned: copies_owned || 0,
+                            isbn: book[0],
+                            image: book[1]
           titles << title
         end
 
