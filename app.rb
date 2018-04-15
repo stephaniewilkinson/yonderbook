@@ -237,7 +237,7 @@ class App < Roda
           # Checking if the book is available
           response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
           res = JSON.parse(response.body)
-          title = Title.new title: title, copies_available: res['copiesAvailable'], copies_owned: res['copiesOwned']
+          title = Title.new title: URI.decode(title), copies_available: res['copiesAvailable'], copies_owned: res['copiesOwned']
           titles << title
         end
 
