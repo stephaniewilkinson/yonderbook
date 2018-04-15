@@ -61,7 +61,6 @@ class App < Roda
     end
 
     r.on 'login' do
-      raise 'string'
       r.get do
         r.redirect '/shelves/index'
       end

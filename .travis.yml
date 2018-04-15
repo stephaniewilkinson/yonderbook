@@ -1,8 +1,7 @@
 language: ruby
 cache: bundler
 dist: trusty
-sudo: false
-
+sudo: required
 notifications:
   email: false
 services:
@@ -13,7 +12,7 @@ addons:
   apt:
     packages:
       - libzbar-dev
-      - chromium-chromedriver
+      - google-chrome-stable
 before_install:
   - rvm get head
   - gem update --system
