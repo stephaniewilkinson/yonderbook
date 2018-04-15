@@ -1,7 +1,7 @@
 <h3>Here are the books on your shelf that are available at that library</h3>
-
+<span><em>Sorted in order of most available.</em></span>
 <div class="row">
-  <% @titles.each do |title| %>
+  <% @titles.sort_by { |t| t.copies_available }.reverse.each do |title| %>
     <div class="col s12">
       <div class="card horizontal">
         <div class="card-image">

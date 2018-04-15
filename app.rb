@@ -232,7 +232,7 @@ class App < Roda
         Title = Struct.new :title, :image, :copies_available, :copies_owned, :isbn, :url, keyword_init: true
 
         @isbnset.each do |book|
-          availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode(title)}"
+          availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode(book[2])}"
           response = HTTP.auth("Bearer #{token}").get(availability_uri)
           res = JSON.parse(response.body)
 

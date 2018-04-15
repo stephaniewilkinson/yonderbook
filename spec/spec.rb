@@ -44,6 +44,6 @@ describe App do
     click_on 'Find a library'
     assert_text 'Libraries'
     click_on 'Check San Francisco'
-    assert_text 'Coming soon'
+    assert_text 'Lean In'
   end
 end
