@@ -121,7 +121,7 @@ class App < Roda
         isbns_and_image_urls = cache_get :isbns_and_image_urls
 
         unless r['username'] == 'susanb'
-          auth = { user: r['username'], pass: r['password'] }
+          auth = {user: r['username'], pass: r['password']}
         end
         @books_added = []
         @books_failed = []
@@ -174,12 +174,13 @@ class App < Roda
         response = HTTP.get Overdrive::MAPBOX_URI, params: {latLng: latlon, radius: 50}
         libraries = JSON.parse response.body
 
-        @local_libraries = libraries.first(10).map do |l|
-          consortium_id = l['consortiumId']
-          consortium_name = l['consortiumName']
+        @local_libraries =
+          libraries.first(10).map do |l|
+            consortium_id = l['consortiumId']
+            consortium_name = l['consortiumName']
 
-          [consortium_id, consortium_name]
-        end
+            [consortium_id, consortium_name]
+          end
 
         cache_set libraries: @local_libraries
         r.redirect '/library'
@@ -276,7 +277,7 @@ class App < Roda
           end
           r.redirect '/inventory/index'
         else
-          flash[:error] = "no barcode detected, please try again"
+          flash[:error] = 'no barcode detected, please try again'
           r.redirect '/inventory/new'
         end
       end
