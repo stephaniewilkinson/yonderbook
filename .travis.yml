@@ -1,9 +1,9 @@
 language: ruby
 cache: bundler
 dist: trusty
-sudo: required
+sudo: false
 addons:
-  chrome: stable
+  chrome: beta
   apt:
     packages:
       - libzbar-dev
