@@ -12,8 +12,6 @@ require 'rack/test'
 require 'selenium/webdriver'
 require_relative '../app'
 
-logger = Logger.new $stdout
-
 Capybara.app = App
 Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new app, browser: :chrome
