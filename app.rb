@@ -276,7 +276,7 @@ class App < Roda
           end
           r.redirect '/inventory/index'
         else
-          flash[:error] = "no barcode detected, please try again"
+          flash[:error] = 'no barcode detected, please try again'
           r.redirect '/inventory/new'
         end
       end
