@@ -37,14 +37,13 @@ module Goodreads
     [user_id, first_name]
   end
 
-  def fetch_book_data isbn
-    response = HTTP.get "#{URI}/book/isbn/#{isbn}", params: {key: API_KEY}
+  def fetch_book_data(isbn)
+    response = HTTP.get "#{URI}/book/isbn/#{isbn}", params: { key: API_KEY }
     case response.code
     when 200
       doc = Nokogiri::XML(response.body)
       title = doc.xpath('//title').text
       image_url = doc.xpath('//image_url').first.text
-
       book = Book.new title: title, image_url: image_url, isbn: isbn
       [:ok, book]
     else
