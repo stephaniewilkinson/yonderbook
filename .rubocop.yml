@@ -907,7 +907,7 @@ Style/Semicolon:
   AllowAsExpressionSeparator: false
 
 Style/Send:
-  Enabled: true
+  Enabled: false
 
 Style/SingleLineBlockParams:
   Enabled: true
