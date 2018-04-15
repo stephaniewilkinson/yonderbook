@@ -38,9 +38,12 @@ describe App do
     assert_text 'Success'
     click_on 'Shelves'
     assert_text 'Your Goodreads Bookshelves'
-    click_on 'financial-books'
+    click_on 'didn-t-want-to-finish'
+    assert_text 'Download ebooks'
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
     assert_text 'Libraries'
+    click_on 'Choose San Francisco'
+    assert_text 'Coming soon'
   end
 end

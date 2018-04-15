@@ -1,9 +1,7 @@
 <h1>Coming soon!</h1>
 
-<% if @copies_owned %>
-  <%= @copies_owned %>
-<% end %>
-
-<% if @copies_available %>
-  <%= @copies_available %>
+<% @titles.each do |title| %>
+  <li>Title: <%= title.title %></li>
+  <li>Copies Available: <%= title.copies_available %></li>
+  <li>Copies Owned: <%= title.copies_owned %></li>
 <% end %>
