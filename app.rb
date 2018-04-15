@@ -198,6 +198,14 @@ class App < Roda
     r.on 'availability' do
       # route: POST /availability?consortium=1047
       r.post do
+        # Pulling book info from the cache
+        @isbnset = cache_get :isbns_and_image_urls
+
+        unless @isbnset
+          flash[:error] = 'please select a bookshelf'
+          r.redirect '/shelves/index'
+        end
+
         # Fetching auth token from overdrive
         client = OAuth2::Client.new(Overdrive::KEY, Overdrive::SECRET, token_url: '/token', site: Overdrive::OAUTH_URI)
         token_request = client.client_credentials.get_token
@@ -219,17 +227,12 @@ class App < Roda
         # the only thing i need to figure out is the subdomain at the beginning, AKA 'lapl'
         # because the book id stays the same
 
-        # Pulling book info from the cache
-        @isbnset = cache_get :isbns_and_image_urls
 
         # Making the API call to Library Availability endpoint
         titles = []
         Title = Struct.new :title, :image, :copies_available, :copies_owned, :isbn, :url, keyword_init: true
 
         @isbnset.each do |book|
-          isbn = book[0]
-          image = book[1]
-          title = book[2]
           availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode(title)}"
           response = HTTP.auth("Bearer #{token}").get(availability_uri)
           res = JSON.parse(response.body)
@@ -242,11 +245,11 @@ class App < Roda
             copies_owned = book_res['copiesOwned']
           end
 
-          title = Title.new title: URI.decode(title),
+          title = Title.new title: book[2],
                             copies_available: copies_available || 0,
                             copies_owned: copies_owned || 0,
-                            isbn: isbn,
-                            image: image
+                            isbn: book[0],
+                            image: book[1]
           titles << title
         end
 
