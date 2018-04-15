@@ -30,13 +30,13 @@ class App < Roda
 
   use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
-  def cache_set **pairs
+  def cache_set(**pairs)
     pairs.each do |key, value|
       CACHE["#{session[:session_id]}/#{key}"] = value
     end
   end
 
-  def cache_get key
+  def cache_get(key)
     CACHE["#{session[:session_id]}/#{key}"]
   end
 
