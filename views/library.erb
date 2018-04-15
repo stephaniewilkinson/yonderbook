@@ -13,7 +13,7 @@
             <p>See if any books on your wishlist are available here.</p>
             <form action="availability" method="post">
               <input type="hidden" name="consortium" value="<%= library[0] %>">
-              <button class="btn waves-effect waves-light green" type="submit" id="<%= library[0] %>" name="action">Choose this library
+              <button class="btn waves-effect waves-light green" type="submit" id="<%= library[0] %>" name="action">Choose <%= library[1] %>
                 <i class="material-icons right">send</i>
               </button>
             </form>
