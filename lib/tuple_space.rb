@@ -8,15 +8,15 @@ class TupleSpace < Rinda::TupleSpace
     super reaper_period_in_secs
   end
 
-  def []= key, value
+  def []=(key, value)
     take [key, nil], true
   rescue Rinda::RequestExpiredError
     nil
   ensure
-    write [key, value], 86400 # expires_in_secs
+    write [key, value], 86_400 # expires_in_secs
   end
 
-  def [] key
+  def [](key)
     read([key, nil], true).last
   rescue Rinda::RequestExpiredError
     nil

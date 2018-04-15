@@ -124,7 +124,7 @@ class App < Roda
         HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
           if isbns_and_image_urls
             isbns_and_image_urls.each do |isbn, image_url, title|
-              params = {asins: isbn, target: 'wishlist', action: 'add'}
+              params = { asins: isbn, target: 'wishlist', action: 'add' }
 
               response = http.get '/api/userbook', params: params
 
@@ -166,7 +166,7 @@ class App < Roda
           r.redirect "bookshelves/#{cache_get :shelf_name}"
         end
 
-        response = HTTP.get Overdrive::MAPBOX_URI, params: {latLng: latlon, radius: 50}
+        response = HTTP.get Overdrive::MAPBOX_URI, params: { latLng: latlon, radius: 50 }
         libraries = JSON.parse response.body
 
         @local_libraries = libraries.first(10).map do |l|
@@ -209,7 +209,7 @@ class App < Roda
         library_uri = "#{Overdrive::API_URI}/libraries/#{consortium_id}"
         response = HTTP.auth("Bearer #{token}").get(library_uri)
         res = JSON.parse(response.body)
-        collectionToken = res['collectionToken'] # "v1L1BDAAAAA2R"
+        collection_token = res['collectionToken'] # "v1L1BDAAAAA2R"
 
         # The URL that I need to provide to the user to actually click on and
         # visit so that they can check out the book is in this format:
@@ -220,7 +220,7 @@ class App < Roda
         # because the book id stays the same
 
         # Making the API call to Library Availability endpoint
-        availability_uri = "#{Overdrive::API_URI}/collections/#{collectionToken}/products?q=#{@titles.first}"
+        availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{@titles.first}"
         response = HTTP.auth("Bearer #{token}").get(availability_uri)
         res = JSON.parse(response.body)
         book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
