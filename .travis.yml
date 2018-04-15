@@ -9,7 +9,7 @@ addons:
   postgresql: '10'
   apt:
     packages:
-      - zbar
+      - libzbar0
       - postgresql-10
       - postgresql-client-10
 env:
