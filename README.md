@@ -5,7 +5,7 @@
 ## Installation
 
 ```
-git clone
+git clone git@github.com:stephaniewilkinson/bookmooch.git
 touch .env  # fill in your .env with all the values from .env-example
 createuser -U postgres bookmooch
 createdb -U postgres -O bookmooch bookmooch_production
