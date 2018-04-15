@@ -2,6 +2,7 @@
 
 require 'nokogiri'
 
+# methods and constants for goodreads
 module Goodreads
   Book = Struct.new :title, :image_url, :isbn, keyword_init: true
 
@@ -11,7 +12,7 @@ module Goodreads
 
   module_function
 
-  def get_books path
+  def get_books(path)
     HTTP.persistent URI do |http|
       doc = Nokogiri::XML http.get(path).body
 

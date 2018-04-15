@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# methods and constants for overdrive
 module Overdrive
   API_URI     = 'https://api.overdrive.com/v1'
   MAPBOX_URI  = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
