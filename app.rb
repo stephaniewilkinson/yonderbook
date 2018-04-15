@@ -232,8 +232,8 @@ class App < Roda
         # Checking if the book is available
         response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
         res = JSON.parse(response.body)
-        copiesOwned = res['copiesOwned']
-        copiesAvailable = res['copiesAvailable']
+        @copies_owned = res['copiesOwned']
+        @copies_available = res['copiesAvailable']
 
         r.redirect '/availability'
       end
