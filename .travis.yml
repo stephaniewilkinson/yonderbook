@@ -1,7 +1,7 @@
 language: ruby
 cache: bundler
 dist: precise
-sudo: true
+sudo: required
 services:
   - postgresql
 addons:
