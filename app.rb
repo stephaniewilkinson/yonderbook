@@ -288,7 +288,7 @@ class App < Roda
       r.get do
         view 'inventory/index'
       end
-    end # end of /inventory
+    end
 
     r.on 'about' do
       # route: GET /about
@@ -307,5 +307,5 @@ class App < Roda
         view 'users/show'
       end
     end
-  end # end of routing
+  end
 end
