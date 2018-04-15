@@ -1,6 +1,6 @@
 language: ruby
 cache: bundler
-dist: precise
+dist: trusty
 sudo: required
 addons:
   chrome: stable
