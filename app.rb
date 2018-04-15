@@ -16,7 +16,6 @@ require_relative 'lib/models'
 require_relative 'lib/overdrive'
 require_relative 'lib/tuple_space'
 
-# the only class with class
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :assets, css: 'styles.css'
@@ -30,13 +29,13 @@ class App < Roda
 
   use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
-  def cache_set **pairs
+  def cache_set(**pairs)
     pairs.each do |key, value|
       CACHE["#{session[:session_id]}/#{key}"] = value
     end
   end
 
-  def cache_get key
+  def cache_get(key)
     CACHE["#{session[:session_id]}/#{key}"]
   end
 
@@ -69,14 +68,9 @@ class App < Roda
     r.on 'shelves' do
       # route: GET /shelves
       r.get do
-        if session[:goodreads_user_id]
-          # @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
-        else
-          access_token = cache_get(:request_token).get_access_token
-          user_id, first_name = Goodreads.fetch_user access_token
-          session[:goodreads_user_id] = user_id
-          # @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
-        end
+        access_token = cache_get(:request_token).get_access_token
+        user_id, _first_name = Goodreads.fetch_user access_token
+        session[:goodreads_user_id] = user_id
 
         params = URI.encode_www_form(
           user_id: session[:goodreads_user_id],
@@ -121,7 +115,7 @@ class App < Roda
         isbns_and_image_urls = cache_get :isbns_and_image_urls
 
         unless r['username'] == 'susanb'
-          auth = { user: r['username'], pass: r['password'] }
+          auth = {user: r['username'], pass: r['password']}
         end
         @books_added = []
         @books_failed = []
@@ -174,12 +168,13 @@ class App < Roda
         response = HTTP.get Overdrive::MAPBOX_URI, params: {latLng: latlon, radius: 50}
         libraries = JSON.parse response.body
 
-        @local_libraries = libraries.first(10).map do |l|
-          consortium_id = l['consortiumId']
-          consortium_name = l['consortiumName']
+        @local_libraries =
+          libraries.first(10).map do |l|
+            consortium_id = l['consortiumId']
+            consortium_name = l['consortiumName']
 
-          [consortium_id, consortium_name]
-        end
+            [consortium_id, consortium_name]
+          end
 
         cache_set libraries: @local_libraries
         r.redirect '/library'
@@ -214,17 +209,18 @@ class App < Roda
         library_uri = "#{Overdrive::API_URI}/libraries/#{consortium_id}"
         response = HTTP.auth("Bearer #{token}").get(library_uri)
         res = JSON.parse(response.body)
-        collectionToken = res['collectionToken'] # "v1L1BDAAAAA2R"
+        collection_token = res['collectionToken'] # "v1L1BDAAAAA2R"
 
         # The URL that I need to provide to the user to actually click on and
         # visit so that they can check out the book is in this format:
         # https://lapl.overdrive.com/media/c8a88fb7-c369-454c-b113-9703b1816d57
         # where the id is at the end of the url
-        # the only thing i need to figure out is the subdomain at the beginning, AKA 'lapl'
+        # the only thing i need to figure out is the subdomain
+        # at the beginning, AKA 'lapl'
         # because the book id stays the same
 
         # Making the API call to Library Availability endpoint
-        availability_uri = "#{Overdrive::API_URI}/collections/#{collectionToken}/products?q=#{@titles.first}"
+        availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{@titles.first}"
         response = HTTP.auth("Bearer #{token}").get(availability_uri)
         res = JSON.parse(response.body)
         book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
@@ -232,8 +228,8 @@ class App < Roda
         # Checking if the book is available
         response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
         res = JSON.parse(response.body)
-        copiesOwned = res['copiesOwned']
-        copiesAvailable = res['copiesAvailable']
+        @copies_owned = res['copiesOwned']
+        @copies_available = res['copiesAvailable']
 
         r.redirect '/availability'
       end
@@ -268,15 +264,12 @@ class App < Roda
 
             status, book = Goodreads.fetch_book_data isbn
 
-            if status == :ok
-              @books.insert isbn: isbn, user_id: user[:id], cover_image_url: book.image_url, title: book.title
-            else
-              raise "#{status}: #{book}"
-            end
+            raise "#{status}: #{book}" unless status == :ok
+            @books.insert isbn: isbn, user_id: user[:id], cover_image_url: book.image_url, title: book.title
           end
           r.redirect '/inventory/index'
         else
-          flash[:error] = "no barcode detected, please try again"
+          flash[:error] = 'no barcode detected, please try again'
           r.redirect '/inventory/new'
         end
       end
@@ -285,7 +278,7 @@ class App < Roda
       r.get do
         view 'inventory/index'
       end
-    end # end of /inventory
+    end
 
     r.on 'about' do
       # route: GET /about
@@ -304,5 +297,5 @@ class App < Roda
         view 'users/show'
       end
     end
-  end # end of routing
+  end
 end

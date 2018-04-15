@@ -7,7 +7,7 @@ Sequel::Model.plugin :prepared_statements
 
 if ENV['RACK_ENV'] == 'development'
   Sequel::Model.cache_associations = false
-  Unreloader.require('models') { |f| Sequel::Model.send :camelize, File.basename(f).sub(/\.rb\z/, '') }
+  Unreloader.require('models') { |f| Sequel::Model.public_send :camelize, File.basename(f).sub(/\.rb\z/, '') }
   DB.loggers << Logger.new($stdout)
 else
   Sequel::Model.plugin :subclasses
