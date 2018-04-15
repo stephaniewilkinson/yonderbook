@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 ENV['RACK_ENV'] = 'test'
+
 require 'dotenv/load'
 require 'logger'
 require 'minitest/autorun'
