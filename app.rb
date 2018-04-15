@@ -198,7 +198,6 @@ class App < Roda
     r.on 'availability' do
       # route: POST /availability?consortium=1047
       r.post do
-
         # Fetching auth token from overdrive
         client = OAuth2::Client.new(Overdrive::KEY, Overdrive::SECRET, token_url: '/token', site: Overdrive::OAUTH_URI)
         token_request = client.client_credentials.get_token
