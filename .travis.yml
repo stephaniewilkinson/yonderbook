@@ -2,9 +2,11 @@ language: ruby
 cache: bundler
 dist: trusty
 sudo: false
+services:
+  - postgresql
 addons:
   chrome: stable
-  postgresql: "10"
+  postgresql: '10'
   apt:
     packages:
       - postgresql-10
@@ -13,9 +15,6 @@ env:
   global:
     - PGPORT=5433
 before_install:
-  - gem install bundler
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
   - gem update --system
-  - gem update
-services:
-  - postgresql
+  - gem install bundler
