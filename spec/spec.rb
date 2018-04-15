@@ -4,6 +4,7 @@ require_relative 'spec_helper'
 
 describe App do
   include Capybara::DSL
+  include Minitest::Capybara::Behaviour
   include Rack::Test::Methods
 
   let :app do
