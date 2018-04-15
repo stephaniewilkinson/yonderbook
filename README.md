@@ -4,22 +4,16 @@
 
 ## Installation
 
-$ git clone
-
-
-$ bundle exec rackup
-
-
-## Testing
-
-$ ruby spec/spec.rb
-
-
-## Set up db
-
 ```
+git clone git@github.com:stephaniewilkinson/bookmooch.git
+touch .env  # fill in your .env with all the values from .env-example
 createuser -U postgres bookmooch
 createdb -U postgres -O bookmooch bookmooch_production
 createdb -U postgres -O bookmooch bookmooch_test
 createdb -U postgres -O bookmooch bookmooch_development
+rackup
 ```
+
+## Testing
+
+$ ruby spec/spec.rb

@@ -26,14 +26,14 @@ describe App do
   it 'lets user log in and look at a shelf' do
     visit '/'
     click_on 'Log in with goodreads'
-    fill_in 'Email Address', with: 'what.happens@gmail.com'
+    fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
     assert_text 'Your Goodreads Bookshelves'
     click_on 'currently-reading'
     assert_text 'Receive books'
-    fill_in 'username', with: 'swilk001'
-    fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
+    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
+    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
     click_on 'Authenticate'
     assert_text 'Success'
     click_on 'Shelves'
