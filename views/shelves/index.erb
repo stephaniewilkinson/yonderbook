@@ -4,16 +4,23 @@
 <% if @shelves %>
   <div class="row">
     <% @shelves.each do |shelf| %>
-      <div class="col s6 m4">
-        <a href="/bookshelves/<%= shelf[0] %>">
-          <div class="card blue-grey">
-            <span class="card-title white-text"><%= shelf[0] %></span>
-            <div class="card-action white-text">
-              <i class="material-icons green-text right">send</i>
+      <div class="col m6 l4">
+        <div class="card blue-grey">
+          <span class="card-title white-text"><%= shelf[0].to_s.slice(0..20) %></span>
+          <div class="card-action white-text">
+            <% if shelf[1].to_s.to_i > 0  %>
               <p>See which of the <%= shelf[1] %> book(s) on this shelf are available to request.</p>
-            </div>
+              <a href="/bookshelves/<%= shelf[0] %>" class="btn waves-effect waves-light green" type="submit">View <%= shelf[0] %>
+                <i class="material-icons right">send</i>
+              </a>
+            <% else %>
+              <p>There aren't any books on this shelf yet. Visit Goodreads to add some.</p>
+              <a class="btn waves-effect disabled waves-light green" type="submit">View <%= shelf[0] %>
+                <i class="material-icons right">send</i>
+              </a>
+            <% end %>
           </div>
-        </a>
+        </div>
       </div>
     <% end %>
   </div>
