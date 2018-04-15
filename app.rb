@@ -242,13 +242,15 @@ class App < Roda
             book_res = JSON.parse(response.body)
             copies_available = book_res['copiesAvailable']
             copies_owned = book_res['copiesOwned']
+            url = res['products'].first['contentDetails'].first['href']
           end
 
           title = Title.new title: book[2],
                             copies_available: copies_available || 0,
                             copies_owned: copies_owned || 0,
                             isbn: book[0],
-                            image: book[1]
+                            image: book[1],
+                            url: url
           titles << title
         end
 
