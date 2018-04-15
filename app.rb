@@ -116,7 +116,7 @@ class App < Roda
         isbns_and_image_urls = cache_get :isbns_and_image_urls
 
         unless r['username'] == 'susanb'
-          auth = { user: r['username'], pass: r['password'] }
+          auth = {user: r['username'], pass: r['password']}
         end
         @books_added = []
         @books_failed = []
@@ -124,7 +124,7 @@ class App < Roda
         HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
           if isbns_and_image_urls
             isbns_and_image_urls.each do |isbn, image_url, title|
-              params = { asins: isbn, target: 'wishlist', action: 'add' }
+              params = {asins: isbn, target: 'wishlist', action: 'add'}
 
               response = http.get '/api/userbook', params: params
 
@@ -166,7 +166,7 @@ class App < Roda
           r.redirect "bookshelves/#{cache_get :shelf_name}"
         end
 
-        response = HTTP.get Overdrive::MAPBOX_URI, params: { latLng: latlon, radius: 50 }
+        response = HTTP.get Overdrive::MAPBOX_URI, params: {latLng: latlon, radius: 50}
         libraries = JSON.parse response.body
 
         @local_libraries = libraries.first(10).map do |l|

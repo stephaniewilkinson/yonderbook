@@ -38,7 +38,7 @@ module Goodreads
   end
 
   def fetch_book_data(isbn)
-    response = HTTP.get "#{URI}/book/isbn/#{isbn}", params: { key: API_KEY }
+    response = HTTP.get "#{URI}/book/isbn/#{isbn}", params: {key: API_KEY}
     case response.code
     when 200
       doc = Nokogiri::XML(response.body)
