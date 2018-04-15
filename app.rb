@@ -220,13 +220,6 @@ class App < Roda
         res = JSON.parse(response.body)
         collection_token = res['collectionToken'] # "v1L1BDAAAAA2R"
 
-        # The URL that I need to provide to the user to actually click on and
-        # visit so that they can check out the book is in this format:
-        # https://lapl.overdrive.com/media/c8a88fb7-c369-454c-b113-9703b1816d57
-        # where the id is at the end of the url
-        # the only thing i need to figure out is the subdomain at the beginning, AKA 'lapl'
-        # because the book id stays the same
-
         # Making the API call to Library Availability endpoint
         titles = []
         Title = Struct.new :title, :image, :copies_available, :copies_owned, :isbn, :url, keyword_init: true
