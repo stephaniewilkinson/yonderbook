@@ -7,6 +7,10 @@ describe App do
   include Minitest::Capybara::Behaviour
   include Rack::Test::Methods
 
+  let :app do
+    App
+  end
+
   it 'responds to root' do
     get '/'
     assert last_response.ok?
