@@ -215,7 +215,7 @@ class App < Roda
         library_uri = "#{Overdrive::API_URI}/libraries/#{consortium_id}"
         response = HTTP.auth("Bearer #{token}").get(library_uri)
         res = JSON.parse(response.body)
-        collectionToken = res['collectionToken'] # "v1L1BDAAAAA2R"
+        collection_token = res['collectionToken'] # "v1L1BDAAAAA2R"
 
         # The URL that I need to provide to the user to actually click on and
         # visit so that they can check out the book is in this format:
@@ -225,7 +225,7 @@ class App < Roda
         # because the book id stays the same
 
         # Making the API call to Library Availability endpoint
-        availability_uri = "#{Overdrive::API_URI}/collections/#{collectionToken}/products?q=#{@titles.first}"
+        availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{@titles.first}"
         response = HTTP.auth("Bearer #{token}").get(availability_uri)
         res = JSON.parse(response.body)
         book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
@@ -233,8 +233,8 @@ class App < Roda
         # Checking if the book is available
         response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
         res = JSON.parse(response.body)
-        copiesOwned = res['copiesOwned']
-        copiesAvailable = res['copiesAvailable']
+        @copies_owned = res['copiesOwned']
+        @copies_available = res['copiesAvailable']
 
         r.redirect '/availability'
       end
