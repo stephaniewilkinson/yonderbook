@@ -1,14 +1,9 @@
 language: ruby
 cache: bundler
-dist: precise
+# dist: precise
 sudo: required
-services:
-  - postgresql
 addons:
   chrome: stable
-env:
-  global:
-    - PGPORT=5433
 before_install:
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
   - gem update --system
