@@ -32,8 +32,8 @@ describe App do
     assert_text 'Your Goodreads Bookshelves'
     click_on 'currently-reading'
     assert_text 'Receive books'
-    fill_in 'username', with: 'swilk001'
-    fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
+    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
+    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
     click_on 'Authenticate'
     assert_text 'Success'
     click_on 'Shelves'
