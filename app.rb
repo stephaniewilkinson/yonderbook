@@ -269,11 +269,8 @@ class App < Roda
 
             status, book = Goodreads.fetch_book_data isbn
 
-            if status == :ok
-              @books.insert isbn: isbn, user_id: user[:id], cover_image_url: book.image_url, title: book.title
-            else
-              raise "#{status}: #{book}"
-            end
+            raise "#{status}: #{book}" unless status == :ok
+            @books.insert isbn: isbn, user_id: user[:id], cover_image_url: book.image_url, title: book.title
           end
           r.redirect '/inventory/index'
         else
