@@ -8,11 +8,12 @@ notifications:
 services:
   - postgresql
 addons:
-  chrome: beta
+  chrome: stable
   postgresql: "9.6"
   apt:
     packages:
       - libzbar-dev
+      - chromium-chromedriver
 before_install:
   - rvm get head
   - gem update --system
