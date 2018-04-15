@@ -11,20 +11,16 @@ require 'rack/test'
 require 'selenium/webdriver'
 require_relative '../app'
 
-def app
-  App
-end
-
 logger = Logger.new $stdout
 
 Capybara.app = App
 Capybara.register_driver :chrome do |app|
-  Capybara::Selenium::Driver.new(app, browser: :chrome)
+  Capybara::Selenium::Driver.new app, browser: :chrome
 end
 
 Capybara.register_driver :headless_chrome do |app|
   capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
-    chromeOptions: { args: %w(headless disable-gpu) }
+    chromeOptions: {args: %w[headless disable-gpu]}
   )
 
   Capybara::Selenium::Driver.new app,
