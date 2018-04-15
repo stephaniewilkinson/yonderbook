@@ -9,7 +9,6 @@ addons:
   postgresql: '10'
   apt:
     packages:
-      - libzbar0
       - postgresql-10
       - postgresql-client-10
 env:
@@ -20,3 +19,5 @@ before_install:
   - gem update --system
   - gem install bundler
   - gem update
+install:
+  - pip install zbarlight
