@@ -1,7 +1,18 @@
-<h1>Coming soon!</h1>
+<h3>Here are the books on your shelf that are available at that library</h3>
 
-<% @titles.each do |title| %>
-  <li>Title: <%= title.title %></li>
-  <li>Copies Available: <%= title.copies_available %></li>
-  <li>Copies Owned: <%= title.copies_owned %></li>
-<% end %>
+<div class="row">
+  <% @titles.each do |title| %>
+    <div class="col s12">
+      <div class="card horizontal">
+        <div class="card-image">
+          <img src="<%= title.image %>">
+        </div>
+        <div class="card-content">
+          <span class="card-title"><%= title.title %></span>
+          <p>Copies Available: <%= title.copies_available %></p>
+          <p>Copies Owned: <%= title.copies_owned %></p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -233,14 +233,18 @@ class App < Roda
           availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode(title)}"
           response = HTTP.auth("Bearer #{token}").get(availability_uri)
           res = JSON.parse(response.body)
-          book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
 
-          # Checking if the book is available
-          response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
-          res = JSON.parse(response.body)
+          if res['products']
+            book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
+            response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
+            book_res = JSON.parse(response.body)
+            copies_available = book_res['copiesAvailable']
+            copies_owned = book_res['copiesOwned']
+          end
+
           title = Title.new title: URI.decode(title),
-                            copies_available: res['copiesAvailable'],
-                            copies_owned: res['copiesOwned'],
+                            copies_available: copies_available || 0,
+                            copies_owned: copies_owned || 0,
                             isbn: isbn,
                             image: image
           titles << title
