@@ -6,7 +6,8 @@
 
 ```
 git clone git@github.com:stephaniewilkinson/bookmooch.git
-touch .env  # fill in your .env with all the values from .env-example
+cd bookmooch
+cp .env-example .env
 createuser -U postgres bookmooch
 createdb -U postgres -O bookmooch bookmooch_production
 createdb -U postgres -O bookmooch bookmooch_test
