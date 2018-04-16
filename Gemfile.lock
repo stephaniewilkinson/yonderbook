@@ -82,7 +82,7 @@ GEM
       rack
     rollbar (2.15.5)
       multi_json
-    rubocop (0.54.0)
+    rubocop (0.55.0)
       parallel (~> 1.10)
       parser (>= 2.5)
       powerpack (~> 0.1)
