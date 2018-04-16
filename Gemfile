@@ -16,7 +16,6 @@ gem 'rack'
 gem 'rack-unreloader'
 gem 'rake'
 gem 'roda'
-gem 'rollbar'
 gem 'rubocop'
 gem 'sequel'
 gem 'sequel_pg'
@@ -29,4 +28,8 @@ group :test do
   gem 'minitest'
   gem 'minitest-capybara'
   gem 'rack-test'
+end
+
+group :production do
+  gem 'rollbar'
 end
