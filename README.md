@@ -7,7 +7,7 @@
 ```
 git clone git@github.com:stephaniewilkinson/bookmooch.git
 cd bookmooch
-cp .env-example .env
+cp .env-example .env # if you msg me I can share my api keys
 createuser -U postgres bookmooch
 createdb -U postgres -O bookmooch bookmooch_production
 createdb -U postgres -O bookmooch bookmooch_test
