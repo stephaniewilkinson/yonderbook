@@ -80,7 +80,7 @@ GEM
     rake (12.3.1)
     roda (3.6.0)
       rack
-    rollbar (2.15.5)
+    rollbar (2.15.6)
       multi_json
     rubocop (0.55.0)
       parallel (~> 1.10)
