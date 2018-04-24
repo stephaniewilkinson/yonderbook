@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 ruby '2.5.1'
 
 gem 'area'
-gem 'dotenv'
+gem 'dotenv', '2.2.2'
 gem 'http'
 gem 'nokogiri'
 gem 'oauth'
