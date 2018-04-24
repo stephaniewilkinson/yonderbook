@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'dotenv'
 
 module Overdrive
   API_URI    = 'https://api.overdrive.com/v1'
