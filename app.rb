@@ -16,17 +16,15 @@ require_relative 'lib/models'
 require_relative 'lib/overdrive'
 require_relative 'lib/tuple_space'
 
-# the only class with class
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
   plugin :flash
   plugin :render
-  compile_assets
 
-  CACHE                 = ::TupleSpace.new
-  BOOKMOOCH_URI         = 'http://api.bookmooch.com'
+  CACHE = ::TupleSpace.new
+  BOOKMOOCH_URI = 'http://api.bookmooch.com'
 
   use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
