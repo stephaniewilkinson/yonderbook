@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'nokogiri'
+require 'dotenv'
 
 module Goodreads
   Book = Struct.new :title, :image_url, :isbn, keyword_init: true
