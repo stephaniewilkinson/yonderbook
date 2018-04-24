@@ -18,19 +18,19 @@ module Overdrive
       products = JSON.parse(response.body)['products']
 
       if products
-        book_availibility_url = products.first['links'].assoc('availability').last['href']
-        response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
-        book_res = JSON.parse(response.body)
-        copies_available = book_res['copiesAvailable']
-        copies_owned = book_res['copiesOwned']
+        availibility_url = products.first['links'].assoc('availability').last['href']
+        response = HTTP.auth("Bearer #{token}").get(availibility_url)
+        book_body = JSON.parse(response.body)
+        copies_available = book_body['copiesAvailable']
+        copies_owned = book_body['copiesOwned']
         url = products.first['contentDetails'].first['href']
       end
 
-      Title.new title: book[2],
+      Title.new isbn: book[0],
+                image: book[1],
+                title: book[2],
                 copies_available: copies_available || 0,
                 copies_owned: copies_owned || 0,
-                isbn: book[0],
-                image: book[1],
                 url: url
     end
   end
