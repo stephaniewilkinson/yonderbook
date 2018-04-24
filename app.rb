@@ -221,32 +221,7 @@ class App < Roda
         collection_token = res['collectionToken'] # "v1L1BDAAAAA2R"
 
         # Making the API call to Library Availability endpoint
-        titles = []
-        Title = Struct.new :title, :image, :copies_available, :copies_owned, :isbn, :url, keyword_init: true
-
-        @isbnset.each do |book|
-          availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode(book[2])}"
-          response = HTTP.auth("Bearer #{token}").get(availability_uri)
-          res = JSON.parse(response.body)
-
-          if res['products']
-            book_availibility_url = res['products'].first['links'].assoc('availability').last['href']
-            response = HTTP.auth("Bearer #{token}").get(book_availibility_url)
-            book_res = JSON.parse(response.body)
-            copies_available = book_res['copiesAvailable']
-            copies_owned = book_res['copiesOwned']
-            url = res['products'].first['contentDetails'].first['href']
-          end
-
-          title = Title.new title: book[2],
-                            copies_available: copies_available || 0,
-                            copies_owned: copies_owned || 0,
-                            isbn: book[0],
-                            image: book[1],
-                            url: url
-          titles << title
-        end
-
+        titles = Overdrive.fetch_titles_availability @isbnset, collection_token, token
         cache_set titles: titles
 
         r.redirect '/availability'
