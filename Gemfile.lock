@@ -1,9 +1,4 @@
 GEM
-  remote: https://api.rubygems.org/
-  specs:
-    dotenv (2.2.2)
-
-GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.5.2)
@@ -31,6 +26,7 @@ GEM
     coderay (1.1.2)
     domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.2.2)
     faraday (0.12.2)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
@@ -139,3 +135,9 @@ DEPENDENCIES
   sequel_pg
   tilt
   zbar
+
+RUBY VERSION
+   ruby 2.5.1p57
+
+BUNDLED WITH
+   1.16.1
