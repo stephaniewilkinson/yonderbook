@@ -3,7 +3,7 @@
 
 
 <div class="row">
-    <% @titles.sort_by { |t| t.copies_available }.reverse.each do |title| %>
+    <% @titles.sort_by { |t| t.copies_available }.reverse_each do |title| %>
     <div class="col m8">
       <div class="card hoverable horizontal">
         <div class="card-image">
