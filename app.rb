@@ -67,14 +67,9 @@ class App < Roda
     r.on 'shelves' do
       # route: GET /shelves
       r.get do
-        if session[:goodreads_user_id]
-          # @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
-        else
-          access_token = cache_get(:request_token).get_access_token
-          user_id, _first_name = Goodreads.fetch_user access_token
-          session[:goodreads_user_id] = user_id
-          # @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
-        end
+        access_token = cache_get(:request_token).get_access_token
+        user_id, _first_name = Goodreads.fetch_user access_token
+        session[:goodreads_user_id] = user_id
 
         params = URI.encode_www_form(
           user_id: session[:goodreads_user_id],
