@@ -11,11 +11,16 @@ module Overdrive
 
   module_function
 
+  def fetch_products_info book, collection_token, token
+    availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode("\"#{book[2]}\"")}"
+    response = HTTP.auth("Bearer #{token}").get(availability_uri)
+    JSON.parse(response.body)['products']
+  end
+
   def fetch_titles_availability isbnset, collection_token, token
     isbnset.map do |book|
-      availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=\"#{URI.encode(book[2])}\""
-      response = HTTP.auth("Bearer #{token}").get(availability_uri)
-      products = JSON.parse(response.body)['products']
+
+      products = fetch_products_info book, collection_token, token
 
       if products
         availibility_url = products.first['links'].assoc('availability').last['href']
