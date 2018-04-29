@@ -20,6 +20,7 @@ gem 'rubocop'
 gem 'sequel'
 gem 'sequel_pg'
 gem 'tilt'
+gem 'typhoeus'
 gem 'zbar'
 
 group :test do
