@@ -17,7 +17,6 @@ module Overdrive
                      :url, \
                      :id, \
                      :availability_url, \
-                     :request, \
                      keyword_init: true
 
   module_function
@@ -31,21 +30,21 @@ module Overdrive
       request = Typhoeus::Request.new availability_url, headers: {'Authorization' => "Bearer #{token}"}
       hydra.queue request
 
-      Title.new isbn: book[0],
+      title = Title.new isbn: book[0],
                 image: book[1],
                 title: book[2],
                 copies_available: 0,
-                copies_owned: 0,
-                request: request
+                copies_owned: 0
+
+      [title, request]
     end
 
     puts "Running hydra for books: #{books.size} ..."
     hydra.run
     puts 'Hydra complete ...'
 
-    books.each do |book|
-      body = book.request.response.body
-      book.request = nil
+    books.each do |book, request|
+      body = request.response.body
       next if body.empty?
       json = JSON.parse body
       products = json['products']
@@ -55,7 +54,7 @@ module Overdrive
       book.url = products.dig 0, 'contentDetails', 0, 'href'
     end
 
-    batches = books.select(&:id).map(&:id).each_slice(25)
+    batches = books.map(&:first).select(&:id).map(&:id).each_slice(25)
 
     puts "Batches of 25: #{batches.size} ..."
     results = batches.flat_map do |batch|
@@ -67,12 +66,12 @@ module Overdrive
     end
 
     results.each do |result|
-      book = books.find { |book| book.id == result['reserveId'] }
+      book = books.find { |book, _| book.id == result['reserveId'] }.first
       book.copies_available = result['copiesAvailable']
       book.copies_owned = result['copiesOwned']
       puts book
     end
 
-    books
+    books.map(&:first)
   end
 end
