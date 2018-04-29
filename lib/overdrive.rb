@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'typhoeus'
+
 module Overdrive
   API_URI    = 'https://api.overdrive.com/v1'
   MAPBOX_URI = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
