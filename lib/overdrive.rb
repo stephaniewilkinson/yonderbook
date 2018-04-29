@@ -24,20 +24,21 @@ module Overdrive
   def fetch_titles_availability isbnset, collection_token, token
     hydra = Typhoeus::Hydra.new
 
-    books = isbnset.map do |book|
-      availability_url = "#{Overdrive::API_URI}/collections/#{collection_token}/products?minimum=false&q=#{URI.encode("\"#{book[2]}\"")}"
+    books =
+      isbnset.map do |book|
+        availability_url = "#{Overdrive::API_URI}/collections/#{collection_token}/products?minimum=false&q=#{URI.encode("\"#{book[2]}\"")}"
 
-      request = Typhoeus::Request.new availability_url, headers: {'Authorization' => "Bearer #{token}"}
-      hydra.queue request
+        request = Typhoeus::Request.new availability_url, headers: {'Authorization' => "Bearer #{token}"}
+        hydra.queue request
 
-      title = Title.new isbn: book[0],
-                image: book[1],
-                title: book[2],
-                copies_available: 0,
-                copies_owned: 0
+        title = Title.new isbn: book[0],
+                          image: book[1],
+                          title: book[2],
+                          copies_available: 0,
+                          copies_owned: 0
 
-      [title, request]
-    end
+        [title, request]
+      end
 
     puts "Running hydra for books: #{books.size} ..."
     hydra.run
@@ -57,13 +58,14 @@ module Overdrive
     batches = books.map(&:first).select(&:id).map(&:id).each_slice(25)
 
     puts "Batches of 25: #{batches.size} ..."
-    results = batches.flat_map do |batch|
-      uri = "https://api.overdrive.com/v2/collections/#{collection_token}/availability?products=#{batch.join ','}"
-      response = HTTP.auth("Bearer #{token}").get uri
-      body = JSON.parse response.body
+    results =
+      batches.flat_map do |batch|
+        uri = "https://api.overdrive.com/v2/collections/#{collection_token}/availability?products=#{batch.join ','}"
+        response = HTTP.auth("Bearer #{token}").get uri
+        body = JSON.parse response.body
 
-      body['availability']
-    end
+        body['availability']
+      end
 
     results.each do |result|
       book = books.find { |book, _| book.id == result['reserveId'] }.first
