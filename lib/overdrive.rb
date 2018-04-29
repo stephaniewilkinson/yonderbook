@@ -17,32 +17,62 @@ module Overdrive
                      :url, \
                      :id, \
                      :availability_url, \
+                     :request, \
                      keyword_init: true
 
   module_function
 
   def fetch_titles_availability isbnset, collection_token, token
+    hydra = Typhoeus::Hydra.new
+
     books = isbnset.map do |book|
-      availability_url = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode("\"#{book[2]}\"")}"
-      response = HTTP.auth("Bearer #{token}").get(availability_url)
-      products = JSON.parse(response.body)['products']
+      availability_url = "#{Overdrive::API_URI}/collections/#{collection_token}/products?minimum=false&q=#{URI.encode("\"#{book[2]}\"")}"
+
+      request = Typhoeus::Request.new availability_url, headers: {'Authorization' => "Bearer #{token}"}
+      hydra.queue request
 
       Title.new isbn: book[0],
                 image: book[1],
                 title: book[2],
-                id: products&.dig(0, 'crossRefId'),
-                availability_url: products&.dig(0, 'links')&.assoc('availability')&.dig(-1, 'href'),
-                url: products&.dig(0, 'contentDetails', 0, 'href')
+                copies_available: 0,
+                copies_owned: 0,
+                request: request
     end
 
-    books.map do |book|
-      next book unless book.id
+    puts "Running hydra for books: #{books.size} ..."
+    hydra.run
+    puts 'Hydra complete ...'
 
-      response = HTTP.auth("Bearer #{token}").get(book.availability_url)
-      book_body = JSON.parse(response.body)
-      book.copies_available = book_body['copiesAvailable'] || 0
-      book.copies_owned = book_body['copiesOwned'] || 0
-      book
+    books.each do |book|
+      body = book.request.response.body
+      book.request = nil
+      next if body.empty?
+      json = JSON.parse body
+      products = json['products']
+      next unless products
+
+      book.id = products.dig 0, 'id'
+      book.url = products.dig 0, 'contentDetails', 0, 'href'
     end
+
+    batches = books.select(&:id).map(&:id).each_slice(25)
+
+    puts "Batches of 25: #{batches.size} ..."
+    results = batches.flat_map do |batch|
+      uri = "https://api.overdrive.com/v2/collections/#{collection_token}/availability?products=#{batch.join ','}"
+      response = HTTP.auth("Bearer #{token}").get uri
+      body = JSON.parse response.body
+
+      body['availability']
+    end
+
+    results.each do |result|
+      book = books.find { |book| book.id == result['reserveId'] }
+      book.copies_available = result['copiesAvailable']
+      book.copies_owned = result['copiesOwned']
+      puts book
+    end
+
+    books
   end
 end
