@@ -68,7 +68,7 @@ module Overdrive
       end
 
     results.each do |result|
-      book = books.find { |book, _| book.id == result['reserveId'] }.first
+      book = books.find { |title, _| title.id == result['reserveId'] }.first
       book.copies_available = result['copiesAvailable']
       book.copies_owned = result['copiesOwned']
       puts book
