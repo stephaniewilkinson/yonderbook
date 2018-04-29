@@ -13,7 +13,7 @@ module Overdrive
 
   def fetch_titles_availability isbnset, collection_token, token
     isbnset.map do |book|
-      availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=#{URI.encode(book[2])}"
+      availability_uri = "#{Overdrive::API_URI}/collections/#{collection_token}/products?q=\"#{URI.encode(book[2])}\""
       response = HTTP.auth("Bearer #{token}").get(availability_uri)
       products = JSON.parse(response.body)['products']
 
