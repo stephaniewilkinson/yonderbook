@@ -85,14 +85,13 @@ class App < Roda
 
         path = "/shelf/list.xml?#{params}}"
 
-        HTTP.persistent Goodreads::URI do |http|
-          doc = Nokogiri::XML http.get(path).body
+        doc = Nokogiri::XML HTTP.get("#{Goodreads::URI}/#{path}").body
 
-          @shelf_names = doc.xpath('//shelves//name').children.to_a
-          @shelf_books = doc.xpath('//shelves//book_count').children.to_a
-        end
+        shelf_names = doc.xpath('//shelves//name').children.to_a
+        shelf_books = doc.xpath('//shelves//book_count').children.to_a
 
-        @shelves = @shelf_names.zip(@shelf_books)
+        @shelves = shelf_names.zip shelf_books
+
         view 'shelves/index'
       end
     end
