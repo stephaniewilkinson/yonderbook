@@ -221,7 +221,7 @@ class App < Roda
         collection_token = res['collectionToken'] # "v1L1BDAAAAA2R"
 
         # Making the API call to Library Availability endpoint
-        titles = Overdrive.fetch_titles_availability @isbnset, collection_token, token
+        titles = Overdrive.new(@isbnset, collection_token, token).fetch_titles_availability
         cache_set titles: titles
 
         r.redirect '/availability'
