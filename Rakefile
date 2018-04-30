@@ -12,3 +12,9 @@ end
 task :default do
   sh 'ruby spec/*.rb'
 end
+
+task :migrate do
+  Dir['migrate/*'].each do |migration|
+    sh "ruby #{migration}"
+  end
+end
