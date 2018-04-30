@@ -25,8 +25,8 @@ class App < Roda
   plugin :render
   compile_assets
 
-  CACHE                 = ::TupleSpace.new
-  BOOKMOOCH_URI         = 'http://api.bookmooch.com'
+  CACHE = TupleSpace.new
+  BOOKMOOCH_URI = 'http://api.bookmooch.com'
 
   use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
@@ -143,8 +143,7 @@ class App < Roda
           end
         end
 
-        cache_set books_added: @books_added
-        cache_set books_failed: @books_failed
+        cache_set books_added: @books_added, books_failed: @books_failed
 
         r.redirect '/bookmooch'
       end
