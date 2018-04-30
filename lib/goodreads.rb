@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'nokogiri'
+require 'typhoeus'
 
 module Goodreads
   Book = Struct.new :title, :image_url, :isbn, keyword_init: true
@@ -12,18 +13,22 @@ module Goodreads
   module_function
 
   def get_books path
-    HTTP.persistent URI do |http|
-      doc = Nokogiri::XML http.get(path).body
+    doc = Nokogiri::XML Typhoeus.get("#{URI}/#{path}").body
+    number_of_pages = doc.xpath('//books').first['numpages'].to_i
 
-      number_of_pages = doc.xpath('//books').first['numpages'].to_i
+    hydra = Typhoeus::Hydra.new
+    requests = 1.upto(number_of_pages).map do |page|
+      Typhoeus::Request.new "#{URI}/#{path}&page=#{page}"
+    end
+    requests.each { |request| hydra.queue request }
+    hydra.run
 
-      1.upto(number_of_pages).flat_map do |page|
-        doc = Nokogiri::XML http.get("#{path}&page=#{page}").body
-        isbns = doc.xpath('//isbn').children.map &:text
-        image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v /\A\n\z/
-        titles = doc.xpath('//title').children.map &:text
-        isbns.zip(image_urls, titles)
-      end
+    requests.flat_map do |request|
+      doc = Nokogiri::XML request.response.body
+      isbns = doc.xpath('//isbn').children.map &:text
+      image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v /\A\n\z/
+      titles = doc.xpath('//title').children.map &:text
+      isbns.zip(image_urls, titles)
     end
   end
 

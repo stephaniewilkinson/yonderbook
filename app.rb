@@ -107,7 +107,7 @@ class App < Roda
       )
       path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
 
-      @isbnset = Goodreads.get_books(path)
+      @isbnset = Goodreads.get_books path
       cache_set isbns_and_image_urls: @isbnset
       @invalidzip = r.params['invalidzip']
 
