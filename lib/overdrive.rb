@@ -56,7 +56,8 @@ class Overdrive
       Typhoeus::Request.new uri, headers: {'Authorization' => "Bearer #{@token}"}
     end
 
-    hydra.queue *requests
+    requests.each { |request| hydra.queue request }
+
     hydra.run
 
     requests.each do |request|
