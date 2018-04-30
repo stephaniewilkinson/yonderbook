@@ -46,22 +46,26 @@ class Overdrive
   end
 
   def add_library_availability_to_books
+    hydra = Typhoeus::Hydra.new
     batches = @books.map(&:first).select(&:id).map(&:id).each_slice(25)
 
     puts "Batches of 25: #{batches.size} ..."
-    results = batches.flat_map do |batch|
-      uri = "https://api.overdrive.com/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
-      response = HTTP.auth("Bearer #{@token}").get uri
-      body = JSON.parse response.body
 
-      body['availability']
+    requests = batches.map do |batch|
+      uri = "https://api.overdrive.com/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
+      Typhoeus::Request.new uri, headers: {'Authorization' => "Bearer #{@token}"}
     end
 
-    results.each do |result|
+    requests.each { |request| hydra.queue request }
+
+    hydra.run
+
+    requests.each do |request|
+      body = JSON.parse request.response.body
+      result = body['availability'].first
       book = @books.find { |title, _| title.id == result['reserveId'] }.first
       book.copies_available = result['copiesAvailable']
       book.copies_owned = result['copiesOwned']
-      puts book
     end
   end
 
