@@ -12,6 +12,10 @@ module Goodreads
 
   module_function
 
+  def fetch_shelves path
+    Nokogiri::XML HTTP.get("#{URI}/#{path}").body
+  end
+
   def get_books path
     doc = Nokogiri::XML Typhoeus.get("#{URI}/#{path}").body
     number_of_pages = doc.xpath('//books').first['numpages'].to_i

@@ -19,6 +19,15 @@ class Overdrive
                      :availability_url, \
                      keyword_init: true
 
+  class << self
+    def collection_token consortium_id, token
+      library_uri = "#{API_URI}/libraries/#{consortium_id}"
+      response = HTTP.auth("Bearer #{token}").get(library_uri)
+      res = JSON.parse(response.body)
+      res['collectionToken'] # "v1L1BDAAAAA2R"
+    end
+  end
+
   def initialize isbnset, collection_token, token
     @isbnset = isbnset
     @collection_token = collection_token

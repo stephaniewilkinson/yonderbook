@@ -2,7 +2,6 @@
 
 require 'area'
 require 'http'
-require 'nokogiri'
 require 'oauth'
 require 'oauth2'
 require 'roda'
@@ -85,7 +84,7 @@ class App < Roda
 
         path = "/shelf/list.xml?#{params}}"
 
-        doc = Nokogiri::XML HTTP.get("#{Goodreads::URI}/#{path}").body
+        doc = Goodreads.fetch_shelves path
 
         shelf_names = doc.xpath('//shelves//name').children.to_a
         shelf_books = doc.xpath('//shelves//book_count').children.to_a
@@ -208,14 +207,8 @@ class App < Roda
         token_request = client.client_credentials.get_token
         token = token_request.token
 
-        # Four digit library id from user submitted form
-        consortium_id = r['consortium'] # 1047
-
-        # Fetching the library-specific endpoint
-        library_uri = "#{Overdrive::API_URI}/libraries/#{consortium_id}"
-        response = HTTP.auth("Bearer #{token}").get(library_uri)
-        res = JSON.parse(response.body)
-        collection_token = res['collectionToken'] # "v1L1BDAAAAA2R"
+        # Four digit library id from user submitted form, fetching the library-specific endpoint
+        collection_token = Overdrive.collection_token r['consortium'], token
 
         # Making the API call to Library Availability endpoint
         titles = Overdrive.new(@isbnset, collection_token, token).fetch_titles_availability
