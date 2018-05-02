@@ -7,7 +7,6 @@ require 'oauth2'
 require 'roda'
 require 'rollbar/middleware/rack'
 require 'tilt'
-require 'uri'
 require 'zbar'
 require_relative 'lib/db'
 require_relative 'lib/goodreads'
@@ -47,8 +46,7 @@ class App < Roda
     @users = DB[:users]
 
     r.root do
-      consumer = OAuth::Consumer.new Goodreads::API_KEY, Goodreads::SECRET, site: Goodreads::URI
-      request_token = consumer.get_request_token
+      request_token = Goodreads.new_request_token
       @auth_url = request_token.authorize_url
 
       cache_set request_token: request_token
@@ -77,19 +75,7 @@ class App < Roda
           # @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
         end
 
-        params = URI.encode_www_form(
-          user_id: session[:goodreads_user_id],
-          key: Goodreads::API_KEY
-        )
-
-        path = "/shelf/list.xml?#{params}}"
-
-        doc = Goodreads.fetch_shelves path
-
-        shelf_names = doc.xpath('//shelves//name').children.to_a
-        shelf_books = doc.xpath('//shelves//book_count').children.to_a
-
-        @shelves = shelf_names.zip shelf_books
+        @shelves = Goodreads.fetch_shelves session[:goodreads_user_id]
 
         view 'shelves/index'
       end
@@ -99,14 +85,8 @@ class App < Roda
     r.get 'bookshelves', String do |shelf_name|
       @shelf_name = shelf_name
       cache_set shelf_name: @shelf_name
-      params = URI.encode_www_form(
-        shelf: @shelf_name,
-        per_page: '200',
-        key: Goodreads::API_KEY
-      )
-      path = "/review/list/#{session[:goodreads_user_id]}.xml?#{params}}"
 
-      @isbnset = Goodreads.get_books path
+      @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
       cache_set isbns_and_image_urls: @isbnset
       @invalidzip = r.params['invalidzip']
 
