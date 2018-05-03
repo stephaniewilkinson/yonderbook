@@ -2,7 +2,6 @@
 
 require 'area'
 require 'http'
-require 'oauth2'
 require 'roda'
 require 'rollbar/middleware/rack'
 require 'tilt'

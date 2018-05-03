@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'oauth2'
 require 'typhoeus'
 
 class Overdrive
