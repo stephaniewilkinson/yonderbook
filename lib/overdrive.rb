@@ -20,6 +20,20 @@ class Overdrive
                      :availability_url, \
                      keyword_init: true
 
+  class << self
+    def local_libraries latlon
+      response = HTTP.get MAPBOX_URI, params: {latLng: latlon, radius: 50}
+      libraries = JSON.parse response.body
+
+      libraries.first(10).map do |l|
+        consortium_id = l['consortiumId']
+        consortium_name = l['consortiumName']
+
+        [consortium_id, consortium_name]
+      end
+    end
+  end
+
   def initialize isbnset, consortium_id
     @isbnset = isbnset
     @token = token

@@ -146,15 +146,7 @@ class App < Roda
           r.redirect "bookshelves/#{cache_get :shelf_name}"
         end
 
-        response = HTTP.get Overdrive::MAPBOX_URI, params: {latLng: latlon, radius: 50}
-        libraries = JSON.parse response.body
-
-        @local_libraries = libraries.first(10).map do |l|
-          consortium_id = l['consortiumId']
-          consortium_name = l['consortiumName']
-
-          [consortium_id, consortium_name]
-        end
+        @local_libraries = Overdrive.local_libraries latlon
 
         cache_set libraries: @local_libraries
         r.redirect '/library'
