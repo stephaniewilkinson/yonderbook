@@ -94,6 +94,7 @@ class App < Roda
       # route: POST /bookmooch?username=foo&password=baz
       r.post do
         isbns_and_image_urls = cache_get :isbns_and_image_urls
+
         if isbns_and_image_urls
           unless r['username'] == 'susanb'
             auth = {user: r['username'], pass: r['password']}
