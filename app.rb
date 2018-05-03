@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'area'
-require 'http'
 require 'roda'
 require 'rollbar/middleware/rack'
 require 'tilt'
 require 'zbar'
+require_relative 'lib/bookmooch'
 require_relative 'lib/db'
 require_relative 'lib/goodreads'
 require_relative 'lib/models'
@@ -22,7 +22,6 @@ class App < Roda
   compile_assets
 
   CACHE = TupleSpace.new
-  BOOKMOOCH_URI = 'http://api.bookmooch.com'
 
   use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
@@ -95,31 +94,13 @@ class App < Roda
       # route: POST /bookmooch?username=foo&password=baz
       r.post do
         isbns_and_image_urls = cache_get :isbns_and_image_urls
+        r.redirect '/books' unless isbns_and_image_urls
 
         unless r['username'] == 'susanb'
           auth = {user: r['username'], pass: r['password']}
         end
-        @books_added = []
-        @books_failed = []
 
-        if isbns_and_image_urls
-          HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
-            isbns_and_image_urls.each do |isbn, image_url, title|
-              params = {asins: isbn, target: 'wishlist', action: 'add'}
-
-              response = http.get '/api/userbook', params: params
-
-              if response.body.to_s.strip == isbn
-                @books_added << [title, image_url]
-              else
-                @books_failed << [title, image_url]
-              end
-            end
-          end
-        else
-          r.redirect '/books'
-        end
-
+        @books_added, @books_failed = Bookmooch.books_added_and_failed auth, isbns_and_image_urls
         cache_set books_added: @books_added, books_failed: @books_failed
 
         r.redirect '/bookmooch'
