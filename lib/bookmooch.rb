@@ -27,3 +27,4 @@ module Bookmooch
 
     [books_added, books_failed]
   end
+end
