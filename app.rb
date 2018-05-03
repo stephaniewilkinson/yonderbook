@@ -2,8 +2,6 @@
 
 require 'area'
 require 'http'
-require 'oauth'
-require 'oauth2'
 require 'roda'
 require 'rollbar/middleware/rack'
 require 'tilt'
@@ -105,8 +103,8 @@ class App < Roda
         @books_added = []
         @books_failed = []
 
-        HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
-          if isbns_and_image_urls
+        if isbns_and_image_urls
+          HTTP.basic_auth(auth).persistent(BOOKMOOCH_URI) do |http|
             isbns_and_image_urls.each do |isbn, image_url, title|
               params = {asins: isbn, target: 'wishlist', action: 'add'}
 
@@ -118,9 +116,9 @@ class App < Roda
                 @books_failed << [title, image_url]
               end
             end
-          else
-            r.redirect '/books'
           end
+        else
+          r.redirect '/books'
         end
 
         cache_set books_added: @books_added, books_failed: @books_failed
@@ -149,15 +147,7 @@ class App < Roda
           r.redirect "bookshelves/#{cache_get :shelf_name}"
         end
 
-        response = HTTP.get Overdrive::MAPBOX_URI, params: {latLng: latlon, radius: 50}
-        libraries = JSON.parse response.body
-
-        @local_libraries = libraries.first(10).map do |l|
-          consortium_id = l['consortiumId']
-          consortium_name = l['consortiumName']
-
-          [consortium_id, consortium_name]
-        end
+        @local_libraries = Overdrive.local_libraries latlon
 
         cache_set libraries: @local_libraries
         r.redirect '/library'
@@ -183,16 +173,8 @@ class App < Roda
           r.redirect '/shelves/index'
         end
 
-        # Fetching auth token from overdrive
-        client = OAuth2::Client.new(Overdrive::KEY, Overdrive::SECRET, token_url: '/token', site: Overdrive::OAUTH_URI)
-        token_request = client.client_credentials.get_token
-        token = token_request.token
-
-        # Four digit library id from user submitted form, fetching the library-specific endpoint
-        collection_token = Overdrive.collection_token r['consortium'], token
-
         # Making the API call to Library Availability endpoint
-        titles = Overdrive.new(@isbnset, collection_token, token).fetch_titles_availability
+        titles = Overdrive.new(@isbnset, r['consortium']).fetch_titles_availability
         cache_set titles: titles
 
         r.redirect '/availability'

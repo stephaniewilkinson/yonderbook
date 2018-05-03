@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'oauth2'
 require 'typhoeus'
 
 class Overdrive
@@ -20,19 +21,37 @@ class Overdrive
                      keyword_init: true
 
   class << self
-    def collection_token consortium_id, token
-      library_uri = "#{API_URI}/libraries/#{consortium_id}"
-      response = HTTP.auth("Bearer #{token}").get(library_uri)
-      res = JSON.parse(response.body)
-      res['collectionToken'] # "v1L1BDAAAAA2R"
+    def local_libraries latlon
+      response = HTTP.get MAPBOX_URI, params: {latLng: latlon, radius: 50}
+      libraries = JSON.parse response.body
+
+      libraries.first(10).map do |l|
+        consortium_id = l['consortiumId']
+        consortium_name = l['consortiumName']
+
+        [consortium_id, consortium_name]
+      end
     end
   end
 
-  def initialize isbnset, collection_token, token
+  def initialize isbnset, consortium_id
     @isbnset = isbnset
-    @collection_token = collection_token
     @token = token
+    @collection_token = collection_token consortium_id, @token
     @books = create_books_with_overdrive_info
+  end
+
+  def token
+    client = OAuth2::Client.new KEY, SECRET, token_url: '/token', site: OAUTH_URI
+    client.client_credentials.get_token.token
+  end
+
+  # Four digit library id from user submitted form, fetching the library-specific endpoint
+  def collection_token consortium_id, token
+    library_uri = "#{API_URI}/libraries/#{consortium_id}"
+    response = HTTP.auth("Bearer #{token}").get(library_uri)
+    res = JSON.parse(response.body)
+    res['collectionToken'] # "v1L1BDAAAAA2R"
   end
 
   def fetch_titles_availability
