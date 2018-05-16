@@ -791,9 +791,6 @@ Style/Lambda:
 Style/MethodCallWithoutArgsParentheses:
   Enabled: true
 
-Style/MethodMissing:
-  Enabled: true
-
 Style/MixinGrouping:
   Enabled: true
 
