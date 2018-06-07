@@ -121,6 +121,11 @@ class App < Roda
     r.on 'library' do
       # route: POST /library?zipcode=90029
       r.post do
+        if r['zipcode'].empty?
+          flash[:error] = 'You need to enter a zip code'
+          r.redirect "bookshelves/#{cache_get :shelf_name}"
+        end
+
         zip = r['zipcode']
 
         if zip.to_latlon
