@@ -1,3 +1,10 @@
+h1,
+h2,
+h3 {
+  font-family: Astloch, sans-serif;
+  text-transform: lowercase;
+}
+
 .cards-container {
   -webkit-columns: 150px;
   -moz-columns: 150px;
