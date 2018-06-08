@@ -1,28 +1,25 @@
 <div class="row">
-  <div class="col m5 offset-m2">
-    <div class="row">
-      <div class="col m3">
-        <i class="medium material-icons">cloud_download</i>
-      </div>
-      <h4>Download ebooks</h4>
-      <p>Check if your library has these books available to download as ebooks. Overdrive at your library lets you download ebooks for your eReader.</p>
+  <div class="col m6">
+    <i class="medium material-icons">cloud_download</i>
+    <h4>Download ebooks</h4>
+    <p>Check if your library has these books available to download as ebooks. Overdrive at your library lets you download ebooks for your eReader.</p>
+  </div>
+  <div class="col m6">
+  <div class="card blue-grey darken-1">
+    <div class="card-image">
+      <img src="https://americanlibrariesmagazine.org/wp-content/uploads/2016/02/overdrivelogo.jpg">
     </div>
-    <div class="card blue-grey darken-1">
-      <div class="card-image">
-        <img src="https://americanlibrariesmagazine.org/wp-content/uploads/2016/02/overdrivelogo.jpg">
-      </div>
-      <div class="card-content white-text">
-        <span class="card-title">Download ebooks</span>
-        <p>Enter your zip code so we can find libraries near you.</p>
-        <form action="/library" method="post">
-          <div class="input-field col s12">
-            Your zip code: <input type="text" pattern="[0-9]{5}" name="zipcode">
-          </div>
-          <button class="btn waves-effect waves-light" type="submit" name="action">Find a library
-            <i class="material-icons right">send</i>
-          </button>
-        </form>
-      </div>
+    <div class="card-content white-text">
+      <span class="card-title">Download ebooks</span>
+      <p>Enter your zip code so we can find libraries near you.</p>
+      <form action="/library" method="post">
+        <div class="input-field col s12">
+          Your zip code: <input type="text" pattern="[0-9]{5}" name="zipcode">
+        </div>
+        <button class="btn waves-effect waves-light" type="submit" name="action">Find a library
+          <i class="material-icons right">send</i>
+        </button>
+      </form>
     </div>
   </div>
 </div>

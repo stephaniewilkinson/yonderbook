@@ -63,13 +63,13 @@ class App < Roda
     r.on 'shelves' do
       # route: GET /shelves
       r.get true do
-        if session[:goodreads_user_id]
-          # @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
+        if session[:goodreads_user_id] && @users.where(goodreads_user_id: session[:goodreads_user_id]).any?
+          @user = @users.where(goodreads_user_id: session[:goodreads_user_id]).first
         else
           access_token = cache_get(:request_token).get_access_token
-          user_id, _first_name = Goodreads.fetch_user access_token
+          user_id, first_name = Goodreads.fetch_user access_token
           session[:goodreads_user_id] = user_id
-          # @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
+          @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
         end
 
         @shelves = Goodreads.fetch_shelves session[:goodreads_user_id]

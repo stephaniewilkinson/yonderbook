@@ -26,8 +26,7 @@ module Goodreads
 
     doc = Nokogiri::XML Typhoeus.get("#{BASE_URL}/#{path}").body
     shelf_names = doc.xpath('//shelves//name').children.to_a
-    shelf_books = doc.xpath('//shelves//book_count').children.to_a
-
+    shelf_books = doc.xpath('//shelves//book_count').children.to_a.map { |s| s.to_s.to_i }
     shelf_names.zip shelf_books
   end
 

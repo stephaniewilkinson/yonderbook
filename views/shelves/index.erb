@@ -7,7 +7,7 @@
 <% if @shelves %>
   <div class="row">
     <!-- # TODO: Change node to int in the controller. -->
-    <% @shelves.sort_by { |shelf| -shelf[1].to_s.to_i }.each do |shelf| %>
+    <% @shelves.sort_by { |shelf| -shelf[1] }.each do |shelf| %>
       <div class="col l6">
         <div href="/shelves/<%= shelf[0] %>" class="card hoverable">
           <div class="card-content">
@@ -18,10 +18,9 @@
             </span>
             <div class="right">
               <em>
-              <% book_count = shelf[1].to_s.to_i %>
-              <% if book_count == 1 %>
+              <% if shelf[1] == 1 %>
                 one book
-              <% elsif book_count.positive?  %>
+              <% elsif shelf[1].positive?  %>
                 <%= shelf[1] %> books
               <% else %>
                 no books
