@@ -2,7 +2,7 @@
 <br>
 
 <% if @shelves %>
-  <table class="striped responsive">
+  <table class="responsive">
     <thead>
       <tr>
           <th>Name</th>
@@ -14,7 +14,11 @@
       <!-- TODO: Sort these by number of books -->
       <% @shelves.each do |shelf| %>
         <tr class="hoverable">
-          <td><%= shelf[0] %></td>
+          <td>
+            <a href="/bookshelves/<%= shelf[0] %>">
+              <%= shelf[0] %>
+            </a>
+          </td>
           <td><%= shelf[1] %></td>
           <td><a href="/bookshelves/<%= shelf[0] %>" class="btn waves-effect waves-light"><i class="material-icons right">send</i></a></td>
         </tr>

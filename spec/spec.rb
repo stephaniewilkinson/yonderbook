@@ -29,17 +29,17 @@ describe App do
     fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
-    assert_text 'Your Goodreads Bookshelves'
+    assert_text 'your goodreads bookshelves'
     click_on 'currently-reading'
-    assert_text 'Receive books'
+    assert_text 'receive books'
     fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
     fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
     click_on 'Authenticate'
-    assert_text 'Success'
+    assert_text 'success'
     click_on 'Shelves'
-    assert_text 'Your Goodreads Bookshelves'
+    assert_text 'your goodreads bookshelves'
     click_on 'didn-t-want-to-finish'
-    assert_text 'Download ebooks'
+    assert_text 'download ebooks'
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
     assert_text 'Libraries'
