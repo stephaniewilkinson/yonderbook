@@ -4,6 +4,7 @@ require 'nokogiri'
 require 'oauth'
 require 'typhoeus'
 require 'uri'
+require 'pry'
 
 module Goodreads
   Book = Struct.new :title, :image_url, :isbn, keyword_init: true

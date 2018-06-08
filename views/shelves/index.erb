@@ -18,9 +18,10 @@
             </span>
             <div class="right">
               <em>
-              <% if shelf[1].to_s.to_i == 1 %>
+              <% book_count = shelf[1].to_s.to_i %>
+              <% if book_count == 1 %>
                 one book
-              <% elsif shelf[1].to_s.to_i > 0  %>
+              <% elsif book_count.positive?  %>
                 <%= shelf[1] %> books
               <% else %>
                 no books
@@ -30,8 +31,8 @@
             </div>
           </div>
           <div class="card-action">
-            <a class="waves-effect orange-text text-darken-3 waves-light" href="/shelves/<%= shelf[0] %>"><i class="material-icons right">cloud_download</i>ebooks</a>
-            <a class="waves-effect orange-text text-darken-3 waves-light" href="/shelves/<%= shelf[0] %>"><i class="material-icons right">markunread_mailbox</i>Hardcopies</a>
+            <a class="waves-effect orange-text text-darken-3 waves-light" href="/shelves/<%= shelf[0] %>/overdrive"><i class="material-icons right">cloud_download</i>ebooks</a>
+            <a class="waves-effect orange-text text-darken-3 waves-light" href="/shelves/<%= shelf[0] %>/bookmooch"><i class="material-icons right">markunread_mailbox</i>Hardcopies</a>
           </div>
         </div>
       </div>

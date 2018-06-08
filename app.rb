@@ -56,7 +56,7 @@ class App < Roda
 
     r.on 'login' do
       r.get do
-        r.redirect '/shelves/index'
+        r.redirect '/shelves'
       end
     end
 

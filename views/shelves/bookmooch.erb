@@ -1,0 +1,38 @@
+<div class="row">
+  <div class="col m5">
+    <div class="row">
+      <div class="col m3">
+        <i class="medium material-icons">book</i>
+      </div>
+      <h4>Receive books</h4>
+      <p>Add these books to your Bookmooch wishlist, so Bookmooch will email you when they become available to mooch. Then get them by mail!</p>
+    </div>
+    <div class="card blue-grey darken-1">
+      <div class="card-image">
+        <img src="http://i.bookmooch.com/images/bookmooch_logo.gif">
+      </div>
+      <div class="card-content white-text">
+        <span class="card-title">Mooch these books</span>
+        <p>Enter your credentials to log into Bookmooch.com.</p>
+          <form action="/bookmooch" method="post">
+            <div class="input-field col s6">
+              Username: <input type="text" name="username">
+            </div>
+            <div class="input-field col s6">
+              Password: <input type="password" name="password">
+            </div>
+            <button class="btn waves-effect waves-light" type="submit" name="action">Authenticate
+              <i class="material-icons right">send</i>
+            </button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<% if flash[:error] %>
+  <script type="text/javascript">
+    Materialize.toast("<%= flash[:error] %>", 4000)
+  </script>
+<% end %>
