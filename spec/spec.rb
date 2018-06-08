@@ -29,21 +29,12 @@ describe App do
     fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
-    assert_text 'to-read'
-    click_on 'currently-reading'
-    assert_text 'receive books'
-    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
-    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
-    click_on 'Authenticate'
-    assert_text 'success'
-    click_on 'Shelves'
-    assert_text 'to-read'
-    click_on 'didn-t-want-to-finish'
-    assert_text 'download ebooks'
+    assert_text 'TO-READ'
+    click_on 'financial-books'
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
     assert_text 'Libraries'
-    click_on 'Check San Francisco'
-    assert_text 'Lean In'
+    click_on 'San Francisco Public Library'
+    assert_text 'I Will Teach You to Be Rich'
   end
 end

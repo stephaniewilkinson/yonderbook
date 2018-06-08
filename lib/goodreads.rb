@@ -46,8 +46,6 @@ module Goodreads
     hydra.run
     after_hydra = Process.clock_gettime Process::CLOCK_MONOTONIC
 
-    puts "Hydra took #{(after_hydra - before_hydra).round(2)} seconds ..."
-
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
       isbns = doc.xpath('//isbn').children.map &:text

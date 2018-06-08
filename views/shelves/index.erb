@@ -1,41 +1,31 @@
-<% verb = %w[fetched retrieved gathered imported].sample %>
-<% noun = %w[tomes shelves books manuscripts].sample %>
-
-<h3><%= verb %> your <%= noun %>!</h3>
+<h3>Step 1:</h3>
+<h5>Choose which shelf you want to read</h5>
 <br>
 
 <% if @shelves %>
   <div class="row">
-    <!-- # TODO: Change node to int in the controller. -->
     <% @shelves.sort_by { |shelf| -shelf[1] }.each do |shelf| %>
-      <div class="col l6">
-        <div href="/shelves/<%= shelf[0] %>" class="card hoverable">
-          <div class="card-content">
-            <span class="card-title">
-              <a href="/shelves/<%= shelf[0] %>">
-                <%= shelf[0] %>
-              </a>
-            </span>
-            <div class="right">
-              <em>
-              <% if shelf[1] == 1 %>
-                one book
-              <% elsif shelf[1].positive?  %>
-                <%= shelf[1] %> books
-              <% else %>
-                no books
-              <% end %>
-            </em>
-              <br>
+      <div class="col m6">
+        <div href="/shelves/<%= shelf[0] %>" class="hoverable">
+            <div class="center">
             </div>
+            <!-- TODO: gray out button if no books -->
+            <a class="btn btn-block btn-large teal waves-effect waves-light" href="/shelves/<%= shelf[0] %>/overdrive">
+              <i class="material-icons right">send</i><%= shelf[0] %>
+              <em>
+                <% if shelf[1] == 1 %>
+                one book
+                <% elsif shelf[1].positive?  %>
+                <%= shelf[1] %> books
+                <% else %>
+                no books
+                <% end %>
+              </em>
+            </a>
           </div>
-          <div class="card-action">
-            <a class="waves-effect orange-text text-darken-3 waves-light" href="/shelves/<%= shelf[0] %>/overdrive"><i class="material-icons right">cloud_download</i>ebooks</a>
-            <a class="waves-effect orange-text text-darken-3 waves-light" href="/shelves/<%= shelf[0] %>/bookmooch"><i class="material-icons right">markunread_mailbox</i>Hardcopies</a>
-          </div>
+          <br>
         </div>
-      </div>
-    <% end %>
+      <% end %>
   </div>
 <% else %>
   <p>No Shelves found. You may have waited too long, the Goodreads authentication token is only good for 30 seconds. Make sure you are using a modern browser, like Firefox, Safari, or Chrome and have the latest version.</p>
