@@ -1,25 +1,37 @@
-<h4>select a shelf</h4>
+<% verb = %w[fetched retrieved gathered imported].sample %>
+<% noun = %w[tomes shelves books manuscripts].sample %>
+
+<h3><%= verb %> your <%= noun %>!</h3>
 <br>
 
 <% if @shelves %>
   <div class="row">
-    <% @shelves.each do |shelf| %>
-      <div class="col m6 l4">
-        <div href="/bookshelves/<%= shelf[0] %>" class="card hoverable">
-          <span class="card-title">
-            <a href="/bookshelves/<%= shelf[0] %>">
-              <%= shelf[0].to_s.slice(0..20) %>
-            </a>
-          </span>
+    <!-- # TODO: Change node to int in the controller. -->
+    <% @shelves.sort_by { |shelf| -shelf[1].to_s.to_i }.each do |shelf| %>
+      <div class="col l6">
+        <div href="/shelves/<%= shelf[0] %>" class="card hoverable">
+          <div class="card-content">
+            <span class="card-title">
+              <a href="/shelves/<%= shelf[0] %>">
+                <%= shelf[0] %>
+              </a>
+            </span>
+            <div class="right">
+              <em>
+              <% if shelf[1].to_s.to_i == 1 %>
+                one book
+              <% elsif shelf[1].to_s.to_i > 0  %>
+                <%= shelf[1] %> books
+              <% else %>
+                no books
+              <% end %>
+            </em>
+              <br>
+            </div>
+          </div>
           <div class="card-action">
-            <a class="btn-floating right waves-effect waves-light" href="/bookshelves/<%= shelf[0] %>"><i class="material-icons">send</i></a>
-            <% if shelf[1].to_s.to_i == 1 %>
-              <p>One book on this shelf.</p>
-            <% elsif shelf[1].to_s.to_i > 0  %>
-              <p><%= shelf[1] %> books on this shelf.</p>
-            <% else %>
-              <p>No books yet.</p>
-            <% end %>
+            <a class="waves-effect orange-text text-darken-3 waves-light" href="/shelves/<%= shelf[0] %>"><i class="material-icons right">cloud_download</i>ebooks</a>
+            <a class="waves-effect orange-text text-darken-3 waves-light" href="/shelves/<%= shelf[0] %>"><i class="material-icons right">markunread_mailbox</i>Hardcopies</a>
           </div>
         </div>
       </div>

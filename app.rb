@@ -62,7 +62,7 @@ class App < Roda
 
     r.on 'shelves' do
       # route: GET /shelves
-      r.get do
+      r.get true do
         if session[:goodreads_user_id]
           # @users.insert_conflict.insert(goodreads_user_id: session[:goodreads_user_id])
         else
@@ -76,18 +76,28 @@ class App < Roda
 
         view 'shelves/index'
       end
-    end
 
-    # route: GET /shelves/to-read
-    r.get 'bookshelves', String do |shelf_name|
-      @shelf_name = shelf_name
-      cache_set shelf_name: @shelf_name
+      # route: GET /shelves/show
+      r.on String do |shelf_name|
+        @shelf_name = shelf_name
+        @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
+        cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
 
-      @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
-      cache_set isbns_and_image_urls: @isbnset
-      @invalidzip = r.params['invalidzip']
+        # TODO: why is this here
+        @invalidzip = r.params['invalidzip']
 
-      view 'shelves/show'
+        r.get true do
+          view 'shelves/show'
+        end
+
+        r.get 'overdrive' do
+          view 'shelves/overdrive'
+        end
+
+        r.get 'bookmooch' do
+          view 'shelves/bookmooch'
+        end
+      end
     end
 
     r.on 'bookmooch' do
@@ -123,7 +133,7 @@ class App < Roda
       r.post do
         if r['zipcode'].empty?
           flash[:error] = 'You need to enter a zip code'
-          r.redirect "bookshelves/#{cache_get :shelf_name}"
+          r.redirect "shelves/#{cache_get :shelf_name}"
         end
 
         zip = r['zipcode']
@@ -132,7 +142,7 @@ class App < Roda
           latlon = r['zipcode'].to_latlon.delete ' '
         else
           flash[:error] = 'please try a different zip code'
-          r.redirect "bookshelves/#{cache_get :shelf_name}"
+          r.redirect "shelves/#{cache_get :shelf_name}"
         end
 
         @local_libraries = Overdrive.local_libraries latlon
