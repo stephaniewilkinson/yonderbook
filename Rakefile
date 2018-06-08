@@ -14,7 +14,7 @@ task :default do
 end
 
 task :migrate do
-  Dir['migrate/*'].each do |migration|
+  Dir['migrate/*'].sort.each do |migration|
     sh "ruby #{migration}"
   end
 end
