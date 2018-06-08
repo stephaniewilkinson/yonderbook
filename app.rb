@@ -133,7 +133,7 @@ class App < Roda
       r.post do
         if r['zipcode'].empty?
           flash[:error] = 'You need to enter a zip code'
-          r.redirect "shelves/#{cache_get :shelf_name}"
+          r.redirect "shelves/#{cache_get :shelf_name}/overdrive"
         end
 
         zip = r['zipcode']
@@ -142,7 +142,7 @@ class App < Roda
           latlon = r['zipcode'].to_latlon.delete ' '
         else
           flash[:error] = 'please try a different zip code'
-          r.redirect "shelves/#{cache_get :shelf_name}"
+          r.redirect "shelves/#{cache_get :shelf_name}/overdrive"
         end
 
         @local_libraries = Overdrive.local_libraries latlon
