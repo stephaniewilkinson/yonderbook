@@ -42,9 +42,7 @@ module Goodreads
     end
     requests.each { |request| hydra.queue request }
 
-    before_hydra = Process.clock_gettime Process::CLOCK_MONOTONIC
     hydra.run
-    after_hydra = Process.clock_gettime Process::CLOCK_MONOTONIC
 
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
