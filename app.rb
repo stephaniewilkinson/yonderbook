@@ -149,7 +149,6 @@ class App < Roda
     end
 
     ##
-    # FEATURE IN PROGRESS \o/
     r.on 'availability' do
       # route: POST /availability?consortium=1047
       r.post do
@@ -165,6 +164,7 @@ class App < Roda
         titles = Overdrive.new(@isbnset, r['consortium']).fetch_titles_availability
         cache_set titles: titles
 
+        # TODO: Figure out why only 2 of my 500 books show up as available
         r.redirect '/availability'
       end
 
