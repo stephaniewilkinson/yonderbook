@@ -2,14 +2,13 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: Astloch, sans-serif;
-  text-transform: lowercase;
+  font-family: 'Quattrocento', serif;
 }
 
 .cards-container {
-  -webkit-columns: 150px;
-  -moz-columns: 150px;
-  columns: 150px;
+  -webkit-columns: 300px;
+  -moz-columns: 300px;
+  columns: 300px;
   -webkit-column-gap: 2em;
   -moz-column-gap: 2em;
   column-gap: 2em;
@@ -35,4 +34,8 @@ main {
 }
 .goodreads-logo {
   padding-top: 30px;
+}
+
+.btn-block {
+  width: 100%;
 }
