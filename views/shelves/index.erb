@@ -1,31 +1,28 @@
-<h4>Your Goodreads Bookshelves</h4>
+<h3>Your Goodreads Bookshelves</h3>
 <br>
 
 <% if @shelves %>
-  <div class="row">
-    <% @shelves.each do |shelf| %>
-      <div class="col m6 l4">
-        <div class="card blue-grey">
-          <span class="card-title white-text"><%= shelf[0].to_s.slice(0..20) %></span>
-          <div class="card-action white-text">
-            <% if shelf[1].to_s.to_i > 0  %>
-              <p>See which of the <%= shelf[1] %> book(s) on this shelf are available to request.</p>
-              <a href="/bookshelves/<%= shelf[0] %>" class="btn waves-effect waves-light green" type="submit">View <%= shelf[0] %>
-                <i class="material-icons right">send</i>
-              </a>
-            <% else %>
-              <p>There aren't any books on this shelf yet. Visit Goodreads to add some.</p>
-              <a class="btn waves-effect disabled waves-light green" type="submit">View <%= shelf[0] %>
-                <i class="material-icons right">send</i>
-              </a>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    <% end %>
-  </div>
+  <table class="striped responsive">
+    <thead>
+      <tr>
+          <th>Name</th>
+          <th>Number of Books</th>
+          <th>Select</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- TODO: Sort these by number of books -->
+      <% @shelves.each do |shelf| %>
+        <tr class="hoverable">
+          <td><%= shelf[0] %></td>
+          <td><%= shelf[1] %></td>
+          <td><a href="/bookshelves/<%= shelf[0] %>" class="btn waves-effect waves-light"><i class="material-icons right">send</i></a></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 <% else %>
-  <p>No Shelves found. You may have waited too long, the Goodreads authentication token is only good for 30 seconds. Make sure you are using a modern browser, like Firefox, Safari, or Chrome and have the latest version.</p>
+  <p>No Shelves found. You may have waited too long to sign into Goodreads, the Goodreads authentication token is only good for 30 seconds. Make sure you are using a modern browser, like Firefox, Safari, or Chrome and have the latest version.</p>
 <% end %>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
