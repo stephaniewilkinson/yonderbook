@@ -1,28 +1,24 @@
-<h4>Your Goodreads Bookshelves</h4>
+<h4>select a shelf</h4>
 <br>
 
 <% if @shelves %>
   <div class="row">
     <% @shelves.each do |shelf| %>
       <div class="col m6 l4">
-        <div class="card blue-grey">
-          <span class="card-title white-text"><%= shelf[0].to_s.slice(0..20) %></span>
-          <div class="card-action white-text">
+        <div href="/bookshelves/<%= shelf[0] %>" class="card hoverable">
+          <span class="card-title">
+            <a href="/bookshelves/<%= shelf[0] %>">
+              <%= shelf[0].to_s.slice(0..20) %>
+            </a>
+          </span>
+          <div class="card-action">
+            <a class="btn-floating right waves-effect waves-light" href="/bookshelves/<%= shelf[0] %>"><i class="material-icons">send</i></a>
             <% if shelf[1].to_s.to_i == 1 %>
-            <p> One book on this shelf</p>
-              <a href="/bookshelves/<%= shelf[0] %>" class="btn waves-effect waves-light green" type="submit">View <%= shelf[0] %>
-                <i class="material-icons right">send</i>
-              </a>
-              <% elsif shelf[1].to_s.to_i > 0  %>
-              <p><%= shelf[1] %> books on this shelf</p>
-              <a href="/bookshelves/<%= shelf[0] %>" class="btn waves-effect waves-light green" type="submit">View <%= shelf[0] %>
-                <i class="material-icons right">send</i>
-              </a>
+              <p>One book on this shelf.</p>
+            <% elsif shelf[1].to_s.to_i > 0  %>
+              <p><%= shelf[1] %> books on this shelf.</p>
             <% else %>
-              <p>No books on this shelf yet.</p>
-              <a class="btn waves-effect disabled waves-light green" type="submit">View <%= shelf[0] %>
-                <i class="material-icons right">send</i>
-              </a>
+              <p>No books yet.</p>
             <% end %>
           </div>
         </div>

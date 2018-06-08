@@ -87,7 +87,7 @@ class App < Roda
       cache_set isbns_and_image_urls: @isbnset
       @invalidzip = r.params['invalidzip']
 
-      view 'bookshelves'
+      view 'shelves/show'
     end
 
     r.on 'bookmooch' do

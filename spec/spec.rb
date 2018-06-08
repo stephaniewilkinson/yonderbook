@@ -37,7 +37,7 @@ describe App do
     click_on 'Authenticate'
     assert_text 'success'
     click_on 'Shelves'
-    assert_text 'your goodreads bookshelves'
+    assert_text 'select a shelf'
     click_on 'didn-t-want-to-finish'
     assert_text 'download ebooks'
     fill_in 'zipcode', with: '94103'
