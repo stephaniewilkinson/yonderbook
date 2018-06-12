@@ -154,6 +154,10 @@ class App < Roda
       # route: GET /library
       r.get do
         @local_libraries = cache_get :libraries
+        unless @local_libraries
+          flash[:error] = 'Please choose a shelf first'
+          r.redirect "shelves"
+        end
         view 'library'
       end
     end
@@ -167,7 +171,7 @@ class App < Roda
 
         unless @isbnset
           flash[:error] = 'Select a bookshelf first'
-          r.redirect '/shelves/index'
+          r.redirect '/shelves'
         end
 
         # Making the API call to Library Availability endpoint
