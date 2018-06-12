@@ -156,7 +156,7 @@ class App < Roda
         @local_libraries = cache_get :libraries
         unless @local_libraries
           flash[:error] = 'Please choose a shelf first'
-          r.redirect "shelves"
+          r.redirect 'shelves'
         end
         view 'library'
       end
@@ -187,7 +187,7 @@ class App < Roda
         @titles = cache_get :titles
         unless @titles
           flash[:error] = 'Please choose a shelf first'
-          r.redirect "shelves"
+          r.redirect 'shelves'
         end
         view 'availability'
       end

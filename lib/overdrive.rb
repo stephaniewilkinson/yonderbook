@@ -67,7 +67,7 @@ class Overdrive
       next if body.empty?
       products = JSON.parse(body)['products']
       next unless products
-      # TODO expand this section to include links and ids for other book formats
+      # TODO: expand this section to include links and ids for other book formats
       book.id = products.dig 0, 'id'
       book.url = products.dig 0, 'contentDetails', 0, 'href'
     end
