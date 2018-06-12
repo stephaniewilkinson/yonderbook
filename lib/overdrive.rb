@@ -67,7 +67,7 @@ class Overdrive
       next if body.empty?
       products = JSON.parse(body)['products']
       next unless products
-
+      # TODO expand this section to include links and ids for other book formats
       book.id = products.dig 0, 'id'
       book.url = products.dig 0, 'contentDetails', 0, 'href'
     end
@@ -75,9 +75,8 @@ class Overdrive
 
   def add_library_availability_to_books
     hydra = Typhoeus::Hydra.new
-    batches = @books.map(&:first).select(&:id).map(&:id).each_slice(25)
-
-    puts "Batches of 25: #{batches.size} ..."
+    books_with_ids = @books.map(&:first).select(&:id)
+    batches = books_with_ids.map(&:id).each_slice(25)
 
     requests = batches.map do |batch|
       uri = "https://api.overdrive.com/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
@@ -88,8 +87,17 @@ class Overdrive
 
     hydra.run
 
-    requests.map(&:response).each do |response|
+    requests.each_with_index do |request, i|
+      response = request.response
       body = JSON.parse response.body
+
+      if response.code >= 500
+        warn "skipping batch #{i.succ} of #{requests.size} ..."
+        warn "status code: #{body['code']}"
+        warn "body: #{body.inspect}"
+        # {"errorCode"=>"InternalError", "message"=>"An unexpected error has occurred.", "token"=>"8b0c9f8c-2c5c-41f4-8b32-907f23baf111"}
+        next
+      end
 
       body['availability'].each do |result|
         book = @books.find { |title, _| title.id == result['reserveId'] }.first
