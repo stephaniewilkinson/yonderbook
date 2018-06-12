@@ -58,7 +58,7 @@ class Overdrive
     add_id_and_url_to_books
     add_library_availability_to_books
 
-    @books.map(&:first)
+    @books.map(&:first).sort_by { |book| [book.copies_available, book.copies_owned] }.reverse
   end
 
   def add_id_and_url_to_books
@@ -88,12 +88,14 @@ class Overdrive
 
     hydra.run
 
-    requests.each do |request|
-      body = JSON.parse request.response.body
-      result = body['availability'].first
-      book = @books.find { |title, _| title.id == result['reserveId'] }.first
-      book.copies_available = result['copiesAvailable']
-      book.copies_owned = result['copiesOwned']
+    requests.map(&:response).each do |response|
+      body = JSON.parse response.body
+
+      body['availability'].each do |result|
+        book = @books.find { |title, _| title.id == result['reserveId'] }.first
+        book.copies_available = result['copiesAvailable']
+        book.copies_owned = result['copiesOwned']
+      end
     end
   end
 

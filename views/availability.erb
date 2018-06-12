@@ -4,7 +4,7 @@
 
 <div class="row">
   <div class="cards-container">
-    <% @titles.sort_by { |t| t.copies_available }.reverse_each do |title| %>
+    <% @titles.each do |title| %>
       <div class="card hoverable horizontal">
         <div class="card-image">
           <img src="<%= title.image %>">

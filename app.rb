@@ -185,6 +185,10 @@ class App < Roda
       # route: GET /availability
       r.get do
         @titles = cache_get :titles
+        unless @titles
+          flash[:error] = 'Please choose a shelf first'
+          r.redirect "shelves"
+        end
         view 'availability'
       end
     end
