@@ -14,7 +14,7 @@ describe App do
   it 'responds to root' do
     get '/'
     assert last_response.ok?
-    assert_includes last_response.body, 'Bookwyrm'
+    assert_includes last_response.body, 'yonderbook'
   end
 
   it 'responds to root' do

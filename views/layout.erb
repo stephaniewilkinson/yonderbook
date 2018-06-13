@@ -20,9 +20,9 @@
 
   <body>
   <main>
-    <nav>
-      <div class="nav-wrapper teal darken-4">
-          <a href="/" class="brand-logo center" style="font-family:Astloch">bookwyrm</a>
+    <nav class="transparent">
+      <div class="nav-wrapper">
+          <a href="/" class="brand-logo center">yonderbook</a>
           <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href="/about"><i class="material-icons left">info_outline</i>About</a></li>
             <% if session.key? :goodreads_user_id %>
@@ -39,15 +39,6 @@
       <%= yield %>
     </div>
     </main>
-    <footer class="page-footer teal darken-4">
-     <div class="container">
-       <div class="row">
-       </div>
-     </div>
-     <div class="footer-copyright">
-       <div class="container">
-     </div>
-   </footer>
 
     <!--Import jQuery before materialize.js-->
     <script
