@@ -237,7 +237,9 @@ class App < Roda
     end
 
     r.on 'users' do
+      r.redirect '/' unless @user
       # route: GET /users
+      # TODO: write authorization for these routes properly
       r.get true do
         if @user&.dig(:id) == 1
           view 'users/index'
@@ -246,13 +248,18 @@ class App < Roda
         end
       end
 
-      r.get String do |id|
-        @id = id
+      r.on String do |id|
+        r.get true do
+          @id = id
+          if @user == @users.where(id: @id).first
+            view 'users/show'
+          else
+            view 'welcome'
+          end
+        end
 
-        if @user = @users.where(id: @id).first
-          view 'users/show'
-        else
-          view 'welcome'
+        r. get 'edit' do
+          view 'users/edit'
         end
       end
     end
