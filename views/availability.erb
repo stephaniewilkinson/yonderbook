@@ -12,6 +12,7 @@
 <div class="row">
   <div class="col s12">
     <ul class="tabs">
+      <!-- TODO: hide a tab if its empty -->
       <li class="tab col s4"><a href="#test1">Available<span class="badge"><%= @titles.count { |a| a.copies_available > 0 } %></span></a></li>
       <li class="tab col s4"><a href="#test2">Checked Out<span class="badge"><%= @titles.count { |a| a.copies_available == 0 && a.copies_owned > 0} %></span></a></li>
       <li class="tab col s4"><a href="#test3">Unavailable<span class="badge"><%= @titles.count { |a| a.copies_owned == 0 } %></span></a></li>
