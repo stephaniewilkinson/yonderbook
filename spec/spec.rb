@@ -35,6 +35,6 @@ describe App do
     click_on 'Find a library'
     assert_text 'Libraries'
     click_on '1683'
-    assert_text 'I Will Teach You to Be Rich'
+    assert_text 'Available Books'
   end
 end
