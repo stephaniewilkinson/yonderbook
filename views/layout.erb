@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Bookwyrm | Tools for the Tech-savvy & Bookish</title>
+    <title>Yonderbook | Tools for the Tech-savvy & Bookish</title>
     <meta charset="UTF-8">
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -18,25 +18,25 @@
   </head>
 
   <body>
-  <main>
-    <nav class="transparent">
-      <div class="nav-wrapper">
-          <a href="/" class="brand-logo center">Yonderbook</a>
-          <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="/about"><i class="material-icons left">info_outline</i>About</a></li>
-            <% if session.key? :goodreads_user_id %>
-              <li><a href="/shelves"><i class="material-icons left">library_books</i>Shelves</a></li>
-            <% end %>
-            <% if CACHE["#{session[:session_id]}/libraries"] %>
-              <li><a href="/library"><i class="material-icons left">local_library</i>Libraries</a></li>
-            <% end %>
-          </ul>
-      </div>
-    </nav>
+    <main>
+      <nav class="transparent">
+        <div class="nav-wrapper">
+            <a href="/" class="brand-logo center">Yonderbook</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+              <li><a href="/about"><i class="material-icons left">info_outline</i>About</a></li>
+              <% if session.key? :goodreads_user_id %>
+                <li><a href="/shelves"><i class="material-icons left">library_books</i>Shelves</a></li>
+              <% end %>
+              <% if CACHE["#{session[:session_id]}/libraries"] %>
+                <li><a href="/library"><i class="material-icons left">local_library</i>Libraries</a></li>
+              <% end %>
+            </ul>
+        </div>
+      </nav>
 
-    <div class="container">
-      <%= yield %>
-    </div>
+      <div class="container">
+        <%= yield %>
+      </div>
     </main>
 
     <!--Import jQuery before materialize.js-->
