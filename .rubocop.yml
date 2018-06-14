@@ -1,5 +1,4 @@
 AllCops:
-  DisabledByDefault: true
   TargetRubyVersion: 2.5.1
 
 #################### Bundler ##############################
@@ -533,9 +532,20 @@ Performance/RedundantMerge:
   MaxKeyValuePairs: 2
 
 #################### Metrics ###############################
+Metrics/AbcSize:
+  Max: 35
+
+Metrics/BlockLength:
+  Max: 200
+
+Metrics/ClassLength:
+  Max: 190
 
 Metrics/CyclomaticComplexity:
   Max: 20
+
+Metrics/LineLength:
+  Max: 160
 
 Metrics/MethodLength:
   CountComments: false
@@ -582,6 +592,7 @@ Naming/VariableName:
 
 Naming/VariableNumber:
   Enabled: true
+  EnforcedStyle: snake_case
 
 #################### Styles ################################
 
@@ -689,6 +700,9 @@ Style/ConditionalAssignment:
 Style/DefWithParentheses:
   Enabled: true
 
+Style/Documentation:
+  Enabled: false
+
 Style/EachForSimpleLoop:
   Enabled: true
 
@@ -783,6 +797,9 @@ Style/Lambda:
     - line_count_dependent
     - lambda
     - literal
+
+Style/MethodDefParentheses:
+  Enabled: false
 
 Style/MethodCallWithoutArgsParentheses:
   Enabled: true
