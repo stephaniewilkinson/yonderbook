@@ -5,8 +5,7 @@ source 'https://rubygems.org'
 ruby '2.5.1'
 
 gem 'area'
-# TODO: try unpinning this version, i think its okay now
-gem 'dotenv', '2.2.2' # pinning to a version cuz codeship breaks at 2.4.0
+gem 'dotenv'
 gem 'http'
 gem 'nokogiri'
 gem 'oauth'
