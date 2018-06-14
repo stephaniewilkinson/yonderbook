@@ -37,7 +37,8 @@ body {
 /* COLORS */
 
 .btn {
-  background-color: #E6aa8e;
+  background-color: #501229;
+  border-radius: 20px;
 }
 
 .disabled {
@@ -52,7 +53,7 @@ h5,
 h6,
 p,
 .brand-logo {
-  color: #47202f;
+  color: #501229;
 }
 
 
