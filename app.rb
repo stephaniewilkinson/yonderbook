@@ -80,6 +80,7 @@ class App < Roda
       # route: GET /shelves/show
       r.on String do |shelf_name|
         @shelf_name = shelf_name
+
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
         cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
 
@@ -97,30 +98,24 @@ class App < Roda
       end
     end
 
+    # Deprecating this feature
     r.on 'bookmooch' do
       # route: POST /bookmooch?username=foo&password=baz
       r.post do
         isbns_and_image_urls = cache_get :isbns_and_image_urls
-
         if isbns_and_image_urls
-          unless r['username'] == 'susanb'
-            auth = {user: r['username'], pass: r['password']}
-          end
-
+          auth = {user: r['username'], pass: r['password']} unless r['username'] == 'susanb'
           @books_added, @books_failed = Bookmooch.books_added_and_failed auth, isbns_and_image_urls
           cache_set books_added: @books_added, books_failed: @books_failed
         else
           r.redirect '/books'
         end
-
         r.redirect '/bookmooch'
       end
-
       # route: GET /bookmooch
       r.get do
         @books_added = cache_get :books_added
         @books_failed = cache_get :books_failed
-
         view 'bookmooch'
       end
     end
@@ -128,9 +123,10 @@ class App < Roda
     r.on 'library' do
       # route: POST /library?zipcode=90029
       r.post do
+        @shelf_name = cache_get :shelf_name
         if r['zipcode'].empty?
           flash[:error] = 'You need to enter a zip code'
-          r.redirect "shelves/#{cache_get :shelf_name}/overdrive"
+          r.redirect "shelves/#{@shelf_name}/overdrive"
         end
 
         zip = r['zipcode']
@@ -139,7 +135,7 @@ class App < Roda
           latlon = r['zipcode'].to_latlon.delete ' '
         else
           flash[:error] = 'please try a different zip code'
-          r.redirect "shelves/#{cache_get :shelf_name}/overdrive"
+          r.redirect "shelves/#{@shelf_name}/overdrive"
         end
 
         @local_libraries = Overdrive.local_libraries latlon
@@ -151,6 +147,7 @@ class App < Roda
       # route: GET /library
       r.get do
         @local_libraries = cache_get :libraries
+        # TODO: see if we can bring the person back to the choose a library stage rather than all the way back to choose a shelf
         unless @local_libraries
           flash[:error] = 'Please choose a shelf first'
           r.redirect 'shelves'
@@ -248,6 +245,7 @@ class App < Roda
         end
       end
 
+      # TODO: add all the routing comments
       r.on String do |id|
         r.get true do
           @id = id
