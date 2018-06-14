@@ -1,9 +1,57 @@
+/* FONTS AND TYPE */
+
+/* TODO: remove magnitude font if i decide not to use it */
+@font-face {
+    font-family: 'the_magnituderegular';
+    src: url('../fonts/the_magnitude-webfont.woff2') format('woff2'),
+         url('../fonts/the_magnitude-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'coatsregular';
+    src: url('../fonts/coats_regular-webfont.eot');
+    src: url('../fonts/coats_regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/coats_regular-webfont.woff2') format('woff2'),
+         url('../fonts/coats_regular-webfont.woff') format('woff'),
+         url('../fonts/coats_regular-webfont.svg#coatsregular') format('svg');
+}
+
 h1,
 h2,
 h3,
-h4 {
-  font-family: 'Quattrocento', serif;
+.brand-logo {
+  font-family: 'coatsregular', 'Lato', serif;
 }
+
+h4,
+h5,
+h6,
+a,
+span,
+body {
+  font-family: 'Lato', serif;
+}
+
+/* COLORS */
+
+.btn {
+  background-color: #E6aa8e;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+.brand-logo {
+  color: #47202f;
+}
+
+/* LAYOUT AND SCAFFOLDING */
 
 .cards-container {
   -webkit-columns: 300px;
@@ -27,6 +75,7 @@ body {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
+  background-image: linear-gradient(to top, #CAf7eb 0%, #138586 100%);
 }
 
 main {
