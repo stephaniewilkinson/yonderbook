@@ -6,27 +6,83 @@
       <div class="determinate" style="width: 100%"></div>
     </div>
     <!-- TODO: add name of shelf and name of library -->
-    <h5>Here's which books on that shelf are available at that library.</h5>
-    <span><em>Sorted in order of most copies available to borrow right now.</em></span>
   </div>
 </div>
 
-
-
 <div class="row">
-  <div class="cards-container">
-    <% @titles.each do |title| %>
-      <div class="card hoverable horizontal">
-        <div class="card-image">
-          <img src="<%= title.image %>">
+  <div class="col s12">
+    <ul class="tabs">
+      <!-- TODO: hide a tab if its empty -->
+      <li class="tab col s4"><a href="#test1">Available<span class="badge"><%= @titles.count { |a| a.copies_available > 0 } %></span></a></li>
+      <li class="tab col s4"><a href="#test2">Checked Out<span class="badge"><%= @titles.count { |a| a.copies_available == 0 && a.copies_owned > 0} %></span></a></li>
+      <li class="tab col s4"><a href="#test3">Unavailable<span class="badge"><%= @titles.count { |a| a.copies_owned == 0 } %></span></a></li>
+    </ul>
+  </div>
+  <div id="test1" class="col s12">
+    <h5 id="available">Available Books</h5>
+    <div class="cards-container">
+      <% @titles.select { |a| a.copies_available > 0 }.each do |title| %>
+        <div class="card hoverable horizontal">
+          <div class="card-image">
+            <img src="<%= title.image %>">
+          </div>
+          <div class="card-content">
+            <div class="row">
+              <p><%= title.title %></p>
+              <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
+            </div>
+            <div class="row">
+              <a href="<%= title.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
+            </div>
+          </div>
         </div>
-        <div class="card-content">
-          <p><%= title.title %></p>
-          <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
-          <br>
-          <a href="<%= title.url %>" class="btn waves-effect waves-light btn-small"><i class="material-icons right">book</i>Check it Out</a>
+      <% end %>
+    </div>
+  </div>
+  <div id="test2" class="col s12">
+    <h5 id="checkedout">Checked out books</h5>
+    <div class="cards-container">
+      <% @titles.select { |a| a.copies_available == 0 && a.copies_owned > 0 }.each do |title| %>
+        <div class="card hoverable horizontal">
+          <div class="card-image">
+            <img src="<%= title.image %>">
+          </div>
+          <div class="card-content">
+            <div class="row">
+              <p><%= title.title %></p>
+              <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
+            </div>
+            <div class="row">
+              <a href="<%= title.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
+            </div>
+          </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
+
+  </div>
+  <div id="test3" class="col s12">
+    <h5 id="unavailable">Not available at that library</h5>
+    <a href="/library" class="white-text">
+      Try a different library?
+    </a>
+    <div class="cards-container">
+      <% @titles.select { |a| a.copies_owned == 0 }.each do |title| %>
+        <div class="card hoverable horizontal">
+          <div class="card-image">
+            <img src="<%= title.image %>">
+          </div>
+          <div class="card-content">
+            <div class="row">
+              <p><%= title.title %></p>
+              <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
+            </div>
+            <div class="row">
+              <a href="<%= title.url %>" class="disabled btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

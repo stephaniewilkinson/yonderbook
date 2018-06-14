@@ -35,6 +35,7 @@ class App < Roda
     CACHE["#{session[:session_id]}/#{key}"]
   end
 
+  # TODO: reduce block length
   route do |r|
     r.public
     r.assets
@@ -89,6 +90,7 @@ class App < Roda
         end
 
         r.get 'overdrive' do
+          # TODO: have browser get their location
           view 'shelves/overdrive'
         end
 
@@ -224,7 +226,7 @@ class App < Roda
       r.get do
         view 'inventory/index'
       end
-    end # end of /inventory
+    end
 
     r.on 'about' do
       # route: GET /about
@@ -261,5 +263,5 @@ class App < Roda
         end
       end
     end
-  end # end of routing
+  end
 end

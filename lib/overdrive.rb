@@ -67,13 +67,16 @@ class Overdrive
       next if body.empty?
       products = JSON.parse(body)['products']
       next unless products
-      # TODO: expand this section to include links and ids for other book formats
+      # This part is fine, both of these variables are the only id and url there is at this point
+      # looking for other formats needs to happen earlier in the process than Here
+      # by the time we get here, we are only dealing with one isbn and format
       book.id = products.dig 0, 'id'
       book.url = products.dig 0, 'contentDetails', 0, 'href'
     end
   end
 
   def add_library_availability_to_books
+    # TODO: expand this section to include links and ids for other book formats
     hydra = Typhoeus::Hydra.new
     books_with_ids = @books.map(&:first).select(&:id)
     batches = books_with_ids.map(&:id).each_slice(25)

@@ -46,9 +46,9 @@ module Goodreads
 
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
-      isbns = doc.xpath('//isbn').children.map &:text
-      image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v /\A\n\z/
-      titles = doc.xpath('//title').children.map &:text
+      isbns = doc.xpath('//isbn').children.map(&:text)
+      image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v(/\A\n\z/)
+      titles = doc.xpath('//title').children.map(&:text)
       isbns.zip(image_urls, titles)
     end
   end

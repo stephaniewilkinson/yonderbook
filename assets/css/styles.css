@@ -28,7 +28,7 @@ body {
 /* COLORS */
 
 .btn {
-  background-color: #501229;
+  background-color: rgba(80, 18, 41, 0.75)
   border-radius: 20px;
 }
 
