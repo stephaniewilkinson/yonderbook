@@ -21,13 +21,13 @@
 h1,
 h2,
 h3,
+h4,
+h5,
+h6,
 .brand-logo {
   font-family: 'coatsregular', 'Lato', serif;
 }
 
-h4,
-h5,
-h6,
 a,
 span,
 body {
@@ -40,6 +40,10 @@ body {
   background-color: #E6aa8e;
 }
 
+.disabled {
+  color: gray!important;
+}
+
 h1,
 h2,
 h3,
@@ -50,6 +54,7 @@ p,
 .brand-logo {
   color: #47202f;
 }
+
 
 /* LAYOUT AND SCAFFOLDING */
 

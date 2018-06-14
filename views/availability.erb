@@ -1,5 +1,16 @@
-<h3>What's available at that library</h3>
-<span><em>Sorted in order of most copies available to borrow right now.</em></span>
+<div class="row">
+  <div class="col l6 s12 offset-l3 m8 offset-m2">
+    <h3>Finished!</h3>
+    <!-- TODO: Add "10 books available to borrow" -->
+    <div class="progress">
+      <div class="determinate" style="width: 100%"></div>
+    </div>
+    <!-- TODO: add name of shelf and name of library -->
+    <h5>Here's which books on that shelf are available at that library.</h5>
+    <span><em>Sorted in order of most copies available to borrow right now.</em></span>
+  </div>
+</div>
+
 
 
 <div class="row">
@@ -10,7 +21,7 @@
           <img src="<%= title.image %>">
         </div>
         <div class="card-content">
-          <h6><%= title.title %></h6>
+          <p><%= title.title %></p>
           <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
           <br>
           <a href="<%= title.url %>" class="btn waves-effect waves-light btn-small"><i class="material-icons right">book</i>Check it Out</a>
