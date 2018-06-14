@@ -1,14 +1,5 @@
 /* FONTS AND TYPE */
 
-/* TODO: remove magnitude font if i decide not to use it */
-@font-face {
-    font-family: 'the_magnituderegular';
-    src: url('../fonts/the_magnitude-webfont.woff2') format('woff2'),
-         url('../fonts/the_magnitude-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-}
-
 @font-face {
     font-family: 'coatsregular';
     src: url('../fonts/coats_regular-webfont.eot');
