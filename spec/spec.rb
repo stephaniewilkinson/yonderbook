@@ -29,12 +29,12 @@ describe App do
     fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
-    assert_text 'TO-READ'
-    click_on 'financial-books'
+    assert_text 'to-read'
+    click_link 'financial-books'
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
     assert_text 'Libraries'
-    click_on 'San Francisco Public Library'
+    click_on '1683'
     assert_text 'I Will Teach You to Be Rich'
   end
 end
