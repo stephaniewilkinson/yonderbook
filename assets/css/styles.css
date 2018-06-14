@@ -80,7 +80,12 @@ body {
 
 main {
   flex: 1 0 auto;
+  background-image: url(../img/clouds/2.png), url(../img/clouds/10.png);
+  background-repeat: no-repeat;
+  background-size: 400px;
+  background-position: 0% 75%, 100% 33%;
 }
+
 .goodreads-logo {
   padding-top: 30px;
 }
