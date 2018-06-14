@@ -175,7 +175,6 @@ class App < Roda
         titles = Overdrive.new(@isbnset, r['consortium']).fetch_titles_availability
         cache_set titles: titles
 
-        # TODO: Figure out why only 2 of my 500 books show up as available
         r.redirect '/availability'
       end
 
