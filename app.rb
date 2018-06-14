@@ -69,9 +69,9 @@ class App < Roda
           access_token = cache_get(:request_token).get_access_token
           user_id, first_name = Goodreads.fetch_user access_token
           session[:goodreads_user_id] = user_id
-          @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
+          # TODO: does this need to be insert conflict? or just insert
+          @user = @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
         end
-
         @shelves = Goodreads.fetch_shelves session[:goodreads_user_id]
 
         view 'shelves/index'
@@ -238,12 +238,22 @@ class App < Roda
 
     r.on 'users' do
       # route: GET /users
-      r.get do
-        view 'users/index'
+      r.get true do
+        if @user&.dig(:id) == 1
+          view 'users/index'
+        else
+          view 'welcome'
+        end
       end
 
-      r.get 'show' do
-        view 'users/show'
+      r.get String do |id|
+        @id = id
+
+        if @user = @users.where(id: @id).first
+          view 'users/show'
+        else
+          view 'welcome'
+        end
       end
     end
   end # end of routing

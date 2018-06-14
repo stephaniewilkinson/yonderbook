@@ -30,6 +30,10 @@
               <% if CACHE["#{session[:session_id]}/libraries"] %>
                 <li><a href="/library"><i class="material-icons left">local_library</i>Libraries</a></li>
               <% end %>
+              <!-- TODO: finish this feature -->
+              <!-- <% if @user %>
+                <li><a href="/users/<%= @user[:id] %>"><i class="material-icons left">account_circle</i>Account</a></li>
+              <% end %> -->
             </ul>
         </div>
       </nav>

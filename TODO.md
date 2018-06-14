@@ -2,7 +2,7 @@
 
 ### Tools for bookworms
 
-## Todo
+## Ideas
 
 1. Finish overdrive integration
 2. Sniping books
@@ -26,12 +26,6 @@ research banking for check scanning apps
 
 Point system
 - extra points if book is not already in the inventory
-
-
-Pricing tiers:
-- free level (ship it yourself)
-- Paid tier, pay per package $5 (or if you just need the labels $4)
-- Pro user, $20/mo unlimited packages
 
 Packaging:
 - send user an envelope pre-stamped
