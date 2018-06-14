@@ -83,9 +83,6 @@ class App < Roda
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
         cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
 
-        # TODO: why is this here
-        @invalidzip = r.params['invalidzip']
-
         r.get true do
           view 'shelves/show'
         end
