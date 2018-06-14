@@ -1,35 +1,38 @@
-<h3>Step 1</h3>
-<h5>Choose which shelf of your shelves you want to read</h5>
-<br>
-
-<% if @shelves %>
-  <div class="row">
-    <% @shelves.sort_by { |shelf| -shelf[1] }.each do |shelf| %>
-      <div class="col m6">
-        <div href="/shelves/<%= shelf[0] %>" class="hoverable">
-            <div class="center">
-            </div>
-            <!-- TODO: gray out button if no books -->
-            <a class="btn btn-block btn-large waves-effect waves-light" href="/shelves/<%= shelf[0] %>/overdrive">
-              <i class="material-icons right">send</i><%= shelf[0] %>
-              <em>
-                <% if shelf[1] == 1 %>
-                one book
-                <% elsif shelf[1].positive?  %>
-                <%= shelf[1] %> books
-                <% else %>
-                no books
-                <% end %>
-              </em>
-            </a>
-          </div>
-          <br>
-        </div>
-      <% end %>
+<div class="row">
+  <div class="col l6 s12 offset-l3 m8 offset-m2">
+    <h3>Step 1</h3>
+    <div class="progress">
+      <div class="determinate" style="width: 25%"></div>
+    </div>
+    <h5>Choose a shelf</h5>
   </div>
-<% else %>
-  <p>No Shelves found. You may have waited too long, the Goodreads authentication token is only good for 30 seconds. Make sure you are using a modern browser, like Firefox, Safari, or Chrome and have the latest version.</p>
-<% end %>
+</div>
+
+<div class="row">
+  <div class="col s12 l6 offset-l3 m8 offset-m2">
+    <% @shelves.sort_by { |shelf| -shelf[1] }.each do |shelf| %>
+      <ul class="collection">
+        <li class="collection-item avatar">
+          <i class="material-icons circle">library_books</i>
+          <span class="title"><%= shelf[0] %></span>
+          <p>
+            <em>
+              <% if shelf[1] == 1 %>
+              one book
+              <% elsif shelf[1].positive?  %>
+              <%= shelf[1] %> books
+              <% else %>
+              no books
+              <% end %>
+            </em>
+          </p>
+          <!-- TODO: gray out button if no books -->
+          <a href="/shelves/<%= shelf[0] %>/overdrive" id="<%= shelf[0] %>" class="btn-floating secondary-content"><i class="material-icons">send</i></a>
+        </li>
+      </ul>
+    <% end %>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <% if flash[:error] %>
