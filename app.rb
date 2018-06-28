@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 require 'area'
 require 'roda'
