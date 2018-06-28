@@ -86,6 +86,8 @@ GEM
     rake (12.3.1)
     roda (3.9.0)
       rack
+    roda-route_list (2.1.0)
+      roda
     rollbar (2.16.2)
       multi_json
     rubocop (0.57.2)
@@ -147,6 +149,7 @@ DEPENDENCIES
   rack-unreloader
   rake
   roda
+  roda-route_list
   rollbar
   rubocop
   sendgrid-ruby
