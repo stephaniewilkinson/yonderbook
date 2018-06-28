@@ -18,3 +18,10 @@ task :migrate do
     sh "ruby #{migration}"
   end
 end
+
+namespace :assets do
+  desc "Update the routes metadata"
+  task :precompile do
+    sh 'roda-parse_routes -f routes.json app.rb'
+  end
+end

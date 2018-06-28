@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 require 'area'
 require 'roda'
 require 'rollbar/middleware/rack'
@@ -12,7 +12,6 @@ require_relative 'lib/models'
 require_relative 'lib/overdrive'
 require_relative 'lib/tuple_space'
 
-# the only class with class
 class App < Roda
   use Rollbar::Middleware::Rack
   plugin :assets, css: 'styles.css'
@@ -56,6 +55,7 @@ class App < Roda
     end
 
     r.on 'login' do
+      # route: GET /login
       r.get do
         r.redirect '/shelves'
       end
@@ -78,22 +78,24 @@ class App < Roda
         view 'shelves/index'
       end
 
-      # route: GET /shelves/show
       r.on String do |shelf_name|
         @shelf_name = shelf_name
 
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
         cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
 
+        # route: GET /shelves/show
         r.get true do
           view 'shelves/show'
         end
 
+        # route: GET /shelves/:id/overdrive
         r.get 'overdrive' do
           # TODO: have browser get their location
           view 'shelves/overdrive'
         end
 
+        # route: GET /shelves/:id/bookmooch
         r.get 'bookmooch' do
           view 'shelves/bookmooch'
         end
@@ -114,6 +116,7 @@ class App < Roda
         end
         r.redirect '/bookmooch'
       end
+
       # route: GET /bookmooch
       r.get do
         @books_added = cache_get :books_added
@@ -194,6 +197,7 @@ class App < Roda
         view 'inventory/new'
       end
 
+      # route: GET /inventory/:id
       r.get Integer do |book_id|
         @book = @books.first(id: book_id)
         @user = @users.first(id: @book[:user_id])
@@ -237,8 +241,8 @@ class App < Roda
 
     r.on 'users' do
       r.redirect '/' unless @user
-      # route: GET /users
       # TODO: write authorization for these routes properly
+      # route: GET /users
       r.get true do
         if @user&.dig(:id) == 1
           view 'users/index'
@@ -247,8 +251,8 @@ class App < Roda
         end
       end
 
-      # TODO: add all the routing comments
       r.on String do |id|
+        # route: GET /users/:id
         r.get true do
           @id = id
           if @user == @users.where(id: @id).first
@@ -258,7 +262,8 @@ class App < Roda
           end
         end
 
-        r. get 'edit' do
+        # route: GET /users/:id/edit
+        r.get 'edit' do
           view 'users/edit'
         end
       end
