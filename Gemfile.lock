@@ -108,7 +108,7 @@ GEM
       ruby_http_client (~> 3.2)
       sinatra (>= 1.4.7, < 3)
     sequel (5.10.0)
-    sequel_pg (1.10.0)
+    sequel_pg (1.11.0)
       pg (>= 0.18.0)
       sequel (>= 4.38.0)
     sinatra (2.0.3)
