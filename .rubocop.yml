@@ -734,7 +734,7 @@ Style/FormatString:
   Enabled: true
 
 Style/FormatStringToken:
-  Enabled: false
+  Enabled: true
   EnforcedStyle: template
 
 Style/FrozenStringLiteralComment:
@@ -857,7 +857,7 @@ Style/OneLineConditional:
   Enabled: true
 
 Style/OptionHash:
-  Enabled: false
+  Enabled: true
 
 Style/ParallelAssignment:
   Enabled: true
