@@ -31,10 +31,21 @@ describe App do
     click_on 'Sign in'
     assert_text 'to-read'
     click_link 'financial-books'
+    assert_text 'financial-books'
+    click_link 'eBooks'
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
     assert_text 'Libraries'
     click_on '1683'
     assert_text 'Available Books'
+    click_on 'Unavailable'
+    assert_text 'The New Coffeehouse Investor'
+    click_on 'Shelves'
+    click_link 'didn-t-want-to-finish'
+    click_link 'By Mail'
+    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
+    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
+    click_button 'Authenticate'
+    assert_text 'Success!'
   end
 end

@@ -51,9 +51,9 @@ p,
 /* LAYOUT AND SCAFFOLDING */
 
 .cards-container {
-  -webkit-columns: 300px;
-  -moz-columns: 300px;
-  columns: 300px;
+  -webkit-columns: 150px;
+  -moz-columns: 150px;
+  columns: 150px;
   -webkit-column-gap: 2em;
   -moz-column-gap: 2em;
   column-gap: 2em;
