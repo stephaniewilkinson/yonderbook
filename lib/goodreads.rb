@@ -26,7 +26,7 @@ module Goodreads
 
     doc = Nokogiri::XML Typhoeus.get("#{BASE_URL}/#{path}").body
     shelf_names = doc.xpath('//shelves//name').children.to_a
-    shelf_books = doc.xpath('//shelves//book_count').children.to_a.map { |s| s.to_s.to_i }
+    shelf_books = doc.xpath('//shelves//book_count').children.to_a.map { |s| Integer(s.to_s, 10) }
     shelf_names.zip shelf_books
   end
 
@@ -34,7 +34,7 @@ module Goodreads
     params = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
     path = "/review/list/#{goodreads_user_id}.xml?#{params}}"
     doc = Nokogiri::XML Typhoeus.get("#{BASE_URL}/#{path}").body
-    number_of_pages = doc.xpath('//books').first['numpages'].to_i
+    number_of_pages = Integer(doc.xpath('//books').first['numpages'], 10
 
     hydra = Typhoeus::Hydra.new
     requests = 1.upto(number_of_pages).map do |page|

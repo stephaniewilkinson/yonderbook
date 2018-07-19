@@ -51,7 +51,7 @@ class Overdrive
     library_uri = "#{API_URI}/libraries/#{consortium_id}"
     response = HTTP.auth("Bearer #{token}").get(library_uri)
     res = JSON.parse(response.body)
-    res['collectionToken'] # "v1L1BDAAAAA2R"
+    res['collectionToken']
   end
 
   def fetch_titles_availability

@@ -594,8 +594,10 @@ Naming/VariableNumber:
   Enabled: true
   EnforcedStyle: snake_case
 
-#################### Styles ################################
+Rails/Output:
+  Enabled: false
 
+#################### Styles ################################
 Style/Alias:
   EnforcedStyle: prefer_alias
   SupportedStyles:
