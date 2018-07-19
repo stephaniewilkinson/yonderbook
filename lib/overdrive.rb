@@ -74,6 +74,7 @@ class Overdrive
       # by the time we get here, we are only dealing with one isbn and format
       book.id = products.dig 0, 'id'
       book.url = products.dig 0, 'contentDetails', 0, 'href'
+      book.image = (products.dig 0, 'images', 'cover300Wide', 'href')
     end
   end
 
