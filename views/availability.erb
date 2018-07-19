@@ -18,11 +18,14 @@
       <li class="tab col s4"><a href="#test3">Unavailable<span class="badge"><%= @titles.count { |a| a.copies_owned == 0 } %></span></a></li>
     </ul>
   </div>
-  <div id="test1" class="col s12">
+</div>
+
+<div id="test1" class="row">
+  <div class="col s12">
     <h5 id="available">Available Books</h5>
     <div class="cards-container">
       <% @titles.select { |a| a.copies_available > 0 }.each do |title| %>
-        <div class="card hoverable horizontal">
+        <div class="card hoverable">
           <div class="card-image">
             <img src="<%= title.image %>">
           </div>
@@ -39,11 +42,14 @@
       <% end %>
     </div>
   </div>
-  <div id="test2" class="col s12">
+</div>
+
+<div id="test2" class="row">
+  <div class="col s12">
     <h5 id="checkedout">Checked out books</h5>
     <div class="cards-container">
       <% @titles.select { |a| a.copies_available == 0 && a.copies_owned > 0 }.each do |title| %>
-        <div class="card hoverable horizontal">
+        <div class="card hoverable">
           <div class="card-image">
             <img src="<%= title.image %>">
           </div>
@@ -59,16 +65,19 @@
         </div>
       <% end %>
     </div>
-
   </div>
-  <div id="test3" class="col s12">
+</div>
+
+<div id="test3" class="row">
+  <div class="col s12">
     <h5 id="unavailable">Not available at that library</h5>
     <a href="/library" class="white-text">
+      <!-- TODO make into a button -->
       Try a different library?
     </a>
     <div class="cards-container">
       <% @titles.select { |a| a.copies_owned == 0 }.each do |title| %>
-        <div class="card hoverable horizontal">
+        <div class="card hoverable">
           <div class="card-image">
             <img src="<%= title.image %>">
           </div>

@@ -61,7 +61,7 @@ class App < Roda
         r.redirect '/shelves'
       end
     end
-
+    # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
     r.on 'shelves' do
       # route: GET /shelves
       r.get true do
@@ -103,7 +103,7 @@ class App < Roda
       end
     end
 
-    # Deprecating this feature
+    # TODO: Nest this stuff under shelves
     r.on 'bookmooch' do
       # route: POST /bookmooch?username=foo&password=baz
       r.post do
@@ -125,7 +125,8 @@ class App < Roda
         view 'bookmooch'
       end
     end
-
+    # TODO: nest under Shelves
+    # TOOD: add library logos to the cards in the views
     r.on 'library' do
       # route: POST /library?zipcode=90029
       r.post do

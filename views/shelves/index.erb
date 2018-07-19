@@ -35,42 +35,24 @@
       </ul>
       <div id="modal-<%= shelf[0] %>" class="modal small">
         <div class="modal-content">
-          <h4>Choose a format</h4>
-          <p>
-            How would you like to get
-            <% if shelf[1] == 1 %>
-            this book
-            <% else shelf[1].positive?  %>
-            these <%= shelf[1] %> books
-            <% end %>
-            on your "<%= shelf[0] %>" shelf?
-          </p>
-          <br>
+          <h4 class="center"> &nbsp; Choose a format</h4>
           <br>
           <div class="row">
-            <div class="col m4 offset-m1">
-              <a href="/shelves/<%= shelf[0] %>/overdrive" class="modal-close btn-large waves-effect waves-green btn btn-block">
-                <i class="material-icons left">cloud_download</i>
+            <div class="col m6 offset-m2">
+              <a href="/shelves/<%= shelf[0] %>/overdrive" class="modal-close cyan btn-large waves-effect waves-green btn right">
+                <i class="material-icons right">cloud_download</i>
                 eBooks
               </a>
-              <hr>
-              <small>
-                Check which are available to download as eBooks from your local library.
-              </small>
-            </div>
-            <div class="col m4 offset-m2">
-              <a href="/shelves/<%= shelf[0] %>/bookmooch" class="modal-close btn-large waves-effect waves-green btn btn-block">
-                <i class="material-icons left">markunread_mailbox</i>
-                By Mail
-              </a>
-              <hr>
-              <small>
-                Add these books to your <a href="http://www.bookmooch.com">Bookmooch</a> wishlist to request them by mail.
-              </small>
             </div>
           </div>
-        </div>
-        <div class="modal-footer">
+          <div class="row">
+            <div class="col m6 offset-m2">
+              <a href="/shelves/<%= shelf[0] %>/bookmooch" class="modal-close btn-large waves-effect waves-green btn right">
+                <i class="material-icons right">markunread_mailbox</i>
+                By Mail
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     <% end %>
