@@ -65,8 +65,10 @@ class Overdrive
     @books.each do |book, request|
       body = request.response.body
       next if body.empty?
+
       products = JSON.parse(body)['products']
       next unless products
+
       # This part is fine, both of these variables are the only id and url there is at this point
       # looking for other formats needs to happen earlier in the process than Here
       # by the time we get here, we are only dealing with one isbn and format
@@ -83,7 +85,7 @@ class Overdrive
 
     requests = batches.map do |batch|
       uri = "https://api.overdrive.com/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
-      Typhoeus::Request.new uri, headers: {'Authorization' => "Bearer #{@token}"}
+      Typhoeus::Request.new uri, headers: {Authorization: "Bearer #{@token}"}
     end
 
     requests.each { |request| hydra.queue request }
@@ -123,7 +125,7 @@ class Overdrive
                         copies_available: 0,
                         copies_owned: 0
 
-      request = Typhoeus::Request.new availability_url, headers: {'Authorization' => "Bearer #{@token}"}
+      request = Typhoeus::Request.new availability_url, headers: {Authorization: "Bearer #{@token}"}
       hydra.queue request
 
       [title, request]

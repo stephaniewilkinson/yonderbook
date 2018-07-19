@@ -697,10 +697,16 @@ Style/ConditionalAssignment:
   SingleLineConditionsOnly: true
   IncludeTernaryExpressions: true
 
+Style/Copyright:
+  Enabled: false
+
 Style/DefWithParentheses:
   Enabled: true
 
 Style/Documentation:
+  Enabled: false
+
+Style/DocumentationMethod:
   Enabled: false
 
 Style/EachForSimpleLoop:
@@ -734,7 +740,7 @@ Style/FormatString:
   Enabled: true
 
 Style/FormatStringToken:
-  Enabled: false
+  Enabled: true
   EnforcedStyle: template
 
 Style/FrozenStringLiteralComment:
@@ -772,12 +778,6 @@ Style/IfWithSemicolon:
 Style/InfiniteLoop:
   Enabled: true
 
-Style/LambdaCall:
-  Enabled: true
-
-Style/LineEndConcatenation:
-  Enabled: true
-
 Style/InverseMethods:
   Enabled: true
   InverseMethods:
@@ -787,9 +787,15 @@ Style/InverseMethods:
     :=~: :!~
     :<: :>=
     :>: :<=
-  InverseBlocks:
-    :select: :reject
-    :select!: :reject!
+    InverseBlocks:
+      :select: :reject
+      :select!: :reject!
+
+Style/LambdaCall:
+  Enabled: true
+
+Style/LineEndConcatenation:
+  Enabled: true
 
 Style/Lambda:
   EnforcedStyle: literal
@@ -799,6 +805,9 @@ Style/Lambda:
     - literal
 
 Style/MethodDefParentheses:
+  Enabled: false
+
+Style/MethodCallWithArgsParentheses:
   Enabled: false
 
 Style/MethodCallWithoutArgsParentheses:
@@ -857,7 +866,7 @@ Style/OneLineConditional:
   Enabled: true
 
 Style/OptionHash:
-  Enabled: false
+  Enabled: true
 
 Style/ParallelAssignment:
   Enabled: true
