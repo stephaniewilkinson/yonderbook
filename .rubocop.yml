@@ -594,6 +594,11 @@ Naming/VariableNumber:
   Enabled: true
   EnforcedStyle: snake_case
 
+#################### Rails ################################
+
+Rails/Output:
+  Enabled: false
+
 #################### Styles ################################
 
 Style/Alias:
@@ -812,6 +817,9 @@ Style/MethodCallWithArgsParentheses:
 
 Style/MethodCallWithoutArgsParentheses:
   Enabled: true
+
+Style/MissingElse:
+  Enabled: false
 
 Style/MixinGrouping:
   Enabled: true
