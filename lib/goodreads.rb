@@ -43,7 +43,7 @@ module Goodreads
     requests.each { |request| hydra.queue request }
 
     hydra.run
-    # TODO: replace these images with ones from overdrive if they are low-res
+
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
       isbns = doc.xpath('//isbn').children.map(&:text)
