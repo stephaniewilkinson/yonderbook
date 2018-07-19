@@ -85,7 +85,7 @@ class App < Roda
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
         cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
 
-        # route: GET /shelves/show
+        # route: GET /shelves/:id
         r.get true do
           view 'shelves/show'
         end
@@ -129,8 +129,8 @@ class App < Roda
     # TOOD: add library logos to the cards in the views
     r.on 'library' do
       # route: POST /library?zipcode=90029
+      @shelf_name = cache_get :shelf_name
       r.post do
-        @shelf_name = cache_get :shelf_name
         if r['zipcode'].empty?
           flash[:error] = 'You need to enter a zip code'
           r.redirect "shelves/#{@shelf_name}/overdrive"

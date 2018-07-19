@@ -9,6 +9,8 @@
   </div>
 </div>
 
+Here is the availability for your <%= @titles.count  %> books.
+
 <div class="row">
   <div class="col s12">
     <ul class="tabs">
@@ -31,6 +33,7 @@
             <img src="<%= title.image %>">
           </div>
           <div class="card-content">
+            This title has <%= title.versions.count %> versions.
             <% title.versions.each_with_index do |version, i| %>
               <h5><%= version.format %></h5>
               <small>Copies Available: <%= version.copies_available %>/<%= version.copies_owned %></small>
@@ -54,6 +57,7 @@
             <img src="<%= title.image %>">
           </div>
           <div class="card-content">
+            This title has <%= title.versions.count %> versions.
             <% title.versions.each_with_index do |version, i| %>
               <h5><%= version.format %></h5>
               <small>Copies Available: <%= version.copies_available %>/<%= version.copies_owned %></small>
@@ -81,6 +85,7 @@
             <img src="<%= title.image %>">
           </div>
           <div class="card-content">
+            This title has <%= title.versions.count %> versions.
             <% title.versions.each_with_index do |version, i| %>
               <h5><%= version.format %></h5>
               <small>Copies Available: <%= version.copies_available %>/<%= version.copies_owned %></small>
