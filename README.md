@@ -2,6 +2,8 @@
 
 # Tools for Bookworms 📒
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b69966957416487bafd98162e8179c3b)](https://app.codacy.com/app/stephaniewilkinson/yonderbook?utm_source=github.com&utm_medium=referral&utm_content=stephaniewilkinson/yonderbook&utm_campaign=badger)
+
 ## Installation
 
 ```
