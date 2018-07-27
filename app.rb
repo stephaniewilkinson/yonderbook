@@ -80,7 +80,7 @@ class App < Roda
       end
 
       r.on String do |shelf_name|
-        unless @user
+        unless session[:goodreads_user_id]
           flash[:error] = 'Please login first'
           r.redirect '/'
         end
