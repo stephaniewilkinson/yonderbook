@@ -5,6 +5,7 @@ require 'oauth'
 require 'typhoeus'
 require 'uri'
 require 'pry'
+require 'gender_detector'
 
 module Goodreads
   Book = Struct.new :title, :image_url, :isbn, keyword_init: true
@@ -61,6 +62,25 @@ module Goodreads
     first_name = xml.xpath('//user').first.children[1].children.text
 
     [user_id, first_name]
+  end
+
+  def get_gender isbnset
+    women = 0
+    men = 0
+    andy = 0
+    d = GenderDetector.new
+    isbnset.each do |isbn|
+      result = d.get_gender isbn[3].split.first
+      case result
+      when :female
+        women += 1
+      when :male
+        men += 1
+      when :andy
+        andy += 1
+      end
+    end
+    [women, men, andy]
   end
 
   def fetch_book_data isbn

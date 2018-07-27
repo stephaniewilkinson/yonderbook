@@ -13,8 +13,8 @@
     <% @shelves.sort_by { |shelf| -shelf[1] }.each do |shelf| %>
       <ul class="collection">
         <li class="collection-item avatar">
-          <i class="material-icons circle">library_books</i>
-          <span class="title"><%= shelf[0] %></span>
+          <a href="/shelves/<%= shelf[0] %>"><i class="material-icons circle">library_books</i></a>
+          <a href="/shelves/<%= shelf[0] %>"><span class="title"><%= shelf[0] %></span></a>
           <p>
             <em>
               <% if shelf[1] == 1 %>
