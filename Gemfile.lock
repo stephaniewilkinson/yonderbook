@@ -34,7 +34,6 @@ GEM
     fastercsv (1.5.5)
     ffi (1.9.25)
     gender_detector (2.0.0)
-    googlecharts (1.6.12)
     http (3.3.0)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -140,7 +139,6 @@ DEPENDENCIES
   chromedriver-helper
   dotenv
   gender_detector
-  googlecharts
   http
   minitest
   minitest-capybara

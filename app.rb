@@ -90,10 +90,9 @@ class App < Roda
         @shelf_name = shelf_name
 
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
-        gender_data = Goodreads.get_gender @isbnset
+        @women, @men, @andy = Goodreads.get_gender @isbnset
         cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
-        # TODO: make this chart a transparent png
-        @chart_url = Gchart.pie(data: gender_data, title: 'Author Gender', size: '400x200', labels: %w[Women Men Unknown])
+
         # route: GET /shelves/show
         r.get true do
           view 'shelves/show'

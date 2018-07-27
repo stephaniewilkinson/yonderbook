@@ -1,6 +1,8 @@
 <div class="row">
   <h4 class="white-text">Your "<%= @shelf_name %>" shelf</h4>
-  <img src="<%= @chart_url %>" alt="">
+  <div class="col m6 offset-m3">
+    <div class="center" id="donutchart" style="width: 600px; height: 400px;"></div>
+  </div>
 </div>
 <div class="row">
   <div class="cards-container">
@@ -18,6 +20,36 @@
     <% end %>
   </div>
 </div>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load("current", {packages:["corechart"]});
+  google.charts.setOnLoadCallback(drawChart);
+  const women = <%= @women %>
+  const men = <%= @men %>
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable([
+      ['Gender', 'Count'],
+      ['Women',     women],
+      ['Men',      men],
+      ['Unknown',  2]
+    ]);
+
+    var options = {
+      backgroundColor: 'transparent',
+      pieHole: 0.4,
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+    chart.draw(data, options);
+  }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<% if flash[:error] %>
+  <script type="text/javascript">
+    Materialize.toast("<%= flash[:error] %>", 4000)
+  </script>
+<% end %>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <% if flash[:error] %>
