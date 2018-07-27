@@ -6,6 +6,7 @@ ruby '2.6.0'
 
 gem 'area'
 gem 'dotenv'
+gem 'gender_detector'
 gem 'http'
 gem 'nokogiri'
 gem 'oauth'
@@ -23,6 +24,7 @@ gem 'sequel'
 gem 'sequel_pg'
 gem 'tilt'
 gem 'typhoeus'
+gem 'unicode_utils'
 gem 'zbar'
 
 group :test do

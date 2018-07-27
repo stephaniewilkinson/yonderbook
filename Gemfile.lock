@@ -33,6 +33,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
     ffi (1.9.25)
+    gender_detector (2.0.0)
     http (3.3.0)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -101,7 +102,7 @@ GEM
     ruby-progressbar (1.9.0)
     ruby_http_client (3.3.0)
     rubyzip (1.2.1)
-    selenium-webdriver (3.13.0)
+    selenium-webdriver (3.13.1)
       childprocess (~> 0.5)
       rubyzip (~> 1.2)
     sendgrid-ruby (5.2.0)
@@ -123,6 +124,7 @@ GEM
       unf_ext
     unf_ext (0.0.7.5)
     unicode-display_width (1.4.0)
+    unicode_utils (1.4.0)
     xpath (3.1.0)
       nokogiri (~> 1.8)
     zbar (0.3.0)
@@ -136,6 +138,7 @@ DEPENDENCIES
   capybara-selenium
   chromedriver-helper
   dotenv
+  gender_detector
   http
   minitest
   minitest-capybara
@@ -157,6 +160,7 @@ DEPENDENCIES
   sequel_pg
   tilt
   typhoeus
+  unicode_utils
   zbar
 
 RUBY VERSION
