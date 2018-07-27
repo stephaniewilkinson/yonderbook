@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__
+
 require 'area'
 require 'roda'
 require 'rollbar/middleware/rack'
@@ -15,6 +16,8 @@ require_relative 'lib/tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
+  use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
+
   plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
   plugin :flash
@@ -22,8 +25,6 @@ class App < Roda
   compile_assets
 
   CACHE = TupleSpace.new
-
-  use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
   def cache_set **pairs
     pairs.each do |key, value|
@@ -61,6 +62,7 @@ class App < Roda
         r.redirect '/shelves'
       end
     end
+
     # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
     r.on 'shelves' do
       # route: GET /shelves
@@ -130,27 +132,26 @@ class App < Roda
         view 'bookmooch'
       end
     end
+
     # TODO: nest under Shelves
-    # TOOD: add library logos to the cards in the views
+    # TODO: add library logos to the cards in the views
     r.on 'library' do
       # route: POST /library?zipcode=90029
       r.post do
         @shelf_name = cache_get :shelf_name
-        if r['zipcode'].empty?
+        zip = r['zipcode']
+
+        if zip.empty?
           flash[:error] = 'You need to enter a zip code'
           r.redirect "shelves/#{@shelf_name}/overdrive"
         end
 
-        zip = r['zipcode']
-
-        if zip.to_latlon
-          latlon = r['zipcode'].to_latlon.delete ' '
-        else
+        unless zip.to_latlon
           flash[:error] = 'please try a different zip code'
           r.redirect "shelves/#{@shelf_name}/overdrive"
         end
 
-        @local_libraries = Overdrive.local_libraries latlon
+        @local_libraries = Overdrive.local_libraries zip.to_latlon.delete ' '
 
         cache_set libraries: @local_libraries
         r.redirect '/library'
@@ -218,9 +219,9 @@ class App < Roda
 
         if barcodes.any?
           user = @users.first goodreads_user_id: session[:goodreads_user_id]
+
           barcodes.each do |barcode|
             isbn = barcode.data
-
             status, book = Goodreads.fetch_book_data isbn
 
             raise "#{status}: #{book}" unless status == :ok
@@ -249,6 +250,7 @@ class App < Roda
 
     r.on 'users' do
       r.redirect '/' unless @user
+
       # TODO: write authorization for these routes properly
       # route: GET /users
       r.get true do
@@ -263,7 +265,7 @@ class App < Roda
         # route: GET /users/:id
         r.get true do
           @id = id
-          if @user == @users.where(id: @id).first
+          if @user == @users.first(id: @id)
             view 'users/show'
           else
             view 'welcome'

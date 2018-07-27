@@ -41,7 +41,7 @@ describe App do
     click_on 'Unavailable'
     assert_text 'The New Coffeehouse Investor'
     click_on 'Shelves'
-    click_link 'didn-t-want-to-finish'
+    find("a[href='#modal-didn-t-want-to-finish']").click
     click_link 'By Mail'
     fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
     fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
