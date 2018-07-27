@@ -13,6 +13,7 @@ require_relative 'lib/goodreads'
 require_relative 'lib/models'
 require_relative 'lib/overdrive'
 require_relative 'lib/tuple_space'
+require 'gchart'
 
 class App < Roda
   use Rollbar::Middleware::Rack
@@ -89,9 +90,9 @@ class App < Roda
         @shelf_name = shelf_name
 
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
-        @women, @men, @andy = Goodreads.get_gender @isbnset
+        gender_data = Goodreads.get_gender @isbnset
         cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
-
+        @chart_url = Gchart.pie(data: gender_data, title: 'Author Gender', size: '400x200', labels: %w[Women Men Unknown])
         # route: GET /shelves/show
         r.get true do
           view 'shelves/show'

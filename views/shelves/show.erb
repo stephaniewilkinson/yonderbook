@@ -1,5 +1,7 @@
-<h4 class="white-text">Your "<%= @shelf_name %>" shelf</h4>
-<p class="white-text">Of these books, <%= @women*100/(@women + @men) %> % are written by women and <%= @men*100/(@women + @men) %>% are written by men.</p>
+<div class="row">
+  <h4 class="white-text">Your "<%= @shelf_name %>" shelf</h4>
+  <img src="<%= @chart_url %>" alt="">
+</div>
 <div class="row">
   <div class="cards-container">
     <% @isbnset.each do |isbn| %>
