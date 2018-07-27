@@ -13,6 +13,8 @@ require_relative 'lib/goodreads'
 require_relative 'lib/models'
 require_relative 'lib/overdrive'
 require_relative 'lib/tuple_space'
+require 'will_paginate/array'
+require 'will_paginate'
 
 class App < Roda
   use Rollbar::Middleware::Rack
@@ -81,7 +83,7 @@ class App < Roda
           @user = @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
         end
         @shelves = Goodreads.fetch_shelves session[:goodreads_user_id]
-
+        @posts = @shelves.paginate(:page => r.params[:page])
         view 'shelves/index'
       end
 
