@@ -1,10 +1,25 @@
-<!-- <div class="row">
-  <div class="col l6 s12 offset-l3 m8 offset-m2">
-    <h3>Account</h3>
-    <p><b>Name: </b><%= @user[:first_name]%></p>
-    <p><b>Email: </b><%= @user[:email]%></p>
-    <p><b>Goodreads ID: </b><%= @user[:goodreads_user_id]%></p>
-    TODO: make this button work
-    <a href="#" class="btn">Save</a>
-  </div>
-</div> -->
+<h3>Account</h3>
+<div class="row">
+  <form action='/users/<%= @user[:id] %>' method="post" class="col s12">
+    <div class="row">
+      <div class="input-field col s12">
+        <p for="first_name">First Name</p>
+        <input value="<%= @user[:first_name]%>" autofocus name="first_name" type="text" class="validate">
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s12">
+        <p for="email">Email</p>
+        <input name="email" type="email" class="validate" value="<%= @user[:email]%>">
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s12">
+        <p for="disabled">Goodreads ID</p>
+        <input disabled value="<%= @user[:goodreads_user_id]%>" type="text" class="validate">
+      </div>
+    </div>
+    <button class="right btn waves-effect btn-large waves-light" type="submit" name="action">Save
+    </button>
+  </form>
+</div>
