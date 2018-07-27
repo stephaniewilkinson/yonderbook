@@ -13,7 +13,6 @@ require_relative 'lib/goodreads'
 require_relative 'lib/models'
 require_relative 'lib/overdrive'
 require_relative 'lib/tuple_space'
-require 'gchart'
 
 class App < Roda
   use Rollbar::Middleware::Rack
