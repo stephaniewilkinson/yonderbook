@@ -65,6 +65,10 @@ class App < Roda
 
     # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
     r.on 'shelves' do
+      unless session[:goodreads_user_id]
+        flash[:error] = 'Please login first'
+        r.redirect '/'
+      end
       # route: GET /shelves
       r.get true do
         if session[:goodreads_user_id] && @users.where(goodreads_user_id: session[:goodreads_user_id]).any?
@@ -82,10 +86,6 @@ class App < Roda
       end
 
       r.on String do |shelf_name|
-        unless session[:goodreads_user_id]
-          flash[:error] = 'Please login first'
-          r.redirect '/'
-        end
         @shelf_name = shelf_name
 
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
