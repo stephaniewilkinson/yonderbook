@@ -30,7 +30,7 @@ describe App do
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
     assert_text 'to-read'
-    click_link 'financial-books'
+    ind("a[href='#modal-financial-books']").click
     assert_text 'financial-books'
     click_link 'eBooks'
     fill_in 'zipcode', with: '94103'
