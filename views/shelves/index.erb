@@ -7,7 +7,7 @@
     <h5>Choose a shelf</h5>
   </div>
 </div>
-
+<!-- TODO: make these columns into thirds since most people only have three shelves -->
 <div class="row">
   <% @shelves.sort_by { |_, count| -count }.each do |name, count| %>
     <div class="col s12 m6">

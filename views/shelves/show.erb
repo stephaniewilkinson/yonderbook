@@ -25,6 +25,7 @@
   google.charts.setOnLoadCallback(drawChart);
   const women = <%= @women %>
   const men = <%= @men %>
+  const andy = <%= @andy %>
   function drawChart() {
     var data = google.visualization.arrayToDataTable([
       ['Gender', 'Count'],
@@ -36,6 +37,7 @@
     var options = {
       backgroundColor: 'transparent',
       pieHole: 0.4,
+      colors: ['#A86B8A', '#A96F59', 'gray']
     };
 
     var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
