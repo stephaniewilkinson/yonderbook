@@ -9,13 +9,16 @@
   </div>
 </div>
 
+Here is the availability for your <%= @titles.count  %> books.
+
 <div class="row">
   <div class="col s12">
     <ul class="tabs">
       <!-- TODO: hide a tab if its empty -->
-      <li class="tab col s4"><a href="#test1">Available<span class="badge"><%= @titles.count { |a| a.copies_available > 0 } %></span></a></li>
-      <li class="tab col s4"><a href="#test2">Checked Out<span class="badge"><%= @titles.count { |a| a.copies_available == 0 && a.copies_owned > 0} %></span></a></li>
-      <li class="tab col s4"><a href="#test3">Unavailable<span class="badge"><%= @titles.count { |a| a.copies_owned == 0 } %></span></a></li>
+      <!-- TODO: move this logic out of the view -->
+      <li class="tab col s4"><a href="#test1">Available<span class="badge"><%= @titles.count { |t|  t.versions.map(&:copies_available).empty? ? false : t.versions.map(&:copies_available).max > 0 } %></span></a></li>
+      <li class="tab col s4"><a href="#test2">Checked Out<span class="badge"><%= @titles.count { |t|  t.versions.map(&:copies_owned).max > 0 && t.versions.map(&:copies_available).max < 0 if t.versions.map(&:copies_owned).max } %></span></a></li>
+      <li class="tab col s4"><a href="#test3">Unavailable<span class="badge"><%= @titles.count { |t| t.versions.map(&:copies_owned).max == nil } %></span></a></li>
     </ul>
   </div>
 </div>
@@ -24,19 +27,19 @@
   <div class="col s12">
     <h5 id="available">Available Books</h5>
     <div class="cards-container">
-      <% @titles.select { |a| a.copies_available > 0 }.each do |title| %>
+      <% @titles.select { |t| t.versions.map(&:copies_available)&.max > 0 if t.versions.map(&:copies_available).max }.each do |title| %>
         <div class="card hoverable">
           <div class="card-image">
             <img src="<%= title.image %>">
           </div>
           <div class="card-content">
-            <div class="row">
-              <p><%= title.title %></p>
-              <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
-            </div>
-            <div class="row">
-              <a href="<%= title.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
-            </div>
+            This title has <%= title.versions.count %> versions.
+            <% title.versions.each_with_index do |version, i| %>
+              <h5><%= version.format %></h5>
+              <small>Copies Available: <%= version.copies_available %>/<%= version.copies_owned %></small>
+              <a href="<%= version.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
+              <hr>
+            <% end %>
           </div>
         </div>
       <% end %>
@@ -48,19 +51,19 @@
   <div class="col s12">
     <h5 id="checkedout">Checked out books</h5>
     <div class="cards-container">
-      <% @titles.select { |a| a.copies_available == 0 && a.copies_owned > 0 }.each do |title| %>
+      <% @titles.select { |t|  t.versions.map(&:copies_available)&.max < 0 && t.versions.map(&:copies_available)&.max > 0 if t.versions.map(&:copies_available).max }.each do |title| %>
         <div class="card hoverable">
           <div class="card-image">
             <img src="<%= title.image %>">
           </div>
           <div class="card-content">
-            <div class="row">
-              <p><%= title.title %></p>
-              <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
-            </div>
-            <div class="row">
-              <a href="<%= title.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
-            </div>
+            This title has <%= title.versions.count %> versions.
+            <% title.versions.each_with_index do |version, i| %>
+              <h5><%= version.format %></h5>
+              <small>Copies Available: <%= version.copies_available %>/<%= version.copies_owned %></small>
+              <a href="<%= version.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
+              <hr>
+            <% end %>
           </div>
         </div>
       <% end %>
@@ -76,19 +79,19 @@
       Try a different library?
     </a>
     <div class="cards-container">
-      <% @titles.select { |a| a.copies_owned == 0 }.each do |title| %>
+      <% @titles.select { |t| t.versions.map(&:copies_available)&.max == nil }.each do |title| %>
         <div class="card hoverable">
           <div class="card-image">
             <img src="<%= title.image %>">
           </div>
           <div class="card-content">
-            <div class="row">
-              <p><%= title.title %></p>
-              <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
-            </div>
-            <div class="row">
-              <a href="<%= title.url %>" class="disabled btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
-            </div>
+            This title has <%= title.versions.count %> versions.
+            <% title.versions.each_with_index do |version, i| %>
+              <h5><%= version.format %></h5>
+              <small>Copies Available: <%= version.copies_available %>/<%= version.copies_owned %></small>
+              <a href="<%= version.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Check it Out</a>
+              <hr>
+            <% end %>
           </div>
         </div>
       <% end %>

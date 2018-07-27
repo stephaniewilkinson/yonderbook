@@ -12,13 +12,17 @@ class Overdrive
 
   Title = Struct.new :title, \
                      :image, \
-                     :copies_available, \
-                     :copies_owned, \
                      :isbn, \
-                     :url, \
-                     :id, \
                      :availability_url, \
+                     :versions, \
                      keyword_init: true
+
+  Version = Struct.new :id, \
+                      :copies_available, \
+                      :copies_owned, \
+                      :url, \
+                      :format, \
+                      keyword_init: true
 
   class << self
     def local_libraries latlon
@@ -58,7 +62,7 @@ class Overdrive
     add_id_and_url_to_books
     add_library_availability_to_books
 
-    @books.map(&:first).sort_by { |book| [book.copies_available, book.copies_owned] }.reverse
+    @books.map(&:first)
   end
 
   def add_id_and_url_to_books
@@ -69,20 +73,23 @@ class Overdrive
       products = JSON.parse(body)['products']
       next unless products
 
-      # This part is fine, both of these variables are the only id and url there is at this point
-      # looking for other formats needs to happen earlier in the process than Here
-      # by the time we get here, we are only dealing with one isbn and format
-      book.id = products.dig 0, 'id'
-      book.url = products.dig 0, 'contentDetails', 0, 'href'
-      book.image = (products.dig 0, 'images', 'cover300Wide', 'href')
+      book.image = products.dig(0, 'images', 'cover300Wide', 'href')
+
+      products.each do |product|
+        version = Version.new id: product.dig('id'),
+                            url: product.dig('contentDetails', 0, 'href'),
+                            format: product.dig('mediaType')
+        book.versions << version
+      end
+
     end
   end
 
   def add_library_availability_to_books
     # TODO: expand this section to include links and ids for other book formats
     hydra = Typhoeus::Hydra.new
-    books_with_ids = @books.map(&:first).select(&:id)
-    batches = books_with_ids.map(&:id).each_slice(25)
+    books_with_ids = @books.map(&:first).map(&:versions).flatten.map(&:id)
+    batches = books_with_ids.flatten.each_slice(25)
 
     requests = batches.map do |batch|
       uri = "https://api.overdrive.com/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
@@ -104,11 +111,11 @@ class Overdrive
         # {"errorCode"=>"InternalError", "message"=>"An unexpected error has occurred.", "token"=>"8b0c9f8c-2c5c-41f4-8b32-907f23baf111"}
         next
       end
-
       body['availability'].each do |result|
-        book = @books.find { |title, _| title.id == result['reserveId'] }.first
-        book.copies_available = result['copiesAvailable']
-        book.copies_owned = result['copiesOwned']
+        book = @books.find { |book, _| book.versions.map(&:id).include? result['reserveId'] }.first
+        version = book.versions.find { |v| v.id.include? result['reserveId'] }
+        version.copies_available = result['copiesAvailable']
+        version.copies_owned = result['copiesOwned']
       end
     end
   end
@@ -121,10 +128,10 @@ class Overdrive
       availability_url = "#{Overdrive::API_URI}/collections/#{@collection_token}/products?#{params}"
 
       title = Title.new isbn: book[0],
-                        image: book[1],
                         title: book[2],
-                        copies_available: 0,
-                        copies_owned: 0
+                        image: book[1],
+                        availability_url: [],
+                        versions: []
 
       request = Typhoeus::Request.new availability_url, headers: {Authorization: "Bearer #{@token}"}
       hydra.queue request
