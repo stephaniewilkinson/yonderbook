@@ -26,6 +26,7 @@ gem 'tilt'
 gem 'typhoeus'
 gem 'unicode_utils'
 gem 'zbar'
+gem "will_paginate", "~> 3.1.0", require: nil
 
 group :test do
   gem 'capybara-selenium'

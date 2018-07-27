@@ -7,7 +7,7 @@
     <h5>Choose a shelf</h5>
   </div>
 </div>
-
+<%= will_paginate @posts %>
 <div class="row">
   <% @shelves.sort_by { |_, count| -count }.each do |name, count| %>
     <div class="col s12 m6">
