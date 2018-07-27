@@ -80,6 +80,10 @@ class App < Roda
       end
 
       r.on String do |shelf_name|
+        unless @user
+          flash[:error] = 'Please login first'
+          r.redirect '/'
+        end
         @shelf_name = shelf_name
 
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
