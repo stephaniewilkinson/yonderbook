@@ -1,9 +1,13 @@
-<div class="row">
-  <h4 class="white-text">Your "<%= @shelf_name %>" shelf</h4>
-    <div class="center col m6" id="donutchart" style="width: 600px; height: 400px;"></div>
-</div>
-<div class="row">
-  <div class="cards-container">
+<h4 class="white-text">Your "<%= @shelf_name %>" shelf</h4>
+<h5>By Year</h5>
+<div id="histogram" style="height: 800px;"></div>
+<h5>By Gender</h5>
+<div id="donutchart" style="height: 600px;"></div>
+<h5>Book</h5>
+
+
+
+  <div id="books" class="cards-container">
     <% @isbnset.each do |isbn| %>
       <div class="card hoverable horizontal">
         <div class="card-image">
@@ -25,6 +29,7 @@
   google.charts.setOnLoadCallback(drawChart);
   const women = <%= @women %>
   const men = <%= @men %>
+  const andy = <%= @andy %>
   function drawChart() {
     var data = google.visualization.arrayToDataTable([
       ['Gender', 'Count'],
@@ -34,14 +39,42 @@
     ]);
 
     var options = {
-      backgroundColor: 'transparent',
       pieHole: 0.4,
+      colors: ['#228d8d', '#A86B8A', 'gray'],
+      fontName: "inherit"
     };
 
     var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
     chart.draw(data, options);
   }
 </script>
+
+
+
+<script type="text/javascript">
+  google.charts.load("current", {packages:["corechart"]});
+  google.charts.setOnLoadCallback(drawChart);
+
+  const labels = [{label: 'Title', id: 'title'}, {label: 'Year', id: 'year', type: 'string'}];
+  const histogram_dataset = <%= @histogram_dataset %>;
+
+  histogram_dataset.unshift(labels);
+
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable(histogram_dataset);
+
+    var options = {
+      title: 'Publication years of these books',
+      legend: { position: 'none' },
+      fontName: 'inherit',
+      hAxis: { format: '####' },
+    };
+
+    var chart = new google.visualization.Histogram(document.getElementById('histogram'));
+    chart.draw(data, options);
+  }
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <% if flash[:error] %>
   <script type="text/javascript">

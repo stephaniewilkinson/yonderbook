@@ -27,7 +27,7 @@ module Goodreads
 
     doc = Nokogiri::XML Typhoeus.get("#{BASE_URL}/#{path}").body
     shelf_names = doc.xpath('//shelves//name').children.to_a
-    shelf_books = doc.xpath('//shelves//book_count').children.to_a.map { |s| Integer(s.to_s, 10) }
+    shelf_books = doc.xpath('//shelves//book_count').children.map { |s| Integer(s.to_s) }
     shelf_names.zip shelf_books
   end
 
@@ -45,13 +45,20 @@ module Goodreads
 
     hydra.run
 
+    get_book_details requests
+  end
+
+  def get_book_details requests
+    # TODO: make this a hash instead of array
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
       isbns = doc.xpath('//isbn').children.map(&:text)
       image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v(/\A\n\z/)
       titles = doc.xpath('//title').children.map(&:text)
       authors = doc.xpath('//authors/author/name').children.map(&:text)
-      isbns.zip(image_urls, titles, authors)
+      published_years = doc.xpath('//published').children.map(&:text)
+
+      isbns.zip(image_urls, titles, authors, published_years)
     end
   end
 
@@ -70,7 +77,8 @@ module Goodreads
     andy = 0
     d = GenderDetector.new
     isbnset.each do |isbn|
-      result = d.get_gender isbn[3].split.first
+      name = isbn[3]
+      result = d.get_gender name.split.first
       case result
       when :female
         women += 1
@@ -81,6 +89,10 @@ module Goodreads
       end
     end
     [women, men, andy]
+  end
+
+  def plot_books_over_time isbnset
+    isbnset.map { |_, _, _, title, year| [title, Integer(year)] if year }.compact
   end
 
   def fetch_book_data isbn
