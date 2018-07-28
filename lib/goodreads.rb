@@ -49,7 +49,7 @@ module Goodreads
   end
 
   def get_book_details requests
-    # TODO make this a hash instead of array
+    # TODO: make this a hash instead of array
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
       isbns = doc.xpath('//isbn').children.map(&:text)
