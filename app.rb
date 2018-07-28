@@ -89,7 +89,7 @@ class App < Roda
         @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
         @women, @men, @andy = Goodreads.get_gender @isbnset
         cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
-
+        @histogram_dataset = Goodreads.plot_books_over_time @isbnset
         # route: GET /shelves/show
         r.get true do
           view 'shelves/show'

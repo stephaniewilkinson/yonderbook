@@ -51,7 +51,9 @@ module Goodreads
       image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v(/\A\n\z/)
       titles = doc.xpath('//title').children.map(&:text)
       authors = doc.xpath('//authors/author/name').children.map(&:text)
-      isbns.zip(image_urls, titles, authors)
+      published_years = doc.xpath('//published').children.map(&:text)
+
+      isbns.zip(image_urls, titles, authors, published_years)
     end
   end
 
@@ -70,7 +72,8 @@ module Goodreads
     andy = 0
     d = GenderDetector.new
     isbnset.each do |isbn|
-      result = d.get_gender isbn[3].split.first
+      name = isbn[3]
+      result = d.get_gender name.split.first
       case result
       when :female
         women += 1
@@ -81,6 +84,16 @@ module Goodreads
       end
     end
     [women, men, andy]
+  end
+
+  def plot_books_over_time isbnset
+    histogram_dataset = [["Title", "Year"]]
+    isbnset.each do |book|
+      title = book[2]
+      year = book[4].to_i
+      histogram_dataset << [title, year] unless year < 1000
+    end
+    histogram_dataset
   end
 
   def fetch_book_data isbn
