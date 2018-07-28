@@ -87,8 +87,8 @@ module Goodreads
   end
 
   def plot_books_over_time isbnset
-    isbnset.map do |_, _, title, _ year|
-      [title, year]
+    isbnset.map do |_, _, _, title, year|
+      [title, year.to_i]
     end.reject do |_, year|
       year < 1000
     end
