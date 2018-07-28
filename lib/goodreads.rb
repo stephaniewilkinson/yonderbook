@@ -87,13 +87,11 @@ module Goodreads
   end
 
   def plot_books_over_time isbnset
-    histogram_dataset = [["Title", "Year"]]
-    isbnset.each do |book|
-      title = book[2]
-      year = book[4].to_i
-      histogram_dataset << [title, year] unless year < 1000
+    isbnset.map do |_, _, title, _ year|
+      [title, year]
+    end.reject do |_, year|
+      year < 1000
     end
-    histogram_dataset
   end
 
   def fetch_book_data isbn

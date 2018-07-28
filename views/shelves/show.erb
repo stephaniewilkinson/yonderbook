@@ -39,9 +39,8 @@
     ]);
 
     var options = {
-      backgroundColor: 'transparent',
       pieHole: 0.4,
-      colors: ['#A86B8A', '#A96F59', 'gray'],
+      colors: ['#228d8d', '#A86B8A', 'gray'],
       fontName: "inherit"
     };
 
@@ -55,26 +54,26 @@
 <script type="text/javascript">
   google.charts.load("current", {packages:["corechart"]});
   google.charts.setOnLoadCallback(drawChart);
-  const histogram_dataset = <%= @histogram_dataset %>
+
+  const labels = [{label: 'Title', id: 'title'}, {label: 'Year', id: 'year', type: 'string'}];
+  const histogram_dataset = <%= @histogram_dataset %>;
+
+  histogram_dataset.unshift(labels);
 
   function drawChart() {
     var data = google.visualization.arrayToDataTable(histogram_dataset);
 
     var options = {
-      backgroundColor: 'transparent',
       title: 'Publication years of these books',
       legend: { position: 'none' },
-      fontName: "inherit",
-      hAxis: { format:''},
+      fontName: 'inherit',
+      hAxis: { format: '####' },
     };
 
     var chart = new google.visualization.Histogram(document.getElementById('histogram'));
     chart.draw(data, options);
   }
 </script>
-
-
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <% if flash[:error] %>
