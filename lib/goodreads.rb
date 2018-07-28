@@ -27,7 +27,7 @@ module Goodreads
 
     doc = Nokogiri::XML Typhoeus.get("#{BASE_URL}/#{path}").body
     shelf_names = doc.xpath('//shelves//name').children.to_a
-    shelf_books = doc.xpath('//shelves//book_count').children.map { |s| Integer(s.to_s) }
+    shelf_books = doc.xpath('//shelves//book_count').children.map(&:to_s).map(&:to_i)
     shelf_names.zip shelf_books
   end
 
@@ -35,14 +35,13 @@ module Goodreads
     params = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
     path = "/review/list/#{goodreads_user_id}.xml?#{params}}"
     doc = Nokogiri::XML Typhoeus.get("#{BASE_URL}/#{path}").body
-    number_of_pages = Integer(doc.xpath('//books').first['numpages'], 10)
+    number_of_pages = Integer doc.xpath('//books').first['numpages']
 
     hydra = Typhoeus::Hydra.new
-    requests = 1.upto(number_of_pages).map do |page|
+    requests = Array.new number_of_pages do |page|
       Typhoeus::Request.new "#{BASE_URL}/#{path}&page=#{page}"
     end
     requests.each { |request| hydra.queue request }
-
     hydra.run
 
     get_book_details requests
@@ -58,7 +57,7 @@ module Goodreads
       authors = doc.xpath('//authors/author/name').children.map(&:text)
       published_years = doc.xpath('//published').children.map(&:text)
 
-      isbns.zip(image_urls, titles, authors, published_years)
+      isbns.zip image_urls, titles, authors, published_years
     end
   end
 
@@ -75,11 +74,9 @@ module Goodreads
     women = 0
     men = 0
     andy = 0
-    d = GenderDetector.new
-    isbnset.each do |isbn|
-      name = isbn[3]
-      result = d.get_gender name.split.first
-      case result
+    detector = GenderDetector.new
+    isbnset.each do |_, _, _, name|
+      case detector.get_gender name.split.first
       when :female
         women += 1
       when :male
