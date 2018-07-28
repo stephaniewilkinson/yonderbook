@@ -29,6 +29,9 @@ describe App do
     fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
+    find("a[href='shelves/financial-books']").click
+    assert_text 'Publication years'
+    click_on 'Shelves'
     assert_text 'to-read'
     find("a[href='#modal-financial-books']").click
     assert_text 'financial-books'
