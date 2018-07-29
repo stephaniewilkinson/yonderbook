@@ -67,14 +67,19 @@ class App < Roda
     r.on 'shelves' do
       # route: GET /shelves
       r.get true do
-        if session[:goodreads_user_id] && @users.where(goodreads_user_id: session[:goodreads_user_id]).any?
-          @user = @users.where(goodreads_user_id: session[:goodreads_user_id]).first
+        if session[:goodreads_user_id] && @users.first(goodreads_user_id: session[:goodreads_user_id])
+          @user = @users.first(goodreads_user_id: session[:goodreads_user_id])
         elsif cache_get(:request_token)
           access_token = cache_get(:request_token).get_access_token
-          user_id, first_name = Goodreads.fetch_user access_token
-          session[:goodreads_user_id] = user_id
-          # TODO: does this need to be insert conflict? or just insert
-          @user = @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
+          # TODO: grab their email addy here
+          goodreads_user_id, first_name = Goodreads.fetch_user access_token
+          session[:goodreads_user_id] = goodreads_user_id
+          if @users.first(goodreads_user_id: session[:goodreads_user_id])
+            @user = @users.first(goodreads_user_id: session[:goodreads_user_id])
+          else
+            @users.insert(goodreads_user_id: user_id)
+            @user = @users.first(goodreads_user_id: session[:goodreads_user_id])
+          end
         else
           r.redirect '/'
         end
@@ -247,27 +252,31 @@ class App < Roda
     end
 
     r.on 'users' do
-      r.redirect '/' unless @user
-
+      @current_user = @users.first goodreads_user_id: session[:goodreads_user_id]
       # TODO: write authorization for these routes properly
       # route: GET /users
       r.get true do
-        if @user&.dig(:id) == 1
+        if @current_user&.dig(:id) == 1
           view 'users/index'
         else
-          view 'welcome'
+          r.redirect '/'
         end
       end
 
       r.on String do |id|
         # route: GET /users/:id
+        @user = @users.first(id: id)
         r.get true do
-          @id = id
-          if @user == @users.first(id: @id)
+          if @current_user == @user
             view 'users/show'
           else
-            view 'welcome'
+            r.redirect '/'
           end
+        end
+
+        r.post true do
+          @user.update(email: r.params['email'], first_name: r.params['first_name'])
+          view 'users/show'
         end
 
         # route: GET /users/:id/edit
