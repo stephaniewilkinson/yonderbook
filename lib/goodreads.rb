@@ -49,9 +49,9 @@ module Goodreads
   def get_requests uri, number_of_pages
     hydra = Typhoeus::Hydra.new
     requests = Array.new number_of_pages do |page|
-      response = Typhoeus::Request.new "#{uri}&page=#{page}"
-      hydra.queue response
-      response
+      request = Typhoeus::Request.new "#{uri}&page=#{page}"
+      hydra.queue request
+      request
     end
     hydra.run
 

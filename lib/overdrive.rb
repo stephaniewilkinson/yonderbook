@@ -22,7 +22,7 @@ class Overdrive
 
   class << self
     def local_libraries latlon
-      response = HTTP.get MAPBOX_URI, params: {latLng: latlon, radius: 50}
+      response = Typhoeus.get MAPBOX_URI, params: {latLng: latlon, radius: 50}
       libraries = JSON.parse response.body
 
       libraries.first(10).map do |l|
@@ -49,7 +49,7 @@ class Overdrive
   # Four digit library id from user submitted form, fetching the library-specific endpoint
   def collection_token consortium_id, token
     library_uri = "#{API_URI}/libraries/#{consortium_id}"
-    response = HTTP.auth("Bearer #{token}").get(library_uri)
+    response = Typhoeus.get library_uri, headers: {Authorization: "Bearer #{token}"}
     res = JSON.parse(response.body)
     res['collectionToken']
   end
