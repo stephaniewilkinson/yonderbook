@@ -86,8 +86,9 @@ module Goodreads
   def get_gender isbnset
     gender_count = {women: 0, men: 0, andy: 0}
 
+    detector = GenderDetector.new
     isbnset.each do |_, _, _, name|
-      case GenderDetector.new.get_gender name.split.first
+      case detector.get_gender name.split.first
       when :female
         gender_count[:women] += 1
       when :male
