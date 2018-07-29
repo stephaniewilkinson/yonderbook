@@ -85,13 +85,14 @@ class App < Roda
       r.on String do |shelf_name|
         r.redirect '/' unless session[:goodreads_user_id]
         @shelf_name = shelf_name
+        cache_set shelf_name: @shelf_name
 
-        @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
-        @women, @men, @andy = Goodreads.get_gender @isbnset
-        cache_set shelf_name: @shelf_name, isbns_and_image_urls: @isbnset
-        @histogram_dataset = Goodreads.plot_books_over_time @isbnset
         # route: GET /shelves/show
         r.get true do
+          @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
+          @women, @men, @andy = Goodreads.get_gender @isbnset
+          @histogram_dataset = Goodreads.plot_books_over_time @isbnset
+
           view 'shelves/show'
         end
 
@@ -102,8 +103,17 @@ class App < Roda
         end
 
         # route: GET /shelves/:id/bookmooch
-        r.get 'bookmooch' do
-          view 'shelves/bookmooch'
+        r.on 'bookmooch' do
+          r.get true do
+            view 'shelves/bookmooch'
+          end
+
+          # route: GET /bookmooch
+          r.get 'results' do
+            @books_added = cache_get :books_added
+            @books_failed = cache_get :books_failed
+            view 'bookmooch'
+          end
         end
       end
     end
@@ -112,26 +122,16 @@ class App < Roda
     r.on 'bookmooch' do
       # route: POST /bookmooch?username=foo&password=baz
       r.post do
-        isbns_and_image_urls = cache_get :isbns_and_image_urls
-        if isbns_and_image_urls
-          r.halt(403) if r['username'] == 'susanb'
-          @books_added, @books_failed = Bookmooch.books_added_and_failed isbns_and_image_urls, r['username'], r['password']
-          cache_set books_added: @books_added, books_failed: @books_failed
-        else
-          r.redirect '/books'
-        end
-        r.redirect '/bookmooch'
-      end
+        @shelf_name = cache_get :shelf_name
+        isbns_and_image_urls = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
+        r.halt(403) if r['username'] == 'susanb'
+        @books_added, @books_failed = Bookmooch.books_added_and_failed isbns_and_image_urls, r['username'], r['password']
+        cache_set books_added: @books_added, books_failed: @books_failed
 
-      # route: GET /bookmooch
-      r.get do
-        @books_added = cache_get :books_added
-        @books_failed = cache_get :books_failed
-        view 'bookmooch'
+        r.redirect "shelves/#{@shelf_name}/bookmooch/results"
       end
     end
 
-    # TODO: nest under Shelves
     # TODO: add library logos to the cards in the views
     r.on 'library' do
       # route: POST /library?zipcode=90029
@@ -172,7 +172,7 @@ class App < Roda
       # route: POST /availability?consortium=1047
       r.post do
         # Pulling book info from the cache
-        @isbnset = cache_get :isbns_and_image_urls
+        @isbnset = Goodreads.get_books cache_get(:shelf_name), session[:goodreads_user_id]
 
         unless @isbnset
           flash[:error] = 'Select a bookshelf first'
