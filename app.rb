@@ -35,7 +35,7 @@ class App < Roda
   def cache_get key
     CACHE["#{session[:session_id]}/#{key}"]
   end
-# TODO: make trailing slash work
+  # TODO: make trailing slash work
   route do |r|
     r.public
     r.assets
