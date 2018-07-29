@@ -83,13 +83,14 @@ class App < Roda
 
       r.on String do |shelf_name|
         r.redirect '/' unless session[:goodreads_user_id]
+
         @shelf_name = shelf_name
         cache_set shelf_name: @shelf_name
 
         @book_info = cache_get @shelf_name.to_sym
         unless @book_info
           @book_info = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
-          cache_set({@shelf_name.to_sym => @book_info})
+          cache_set(@shelf_name.to_sym => @book_info)
         end
 
         # route: GET /shelves/:id
