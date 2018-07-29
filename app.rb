@@ -114,21 +114,17 @@ class App < Roda
             @books_failed = cache_get :books_failed
             view 'bookmooch'
           end
+          # route: POST /bookmooch?username=foo&password=baz
+          r.post do
+            @shelf_name = cache_get :shelf_name
+            isbns_and_image_urls = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
+            r.halt(403) if r['username'] == 'susanb'
+            @books_added, @books_failed = Bookmooch.books_added_and_failed isbns_and_image_urls, r['username'], r['password']
+            cache_set books_added: @books_added, books_failed: @books_failed
+
+            r.redirect "bookmooch/results"
+          end
         end
-      end
-    end
-
-    # TODO: Nest this stuff under shelves
-    r.on 'bookmooch' do
-      # route: POST /bookmooch?username=foo&password=baz
-      r.post do
-        @shelf_name = cache_get :shelf_name
-        isbns_and_image_urls = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
-        r.halt(403) if r['username'] == 'susanb'
-        @books_added, @books_failed = Bookmooch.books_added_and_failed isbns_and_image_urls, r['username'], r['password']
-        cache_set books_added: @books_added, books_failed: @books_failed
-
-        r.redirect "shelves/#{@shelf_name}/bookmooch/results"
       end
     end
 
