@@ -18,6 +18,7 @@ module Goodreads
 
   def new_request_token
     consumer = OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
+    sleep 0.1
     consumer.get_request_token
   end
 
