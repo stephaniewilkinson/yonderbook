@@ -12,12 +12,6 @@ describe App do
   end
 
   it 'responds to root' do
-    get '/'
-    assert last_response.ok?
-    assert_includes last_response.body, 'Yonderbook'
-  end
-
-  it 'responds to root' do
     get '/about'
     assert last_response.ok?
     assert_includes last_response.body, 'About'
@@ -50,5 +44,11 @@ describe App do
     fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
     click_button 'Authenticate'
     assert_text 'Success!'
+  end
+
+  it 'responds to root' do
+    get '/'
+    assert last_response.ok?
+    assert_includes last_response.body, 'Yonderbook'
   end
 end

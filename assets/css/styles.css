@@ -24,12 +24,11 @@ span,
 body {
   font-family: 'Lato', serif;
 }
-
 /* COLORS */
 
 .btn {
-  background-color: rgba(80, 18, 41, 0.75);
   border-radius: 20px;
+  background-color: rgba(80, 18, 41, 0.75);
 }
 
 h1,
