@@ -8,7 +8,7 @@
 
 
   <div id="books" class="cards-container">
-    <% @isbnset.each do |isbn| %>
+    <% @book_info.each do |isbn| %>
       <div class="card hoverable horizontal">
         <div class="card-image">
           <img src="<%= isbn[1] %>">

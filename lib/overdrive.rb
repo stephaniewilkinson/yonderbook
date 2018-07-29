@@ -35,7 +35,7 @@ class Overdrive
   end
 
   def initialize isbnset, consortium_id
-    @isbnset = isbnset
+    @book_info = isbnset
     @token = token
     @collection_token = collection_token consortium_id, @token
     @books = create_books_with_overdrive_info
@@ -116,7 +116,7 @@ class Overdrive
   def create_books_with_overdrive_info
     hydra = Typhoeus::Hydra.new
 
-    books = @isbnset.map do |book|
+    books = @book_info.map do |book|
       params = URI.encode_www_form minimum: false, q: "\"#{book[2]}\""
       availability_url = "#{Overdrive::API_URI}/collections/#{@collection_token}/products?#{params}"
 

@@ -36,7 +36,6 @@ class App < Roda
     CACHE["#{session[:session_id]}/#{key}"]
   end
 
-  # TODO: reduce block length
   route do |r|
     r.public
     r.assets
@@ -87,11 +86,16 @@ class App < Roda
         @shelf_name = shelf_name
         cache_set shelf_name: @shelf_name
 
+        @book_info = cache_get @shelf_name.to_sym
+        unless @book_info
+          @book_info = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
+          cache_set({@shelf_name.to_sym => @book_info})
+        end
+
         # route: GET /shelves/:id
         r.get true do
-          @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
-          @women, @men, @andy = Goodreads.get_gender @isbnset
-          @histogram_dataset = Goodreads.plot_books_over_time @isbnset
+          @women, @men, @andy = Goodreads.get_gender @book_info
+          @histogram_dataset = Goodreads.plot_books_over_time @book_info
 
           view 'shelves/show'
         end
@@ -104,9 +108,8 @@ class App < Roda
 
           # route: POST /shelves/:id/bookmooch?username=foo&password=baz
           r.post do
-            @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
             r.halt(403) if r['username'] == 'susanb'
-            @books_added, @books_failed = Bookmooch.books_added_and_failed @isbnset, r['username'], r['password']
+            @books_added, @books_failed = Bookmooch.books_added_and_failed @book_info, r['username'], r['password']
             cache_set books_added: @books_added, books_failed: @books_failed
 
             r.redirect 'bookmooch/results'
@@ -126,10 +129,10 @@ class App < Roda
           r.get true do
             view 'shelves/overdrive'
           end
+
           # route: POST /shelves/:id/overdrive?consortium=1047
           r.post do
-            @isbnset = Goodreads.get_books cache_get(:shelf_name), session[:goodreads_user_id]
-            titles = Overdrive.new(@isbnset, r['consortium']).fetch_titles_availability
+            titles = Overdrive.new(@book_info, r['consortium']).fetch_titles_availability
             cache_set titles: titles
             r.redirect '/availability'
           end
