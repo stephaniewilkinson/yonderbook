@@ -21,6 +21,7 @@ class App < Roda
   plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
   plugin :flash
+  plugin :slash_path_empty
   plugin :render
   compile_assets
 
@@ -35,7 +36,7 @@ class App < Roda
   def cache_get key
     CACHE["#{session[:session_id]}/#{key}"]
   end
-  # TODO: make trailing slash work
+
   route do |r|
     r.public
     r.assets

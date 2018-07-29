@@ -8,11 +8,8 @@
 git clone git@github.com:stephaniewilkinson/bookmooch.git
 cd bookmooch
 cp .env-example .env # if you msg me I can share my api keys
-createuser -U postgres bookmooch
-createdb -U postgres -O bookmooch bookmooch_production
-createdb -U postgres -O bookmooch bookmooch_test
-createdb -U postgres -O bookmooch bookmooch_development
-rake migrate
+rake db:create
+rake db:migrate
 rackup
 ```
 
@@ -26,4 +23,4 @@ TODO: Link back to the page on Goodreads where the data data appears. For instan
 
 ## Routing
 
-This app uses the [roda-route-list plugin.](https://github.com/jeremyevans/roda-route_list) This makes all the routes available in a /routes.json file. 
+This app uses the [roda-route-list plugin.](https://github.com/jeremyevans/roda-route_list) This makes all the routes available in a /routes.json file.
