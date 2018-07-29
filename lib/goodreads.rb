@@ -10,23 +10,23 @@ require 'uri'
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title, keyword_init: true
 
-  BASE_URL = 'https://www.goodreads.com'
+  HOST = URI::HTTPS.build host: 'www.goodreads.com'
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   SECRET  = ENV.fetch 'GOODREADS_SECRET'
 
   module_function
 
   def new_request_token
-    consumer = OAuth::Consumer.new API_KEY, SECRET, site: BASE_URL
+    consumer = OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
     consumer.get_request_token
   end
 
   def fetch_shelves goodreads_user_id
-    params = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
-    path = "/shelf/list.xml?#{params}}"
+    uri = HOST
+    uri.path = '/shelf/list.xml'
+    uri.query = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
 
-    doc = Nokogiri::XML Typhoeus.get("#{BASE_URL}/#{path}").body
-
+    doc = Nokogiri::XML Typhoeus.get(uri).body
     shelf_names = doc.xpath('//shelves//name').children.to_a
     shelf_books = doc.xpath('//shelves//book_count').children.map(&:to_s).map(&:to_i)
 
