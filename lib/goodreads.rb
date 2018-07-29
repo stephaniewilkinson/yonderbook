@@ -22,11 +22,11 @@ module Goodreads
   end
 
   def fetch_shelves goodreads_user_id
-    uri = HOST
-    uri.path = '/shelf/list.xml'
-    uri.query = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
+    params = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
+    path = "/shelf/list.xml?#{params}}"
 
-    doc = Nokogiri::XML Typhoeus.get(uri).body
+    doc = Nokogiri::XML Typhoeus.get("#{BASE_URL}/#{path}").body
+
     shelf_names = doc.xpath('//shelves//name').children.to_a
     shelf_books = doc.xpath('//shelves//book_count').children.map(&:to_s).map(&:to_i)
 
