@@ -45,11 +45,12 @@ class App < Roda
     @users = DB[:users]
 
     r.root do
+      request_token = Goodreads.new_request_token
+      @auth_url = request_token.authorize_url
+      cache_set request_token: request_token
+
       # route: GET /
-      r.get do
-        request_token = Goodreads.new_request_token
-        @auth_url = request_token.authorize_url
-        cache_set request_token: request_token
+      r.get true do
         view 'welcome'
       end
     end
