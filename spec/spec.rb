@@ -17,7 +17,7 @@ describe App do
     assert_includes last_response.body, 'Yonderbook'
   end
 
-  it 'responds to root' do
+  it 'responds to /about' do
     get '/about'
     assert last_response.ok?
     assert_includes last_response.body, 'About'
