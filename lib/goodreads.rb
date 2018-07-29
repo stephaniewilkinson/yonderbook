@@ -10,14 +10,14 @@ require 'uri'
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title, keyword_init: true
 
-  HOST = URI::HTTPS.build host: 'www.goodreads.com'
+  BASE_URL = 'https://www.goodreads.com'
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   SECRET  = ENV.fetch 'GOODREADS_SECRET'
 
   module_function
 
   def new_request_token
-    consumer = OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
+    consumer = OAuth::Consumer.new API_KEY, SECRET, site: BASE_URL
     consumer.get_request_token
   end
 

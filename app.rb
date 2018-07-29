@@ -35,7 +35,7 @@ class App < Roda
   def cache_get key
     CACHE["#{session[:session_id]}/#{key}"]
   end
-
+# TODO: make trailing slash work
   route do |r|
     r.public
     r.assets
@@ -44,13 +44,11 @@ class App < Roda
     @users = DB[:users]
 
     r.root do
-      request_token = Goodreads.new_request_token
-      @auth_url = request_token.authorize_url
-
-      cache_set request_token: request_token
-
       # route: GET /
       r.get do
+        request_token = Goodreads.new_request_token
+        @auth_url = request_token.authorize_url
+        cache_set request_token: request_token
         view 'welcome'
       end
     end
