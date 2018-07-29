@@ -1,21 +1,41 @@
 # frozen_string_literal: true
 
-require 'rollbar/rake_tasks'
 require 'dotenv/load'
 
-task :environment do
-  Rollbar.configure do |config|
-    config.access_token = 'ee0a8b14155148c28004d3e9b7519abd'
-  end
-end
+task default: :test
 
-task :default do
+desc 'Run the specs'
+task :test do
   sh 'ruby spec/*.rb'
 end
 
-task :migrate do
-  Dir['migrate/*'].sort.each do |migration|
-    sh "ruby #{migration}"
+namespace :db do
+  task :create_user do
+    sh 'createuser -U postgres bookmooch || true'
+  end
+
+  desc 'Setup development and test databases'
+  task create: %i[create_user] do
+    sh 'createdb -U postgres -O bookmooch bookmooch_development'
+    sh 'createdb -U postgres -O bookmooch bookmooch_test'
+  end
+
+  desc 'Drop the development and test databases'
+  task :drop do
+    sh 'dropdb bookmooch_development'
+    sh 'dropdb bookmooch_test'
+  end
+
+  desc 'Migrate development and test databases'
+  task :migrate do
+    original_env = ENV['RACK_ENV']
+    %w[test development].each do |env|
+      ENV['RACK_ENV'] = env
+      Dir['migrate/*'].sort.each do |migration|
+        sh "ruby #{migration}"
+      end
+    end
+    ENV['RACK_ENV'] = original_env
   end
 end
 
