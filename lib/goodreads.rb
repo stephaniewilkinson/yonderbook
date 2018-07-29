@@ -16,9 +16,8 @@ module Goodreads
 
   module_function
 
-  def new_request_token
-    consumer = OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
-    consumer.get_request_token
+  def oauth_consumer
+    OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
   end
 
   def fetch_shelves goodreads_user_id

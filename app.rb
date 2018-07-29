@@ -45,9 +45,17 @@ class App < Roda
     @users = DB[:users]
 
     r.root do
-      request_token = Goodreads.new_request_token
-      @auth_url = request_token.authorize_url
-      cache_set request_token: request_token
+      @auth_url = cache_get :auth_url
+      unless @auth_url
+        request_token = cache_get :request_token
+        unless request_token
+          oauth_consumer = Goodreads.oauth_consumer
+          request_token = oauth_consumer.get_request_token
+          cache_set request_token: request_token
+        end
+        @auth_url = request_token.authorize_url
+        cache_set auth_url: @auth_url
+      end
 
       # route: GET /
       r.get true do
@@ -67,7 +75,7 @@ class App < Roda
       # route: GET /shelves
       r.get true do
         if session[:goodreads_user_id] && @users.where(goodreads_user_id: session[:goodreads_user_id]).any?
-          @user = @users.where(goodreads_user_id: session[:goodreads_user_id]).first
+          @user = @users.first goodreads_user_id: session[:goodreads_user_id]
         elsif cache_get(:request_token)
           access_token = cache_get(:request_token).get_access_token
           user_id, first_name = Goodreads.fetch_user access_token
