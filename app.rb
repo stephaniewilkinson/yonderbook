@@ -87,7 +87,7 @@ class App < Roda
         @shelf_name = shelf_name
         cache_set shelf_name: @shelf_name
 
-        # route: GET /shelves/show
+        # route: GET /shelves/:id
         r.get true do
           @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
           @women, @men, @andy = Goodreads.get_gender @isbnset
@@ -96,35 +96,56 @@ class App < Roda
           view 'shelves/show'
         end
 
-        # route: GET /shelves/:id/overdrive
-        r.get 'overdrive' do
-          # TODO: have browser get their location
-          view 'shelves/overdrive'
-        end
-
-        # route: GET /shelves/:id/bookmooch
         r.on 'bookmooch' do
+          # route: GET /shelves/:id/bookmooch
           r.get true do
             view 'shelves/bookmooch'
           end
 
-          # route: GET /bookmooch
+          # route: POST /shelves/:id/bookmooch?username=foo&password=baz
+          r.post do
+            @isbnset = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
+            r.halt(403) if r['username'] == 'susanb'
+            @books_added, @books_failed = Bookmooch.books_added_and_failed @isbnset, r['username'], r['password']
+            cache_set books_added: @books_added, books_failed: @books_failed
+
+            r.redirect 'bookmooch/results'
+          end
+
+          # route: GET /shelves/:id/bookmooch/results
           r.get 'results' do
             @books_added = cache_get :books_added
             @books_failed = cache_get :books_failed
             view 'bookmooch'
           end
-          # route: POST /bookmooch?username=foo&password=baz
-          r.post do
-            @shelf_name = cache_get :shelf_name
-            isbns_and_image_urls = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
-            r.halt(403) if r['username'] == 'susanb'
-            @books_added, @books_failed = Bookmooch.books_added_and_failed isbns_and_image_urls, r['username'], r['password']
-            cache_set books_added: @books_added, books_failed: @books_failed
+        end
 
-            r.redirect "bookmooch/results"
+        r.on 'overdrive' do
+          # TODO: have browser get their location
+          # route: GET /shelves/:id/overdrive
+          r.get true do
+            view 'shelves/overdrive'
+          end
+          # route: POST /shelves/:id/overdrive?consortium=1047
+          r.post do
+            @isbnset = Goodreads.get_books cache_get(:shelf_name), session[:goodreads_user_id]
+            titles = Overdrive.new(@isbnset, r['consortium']).fetch_titles_availability
+            cache_set titles: titles
+            r.redirect '/availability'
           end
         end
+      end
+    end
+
+    r.on 'availability' do
+      # route: GET /availability
+      r.get do
+        @titles = cache_get :titles
+        unless @titles
+          flash[:error] = 'Please choose a shelf first'
+          r.redirect 'shelves'
+        end
+        view 'availability'
       end
     end
 
@@ -153,6 +174,7 @@ class App < Roda
 
       # route: GET /library
       r.get do
+        @shelf_name = cache_get :shelf_name
         @local_libraries = cache_get :libraries
         # TODO: see if we can bring the person back to the choose a library stage rather than all the way back to choose a shelf
         unless @local_libraries
@@ -160,36 +182,6 @@ class App < Roda
           r.redirect 'shelves'
         end
         view 'library'
-      end
-    end
-
-    ##
-    r.on 'availability' do
-      # route: POST /availability?consortium=1047
-      r.post do
-        # Pulling book info from the cache
-        @isbnset = Goodreads.get_books cache_get(:shelf_name), session[:goodreads_user_id]
-
-        unless @isbnset
-          flash[:error] = 'Select a bookshelf first'
-          r.redirect '/shelves'
-        end
-
-        # Making the API call to Library Availability endpoint
-        titles = Overdrive.new(@isbnset, r['consortium']).fetch_titles_availability
-        cache_set titles: titles
-
-        r.redirect '/availability'
-      end
-
-      # route: GET /availability
-      r.get do
-        @titles = cache_get :titles
-        unless @titles
-          flash[:error] = 'Please choose a shelf first'
-          r.redirect 'shelves'
-        end
-        view 'availability'
       end
     end
 

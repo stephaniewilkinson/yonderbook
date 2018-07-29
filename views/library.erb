@@ -15,7 +15,7 @@
         <li class="collection-item avatar">
           <i class="material-icons circle">local_library</i>
           <span class="title flow-text"><%= library[1] %></span>
-          <form action="availability" method="post">
+          <form action="shelves/<%= @shelf_name %>/overdrive" method="post">
             <input type="hidden" name="consortium" value="<%= library[0] %>">
             <button class="btn-floating secondary-content" type="submit" id="<%= library[0] %>" name="action">
               <i class="material-icons right">send</i>
