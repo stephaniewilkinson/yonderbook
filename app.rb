@@ -114,8 +114,8 @@ class App < Roda
       r.post do
         isbns_and_image_urls = cache_get :isbns_and_image_urls
         if isbns_and_image_urls
-          auth = {user: r['username'], pass: r['password']} unless r['username'] == 'susanb'
-          @books_added, @books_failed = Bookmooch.books_added_and_failed auth, isbns_and_image_urls
+          r.halt(403) if r['username'] == 'susanb'
+          @books_added, @books_failed = Bookmooch.books_added_and_failed isbns_and_image_urls, r['username'], r['password']
           cache_set books_added: @books_added, books_failed: @books_failed
         else
           r.redirect '/books'
