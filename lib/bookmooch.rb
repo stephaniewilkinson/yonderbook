@@ -17,7 +17,7 @@ module Bookmooch
     end
     hydra.run
 
-    added_or_failed = requests_images_and_titles.partition do |request, image_url, title|
+    added_or_failed = requests_images_and_titles.partition do |request, _, _|
       request.response.body.to_s.strip == request.options[:params][:asins]
     end
 
