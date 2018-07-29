@@ -45,17 +45,13 @@ class App < Roda
     @users = DB[:users]
 
     r.root do
-      @auth_url = cache_get :auth_url
-      unless @auth_url
-        request_token = cache_get :request_token
-        unless request_token
-          oauth_consumer = Goodreads.oauth_consumer
-          request_token = oauth_consumer.get_request_token
-          cache_set request_token: request_token
-        end
-        @auth_url = request_token.authorize_url
-        cache_set auth_url: @auth_url
+      request_token = cache_get :request_token
+      unless request_token
+        oauth_consumer = Goodreads.oauth_consumer
+        request_token = oauth_consumer.get_request_token
+        cache_set request_token: request_token
       end
+      @auth_url = request_token.authorize_url
 
       # route: GET /
       r.get true do
