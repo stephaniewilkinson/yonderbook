@@ -15,7 +15,7 @@ rackup
 
 ## Testing
 
-$ ruby spec/spec.rb
+`rake`
 
 TODO: Clearly display the Goodreads name or logo on any location where Goodreads data appears. For instance if you are displaying Goodreads reviews, they should either be in a section clearly titled "Goodreads Reviews", or each review should say "Goodreads review from John: 4 of 5 stars..."
 
