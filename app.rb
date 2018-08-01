@@ -47,8 +47,7 @@ class App < Roda
     r.root do
       request_token = cache_get :request_token
       unless request_token
-        oauth_consumer = Goodreads.oauth_consumer
-        request_token = oauth_consumer.get_request_token
+        request_token = Goodreads.request_token
         cache_set request_token: request_token
       end
       @auth_url = request_token.authorize_url

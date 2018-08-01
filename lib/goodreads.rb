@@ -13,11 +13,12 @@ module Goodreads
   HOST = URI::HTTPS.build host: 'www.goodreads.com'
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   SECRET  = ENV.fetch 'GOODREADS_SECRET'
+  OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
 
   module_function
 
-  def oauth_consumer
-    OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
+  def request_token
+    OAUTH_CONSUMER.get_request_token
   end
 
   def fetch_shelves goodreads_user_id
