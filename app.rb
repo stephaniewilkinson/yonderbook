@@ -37,6 +37,15 @@ class App < Roda
     CACHE["#{session[:session_id]}/#{key}"]
   end
 
+  def request_token
+    token = cache_get :request_token
+    unless token
+      token = Goodreads.request_token
+      cache_set request_token: token
+    end
+    token
+  end
+
   route do |r|
     r.public
     r.assets
@@ -45,11 +54,6 @@ class App < Roda
     @users = DB[:users]
 
     r.root do
-      request_token = cache_get :request_token
-      unless request_token
-        request_token = Goodreads.request_token
-        cache_set request_token: request_token
-      end
       @auth_url = request_token.authorize_url
 
       # route: GET /
