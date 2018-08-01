@@ -132,7 +132,6 @@ DEPENDENCIES
   oauth2
   pry
   puma
-  rack
   rack-test
   rack-unreloader
   rake
