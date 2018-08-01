@@ -38,11 +38,11 @@ class App < Roda
   end
 
   def request_token
-    token = cache_get :request_token
-    unless token
-      token = Goodreads.request_token
-      cache_set request_token: token
-    end
+    cached_token = cache_get :request_token
+    return cached_token if cached_token
+
+    token = Goodreads.request_token
+    cache_set request_token: token
     token
   end
 
