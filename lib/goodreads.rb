@@ -14,6 +14,7 @@ module Goodreads
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   SECRET  = ENV.fetch 'GOODREADS_SECRET'
   OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
+  GENDER_DETECTOR = GenderDetector.new
 
   module_function
 
@@ -86,9 +87,8 @@ module Goodreads
   def get_gender isbnset
     gender_count = {women: 0, men: 0, andy: 0}
 
-    detector = GenderDetector.new
     isbnset.each do |_, _, _, name|
-      case detector.get_gender name.split.first
+      case GENDER_DETECTOR.get_gender name.split.first
       when :female
         gender_count[:women] += 1
       when :male
