@@ -85,20 +85,11 @@ module Goodreads
   end
 
   def get_gender isbnset
-    gender_count = {women: 0, men: 0, andy: 0}
-
-    isbnset.each do |_, _, _, name|
-      case GENDER_DETECTOR.get_gender name.split.first
-      when :female
-        gender_count[:women] += 1
-      when :male
-        gender_count[:men] += 1
-      when :andy
-        gender_count[:andy] += 1
-      end
+    grouped = isbnset.group_by do |_, _, _, name|
+      GENDER_DETECTOR.get_gender name.split.first
     end
 
-    gender_count.values
+    grouped.transform_values(&:size).values_at(:female, :male, :andy).map(&:to_i)
   end
 
   def plot_books_over_time isbnset
