@@ -88,7 +88,7 @@ module Goodreads
     grouped = isbnset.group_by do |_, _, _, name|
       GENDER_DETECTOR.get_gender name.split.first
     end
-    count = grouped.transform_values &:size
+    count = grouped.transform_values(&:size)
     mostly_female = count.values_at(:female, :mostly_female).compact.sum
     mostly_male = count.values_at(:male, :mostly_male).compact.sum
     androgynous = count.fetch :andy, 0
