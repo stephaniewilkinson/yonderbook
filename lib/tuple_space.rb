@@ -12,7 +12,8 @@ class TupleSpace < Rinda::TupleSpace
   rescue Rinda::RequestExpiredError
     nil
   ensure
-    write [key, value], 86_400 # Expires in 86,400 sec (24 hrs)
+    # Expires in 86,400 sec (24 hrs)
+    write [key, value], 86_400
   end
 
   def [] key
