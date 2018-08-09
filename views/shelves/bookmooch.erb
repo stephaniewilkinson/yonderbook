@@ -21,8 +21,12 @@
             <div class="input-field col s6">
               Password: <input type="password" name="password">
             </div>
-            <button class="btn waves-effect waves-light" type="submit" name="action">Authenticate
+            <button class="btn progress waves-effect waves-light" type="submit" name="action">Authenticate
               <i class="material-icons right">send</i>
+            </button>
+            <button class="progress disabled teal sending btn hide">sending to bookmooch
+              <i class="material-icons right">send</i>
+              <div class="loader"></div>
             </button>
           </form>
       </div>
@@ -36,3 +40,14 @@
     Materialize.toast("<%= flash[:error] %>", 4000)
   </script>
 <% end %>
+
+<script type="text/javascript">
+  var oldbutton = document.getElementsByClassName('waves-effect')[0];
+  var newbutton = document.getElementsByClassName('sending')[0];
+  var loader = document.getElementsByClassName('loader')[0];
+  oldbutton.onclick = function(){
+    newbutton.classList.remove('hide');
+    oldbutton.classList.add('hide');
+    loader.classList.add('indeterminate');
+  };
+</script>
