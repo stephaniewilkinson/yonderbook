@@ -47,6 +47,7 @@ class App < Roda
     token
   end
 
+  # TODO: extract to goodreads lib
   def goodreads_user_id
     return session['goodreads_user_id'] if session['goodreads_user_id']
 
@@ -282,6 +283,12 @@ class App < Roda
         # route: GET /users/:id/edit
         r.get 'edit' do
           view 'users/edit'
+        end
+
+        # route: POST /users/:id
+        r.post true do
+          @user.update!(email: r.params['email'], first_name: r.params['first_name'], last_name: r.params['last_name'])
+          view 'users/show'
         end
       end
     end
