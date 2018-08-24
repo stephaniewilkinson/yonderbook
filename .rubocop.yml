@@ -459,6 +459,9 @@ Lint/NextWithoutAccumulator:
 Lint/NonLocalExitFromIterator:
   Enabled: true
 
+Lint/NumberConversion:
+  Enabled: false
+
 Lint/ParenthesesAsGroupedExpression:
   Enabled: true
 

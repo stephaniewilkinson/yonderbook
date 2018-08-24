@@ -44,7 +44,7 @@ module Goodreads
 
   def number_of_pages uri
     doc = Nokogiri::XML Typhoeus.get(uri).body
-    Integer doc.xpath('//books').first['numpages']
+    doc.xpath('//books').first&.dig('numpages').to_i
   end
 
   def get_requests uri, number_of_pages
