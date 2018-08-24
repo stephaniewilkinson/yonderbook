@@ -35,8 +35,6 @@ class App < Roda
   end
 
   def cache_get key
-    raise 'Tried to use cache before session creation' unless session['session_id']
-
     CACHE["#{session['session_id']}/#{key}"]
   end
 
@@ -99,14 +97,14 @@ class App < Roda
       end
 
       r.on String do |shelf_name|
-        r.redirect '/' unless session['goodreads_user_id']
+        r.redirect '/' unless goodreads_user_id
 
         @shelf_name = shelf_name
         cache_set shelf_name: @shelf_name
 
         @book_info = cache_get @shelf_name.to_sym
         unless @book_info
-          @book_info = Goodreads.get_books @shelf_name, session['goodreads_user_id']
+          @book_info = Goodreads.get_books @shelf_name, goodreads_user_id
           cache_set(@shelf_name.to_sym => @book_info)
         end
 
@@ -225,7 +223,8 @@ class App < Roda
         barcodes = ZBar::Image.from_jpeg(image).process
 
         if barcodes.any?
-          user = @users.first goodreads_user_id: session['goodreads_user_id']
+          r.redirect '/' unless goodreads_user_id
+          user = @users.first goodreads_user_id: goodreads_user_id
 
           barcodes.each do |barcode|
             isbn = barcode.data
