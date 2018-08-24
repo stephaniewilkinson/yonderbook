@@ -35,18 +35,30 @@ class App < Roda
   end
 
   def cache_get key
+    raise 'Tried to use cache before session creation' unless session['session_id']
     CACHE["#{session['session_id']}/#{key}"]
   end
 
   def request_token
-    session['session_id'] ||= SecureRandom.uuid
-
     cached_token = cache_get :request_token
     return cached_token if cached_token
 
     token = Goodreads.request_token
     cache_set request_token: token
     token
+  end
+
+  def goodreads_user_id
+    return session['goodreads_user_id'] if session['goodreads_user_id']
+
+    access_token = begin
+      request_token.get_access_token
+    rescue OAuth::Unauthorized
+      return
+    end
+
+    user_id, _first_name = Goodreads.fetch_user access_token
+    session['goodreads_user_id'] = user_id
   end
 
   route do |r|
@@ -56,9 +68,10 @@ class App < Roda
     @books = DB[:books]
     @users = DB[:users]
 
+    session['session_id'] ||= SecureRandom.uuid
+
     r.root do
       @auth_url = request_token.authorize_url
-
       # route: GET /
       r.get true do
         view 'welcome'
@@ -76,19 +89,12 @@ class App < Roda
     r.on 'shelves' do
       # route: GET /shelves
       r.get true do
-        unless session['goodreads_user_id'] || cache_get(:request_token)
+        if goodreads_user_id
+          @shelves = Goodreads.fetch_shelves goodreads_user_id
+          view 'shelves/index'
+        else
           r.redirect '/'
-          break
         end
-        # TODO: extract to goodreads lib
-        if !session['goodreads_user_id'] && cache_get(:request_token)
-          access_token = cache_get(:request_token).get_access_token
-          user_id, _first_name = Goodreads.fetch_user access_token
-          session['goodreads_user_id'] = user_id
-        end
-
-        @shelves = Goodreads.fetch_shelves session['goodreads_user_id']
-        view 'shelves/index'
       end
 
       r.on String do |shelf_name|
