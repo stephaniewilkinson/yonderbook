@@ -56,8 +56,9 @@ class App < Roda
       return
     end
 
-    user_id, _first_name = Goodreads.fetch_user access_token
+    user_id, first_name = Goodreads.fetch_user access_token
     session['goodreads_user_id'] = user_id
+    env['rollbar.person_data'] = {id: user_id, username: first_name}
   end
 
   route do |r|
