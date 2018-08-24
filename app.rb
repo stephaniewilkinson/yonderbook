@@ -286,7 +286,7 @@ class App < Roda
 
         # route: POST /users/:id
         r.post true do
-          @user.update(email: r.params['email'], first_name: r.params['first_name'], last_name: r.params['last_name'])
+          @user.update!(email: r.params['email'], first_name: r.params['first_name'], last_name: r.params['last_name'])
           view 'users/show'
         end
       end
