@@ -5,6 +5,7 @@ system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 require 'area'
 require 'roda'
 require 'rollbar/middleware/rack'
+require 'securerandom'
 require 'tilt'
 require 'zbar'
 require_relative 'lib/bookmooch'
@@ -16,11 +17,11 @@ require_relative 'lib/tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
-  use Rack::Session::Cookie, secret: Goodreads::SECRET, api_key: Goodreads::API_KEY
 
   plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
   plugin :flash
+  plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
   plugin :slash_path_empty
   plugin :render
   compile_assets
@@ -29,12 +30,14 @@ class App < Roda
 
   def cache_set **pairs
     pairs.each do |key, value|
-      CACHE["#{session[:session_id]}/#{key}"] = value
+      CACHE["#{session['session_id']}/#{key}"] = value
     end
   end
 
   def cache_get key
-    CACHE["#{session[:session_id]}/#{key}"]
+    raise 'Tried to use cache before session creation' unless session['session_id']
+
+    CACHE["#{session['session_id']}/#{key}"]
   end
 
   def request_token
@@ -46,6 +49,19 @@ class App < Roda
     token
   end
 
+  def goodreads_user_id
+    return session['goodreads_user_id'] if session['goodreads_user_id']
+
+    access_token = begin
+      request_token.get_access_token
+    rescue OAuth::Unauthorized
+      return
+    end
+
+    user_id, _first_name = Goodreads.fetch_user access_token
+    session['goodreads_user_id'] = user_id
+  end
+
   route do |r|
     r.public
     r.assets
@@ -53,9 +69,10 @@ class App < Roda
     @books = DB[:books]
     @users = DB[:users]
 
+    session['session_id'] ||= SecureRandom.uuid
+
     r.root do
       @auth_url = request_token.authorize_url
-
       # route: GET /
       r.get true do
         view 'welcome'
@@ -73,27 +90,23 @@ class App < Roda
     r.on 'shelves' do
       # route: GET /shelves
       r.get true do
-        r.redirect '/' unless session[:goodreads_user_id] || cache_get(:request_token)
-
-        if !session[:goodreads_user_id] && cache_get(:request_token)
-          access_token = cache_get(:request_token).get_access_token
-          user_id, _first_name = Goodreads.fetch_user access_token
-          session[:goodreads_user_id] = user_id
+        if goodreads_user_id
+          @shelves = Goodreads.fetch_shelves goodreads_user_id
+          view 'shelves/index'
+        else
+          r.redirect '/'
         end
-
-        @shelves = Goodreads.fetch_shelves session[:goodreads_user_id]
-        view 'shelves/index'
       end
 
       r.on String do |shelf_name|
-        r.redirect '/' unless session[:goodreads_user_id]
+        r.redirect '/' unless session['goodreads_user_id']
 
         @shelf_name = shelf_name
         cache_set shelf_name: @shelf_name
 
         @book_info = cache_get @shelf_name.to_sym
         unless @book_info
-          @book_info = Goodreads.get_books @shelf_name, session[:goodreads_user_id]
+          @book_info = Goodreads.get_books @shelf_name, session['goodreads_user_id']
           cache_set(@shelf_name.to_sym => @book_info)
         end
 
@@ -212,7 +225,7 @@ class App < Roda
         barcodes = ZBar::Image.from_jpeg(image).process
 
         if barcodes.any?
-          user = @users.first goodreads_user_id: session[:goodreads_user_id]
+          user = @users.first goodreads_user_id: session['goodreads_user_id']
 
           barcodes.each do |barcode|
             isbn = barcode.data
