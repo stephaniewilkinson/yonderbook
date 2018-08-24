@@ -47,7 +47,7 @@ class App < Roda
     token
   end
 
-  #TODO extract to goodreads lib
+  # TODO: extract to goodreads lib
   def goodreads_user_id
     return session['goodreads_user_id'] if session['goodreads_user_id']
 
