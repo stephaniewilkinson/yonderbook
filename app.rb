@@ -36,6 +36,7 @@ class App < Roda
 
   def cache_get key
     raise 'Tried to use cache before session creation' unless session['session_id']
+
     CACHE["#{session['session_id']}/#{key}"]
   end
 
