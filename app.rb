@@ -57,9 +57,15 @@ class App < Roda
       return
     end
 
-    user_id, first_name = Goodreads.fetch_user access_token
-    session['goodreads_user_id'] = user_id
-    env['rollbar.person_data'] = {id: user_id, username: first_name}
+    goodreads_user_id, first_name = Goodreads.fetch_user access_token
+
+    unless @users.first(goodreads_user_id: goodreads_user_id)
+      user_id = @users.insert(first_name: first_name, goodreads_user_id: goodreads_user_id)
+    end
+    @user = @users.first(goodreads_user_id: goodreads_user_id)
+
+    env['rollbar.person_data'] = {id: @user[:id], username: @user[:first_name]}
+    session['goodreads_user_id'] = goodreads_user_id
   end
 
   route do |r|
