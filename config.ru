@@ -4,7 +4,7 @@ case ENV['RACK_ENV']
 when 'production'
   require 'rollbar'
   Rollbar.configure do |config|
-    config.access_token = 'ee0a8b14155148c28004d3e9b7519abd'
+    config.access_token = '83f1303f9940479bb34a23e006c8886d'
     config.enabled = true
   end
   require_relative 'app'
