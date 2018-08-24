@@ -59,9 +59,7 @@ class App < Roda
 
     goodreads_user_id, first_name = Goodreads.fetch_user access_token
 
-    unless @users.first(goodreads_user_id: goodreads_user_id)
-      user_id = @users.insert(first_name: first_name, goodreads_user_id: goodreads_user_id)
-    end
+    @users.insert(first_name: first_name, goodreads_user_id: goodreads_user_id) unless @users.first(goodreads_user_id: goodreads_user_id)
     @user = @users.first(goodreads_user_id: goodreads_user_id)
 
     env['rollbar.person_data'] = {id: @user[:id], username: @user[:first_name]}
