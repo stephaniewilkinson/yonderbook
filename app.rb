@@ -73,17 +73,14 @@ class App < Roda
     r.on 'shelves' do
       # route: GET /shelves
       r.get true do
-        if session[:goodreads_user_id] && @users.where(goodreads_user_id: session[:goodreads_user_id]).any?
-          @user = @users.first goodreads_user_id: session[:goodreads_user_id]
-        elsif cache_get(:request_token)
+        r.redirect '/' unless session[:goodreads_user_id] || cache_get(:request_token)
+
+        if !session[:goodreads_user_id] && cache_get(:request_token)
           access_token = cache_get(:request_token).get_access_token
-          user_id, first_name = Goodreads.fetch_user access_token
+          user_id, _first_name = Goodreads.fetch_user access_token
           session[:goodreads_user_id] = user_id
-          # TODO: does this need to be insert conflict? or just insert
-          @user = @users.insert_conflict.insert(first_name: first_name, goodreads_user_id: user_id)
-        else
-          r.redirect '/'
         end
+
         @shelves = Goodreads.fetch_shelves session[:goodreads_user_id]
         view 'shelves/index'
       end

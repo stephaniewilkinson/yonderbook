@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.6.0'
+ruby File.read('.ruby-version').chomp.delete_prefix('ruby-')
 
 gem 'area'
 gem 'dotenv'
