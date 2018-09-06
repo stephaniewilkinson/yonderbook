@@ -19,12 +19,13 @@ module Goodreads
   module_function
 
   def request_token
-    retries ||= 0
     OAUTH_CONSUMER.get_request_token
   rescue Net::HTTPBadResponse
     # Starting with the simplest fix. If this doesn't work, the next idea
     # is to create a new consumer here and retry.
-    retry if (retries += 1) < 3
+    tries ||= 0
+    tries += 1
+    retry if tries < 4
   end
 
   def fetch_shelves goodreads_user_id
