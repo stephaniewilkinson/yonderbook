@@ -20,6 +20,12 @@ module Goodreads
 
   def request_token
     OAUTH_CONSUMER.get_request_token
+  rescue Net::HTTPBadResponse, Net::OpenTimeout
+    # Starting with the simplest fix. If this doesn't work, the next idea
+    # is to create a new consumer here and retry.
+    tries ||= 0
+    tries += 1
+    retry if tries < 4
   end
 
   def fetch_shelves goodreads_user_id
