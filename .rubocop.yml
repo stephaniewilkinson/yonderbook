@@ -7,6 +7,9 @@ AllCops:
 Bundler/DuplicatedGem:
   Enabled: true
 
+Bundler/GemComment:
+  Enabled: false
+
 Bundler/OrderedGems:
   Enabled: true
 
