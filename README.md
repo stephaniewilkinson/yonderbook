@@ -1,5 +1,7 @@
 [ ![Codeship Status for stephaniewilkinson/bookmooch](https://app.codeship.com/projects/859f6a90-2275-0136-c761-0e1a22c436f6/status?branch=master)](https://app.codeship.com/projects/286021)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b69966957416487bafd98162e8179c3b)](https://app.codacy.com/app/stephaniewilkinson/yonderbook?utm_source=github.com&utm_medium=referral&utm_content=stephaniewilkinson/yonderbook&utm_campaign=badger)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=stephaniewilkinson/yonderbook)](https://dependabot.com)
+
 
 # Yonderbook | Tools for Bookworms 📒
 ## Installation
