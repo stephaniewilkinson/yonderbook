@@ -52,10 +52,10 @@ class App < Roda
     return session['goodreads_user_id'] if session['goodreads_user_id']
 
     access_token = begin
-      request_token.get_access_token
-    rescue OAuth::Unauthorized
-      return
-    end
+                     request_token.get_access_token
+                   rescue OAuth::Unauthorized
+                     return
+                   end
 
     goodreads_user_id, first_name = Goodreads.fetch_user access_token
 

@@ -25,7 +25,7 @@ class Overdrive
       response = Typhoeus.get MAPBOX_URI, params: {latLng: latlon, radius: 50}
       libraries = JSON.parse response.body
 
-      libraries.first(10).map do |l|
+      libraries.first(10).map! do |l|
         consortium_id = l['consortiumId']
         consortium_name = l['consortiumName']
 

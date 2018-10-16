@@ -35,7 +35,7 @@ module Goodreads
 
     doc = Nokogiri::XML Typhoeus.get(uri).body
     shelf_names = doc.xpath('//shelves//name').children.to_a
-    shelf_books = doc.xpath('//shelves//book_count').children.map(&:to_s).map(&:to_i)
+    shelf_books = doc.xpath('//shelves//book_count').children.map(&:to_s).map!(&:to_i)
 
     shelf_names.zip shelf_books
   end
@@ -103,7 +103,7 @@ module Goodreads
   end
 
   def plot_books_over_time isbnset
-    isbnset.map { |_, _, _, title, year| [title, Integer(year)] if year }.compact
+    isbnset.map { |_, _, _, title, year| [title, Integer(year)] if year }.compact!
   end
 
   def fetch_book_data isbn
