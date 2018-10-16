@@ -78,7 +78,7 @@ GEM
       rack
     roda-route_list (2.1.0)
       roda
-    rollbar (2.17.0)
+    rollbar (2.18.0)
       multi_json
     rubocop (0.58.2)
       jaro_winkler (~> 1.5.1)
