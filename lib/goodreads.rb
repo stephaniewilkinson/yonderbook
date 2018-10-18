@@ -103,7 +103,7 @@ module Goodreads
   end
 
   def plot_books_over_time isbnset
-    isbnset.map { |_, _, _, title, year| [title, Integer(year)] if year }.compact
+    isbnset.map { |_, _, title, _, year| [title, Integer(year)] if year }.compact
   end
 
   def fetch_book_data isbn
