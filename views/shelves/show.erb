@@ -3,9 +3,7 @@
 <div id="histogram" style="height: 800px;"></div>
 <h5>By Gender</h5>
 <div id="donutchart" style="height: 600px;"></div>
-<h5>Book</h5>
-
-
+<h5>Books (<%= @book_info.length %>)</h5>
 
   <div id="books" class="cards-container">
     <% @book_info.each do |isbn| %>
@@ -35,7 +33,7 @@
       ['Gender', 'Count'],
       ['Women',     women],
       ['Men',      men],
-      ['Unknown',  2]
+      ['Unknown',  andy]
     ]);
 
     var options = {
