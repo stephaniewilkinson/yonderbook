@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.5.2
+  TargetRubyVersion: 2.5.3
   EnabledByDefault: true
 
 #################### Bundler ##############################
