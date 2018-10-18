@@ -165,6 +165,7 @@ class App < Roda
     r.on 'availability' do
       # route: GET /availability
       r.get do
+        # TODO: Sort titles by recently added to goodreads list
         @titles = cache_get :titles
         unless @titles
           flash[:error] = 'Please choose a shelf first'
