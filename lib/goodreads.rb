@@ -69,7 +69,8 @@ module Goodreads
     # TODO: make this a hash instead of array
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
-      isbns = doc.xpath('//isbn').children.map(&:text)
+
+      isbns = doc.xpath('//isbn').map { |node| node.children.text }
       image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v(/\A\n\z/)
       titles = doc.xpath('//title').children.map(&:text)
       authors = doc.xpath('//authors/author/name').children.map(&:text)
