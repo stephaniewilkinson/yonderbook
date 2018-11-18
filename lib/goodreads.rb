@@ -42,6 +42,7 @@ module Goodreads
 
   def get_books shelf_name, goodreads_user_id
     uri = HOST
+    # TODO: Update this to the version 2 endpoint
     uri.path = "/review/list/#{goodreads_user_id}.xml"
     uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
 
@@ -51,6 +52,14 @@ module Goodreads
   def number_of_pages uri
     doc = Nokogiri::XML Typhoeus.get(uri).body
     doc.xpath('//books').first&.[]('numpages').to_i
+  end
+
+  def private_profile? shelf_name, goodreads_user_id
+    uri = HOST
+    # TODO: Update this to the version 2 endpoint
+    uri.path = "/review/list/#{goodreads_user_id}.xml"
+    uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
+    Typhoeus.get(uri).code == 403
   end
 
   def get_requests uri, number_of_pages

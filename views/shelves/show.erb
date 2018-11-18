@@ -1,25 +1,33 @@
-<h4 class="white-text">Your "<%= @shelf_name %>" shelf</h4>
-<h5>By Year</h5>
-<div id="histogram" style="height: 800px;"></div>
-<h5>By Gender</h5>
-<div id="donutchart" style="height: 600px;"></div>
-<h5>Books (<%= @book_info.length %>)</h5>
+<% unless @private_profile %>
+  <h4 class="white-text">Your "<%= @shelf_name %>" shelf</h4>
+  <h5>By Year</h5>
+  <div id="histogram" style="height: 800px;"></div>
+  <h5>By Gender</h5>
+  <div id="donutchart" style="height: 600px;"></div>
+  <h5>Books (<%= @book_info.length %>)</h5>
 
-  <div id="books" class="cards-container">
-    <% @book_info.each do |isbn| %>
-      <div class="card hoverable horizontal">
-        <div class="card-image">
-          <img src="<%= isbn[1] %>">
+    <div id="books" class="cards-container">
+      <% @book_info.each do |isbn| %>
+        <div class="card hoverable horizontal">
+          <div class="card-image">
+            <img src="<%= isbn[1] %>" alt="Book Cover Photo">
+          </div>
+          <div class="card-content">
+            <small><%= isbn[2] %></small>
+            <br>
+            <small><em><%= isbn[3] %></em></small>
+          </div>
         </div>
-        <div class="card-content">
-          <small><%= isbn[2] %></small>
-          <br>
-          <small><em><%= isbn[3] %></em></small>
-        </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
-</div>
+<% else %>
+  <div class="card">
+    <h5>Your Goodreads profile is set to private, so we couldn't fetch your books.</h5>
+    <h5><a href="https://www.goodreads.com/user/edit">Change your privacy settings here.</a></h5>
+    <h5>Navigate to Settings > Privacy Settings > Who Can View My Profile: Anyone </h5>
+  </div>
+<% end %>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
