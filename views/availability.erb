@@ -52,7 +52,7 @@
         <% @titles.select { |a| a.copies_available == 0 && a.copies_owned > 0 }.each do |title| %>
           <div class="card hoverable">
             <div class="card-image">
-              <img src="<%= title.image %>">
+              <img src="<%= title.image %>" alt="Book Cover Photo">
             </div>
             <div class="card-content">
               <div class="row">
@@ -80,7 +80,7 @@
         <% @titles.select { |a| a.copies_owned == 0 }.each do |title| %>
           <div class="card hoverable">
             <div class="card-image">
-              <img src="<%= title.image %>">
+              <img src="<%= title.image %>" alt="Book Cover Photo">
             </div>
             <div class="card-content">
               <div class="row">
