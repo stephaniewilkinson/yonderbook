@@ -18,6 +18,8 @@ require_relative 'lib/tuple_space'
 class App < Roda
   use Rollbar::Middleware::Rack
 
+  plugin :halt
+  plugin :head
   plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
   plugin :flash
