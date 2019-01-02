@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'dotenv/load'
+require 'rake/testtask'
 
 task default: :test
 
-desc 'Run the specs'
-task :test do
-  sh 'ruby spec/*.rb'
+Rake::TestTask.new do |test|
+  test.pattern = 'spec/**/*_spec.rb'
+  test.warning = false
 end
 
 namespace :db do
