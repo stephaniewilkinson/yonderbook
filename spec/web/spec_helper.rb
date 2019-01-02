@@ -10,7 +10,7 @@ require 'minitest/pride'
 require 'pry'
 require 'rack/test'
 require 'selenium/webdriver'
-require_relative '../app'
+require_relative '../../app'
 
 Capybara.app = App
 Capybara.register_driver :chrome do |app|
