@@ -3,7 +3,8 @@
 require 'rinda/tuplespace'
 
 class TupleSpace < Rinda::TupleSpace
-  def new reaper_period_in_secs = 600
+  def initialize reaper_period_in_secs: 600, expires_in_secs: 86_400 # 24 hrs
+    @expires_in_secs = expires_in_secs
     super reaper_period_in_secs
   end
 
@@ -12,8 +13,7 @@ class TupleSpace < Rinda::TupleSpace
   rescue Rinda::RequestExpiredError
     nil
   ensure
-    # Expires in 86,400 sec (24 hrs)
-    write [key, value], 86_400
+    write [key, value], @expires_in_secs
   end
 
   def [] key
