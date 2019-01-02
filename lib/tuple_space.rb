@@ -21,4 +21,10 @@ class TupleSpace < Rinda::TupleSpace
   rescue Rinda::RequestExpiredError
     nil
   end
+
+  def delete key
+    take([key, nil], true).last
+  rescue Rinda::RequestExpiredError
+    nil
+  end
 end
