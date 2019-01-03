@@ -28,7 +28,7 @@ gem 'zbar'
 
 group :test do
   gem 'capybara-selenium'
-  gem 'chromedriver-helper', '~> 1.0'
+  gem 'chromedriver-helper', '~> 2.0'
   gem 'minitest'
   gem 'minitest-capybara'
   gem 'rack-test'
