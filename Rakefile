@@ -39,9 +39,9 @@ namespace :db do
   end
 end
 
-namespace :assets do
-  desc 'Update the routes metadata'
-  task :precompile do
+namespace :routes do
+  desc 'Update the routes.json metadata file'
+  task :update do
     sh 'roda-parse_routes -f routes.json app.rb'
   end
 end
