@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby File.read(File.join(__dir__, '.ruby-version'), chomp: true).delete_prefix('ruby-')
+ruby File.read(File.join(__dir__, '.ruby-version')).chomp.delete_prefix('ruby-')
 
 gem 'area'
 gem 'dotenv'
@@ -11,13 +11,9 @@ gem 'i18n', '>= 1'
 gem 'nokogiri'
 gem 'oauth'
 gem 'oauth2'
-gem 'pry'
 gem 'puma'
-gem 'rack-unreloader'
 gem 'rake'
 gem 'roda'
-gem 'roda-route_list'
-gem 'rubocop'
 gem 'sendgrid-ruby'
 gem 'sequel'
 gem 'sequel_pg'
@@ -25,6 +21,16 @@ gem 'tilt'
 gem 'typhoeus'
 gem 'unicode_utils'
 gem 'zbar'
+
+group :development do
+  gem 'rack-unreloader'
+  gem 'roda-route_list'
+end
+
+group :development, :test do
+  gem 'pry'
+  gem 'rubocop'
+end
 
 group :test do
   gem 'capybara-selenium'
