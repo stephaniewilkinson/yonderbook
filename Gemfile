@@ -16,8 +16,8 @@ gem 'puma'
 gem 'rake'
 gem 'roda'
 gem 'sendgrid-ruby'
-gem 'sequel_pg'
 gem 'sequel'
+gem 'sequel_pg'
 gem 'tilt'
 gem 'typhoeus'
 gem 'unicode_utils'
@@ -35,8 +35,8 @@ end
 group :test do
   gem 'capybara-selenium'
   gem 'chromedriver-helper', '~> 1.0'
-  gem 'minitest-capybara'
   gem 'minitest'
+  gem 'minitest-capybara'
   gem 'rack-test'
 end
 
