@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 case ENV['RACK_ENV']
-when 'production'
+when 'production', 'staging'
   require 'rollbar'
   Rollbar.configure do |config|
     config.access_token = '83f1303f9940479bb34a23e006c8886d'

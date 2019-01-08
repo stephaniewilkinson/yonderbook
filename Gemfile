@@ -11,7 +11,6 @@ gem 'i18n', '>= 1'
 gem 'nokogiri'
 gem 'oauth'
 gem 'oauth2'
-gem 'pry'
 gem 'puma'
 gem 'rake'
 gem 'roda'
@@ -29,6 +28,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'pry'
   gem 'rubocop'
 end
 
