@@ -3,7 +3,6 @@
 require 'gender_detector'
 require 'nokogiri'
 require 'oauth'
-require 'pry'
 require 'typhoeus'
 require 'uri'
 
