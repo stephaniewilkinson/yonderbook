@@ -11,12 +11,13 @@ gem 'i18n', '>= 1'
 gem 'nokogiri'
 gem 'oauth'
 gem 'oauth2'
+gem 'pry'
 gem 'puma'
 gem 'rake'
 gem 'roda'
 gem 'sendgrid-ruby'
-gem 'sequel'
 gem 'sequel_pg'
+gem 'sequel'
 gem 'tilt'
 gem 'typhoeus'
 gem 'unicode_utils'
@@ -28,15 +29,14 @@ group :development do
 end
 
 group :development, :test do
-  gem 'pry'
   gem 'rubocop'
 end
 
 group :test do
   gem 'capybara-selenium'
   gem 'chromedriver-helper', '~> 1.0'
-  gem 'minitest'
   gem 'minitest-capybara'
+  gem 'minitest'
   gem 'rack-test'
 end
 
