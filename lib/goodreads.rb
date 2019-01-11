@@ -12,8 +12,8 @@ module Goodreads
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
-  OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, SECRET, site: "https://#{HOST}"
-  SECRET = ENV.fetch 'GOODREADS_SECRET'
+  GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
+  OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, GOODREADS_SECRET, site: "https://#{HOST}"
 
   module_function
 
