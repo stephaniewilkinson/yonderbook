@@ -9,13 +9,17 @@ require 'uri'
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title, keyword_init: true
 
-  HOST = URI::HTTPS.build host: 'www.goodreads.com'
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   SECRET  = ENV.fetch 'GOODREADS_SECRET'
-  OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, SECRET, site: HOST.to_s
+  HOST = 'www.goodreads.com'
+  OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, SECRET, site: "https://#{HOST}"
   GENDER_DETECTOR = GenderDetector.new
 
   module_function
+
+  def new_uri
+    URI::HTTPS.build host: HOST
+  end
 
   def request_token
     OAUTH_CONSUMER.get_request_token
@@ -28,7 +32,7 @@ module Goodreads
   end
 
   def fetch_shelves goodreads_user_id
-    uri = HOST
+    uri = new_uri
     uri.path = '/shelf/list.xml'
     uri.query = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
 
@@ -40,7 +44,7 @@ module Goodreads
   end
 
   def get_books shelf_name, goodreads_user_id
-    uri = HOST
+    uri = new_uri
     # TODO: Update this to the version 2 endpoint
     uri.path = "/review/list/#{goodreads_user_id}.xml"
     uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
@@ -54,7 +58,7 @@ module Goodreads
   end
 
   def private_profile? shelf_name, goodreads_user_id
-    uri = HOST
+    uri = new_uri
     # TODO: Update this to the version 2 endpoint
     uri.path = "/review/list/#{goodreads_user_id}.xml"
     uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
@@ -89,7 +93,7 @@ module Goodreads
   end
 
   def fetch_user access_token
-    uri = HOST
+    uri = new_uri
     uri.path = '/api/auth_user'
     response = access_token.get uri.to_s
     xml = Nokogiri::XML response.body
@@ -116,7 +120,7 @@ module Goodreads
   end
 
   def fetch_book_data isbn
-    uri = HOST
+    uri = new_uri
     uri.path = "/book/isbn/#{isbn}"
     response = Typhoeus.get uri, params: {key: API_KEY}
     case response.code
