@@ -45,13 +45,11 @@ module Goodreads
 
   def get_books shelf_name, goodreads_user_id
     uri = new_uri
-    # TODO: Update this to the version 2 endpoint
     uri.path = '/review/list'
 
     uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY, v: '2', id: goodreads_user_id
 
     puts uri
-    # returns duplicate books
     get_book_details get_requests uri, number_of_pages(uri)
   end
 
@@ -63,6 +61,7 @@ module Goodreads
   def private_profile? shelf_name, goodreads_user_id
     uri = new_uri
     # TODO: Update this to the version 2 endpoint
+    # TODO: is there a way to check if their profile is private other than an error here?
     uri.path = "/review/list/#{goodreads_user_id}.xml"
     uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
     Typhoeus.get(uri).code == 403
