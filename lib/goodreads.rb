@@ -10,10 +10,10 @@ module Goodreads
   Book = Struct.new :image_url, :isbn, :title, keyword_init: true
 
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
-  SECRET  = ENV.fetch 'GOODREADS_SECRET'
+  GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
   OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, SECRET, site: "https://#{HOST}"
-  GENDER_DETECTOR = GenderDetector.new
+  SECRET = ENV.fetch 'GOODREADS_SECRET'
 
   module_function
 
@@ -46,7 +46,7 @@ module Goodreads
   def get_books shelf_name, goodreads_user_id
     uri = new_uri
     # TODO: Update this to the version 2 endpoint
-    uri.path = "/review/list"
+    uri.path = '/review/list'
 
     uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY, v: '2', id: goodreads_user_id
 
