@@ -46,15 +46,18 @@ module Goodreads
   def get_books shelf_name, goodreads_user_id
     uri = new_uri
     # TODO: Update this to the version 2 endpoint
-    uri.path = "/review/list/#{goodreads_user_id}.xml"
-    uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
+    uri.path = "/review/list"
 
+    uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY, v: '2', id: goodreads_user_id
+
+    puts uri
+    # returns duplicate books
     get_book_details get_requests uri, number_of_pages(uri)
   end
 
   def number_of_pages uri
     doc = Nokogiri::XML Typhoeus.get(uri).body
-    doc.xpath('//books').first&.[]('numpages').to_i
+    doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(200).ceil
   end
 
   def private_profile? shelf_name, goodreads_user_id
@@ -67,7 +70,7 @@ module Goodreads
 
   def get_requests uri, number_of_pages
     hydra = Typhoeus::Hydra.new
-    requests = Array.new number_of_pages do |page|
+    requests = 1.upto(number_of_pages).map do |page|
       request = Typhoeus::Request.new "#{uri}&page=#{page}"
       hydra.queue request
       request
