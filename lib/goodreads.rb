@@ -16,6 +16,7 @@ module Goodreads
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
   OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, GOODREADS_SECRET, site: "https://#{HOST}"
   @users = DB[:users]
+
   module_function
 
   def new_uri
