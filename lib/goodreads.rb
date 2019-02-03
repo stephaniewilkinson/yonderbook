@@ -5,6 +5,7 @@ require 'nokogiri'
 require 'oauth'
 require 'typhoeus'
 require 'uri'
+require_relative 'db'
 
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title, keyword_init: true
@@ -14,6 +15,7 @@ module Goodreads
   HOST = 'www.goodreads.com'
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
   OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, GOODREADS_SECRET, site: "https://#{HOST}"
+  @users = DB[:users]
 
   module_function
 
@@ -101,6 +103,9 @@ module Goodreads
     xml = Nokogiri::XML response.body
     user_id = xml.xpath('//user').first.attributes.first[1].value
     first_name = xml.xpath('//user').first.children[1].children.text
+
+    @users.insert(first_name: first_name, goodreads_user_id: user_id) unless @users.first(goodreads_user_id: user_id)
+    @user = @users.first(goodreads_user_id: user_id)
 
     [user_id, first_name]
   end
