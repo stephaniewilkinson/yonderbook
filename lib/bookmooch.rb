@@ -12,12 +12,9 @@ module Bookmooch
     # here is how the url should look
     # http://api.bookmooch.com/api/userbook?asins=1853260916+0812532597&target=inventory&action=add
     hydra = Typhoeus::Hydra.new(max_concurrency: 200)
-    requests_titles_and_images = isbns_and_image_urls.map do |isbn, image_url, title|
-      params = {asins: isbn, target: 'wishlist', action: 'add'}
-      request = Typhoeus::Request.new "#{BASE_URL}/api/userbook", params: params, username: username, password: password
-      hydra.queue request
-      [request, title, image_url]
-    end
+
+    requests_titles_and_images = queue_requests isbns_and_image_urls, username, password, hydra
+
     hydra.run
 
     added_or_failed = requests_titles_and_images.partition do |request, _, _|
@@ -25,5 +22,14 @@ module Bookmooch
     end
 
     added_or_failed.map { |partition| partition.map { |_, title, image_url| [title, image_url] } }
+  end
+
+  def queue_requests isbns_and_image_urls, username, password, hydra
+    isbns_and_image_urls.map do |isbn, image_url, title|
+      params = {asins: isbn, target: 'wishlist', action: 'add'}
+      request = Typhoeus::Request.new "#{BASE_URL}/api/userbook", params: params, username: username, password: password
+      hydra.queue request
+      [request, title, image_url]
+    end
   end
 end
