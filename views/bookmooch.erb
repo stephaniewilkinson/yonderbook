@@ -9,7 +9,7 @@
 </div>
 
 <div class="green lighten-5">
-  <h4>These <%= @books_added.count %> books are now on your wishlist</h4>
+  <h4>These <%= @books_added.size %> books are now on your wishlist</h4>
   <div class="cards-container">
     <% @books_added.each do |book| %>
       <div class="card hoverable">
@@ -24,7 +24,7 @@
   </div>
 </div>
 <div class="red lighten-5">
-  <h4>Couldn't Add <%= @books_failed.count %> Books</h4>
+  <h4>Couldn't Add <%= @books_failed.size %> Books</h4>
     <p>If some books imported but not others, it's possible that bookmooch doesn't have them listed. </p>
     <p>Try adding them to your wishlist using a different edition, aka a different ISBN.</p>
     <div class="cards-container">
