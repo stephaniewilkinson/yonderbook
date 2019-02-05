@@ -1,33 +1,37 @@
 <% if @user %>
-  <h3>Account</h3>
-  <div class="row">
-    <form action='/users/<%= @user[:id] %>' method="post" class="col s12">
-      <div class="row">
-        <div class="input-field col s12">
-          <label for="first_name">First Name</label>
-          <input value="<%= @user[:first_name]%>" autofocus name="first_name" type="text" class="validate">
+<div class="white">
+  <div class="container">
+    <h3>Account</h3>
+    <div class="row">
+      <form action='/users/<%= @user[:id] %>' method="post" class="col s12">
+        <div class="row">
+          <div class="input-field col s12">
+            <label for="first_name">First Name</label>
+            <input value="<%= @user[:first_name]%>" autofocus name="first_name" type="text" class="validate">
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <label for="last_name">Last Name</label>
-          <input value="<%= @user[:last_name]%>" autofocus name="last_name" type="text" class="validate">
+        <div class="row">
+          <div class="input-field col s12">
+            <label for="last_name">Last Name</label>
+            <input value="<%= @user[:last_name]%>" autofocus name="last_name" type="text" class="validate">
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <label for="email">Email</label>
-          <input name="email" type="email" class="validate" value="<%= @user[:email]%>">
+        <div class="row">
+          <div class="input-field col s12">
+            <label for="email">Email</label>
+            <input name="email" type="email" class="validate" value="<%= @user[:email]%>">
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <label for="goodreads_user_id">Goodreads ID</label>
-          <input disabled name="goodreads_user_id" value="<%= @user[:goodreads_user_id]%>" type="text" class="validate">
+        <div class="row">
+          <div class="input-field col s12">
+            <label for="goodreads_user_id">Goodreads ID</label>
+            <input disabled name="goodreads_user_id" value="<%= @user[:goodreads_user_id]%>" type="text" class="validate">
+          </div>
         </div>
-      </div>
-      <button class="right btn waves-effect btn-large waves-light" type="submit" name="action">Save
-      </button>
-    </form>
+        <button class="right btn waves-effect btn-large waves-light" type="submit" name="action">Save
+        </button>
+      </form>
+    </div>
   </div>
+</div>
 <% end %>

@@ -271,12 +271,12 @@ class App < Roda
     end
 
     r.on 'users' do
-      r.redirect '/' unless @user
-
+      @user = @users.where(goodreads_user_id: session['goodreads_user_id']).first
+      r.redirect '/' if @users.where(goodreads_user_id: session['goodreads_user_id']).first.empty?
       # TODO: write authorization for these routes properly
       # route: GET /users
       r.get true do
-        if @user&.dig(:id) == 1
+        if session['goodreads_user_id'] == '7208734'
           view 'users/index'
         else
           view 'welcome'
@@ -286,8 +286,7 @@ class App < Roda
       r.on String do |id|
         # route: GET /users/:id
         r.get true do
-          @id = id
-          if @user == @users.first(id: @id)
+          if @user == @users.first(id: id)
             view 'users/show'
           else
             view 'welcome'
@@ -301,7 +300,12 @@ class App < Roda
 
         # route: POST /users/:id
         r.post true do
-          @user.update!(email: r.params['email'], first_name: r.params['first_name'], last_name: r.params['last_name'])
+          @users.where(goodreads_user_id: session['goodreads_user_id']).update(
+            email: r.params['email'],
+            first_name: r.params['first_name'],
+            last_name: r.params['last_name']
+          )
+          @user = @users.where(goodreads_user_id: session['goodreads_user_id']).first
           view 'users/show'
         end
       end

@@ -30,6 +30,12 @@ describe App do
     fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
+    visit '/users/1'
+    click_on 'Edit'
+    fill_in 'last_name', with: 'Mountbatten-Windsor'
+    click_on 'Save'
+    assert_text 'Mountbatten-Windsor'
+    click_on 'Shelves'
     find("a[href='shelves/financial-books']").click
     assert_text 'Publication years'
     click_on 'Shelves'
