@@ -105,7 +105,6 @@ module Goodreads
     first_name = xml.xpath('//user').first.children[1].children.text
 
     @users.insert(first_name: first_name, goodreads_user_id: user_id) unless @users.first(goodreads_user_id: user_id)
-    @user = @users.first(goodreads_user_id: user_id)
 
     [user_id, first_name]
   end

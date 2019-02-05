@@ -31,6 +31,9 @@
               <% if session.key? 'goodreads_user_id' %>
                 <li><a href="/shelves"><i class="material-icons left">library_books</i>Shelves</a></li>
               <% end %>
+              <% if @user %>
+                <li><a href='/users/<%= @user[:id] %>'><i class="material-icons left">person</i>Account</a></li>
+              <% end %>
               <% if CACHE["#{session['session_id']}/libraries"] %>
                 <li><a href="/library"><i class="material-icons left">local_library</i>Libraries</a></li>
               <% end %>
