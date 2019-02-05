@@ -4,42 +4,39 @@
   <h1 class="green-text">Success!</h1>
 <% else %>
   <h1>No books added. Your credentials may have been typed incorrectly. </h1>
-  <a href="https://bookmooch.herokuapp.com">Try again</a> or <a href="http://twitter.com/stephanieblack">contact the developer.</a>
+  <a href="https://yonderbook.com">Try again</a> or <a href="https://twitter.com/stephanieblack">contact the developer.</a>
 <% end %>
 </div>
-<div class="row">
-  <div class="col s12 green lighten-5">
-    <h4>These <%= @books_added.count %> books are now on your wishlist</h4>
-    <div class="cards-container">
-      <% @books_added.each do |book| %>
-        <div class="card hoverable">
-          <div class="card-image">
-            <img src="<%= book[1] %>">
-          </div>
-          <div class="card-content">
-            <small><%= book[0] %></small>
-          </div>
+
+<div class="green lighten-5">
+  <h4>These <%= @books_added.count %> books are now on your wishlist</h4>
+  <div class="cards-container">
+    <% @books_added.each do |book| %>
+      <div class="card hoverable">
+        <div class="card-image">
+          <img src="<%= book[1] %>">
         </div>
-      <% end %>
-    </div>
+        <div class="card-content">
+          <small><%= book[0] %></small>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>
-<div class="row">
-  <div class="col s12 red lighten-5">
-    <h4>Couldn't Add <%= @books_failed.count %> Books</h4>
-      <p>If some books imported but not others, it's possible that bookmooch doesn't have them listed. </p>
-      <p>Try adding them to your wishlist using a different edition, aka a different ISBN.</p>
-      <div class="cards-container">
-      <% @books_failed.each do |book| %>
-        <div class="card hoverable">
-          <div class="card-image">
-            <img src="<%= book[1] %>">
-          </div>
-          <div class="card-content">
-            <small><%= book[0] %></small>
-          </div>
+<div class="red lighten-5">
+  <h4>Couldn't Add <%= @books_failed.count %> Books</h4>
+    <p>If some books imported but not others, it's possible that bookmooch doesn't have them listed. </p>
+    <p>Try adding them to your wishlist using a different edition, aka a different ISBN.</p>
+    <div class="cards-container">
+    <% @books_failed.each do |book| %>
+      <div class="card hoverable">
+        <div class="card-image">
+          <img src="<%= book[1] %>">
         </div>
-      <% end %>
-    </div>
+        <div class="card-content">
+          <small><%= book[0] %></small>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>
