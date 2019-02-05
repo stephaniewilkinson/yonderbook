@@ -1,5 +1,5 @@
 <h3>Books Available</h3>
-<a class="btn waves-effect waves-light green" href="/inventory/new">Add New Book
+<a class="btn waves-effect waves-light green" href="inventory/new">Add New Book
   <i class="material-icons right">library_add</i>
 </a>
 
@@ -14,7 +14,7 @@
     <%= book[:title] %>
     <em>User: <%= @users.first(id: 1)[:first_name] %></em>
     <hr>
-    <a href="/inventory/<%= book[:id] %>">View</a>
+    <a href=".<%= book[:id] %>">View</a>
   </div>
 </div>
 <% end %>
