@@ -25,7 +25,6 @@ describe App do
 
   it 'lets user log in and look at a shelf' do
     visit '/'
-    visit '/shelves'
     click_on 'Log in with goodreads'
     fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
