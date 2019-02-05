@@ -100,6 +100,7 @@ class App < Roda
       # route: GET /shelves
       r.get true do
         if goodreads_user_id
+          @user = @users.first(goodreads_user_id: goodreads_user_id)
           @shelves = Goodreads.fetch_shelves goodreads_user_id
           view 'shelves/index'
         else
