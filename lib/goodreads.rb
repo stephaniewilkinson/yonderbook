@@ -9,28 +9,16 @@ require_relative 'db'
 
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title, keyword_init: true
-
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
-  OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, GOODREADS_SECRET, site: "https://#{HOST}"
   @users = DB[:users]
 
   module_function
 
   def new_uri
     URI::HTTPS.build host: HOST
-  end
-
-  def request_token
-    OAUTH_CONSUMER.get_request_token
-  rescue Net::HTTPBadResponse, Net::OpenTimeout
-    # Starting with the simplest fix. If this doesn't work, the next idea
-    # is to create a new consumer here and retry.
-    tries ||= 0
-    tries += 1
-    retry if tries < 4
   end
 
   def fetch_shelves goodreads_user_id
@@ -45,40 +33,40 @@ module Goodreads
     shelf_names.zip shelf_books
   end
 
-  def get_books shelf_name, goodreads_user_id
-    uri = new_uri
-    uri.path = '/review/list'
-
-    uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY, v: '2', id: goodreads_user_id
-
-    puts uri
-    get_book_details get_requests uri, number_of_pages(uri)
-  end
-
-  def number_of_pages uri
-    doc = Nokogiri::XML Typhoeus.get(uri).body
-    doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(200).ceil
+  def get_books shelf_name, goodreads_user_id, access_token
+    uri = "https://www.goodreads.com/review/list/#{goodreads_user_id}.xml?key=#{API_KEY}&v=2&shelf=#{shelf_name}&per_page=200"
+    response = access_token.get(uri)
+    doc = Nokogiri::XML response.body
+    number_of_pages = doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(200).ceil
+    requests = get_requests uri, number_of_pages, access_token
+    get_book_details requests
   end
 
   def private_profile? shelf_name, goodreads_user_id
     uri = new_uri
-    # TODO: Update this to the version 2 endpoint
-    # TODO: is there a way to check if their profile is private other than an error here?
     uri.path = "/review/list/#{goodreads_user_id}.xml"
-    uri.query = URI.encode_www_form shelf: shelf_name, per_page: '200', key: API_KEY
-    Typhoeus.get(uri).code == 403
+    uri.query = URI.encode_www_form shelf: shelf_name, key: API_KEY
+
+    Typhoeus.head(uri).code == 403
   end
 
-  def get_requests uri, number_of_pages
-    hydra = Typhoeus::Hydra.new
-    requests = 1.upto(number_of_pages).map do |page|
-      request = Typhoeus::Request.new "#{uri}&page=#{page}"
-      hydra.queue request
-      request
-    end
-    hydra.run
+  def get_requests uri, number_of_pages, access_token
+    if Typhoeus.head(uri).code == 200
+      hydra = Typhoeus::Hydra.new
 
-    requests
+      requests = 1.upto(number_of_pages).map do |page|
+        request = Typhoeus::Request.new "#{uri}&page=#{page}"
+        hydra.queue request
+        request
+      end
+
+      hydra.run
+      requests
+    else
+      1.upto(number_of_pages).map do |page|
+        access_token.get("#{uri}&page=#{page}")
+      end
+    end
   end
 
   def get_book_details requests

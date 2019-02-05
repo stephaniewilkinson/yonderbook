@@ -9,6 +9,7 @@ require 'rollbar/middleware/rack'
 require 'securerandom'
 require 'tilt'
 require 'zbar'
+require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
 require_relative 'lib/db'
 require_relative 'lib/goodreads'
@@ -30,7 +31,6 @@ class App < Roda
   plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
   plugin :slash_path_empty
   plugin :render
-  plugin :message_bus, message_bus: MESSAGE_BUS
 
   compile_assets
 
@@ -46,11 +46,23 @@ class App < Roda
     CACHE["#{session['session_id']}/#{key}"]
   end
 
-  def request_token
+  def fetch_access_token
+    cached_token = cache_get :access_token
+    return cached_token if cached_token
+
+    request_token = cache_get :request_token
+
+    token = request_token.get_access_token
+
+    cache_set access_token: token
+    token
+  end
+
+  def fetch_request_token
     cached_token = cache_get :request_token
     return cached_token if cached_token
 
-    token = Goodreads.request_token
+    token = Auth.fetch_request_token
     cache_set request_token: token
     token
   end
@@ -59,14 +71,7 @@ class App < Roda
   def goodreads_user_id
     return session['goodreads_user_id'] if session['goodreads_user_id']
 
-    access_token = begin
-                     request_token.get_access_token
-                   rescue OAuth::Unauthorized
-                     return
-                   end
-
-    goodreads_user_id, first_name = Goodreads.fetch_user access_token
-
+    goodreads_user_id, first_name = Goodreads.fetch_user fetch_access_token
     env['rollbar.person_data'] = {id: goodreads_user_id, username: first_name}
     session['goodreads_user_id'] = goodreads_user_id
   end
@@ -81,7 +86,8 @@ class App < Roda
     session['session_id'] ||= SecureRandom.uuid
 
     r.root do
-      @auth_url = request_token.authorize_url
+      @auth_url = fetch_request_token.authorize_url
+
       # route: GET /
       r.get true do
         view 'welcome'
@@ -118,7 +124,7 @@ class App < Roda
 
         @book_info = cache_get @shelf_name.to_sym
         unless @book_info
-          @book_info = Goodreads.get_books @shelf_name, goodreads_user_id
+          @book_info = Goodreads.get_books @shelf_name, goodreads_user_id, fetch_access_token
           cache_set(@shelf_name.to_sym => @book_info)
         end
 
