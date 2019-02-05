@@ -10,7 +10,7 @@ module Mail
 
   @email_template = File.read('views/email.html')
 
-  def send_welcome_email(user_email)
+  def send_welcome_email user_email
     # TODO: set this email address up
     from = Email.new(email: 'welcome@yonderbook.com')
     to = Email.new(email: user_email)
