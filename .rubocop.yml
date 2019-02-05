@@ -357,7 +357,7 @@ Naming/VariableNumber:
 
 #################### Rails ################################
 
-Rails/Output:
+Rails:
   Enabled: false
 
 #################### Styles ################################

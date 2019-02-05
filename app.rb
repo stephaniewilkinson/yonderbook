@@ -300,7 +300,7 @@ class App < Roda
 
         # route: POST /users/:id
         r.post true do
-          @users.where(goodreads_user_id: session['goodreads_user_id']).update!(
+          @users.where(goodreads_user_id: session['goodreads_user_id']).update(
             email: r.params['email'],
             first_name: r.params['first_name'],
             last_name: r.params['last_name']
