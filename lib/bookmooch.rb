@@ -11,7 +11,7 @@ module Bookmooch
     # TODO: make requests with multiple isbns instead of one at a time
     # here is how the url should look
     # http://api.bookmooch.com/api/userbook?asins=1853260916+0812532597&target=inventory&action=add
-    hydra = Typhoeus::Hydra.new
+    hydra = Typhoeus::Hydra.new(max_concurrency: 200)
     requests_titles_and_images = isbns_and_image_urls.map do |isbn, image_url, title|
       params = {asins: isbn, target: 'wishlist', action: 'add'}
       request = Typhoeus::Request.new "#{BASE_URL}/api/userbook", params: params, username: username, password: password

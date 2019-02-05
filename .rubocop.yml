@@ -470,7 +470,7 @@ Style/Lambda:
     - literal
 
 Style/MethodDefParentheses:
-  Enabled: false
+  EnforcedStyle: require_no_parentheses
 
 Style/MethodCallWithArgsParentheses:
   Enabled: false
