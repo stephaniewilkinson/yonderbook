@@ -3,6 +3,7 @@
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 
 require 'area'
+require 'message_bus'
 require 'roda'
 require 'rollbar/middleware/rack'
 require 'securerandom'
@@ -18,6 +19,9 @@ require_relative 'lib/tuple_space'
 class App < Roda
   use Rollbar::Middleware::Rack
 
+  MESSAGE_BUS = MessageBus::Instance.new
+  MESSAGE_BUS.configure(backend: :memory)
+
   plugin :halt
   plugin :head
   plugin :assets, css: 'styles.css'
@@ -26,6 +30,8 @@ class App < Roda
   plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
   plugin :slash_path_empty
   plugin :render
+  plugin :message_bus, message_bus: MESSAGE_BUS
+
   compile_assets
 
   CACHE = TupleSpace.new
