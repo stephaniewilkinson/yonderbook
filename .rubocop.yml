@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.6.0
+  TargetRubyVersion: 2.6.1
   EnabledByDefault: true
 
 #################### Bundler ##############################
@@ -310,7 +310,7 @@ Metrics/BlockLength:
   Max: 200
 
 Metrics/ClassLength:
-  Max: 210
+  Max: 300
 
 Metrics/CyclomaticComplexity:
   Max: 20
