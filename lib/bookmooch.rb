@@ -8,28 +8,22 @@ module Bookmooch
   module_function
 
   def books_added_and_failed isbns_and_image_urls, username, password
-    # TODO: make requests with multiple isbns instead of one at a time
-    # here is how the url should look
-    # http://api.bookmooch.com/api/userbook?asins=1853260916+0812532597&target=inventory&action=add
     hydra = Typhoeus::Hydra.new(max_concurrency: 200)
+    isbn_batches = isbns_and_image_urls.map(&:first).reject(&:empty?).each_slice(300).map { |isbns| isbns.join('+') }
 
-    requests_titles_and_images = queue_requests isbns_and_image_urls, username, password, hydra
+    requests = isbn_batches.map do |isbn_batch|
+      params = {asins: isbn_batch, target: 'wishlist', action: 'add'}
+      request = Typhoeus::Request.new "#{BASE_URL}/api/userbook", params: params, username: username, password: password
+      hydra.queue request
+      request
+    end
 
     hydra.run
 
-    added_or_failed = requests_titles_and_images.partition do |request, _, _|
-      request.response.body.to_s.strip == request.options[:params][:asins]
+    added_isbns = requests.flat_map do |request|
+      request.response.body.lines(chomp: true)
     end
 
-    added_or_failed.map { |partition| partition.map { |_, title, image_url| [title, image_url] } }
-  end
-
-  def queue_requests isbns_and_image_urls, username, password, hydra
-    isbns_and_image_urls.map do |isbn, image_url, title|
-      params = {asins: isbn, target: 'wishlist', action: 'add'}
-      request = Typhoeus::Request.new "#{BASE_URL}/api/userbook", params: params, username: username, password: password
-      hydra.queue request
-      [request, title, image_url]
-    end
+    isbns_and_image_urls.partition { |isbn, _, _| added_isbns.include? isbn }
   end
 end
