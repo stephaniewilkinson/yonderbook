@@ -56,6 +56,14 @@ p,
   -moz-column-gap: 2em;
   column-gap: 2em;
 }
+.cards-container-large {
+  -webkit-columns: 220px;
+  -moz-columns: 220px;
+  columns: 220px;
+  -webkit-column-gap: 2em;
+  -moz-column-gap: 2em;
+  column-gap: 2em;
+}
 
 .card {
   background: white;

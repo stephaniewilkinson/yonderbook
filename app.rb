@@ -191,10 +191,15 @@ class App < Roda
         r.get do
           # TODO: Sort titles by recently added to goodreads list
           @titles = cache_get :titles
+
           unless @titles
             flash[:error] = 'Please choose a shelf first'
             r.redirect 'shelves'
           end
+
+          @available_books = @titles.select { |a| a.copies_available.positive? }
+          @waitlist_books = @titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? }
+          @unavailable_books = @titles.select { |a| a.copies_owned.zero? }
           view 'availability'
         end
       end
