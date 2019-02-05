@@ -37,7 +37,7 @@ namespace :db do
   end
 end
 
-def self.create_db(config)
+def self.create_db config
   environment = {}
   environment['PGUSER']     = config[:user]
   environment['PGPASSWORD'] = config[:password]
@@ -49,7 +49,7 @@ def self.create_db(config)
   Process.wait Process.spawn(environment, 'createdb', *arguments)
 end
 
-def self.drop_db(config)
+def self.drop_db config
   environment = {}
   environment['PGUSER']     = config[:user]
   environment['PGPASSWORD'] = config[:password]
