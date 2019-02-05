@@ -277,6 +277,7 @@ class App < Roda
       # TODO: write authorization for these routes properly
       # route: GET /users
       r.get true do
+        # TODO: make a jwt
         if session['goodreads_user_id'] == '7208734'
           view 'users/index'
         else
