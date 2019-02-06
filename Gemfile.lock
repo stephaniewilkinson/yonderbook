@@ -150,7 +150,6 @@ DEPENDENCIES
   rack-unreloader
   rake
   roda
-  roda-message_bus
   roda-route_list
   rollbar
   rubocop

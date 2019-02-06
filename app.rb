@@ -11,11 +11,11 @@ require 'tilt'
 require 'zbar'
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
+require_relative 'lib/cache'
 require_relative 'lib/db'
 require_relative 'lib/goodreads'
 require_relative 'lib/models'
 require_relative 'lib/overdrive'
-require_relative 'lib/tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
@@ -32,36 +32,24 @@ class App < Roda
 
   compile_assets
 
-  CACHE = TupleSpace.new
-
-  def cache_set **pairs
-    pairs.each do |key, value|
-      CACHE["#{session['session_id']}/#{key}"] = value
-    end
-  end
-
-  def cache_get key
-    CACHE["#{session['session_id']}/#{key}"]
-  end
-
   def fetch_access_token
-    cached_token = cache_get :access_token
+    cached_token = Cache.get session, :access_token
     return cached_token if cached_token
 
-    request_token = cache_get :request_token
+    request_token = Cache.get session, :request_token
 
     token = request_token.get_access_token
 
-    cache_set access_token: token
+    Cache.set session, access_token: token
     token
   end
 
   def fetch_request_token
-    cached_token = cache_get :request_token
+    cached_token = Cache.get session, :request_token
     return cached_token if cached_token
 
     token = Auth.fetch_request_token
-    cache_set request_token: token
+    Cache.set session, request_token: token
     token
   end
 
@@ -122,12 +110,12 @@ class App < Roda
           r.redirect '/' unless goodreads_user_id
 
           @shelf_name = shelf_name
-          cache_set shelf_name: @shelf_name
+          Cache.set session, shelf_name: @shelf_name
 
-          @book_info = cache_get @shelf_name.to_sym
+          @book_info = Cache.get session, @shelf_name.to_sym
           unless @book_info
             @book_info = Goodreads.get_books @shelf_name, goodreads_user_id, fetch_access_token
-            cache_set(@shelf_name.to_sym => @book_info)
+            Cache.set session, @shelf_name.to_sym => @book_info
           end
 
           # route: GET /auth/shelves/:id
@@ -148,15 +136,15 @@ class App < Roda
             r.post do
               r.halt(403) if r['username'] == 'susanb'
               @books_added, @books_failed = Bookmooch.books_added_and_failed @book_info, r['username'], r['password']
-              cache_set books_added: @books_added, books_failed: @books_failed
+              Cache.set session, books_added: @books_added, books_failed: @books_failed
 
               r.redirect 'bookmooch/results'
             end
 
             # route: GET /auth/shelves/:id/bookmooch/results
             r.get 'results' do
-              @books_added = cache_get :books_added
-              @books_failed = cache_get :books_failed
+              @books_added = Cache.get session, :books_added
+              @books_failed = Cache.get session, :books_failed
               view 'bookmooch'
             end
           end
@@ -171,7 +159,7 @@ class App < Roda
             # route: POST /auth/shelves/:id/overdrive?consortium=1047
             r.post do
               titles = Overdrive.new(@book_info, r['consortium']).fetch_titles_availability
-              cache_set titles: titles
+              Cache.set session, titles: titles
               r.redirect '/auth/availability'
             end
           end
@@ -182,7 +170,7 @@ class App < Roda
         # route: GET /auth/availability
         r.get do
           # TODO: Sort titles by recently added to goodreads list
-          @titles = cache_get :titles
+          @titles = Cache.get session, :titles
 
           unless @titles
             flash[:error] = 'Please choose a shelf first'
@@ -200,7 +188,7 @@ class App < Roda
       r.on 'library' do
         # route: POST /auth/library?zipcode=90029
         r.post do
-          @shelf_name = cache_get :shelf_name
+          @shelf_name = Cache.get session, :shelf_name
           zip = r['zipcode']
 
           if zip.empty?
@@ -215,14 +203,14 @@ class App < Roda
 
           @local_libraries = Overdrive.local_libraries zip.to_latlon.delete ' '
 
-          cache_set libraries: @local_libraries
+          Cache.set session, libraries: @local_libraries
           r.redirect '/auth/library'
         end
 
         # route: GET /auth/library
         r.get do
-          @shelf_name = cache_get :shelf_name
-          @local_libraries = cache_get :libraries
+          @shelf_name = Cache.get session, :shelf_name
+          @local_libraries = Cache.get session, :libraries
           # TODO: see if we can bring the person back to the choose a library stage rather than all the way back to choose a shelf
           unless @local_libraries
             flash[:error] = 'Please choose a shelf first'

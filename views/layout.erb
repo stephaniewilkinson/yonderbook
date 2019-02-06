@@ -34,9 +34,6 @@
               <% if @user %>
                 <li><a href='/auth/users/<%= @user[:id] %>'><i class="material-icons left">person</i>Account</a></li>
               <% end %>
-              <% if CACHE["#{session['session_id']}/libraries"] %>
-                <li><a href="/auth/library"><i class="material-icons left">local_library</i>Libraries</a></li>
-              <% end %>
             </ul>
         </div>
       </nav>

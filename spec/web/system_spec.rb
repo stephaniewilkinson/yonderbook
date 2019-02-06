@@ -46,7 +46,7 @@ describe App do
     click_link 'eBooks'
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
-    assert_text 'Libraries'
+    assert_text 'Library'
     click_on '1683'
     assert_text 'available'
     click_on 'Unavailable'
