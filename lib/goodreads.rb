@@ -42,14 +42,6 @@ module Goodreads
     get_book_details requests
   end
 
-  def private_profile? shelf_name, goodreads_user_id
-    uri = new_uri
-    uri.path = "/review/list/#{goodreads_user_id}.xml"
-    uri.query = URI.encode_www_form shelf: shelf_name, key: API_KEY
-
-    Typhoeus.head(uri).code == 403
-  end
-
   def get_requests uri, number_of_pages, access_token
     if Typhoeus.head(uri).code == 200
       hydra = Typhoeus::Hydra.new

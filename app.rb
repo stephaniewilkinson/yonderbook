@@ -111,6 +111,7 @@ class App < Roda
     end
 
     r.on 'auth' do
+      @user = @users.first(goodreads_user_id: session['goodreads_user_id']) if session['goodreads_user_id']
       # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
       r.on 'shelves' do
         # route: GET /auth/shelves
@@ -129,8 +130,6 @@ class App < Roda
 
           @shelf_name = shelf_name
           cache_set shelf_name: @shelf_name
-          @private_profile = Goodreads.private_profile? shelf_name, goodreads_user_id
-          cache_set private_profile: @private_profile
 
           @book_info = cache_get @shelf_name.to_sym
           unless @book_info
@@ -187,8 +186,6 @@ class App < Roda
       end
 
       r.on 'availability' do
-        @private_profile = cache_get :private_profile
-
         # route: GET /auth/availability
         r.get do
           # TODO: Sort titles by recently added to goodreads list
