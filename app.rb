@@ -20,7 +20,7 @@ require_relative 'lib/tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
-  use Rack::HostRedirect, 'https://bookmooch.herokuapp.com': 'yonderbook.com'
+  use Rack::HostRedirect, { 'bookmooch.herokuapp.com' => 'yonderbook.com' }
 
   MESSAGE_BUS = MessageBus::Instance.new
   MESSAGE_BUS.configure(backend: :memory)
