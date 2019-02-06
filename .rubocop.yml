@@ -497,6 +497,9 @@ Style/Semicolon:
 Style/Send:
   Enabled: false
 
+Style/StringHashKeys:
+  Enabled: false
+
 Style/StringLiterals:
   EnforcedStyle: single_quotes
   SupportedStyles:
