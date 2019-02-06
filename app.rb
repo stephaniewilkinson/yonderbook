@@ -73,8 +73,7 @@ class App < Roda
   def goodreads_user_id
     return session['goodreads_user_id'] if session['goodreads_user_id']
 
-    goodreads_user_id, first_name = Goodreads.fetch_user fetch_access_token
-    env['rollbar.person_data'] = {id: goodreads_user_id, username: first_name}
+    goodreads_user_id, _first_name = Goodreads.fetch_user fetch_access_token
     session['goodreads_user_id'] = goodreads_user_id
   end
 
@@ -99,6 +98,7 @@ class App < Roda
     r.on 'login' do
       # route: GET /login
       r.get do
+        goodreads_user_id
         r.redirect '/auth/shelves'
       end
     end
@@ -111,18 +111,15 @@ class App < Roda
     end
 
     r.on 'auth' do
-      @user = @users.first(goodreads_user_id: session['goodreads_user_id']) if session['goodreads_user_id']
+      @user = @users.first(goodreads_user_id: session['goodreads_user_id'])
+      r.redirect '/' unless @user
+
       # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
       r.on 'shelves' do
         # route: GET /auth/shelves
         r.get true do
-          if goodreads_user_id
-            @user = @users.first(goodreads_user_id: goodreads_user_id)
-            @shelves = Goodreads.fetch_shelves goodreads_user_id
-            view 'shelves/index'
-          else
-            r.redirect '/'
-          end
+          @shelves = Goodreads.fetch_shelves goodreads_user_id
+          view 'shelves/index'
         end
 
         r.on String do |shelf_name|
@@ -259,7 +256,6 @@ class App < Roda
 
           if barcodes.any?
             r.redirect '/' unless goodreads_user_id
-            user = @users.first goodreads_user_id: goodreads_user_id
 
             barcodes.each do |barcode|
               isbn = barcode.data
@@ -267,7 +263,7 @@ class App < Roda
 
               raise "#{status}: #{book}" unless status == :ok
 
-              @books.insert isbn: isbn, user_id: user[:id], cover_image_url: book.image_url, title: book.title
+              @books.insert isbn: isbn, user_id: @user[:id], cover_image_url: book.image_url, title: book.title
             end
             r.redirect '/inventory/index'
           else
@@ -283,8 +279,6 @@ class App < Roda
       end
 
       r.on 'users' do
-        @user = @users.where(goodreads_user_id: session['goodreads_user_id']).first
-        r.redirect '/' if @users.where(goodreads_user_id: session['goodreads_user_id']).first.empty?
         # TODO: write authorization for these routes properly
         # route: GET /auth/users
         r.get true do
@@ -313,7 +307,7 @@ class App < Roda
 
           # route: POST /auth/users/:id
           r.post true do
-            @users.where(goodreads_user_id: session['goodreads_user_id']).update(
+            @user.update(
               email: r.params['email'],
               first_name: r.params['first_name'],
               last_name: r.params['last_name']
