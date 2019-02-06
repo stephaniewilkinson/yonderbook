@@ -82,11 +82,16 @@ module Goodreads
     response = access_token.get uri.to_s
     xml = Nokogiri::XML response.body
     user_id = xml.xpath('//user').first.attributes.first[1].value
-    first_name = xml.xpath('//user').first.children[1].children.text
+    name = xml.xpath('//user').first.children[1].children.text
 
-    @users.insert(first_name: first_name, goodreads_user_id: user_id) unless @users.first(goodreads_user_id: user_id)
+    if @users.first(goodreads_user_id: user_id)
+      @user = @users.first(goodreads_user_id: user_id)
+      @user.update(access_token: access_token.token, access_token_secret: access_token.secret)
+    else
+      @users.insert(first_name: name, goodreads_user_id: user_id, access_token: access_token.token, access_token_secret: access_token.secret)
+    end
 
-    [user_id, first_name]
+    user_id
   end
 
   def get_gender isbnset
