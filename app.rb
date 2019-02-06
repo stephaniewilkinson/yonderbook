@@ -282,12 +282,12 @@ class App < Roda
 
           # route: POST /auth/users/:id
           r.post true do
-            @user.update(
+            @users.where(goodreads_user_id: @goodreads_user_id).update(
               email: r.params['email'],
               first_name: r.params['first_name'],
               last_name: r.params['last_name']
             )
-            @user = @users.where(goodreads_user_id: session['goodreads_user_id']).first
+            @user = @users.where(goodreads_user_id: @goodreads_user_id).first
             view 'users/show'
           end
         end

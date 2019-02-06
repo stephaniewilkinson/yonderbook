@@ -6,7 +6,7 @@
       <p><b>Last Name: </b><%= @user[:last_name]%></p>
       <p><b>Email: </b><%= @user[:email]%></p>
       <p><b>Goodreads ID: </b><%= @user[:goodreads_user_id]%></p>
-      <a href="<%= @user[:id]%>/edit" class="btn">Edit</a>
+      <a href="/auth/users/<%= @user[:id]%>/edit" class="btn">Edit</a>
     </div>
   </div>
 <% end %>
