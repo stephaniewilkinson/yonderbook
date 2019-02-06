@@ -3,7 +3,6 @@
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 
 require 'area'
-require 'message_bus'
 require 'rack/host_redirect'
 require 'roda'
 require 'rollbar/middleware/rack'
@@ -12,18 +11,15 @@ require 'tilt'
 require 'zbar'
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
+require_relative 'lib/cache'
 require_relative 'lib/db'
 require_relative 'lib/goodreads'
 require_relative 'lib/models'
 require_relative 'lib/overdrive'
-require_relative 'lib/tuple_space'
 
 class App < Roda
   use Rollbar::Middleware::Rack
   use Rack::HostRedirect, 'bookmooch.herokuapp.com' => 'yonderbook.com'
-
-  MESSAGE_BUS = MessageBus::Instance.new
-  MESSAGE_BUS.configure(backend: :memory)
 
   plugin :halt
   plugin :head
@@ -36,46 +32,24 @@ class App < Roda
 
   compile_assets
 
-  CACHE = TupleSpace.new
-
-  def cache_set **pairs
-    pairs.each do |key, value|
-      CACHE["#{session['session_id']}/#{key}"] = value
-    end
-  end
-
-  def cache_get key
-    CACHE["#{session['session_id']}/#{key}"]
-  end
-
   def fetch_access_token
-    cached_token = cache_get :access_token
+    cached_token = Cache.get session, :access_token
     return cached_token if cached_token
 
-    request_token = cache_get :request_token
+    request_token = Cache.get session, :request_token
+    access_token = request_token.get_access_token
 
-    token = request_token.get_access_token
-
-    cache_set access_token: token
-    token
+    Cache.set session, access_token: access_token
+    access_token
   end
 
   def fetch_request_token
-    cached_token = cache_get :request_token
+    cached_token = Cache.get session, :request_token
     return cached_token if cached_token
 
     token = Auth.fetch_request_token
-    cache_set request_token: token
+    Cache.set session, request_token: token
     token
-  end
-
-  # TODO: extract to goodreads lib
-  def goodreads_user_id
-    return session['goodreads_user_id'] if session['goodreads_user_id']
-
-    goodreads_user_id, first_name = Goodreads.fetch_user fetch_access_token
-    env['rollbar.person_data'] = {id: goodreads_user_id, username: first_name}
-    session['goodreads_user_id'] = goodreads_user_id
   end
 
   route do |r|
@@ -99,6 +73,8 @@ class App < Roda
     r.on 'login' do
       # route: GET /login
       r.get do
+        goodreads_user_id = Goodreads.fetch_user fetch_access_token
+        session['goodreads_user_id'] = goodreads_user_id
         r.redirect '/auth/shelves'
       end
     end
@@ -111,31 +87,26 @@ class App < Roda
     end
 
     r.on 'auth' do
+      @user = @users.first(goodreads_user_id: session['goodreads_user_id'])
+      r.redirect '/' unless @user
+      @goodreads_user_id = @user[:goodreads_user_id]
+
       # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
       r.on 'shelves' do
         # route: GET /auth/shelves
         r.get true do
-          if goodreads_user_id
-            @user = @users.first(goodreads_user_id: goodreads_user_id)
-            @shelves = Goodreads.fetch_shelves goodreads_user_id
-            view 'shelves/index'
-          else
-            r.redirect '/'
-          end
+          @shelves = Goodreads.fetch_shelves @goodreads_user_id
+          view 'shelves/index'
         end
 
         r.on String do |shelf_name|
-          r.redirect '/' unless goodreads_user_id
-
           @shelf_name = shelf_name
-          cache_set shelf_name: @shelf_name
-          @private_profile = Goodreads.private_profile? shelf_name, goodreads_user_id
-          cache_set private_profile: @private_profile
+          Cache.set session, shelf_name: @shelf_name
 
-          @book_info = cache_get @shelf_name.to_sym
+          @book_info = Cache.get session, @shelf_name.to_sym
           unless @book_info
-            @book_info = Goodreads.get_books @shelf_name, goodreads_user_id, fetch_access_token
-            cache_set(@shelf_name.to_sym => @book_info)
+            @book_info = Goodreads.get_books @shelf_name, @goodreads_user_id, fetch_access_token
+            Cache.set session, @shelf_name.to_sym => @book_info
           end
 
           # route: GET /auth/shelves/:id
@@ -156,15 +127,15 @@ class App < Roda
             r.post do
               r.halt(403) if r['username'] == 'susanb'
               @books_added, @books_failed = Bookmooch.books_added_and_failed @book_info, r['username'], r['password']
-              cache_set books_added: @books_added, books_failed: @books_failed
+              Cache.set session, books_added: @books_added, books_failed: @books_failed
 
               r.redirect 'bookmooch/results'
             end
 
             # route: GET /auth/shelves/:id/bookmooch/results
             r.get 'results' do
-              @books_added = cache_get :books_added
-              @books_failed = cache_get :books_failed
+              @books_added = Cache.get session, :books_added
+              @books_failed = Cache.get session, :books_failed
               view 'bookmooch'
             end
           end
@@ -179,7 +150,7 @@ class App < Roda
             # route: POST /auth/shelves/:id/overdrive?consortium=1047
             r.post do
               titles = Overdrive.new(@book_info, r['consortium']).fetch_titles_availability
-              cache_set titles: titles
+              Cache.set session, titles: titles
               r.redirect '/auth/availability'
             end
           end
@@ -187,12 +158,10 @@ class App < Roda
       end
 
       r.on 'availability' do
-        @private_profile = cache_get :private_profile
-
         # route: GET /auth/availability
         r.get do
           # TODO: Sort titles by recently added to goodreads list
-          @titles = cache_get :titles
+          @titles = Cache.get session, :titles
 
           unless @titles
             flash[:error] = 'Please choose a shelf first'
@@ -210,7 +179,7 @@ class App < Roda
       r.on 'library' do
         # route: POST /auth/library?zipcode=90029
         r.post do
-          @shelf_name = cache_get :shelf_name
+          @shelf_name = Cache.get session, :shelf_name
           zip = r['zipcode']
 
           if zip.empty?
@@ -225,14 +194,14 @@ class App < Roda
 
           @local_libraries = Overdrive.local_libraries zip.to_latlon.delete ' '
 
-          cache_set libraries: @local_libraries
+          Cache.set session, libraries: @local_libraries
           r.redirect '/auth/library'
         end
 
         # route: GET /auth/library
         r.get do
-          @shelf_name = cache_get :shelf_name
-          @local_libraries = cache_get :libraries
+          @shelf_name = Cache.get session, :shelf_name
+          @local_libraries = Cache.get session, :libraries
           # TODO: see if we can bring the person back to the choose a library stage rather than all the way back to choose a shelf
           unless @local_libraries
             flash[:error] = 'Please choose a shelf first'
@@ -262,7 +231,6 @@ class App < Roda
 
           if barcodes.any?
             r.redirect '/' unless goodreads_user_id
-            user = @users.first goodreads_user_id: goodreads_user_id
 
             barcodes.each do |barcode|
               isbn = barcode.data
@@ -270,7 +238,7 @@ class App < Roda
 
               raise "#{status}: #{book}" unless status == :ok
 
-              @books.insert isbn: isbn, user_id: user[:id], cover_image_url: book.image_url, title: book.title
+              @books.insert isbn: isbn, user_id: @user[:id], cover_image_url: book.image_url, title: book.title
             end
             r.redirect '/inventory/index'
           else
@@ -286,8 +254,6 @@ class App < Roda
       end
 
       r.on 'users' do
-        @user = @users.where(goodreads_user_id: session['goodreads_user_id']).first
-        r.redirect '/' if @users.where(goodreads_user_id: session['goodreads_user_id']).first.empty?
         # TODO: write authorization for these routes properly
         # route: GET /auth/users
         r.get true do
@@ -316,12 +282,12 @@ class App < Roda
 
           # route: POST /auth/users/:id
           r.post true do
-            @users.where(goodreads_user_id: session['goodreads_user_id']).update(
+            @users.where(goodreads_user_id: @goodreads_user_id).update(
               email: r.params['email'],
               first_name: r.params['first_name'],
               last_name: r.params['last_name']
             )
-            @user = @users.where(goodreads_user_id: session['goodreads_user_id']).first
+            @user = @users.where(goodreads_user_id: @goodreads_user_id).first
             view 'users/show'
           end
         end
