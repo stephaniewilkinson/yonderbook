@@ -19,4 +19,8 @@ module Auth
     tries += 1
     retry if tries < 4
   end
+
+  def rebuild_access_token user
+    access_token = OAuth::AccessToken.new(OAUTH_CONSUMER, user[:access_token], user[:access_token_secret])
+  end
 end
