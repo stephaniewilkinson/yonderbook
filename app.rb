@@ -37,9 +37,7 @@ class App < Roda
     return cached_token if cached_token
 
     request_token = Cache.get session, :request_token
-
     token = request_token.get_access_token
-
     Cache.set session, access_token: token
     token
   end
