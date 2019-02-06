@@ -3,7 +3,6 @@
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 
 require 'area'
-require 'message_bus'
 require 'rack/host_redirect'
 require 'roda'
 require 'rollbar/middleware/rack'
@@ -21,9 +20,6 @@ require_relative 'lib/tuple_space'
 class App < Roda
   use Rollbar::Middleware::Rack
   use Rack::HostRedirect, 'bookmooch.herokuapp.com' => 'yonderbook.com'
-
-  MESSAGE_BUS = MessageBus::Instance.new
-  MESSAGE_BUS.configure(backend: :memory)
 
   plugin :halt
   plugin :head
