@@ -25,8 +25,7 @@ describe App do
 
   it 'lets user log in and look at a shelf' do
     visit '/'
-    # TODO: make it so this route redirects to homepage
-    # visit '/shelves'
+    visit '/auth/shelves'
     click_on 'Log in with goodreads'
     fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')

@@ -31,7 +31,7 @@ class App < Roda
   plugin :render
 
   compile_assets
-
+  # TODO: figure out how to reroute 404s to /
   route do |r|
     r.public
     r.assets
