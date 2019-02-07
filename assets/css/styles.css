@@ -96,3 +96,9 @@ main {
 .btn-block {
   width: 100%;
 }
+.brand-logo {
+  background-image: url(../img/objects/33_no_string.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 40%;
+}

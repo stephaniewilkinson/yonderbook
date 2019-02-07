@@ -25,16 +25,18 @@
     <main>
       <nav class="transparent">
         <div class="nav-wrapper">
-            <a href="/" class="brand-logo center">Yonderbook</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down">
-              <li><a href="/about"><i class="material-icons left">info_outline</i>About</a></li>
-              <% if session.key? 'goodreads_user_id' %>
-                <li><a href="/auth/shelves"><i class="material-icons left">library_books</i>Shelves</a></li>
-              <% end %>
-              <% if @user %>
-                <li><a href='/auth/users/<%= @user[:id] %>'><i class="material-icons left">person</i>Account</a></li>
-              <% end %>
-            </ul>
+          <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="/about"><i class="material-icons left">info_outline</i>About</a></li>
+            <% if session.key? 'goodreads_user_id' %>
+            <li><a href="/auth/shelves"><i class="material-icons left">library_books</i>Shelves</a></li>
+            <% end %>
+            <% if @user %>
+            <li><a href='/auth/users/<%= @user[:id] %>'><i class="material-icons left">person</i>Account</a></li>
+            <% end %>
+          </ul>
+          <a href="/" class="brand-logo center">
+            Yonderbook
+          </a>
         </div>
       </nav>
 
