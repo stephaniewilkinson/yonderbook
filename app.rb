@@ -44,7 +44,6 @@ class App < Roda
     r.root do
       request_token = Auth.fetch_request_token
       Cache.set session, request_token: request_token
-
       # route: GET /
       r.get true do
         @auth_url = request_token.authorize_url
@@ -53,13 +52,20 @@ class App < Roda
     end
 
     r.on 'login' do
+      request_token = Cache.get session, :request_token
+      unless request_token
+        flash[:error] = 'Please authenticate first'
+        r.redirect '/'
+      end
+
       # route: GET /login
       r.get do
-        request_token = Cache.get session, :request_token
-
         goodreads_user_id = Goodreads.fetch_user request_token
         session['goodreads_user_id'] = goodreads_user_id
         r.redirect '/auth/shelves'
+      rescue OAuth::Unauthorized
+        flash[:error] = 'Please authenticate first'
+        r.redirect '/'
       end
     end
 
@@ -279,5 +285,7 @@ class App < Roda
         end
       end
     end
+  rescue OAuth::Unauthorized, StandardError, ScriptError
+    r.redirect '/'
   end
 end
