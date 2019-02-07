@@ -76,7 +76,8 @@ module Goodreads
     end
   end
 
-  def fetch_user access_token
+  def fetch_user request_token
+    access_token = request_token.get_access_token
     uri = new_uri
     uri.path = '/api/auth_user'
     response = access_token.get uri.to_s
@@ -85,12 +86,10 @@ module Goodreads
     name = xml.xpath('//user').first.children[1].children.text
 
     if @users.first(goodreads_user_id: user_id)
-      @user = @users.first(goodreads_user_id: user_id)
-      @user.update(access_token: access_token.token, access_token_secret: access_token.secret)
+      @users.where(goodreads_user_id: user_id).update(access_token: access_token.token, access_token_secret: access_token.secret)
     else
       @users.insert(first_name: name, goodreads_user_id: user_id, access_token: access_token.token, access_token_secret: access_token.secret)
     end
-
     user_id
   end
 

@@ -21,6 +21,6 @@ module Auth
   end
 
   def rebuild_access_token user
-    access_token = OAuth::AccessToken.new(OAUTH_CONSUMER, user[:access_token], user[:access_token_secret])
+    OAuth::AccessToken.new(OAUTH_CONSUMER, user[:access_token], user[:access_token_secret])
   end
 end
