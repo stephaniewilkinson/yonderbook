@@ -65,14 +65,14 @@ module Goodreads
     # TODO: make this a hash instead of array
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
+      isbns = doc.xpath('//isbn').map(&:text)
+      image_urls = doc.xpath('//book/image_url').map(&:text).grep_v(/\A\n\z/)
+      titles = doc.xpath('//title').map(&:text)
+      authors = doc.xpath('//authors/author/name').map(&:text)
+      published_years = doc.xpath('//published').map(&:text)
+      ratings = doc.xpath('//rating').map(&:text)
 
-      isbns = doc.xpath('//isbn').map { |node| node.children.text }
-      image_urls = doc.xpath('//book/image_url').children.map(&:text).grep_v(/\A\n\z/)
-      titles = doc.xpath('//title').children.map(&:text)
-      authors = doc.xpath('//authors/author/name').children.map(&:text)
-      published_years = doc.xpath('//published').children.map(&:text)
-
-      isbns.zip image_urls, titles, authors, published_years
+      isbns.zip image_urls, titles, authors, published_years, ratings
     end
   end
 
@@ -94,7 +94,7 @@ module Goodreads
   end
 
   def get_gender isbnset
-    grouped = isbnset.group_by do |_, _, _, name|
+    grouped = isbnset.group_by do |_, _, _, name, _, _|
       GENDER_DETECTOR.get_gender name.split.first
     end
     count = grouped.transform_values(&:size)
@@ -106,7 +106,11 @@ module Goodreads
   end
 
   def plot_books_over_time isbnset
-    isbnset.map { |_, _, title, _, year| [title, Integer(year)] if year }.compact
+    isbnset.map { |_, _, title, _, year, _| [title, Integer(year)] unless year.empty? }.compact
+  end
+
+  def rating_stats isbnset
+    isbnset.group_by { |_, _, _, _, _, rating| rating.to_i }.transform_values(&:size)
   end
 
   def fetch_book_data isbn

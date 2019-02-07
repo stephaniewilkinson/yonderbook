@@ -98,6 +98,7 @@ class App < Roda
           r.get true do
             @women, @men, @andy = Goodreads.get_gender @book_info
             @histogram_dataset = Goodreads.plot_books_over_time @book_info
+            @ratings = Goodreads.rating_stats @book_info
 
             view 'shelves/show'
           end

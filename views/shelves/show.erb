@@ -1,31 +1,45 @@
-<h4 class="white-text">Your "<%= @shelf_name %>" shelf</h4>
-<h5>By Year</h5>
-<div id="histogram" style="height: 800px;"></div>
-<h5>By Gender</h5>
-<div id="donutchart" style="height: 600px;"></div>
+<div class="row">
+  <h4 class="white-text">Your <%= @shelf_name %> shelf</h4>
+</div>
+
+<div class="row">
+  <h5>By Year</h5>
+  <div style="width: 100%; height: 50rem" id="histogram">
+  </div>
+</div>
+
+<div class="row">
+  <h5>By Gender</h5>
+  <div id="sexchart" style="height: 600px;"></div>
+</div>
+
+<div class="row">
+  <h5>By Rating</h5>
+  <div id="pieratings" style="height: 600px;"></div>
+</div>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
   google.charts.load("current", {packages:["corechart"]});
   google.charts.setOnLoadCallback(drawChart);
-  const women = <%= @women %>;
-  const men = <%= @men %>;
-  const andy = <%= @andy %>;
+
   function drawChart() {
     var data = google.visualization.arrayToDataTable([
       ['Gender', 'Count'],
-      ['Women',     women],
-      ['Men',      men],
-      ['Unknown',  andy]
+      ['Women',     <%= @women %>],
+      ['Men',      <%= @men %>],
+      ['Unknown',  <%= @andy %>]
     ]);
 
     var options = {
       pieHole: 0.4,
       colors: ['#228d8d', '#A86B8A', 'gray'],
-      fontName: "inherit"
+      fontName: "inherit",
+      pieSliceText: 'label',
+      title: 'Genders of the authors on this shelf',
     };
 
-    var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+    var chart = new google.visualization.PieChart(document.getElementById('sexchart'));
     chart.draw(data, options);
   }
 </script>
@@ -50,6 +64,32 @@
     };
 
     var chart = new google.visualization.Histogram(document.getElementById('histogram'));
+    chart.draw(data, options);
+  }
+</script>
+
+<script type="text/javascript">
+  google.charts.load("current", {packages:["corechart"]});
+  google.charts.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable([
+      ['Rating', 'Count'],
+      ['Unrated',     <%= @ratings[0]  || 0 %>],
+      ['1 Star',     <%= @ratings[1]  || 0 %>],
+      ['2 Stars',     <%= @ratings[2]  || 0 %>],
+      ['3 Stars',     <%= @ratings[3]  || 0 %>],
+      ['4 Stars',     <%= @ratings[4]  || 0 %>],
+      ['5 Stars',     <%= @ratings[5]  || 0 %>]
+    ]);
+
+    var options = {
+      pieHole: 0.4,
+      fontName: "inherit",
+      pieSliceText: 'label',
+      title: 'Ratings you gave books on this shelf',
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('pieratings'));
     chart.draw(data, options);
   }
 </script>
