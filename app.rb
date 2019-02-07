@@ -32,26 +32,6 @@ class App < Roda
 
   compile_assets
 
-  def fetch_access_token
-    cached_token = Cache.get session, :access_token
-    return cached_token if cached_token
-
-    request_token = Cache.get session, :request_token
-    access_token = request_token.get_access_token
-
-    Cache.set session, access_token: access_token
-    access_token
-  end
-
-  def fetch_request_token
-    cached_token = Cache.get session, :request_token
-    return cached_token if cached_token
-
-    token = Auth.fetch_request_token
-    Cache.set session, request_token: token
-    token
-  end
-
   route do |r|
     r.public
     r.assets
@@ -62,10 +42,12 @@ class App < Roda
     session['session_id'] ||= SecureRandom.uuid
 
     r.root do
-      @auth_url = fetch_request_token.authorize_url
+      request_token = Auth.fetch_request_token
+      Cache.set session, request_token: request_token
 
       # route: GET /
       r.get true do
+        @auth_url = request_token.authorize_url
         view 'welcome'
       end
     end
@@ -73,7 +55,9 @@ class App < Roda
     r.on 'login' do
       # route: GET /login
       r.get do
-        goodreads_user_id = Goodreads.fetch_user fetch_access_token
+        request_token = Cache.get session, :request_token
+
+        goodreads_user_id = Goodreads.fetch_user request_token
         session['goodreads_user_id'] = goodreads_user_id
         r.redirect '/auth/shelves'
       end
@@ -105,7 +89,8 @@ class App < Roda
 
           @book_info = Cache.get session, @shelf_name.to_sym
           unless @book_info
-            @book_info = Goodreads.get_books @shelf_name, @goodreads_user_id, fetch_access_token
+            access_token = Auth.rebuild_access_token @user
+            @book_info = Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
             Cache.set session, @shelf_name.to_sym => @book_info
           end
 
