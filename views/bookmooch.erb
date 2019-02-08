@@ -14,10 +14,10 @@
     <% @books_added.each do |book| %>
       <div class="card hoverable">
         <div class="card-image">
-          <img src="<%= book[1] %>">
+          <img src="<%= book[:image_url] %>">
         </div>
         <div class="card-content">
-          <small><%= book[0] %></small>
+          <small><%= book[:title] %></small>
         </div>
       </div>
     <% end %>
@@ -31,10 +31,10 @@
     <% @books_failed.each do |book| %>
       <div class="card hoverable">
         <div class="card-image">
-          <img src="<%= book[1] %>">
+          <img src="<%= book[:image_url] %>">
         </div>
         <div class="card-content">
-          <small><%= book[0] %></small>
+          <small><%= book[:title] %></small>
         </div>
       </div>
     <% end %>

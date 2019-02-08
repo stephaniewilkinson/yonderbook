@@ -66,11 +66,11 @@ module Goodreads
   def get_book_details requests
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
-      data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text) }.transpose
+      data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text).grep_v(/\A\n\z/) }.transpose
 
       data.map do |isbn, image_url, title, author, published_year, rating|
         {
-          isbn: isbn, image_url: image_url.chomp, title: title,
+          isbn: isbn, image_url: image_url, title: title,
           author: author, published_year: published_year, ratings: rating
         }
       end

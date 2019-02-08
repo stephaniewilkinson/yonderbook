@@ -9,7 +9,7 @@ module Bookmooch
 
   def books_added_and_failed isbns_and_image_urls, username, password
     hydra = Typhoeus::Hydra.new(max_concurrency: 200)
-    isbn_batches = isbns_and_image_urls.map(&:first).reject(&:empty?).each_slice(300).map { |isbns| isbns.join('+') }
+    isbn_batches = isbns_and_image_urls.map { |h| h[:isbn] }.reject(&:empty?).each_slice(300).map { |isbns| isbns.join('+') }
 
     requests = isbn_batches.map do |isbn_batch|
       params = {asins: isbn_batch, target: 'wishlist', action: 'add'}
@@ -25,6 +25,6 @@ module Bookmooch
       request.response.body.lines(chomp: true)
     end
 
-    isbns_and_image_urls.partition { |isbn, _, _| added_isbns.include? isbn }
+    isbns_and_image_urls.partition { |h| added_isbns.include? h[:isbn] }
   end
 end

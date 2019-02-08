@@ -117,12 +117,12 @@ class Overdrive
     hydra = Typhoeus::Hydra.new
 
     books = @book_info.map do |book|
-      params = URI.encode_www_form minimum: false, q: "\"#{book[2]}\""
+      params = URI.encode_www_form minimum: false, q: "\"#{book[:title]}\""
       availability_url = "#{Overdrive::API_URI}/collections/#{@collection_token}/products?#{params}"
 
-      title = Title.new isbn: book[0],
-                        image: book[1],
-                        title: book[2],
+      title = Title.new isbn: book[:isbn],
+                        image: book[:image_url],
+                        title: book[:title],
                         copies_available: 0,
                         copies_owned: 0
 
