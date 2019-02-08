@@ -18,7 +18,6 @@ module Goodreads
 
   module_function
 
-  # TODO: Make a book struct pls?
   def new_uri
     URI::HTTPS.build host: HOST
   end
