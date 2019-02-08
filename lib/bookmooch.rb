@@ -15,6 +15,7 @@ module Bookmooch
       params = {asins: isbn_batch, target: 'wishlist', action: 'add'}
       request = Typhoeus::Request.new "#{BASE_URL}/api/userbook", params: params, username: username, password: password
       hydra.queue request
+
       request
     end
 
