@@ -10,14 +10,14 @@ class Overdrive
   KEY        = ENV.fetch 'OVERDRIVE_KEY'
   SECRET     = ENV.fetch 'OVERDRIVE_SECRET'
 
-  Title = Struct.new :title, \
-                     :image, \
-                     :copies_available, \
-                     :copies_owned, \
-                     :isbn, \
-                     :url, \
-                     :id, \
-                     :availability_url, \
+  Title = Struct.new :title,
+                     :image,
+                     :copies_available,
+                     :copies_owned,
+                     :isbn,
+                     :url,
+                     :id,
+                     :availability_url,
                      keyword_init: true
 
   class << self
