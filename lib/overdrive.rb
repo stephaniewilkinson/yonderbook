@@ -34,8 +34,8 @@ class Overdrive
     end
   end
 
-  def initialize isbnset, consortium_id
-    @book_info = isbnset
+  def initialize book_info, consortium_id
+    @book_info = book_info
     @token = token
     @collection_token = collection_token consortium_id, @token
     @books = create_books_with_overdrive_info

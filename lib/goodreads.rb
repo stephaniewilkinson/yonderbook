@@ -14,6 +14,7 @@ module Goodreads
   HOST = 'www.goodreads.com'
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
   USERS = DB[:users]
+  BOOK_DETAILS = %w[isbn book/image_url title authors/author/name published rating].freeze
 
   module_function
 
@@ -63,17 +64,16 @@ module Goodreads
   end
 
   def get_book_details requests
-    # TODO: make this a hash instead of array
     requests.flat_map do |request|
       doc = Nokogiri::XML request.response.body
-      isbns = doc.xpath('//isbn').map(&:text)
-      image_urls = doc.xpath('//book/image_url').map(&:text).grep_v(/\A\n\z/)
-      titles = doc.xpath('//title').map(&:text)
-      authors = doc.xpath('//authors/author/name').map(&:text)
-      published_years = doc.xpath('//published').map(&:text)
-      ratings = doc.xpath('//rating').map(&:text)
+      data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text) }.transpose
 
-      isbns.zip image_urls, titles, authors, published_years, ratings
+      data.map do |isbn, image_url, title, author, published_year, rating|
+        {
+          isbn: isbn, image_url: image_url.chomp, title: title,
+          author: author, published_year: published_year, ratings: rating
+        }
+      end
     end
   end
 
@@ -94,9 +94,9 @@ module Goodreads
     user_id
   end
 
-  def get_gender isbnset
-    grouped = isbnset.group_by do |_, _, _, name, _, _|
-      GENDER_DETECTOR.get_gender name.split.first
+  def get_gender books
+    grouped = books.group_by do |book|
+      GENDER_DETECTOR.get_gender book.fetch(:title).split.first
     end
     count = grouped.transform_values(&:size)
     mostly_female = count.values_at(:female, :mostly_female).compact.sum
@@ -106,12 +106,12 @@ module Goodreads
     [mostly_female, mostly_male, androgynous]
   end
 
-  def plot_books_over_time isbnset
-    isbnset.map { |_, _, title, _, year, _| [title, Integer(year)] unless year.empty? }.compact
+  def plot_books_over_time books
+    books.map { |book| [book[:title], Integer(book[:published_year])] unless book[:published_year].empty? }.compact
   end
 
-  def rating_stats isbnset
-    isbnset.group_by { |_, _, _, _, _, rating| rating.to_i }.transform_values(&:size)
+  def rating_stats books
+    books.group_by { |book| book[:rating].to_i }.transform_values(&:size)
   end
 
   def fetch_book_data isbn
