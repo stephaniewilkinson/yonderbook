@@ -288,6 +288,7 @@ class App < Roda
     end
   rescue OAuth::Unauthorized, StandardError, ScriptError => e
     raise e unless RACK_ENV == 'production'
+
     r.redirect '/'
   end
 end
