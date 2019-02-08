@@ -13,7 +13,7 @@ module Goodreads
   GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
-  @users = DB[:users]
+  USERS = DB[:users]
 
   module_function
 
@@ -86,10 +86,10 @@ module Goodreads
     user_id = xml.xpath('//user').first.attributes.first[1].value
     name = xml.xpath('//user').first.children[1].children.text
 
-    if @users.first(goodreads_user_id: user_id)
-      @users.where(goodreads_user_id: user_id).update(access_token: access_token.token, access_token_secret: access_token.secret)
+    if USERS.first(goodreads_user_id: user_id)
+      USERS.where(goodreads_user_id: user_id).update(access_token: access_token.token, access_token_secret: access_token.secret)
     else
-      @users.insert(first_name: name, goodreads_user_id: user_id, access_token: access_token.token, access_token_secret: access_token.secret)
+      USERS.insert(first_name: name, goodreads_user_id: user_id, access_token: access_token.token, access_token_secret: access_token.secret)
     end
     user_id
   end

@@ -1,6 +1,6 @@
 <h4 class="white-text">Your <em><%= @shelf_name %></em> shelf</h4>
 <h5>
-  There are <%= @histogram_dataset.map(&:last).group_by { |n| n }.values.max_by(&:size).count %> books from <%= @histogram_dataset.map(&:last).group_by { |n| n }.values.max_by(&:size).first %> on this shelf, more than any other year.
+  There are <%= @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size).count %> books from <%= @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size).first %> on this shelf, more than any other year.
   <p></p>
 </h5>
 <div style="width: 100%; height: 50rem" id="histogram"></div>
@@ -21,14 +21,14 @@
   function drawChart() {
     var data = google.visualization.arrayToDataTable([
       ['Gender', 'Count'],
-      ['Women',     <%= @women %>],
-      ['Men',      <%= @men %>],
-      ['Unknown',  <%= @andy %>]
+      ['Women', <%= @women %>],
+      ['Men', <%= @men %>],
+      ['Unknown', <%= @andy %>]
     ]);
 
     var options = {
       pieHole: 0.4,
-      colors: ['#228d8d', '#A86B8A', 'gray'],
+      colors: ['#228d8d', '#a86b8a', '#808080'],
       fontName: "inherit",
       pieSliceText: 'label',
       is3D: true,
@@ -74,12 +74,12 @@
   function drawChart() {
     var data = google.visualization.arrayToDataTable([
       ['Rating', 'Count'],
-      ['Unrated',     <%= @ratings[0]  || 0 %>],
-      ['1 Star',     <%= @ratings[1]  || 0 %>],
-      ['2 Stars',     <%= @ratings[2]  || 0 %>],
-      ['3 Stars',     <%= @ratings[3]  || 0 %>],
-      ['4 Stars',     <%= @ratings[4]  || 0 %>],
-      ['5 Stars',     <%= @ratings[5]  || 0 %>]
+      ['Unrated', <%= @ratings.fetch 0, 0 %>],
+      ['1 Star',  <%= @ratings.fetch 1, 0 %>],
+      ['2 Stars', <%= @ratings.fetch 2, 0 %>],
+      ['3 Stars', <%= @ratings.fetch 3, 0 %>],
+      ['4 Stars', <%= @ratings.fetch 4, 0 %>],
+      ['5 Stars', <%= @ratings.fetch 5, 0 %>]
     ]);
 
     var options = {
@@ -88,7 +88,7 @@
       pieSliceText: 'label',
       is3D: true,
       title: 'How you rated books on your <%= @shelf_name %> shelf',
-      colors: ['gray', '#228d8d', '#A86B8A', '51767e', 'ee7283', 'e6a189',  '9d6f7b'],
+      colors: ['#808080', '#228d8d', '#a86b8a', '51767e', 'ee7283', 'e6a189', '9d6f7b'],
       backgroundColor: { fill:'transparent' },
       // chartArea:{top:0,},
     };

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'tuple_space'
+
 module Cache
   CACHE = TupleSpace.new
 
