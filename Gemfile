@@ -31,6 +31,7 @@ end
 group :development, :test do
   gem 'pry'
   gem 'rubocop'
+  gem 'rubocop-performance'
 end
 
 group :test do

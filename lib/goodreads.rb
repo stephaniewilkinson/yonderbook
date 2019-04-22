@@ -69,8 +69,12 @@ module Goodreads
 
       data.map do |isbn, image_url, title, author, published_year, rating|
         {
-          isbn: isbn, image_url: image_url, title: title,
-          author: author, published_year: published_year, ratings: rating
+          isbn: isbn,
+          image_url: image_url,
+          title: title,
+          author: author,
+          published_year: published_year,
+          ratings: rating
         }
       end
     end
