@@ -36,7 +36,7 @@ end
 
 group :test do
   gem 'capybara-selenium'
-  gem 'chromedriver-helper', '~> 1.0'
+  gem 'chromedriver-helper', '~> 2.1'
   gem 'minitest'
   gem 'minitest-capybara'
   gem 'rack-test'
