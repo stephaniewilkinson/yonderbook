@@ -61,7 +61,7 @@ GEM
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
     parallel (1.17.0)
-    parser (2.6.2.1)
+    parser (2.6.3.0)
       ast (~> 2.4.0)
     pg (1.1.4)
     pry (0.12.2)
