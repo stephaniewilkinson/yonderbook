@@ -52,6 +52,7 @@ describe App do
     assert_text 'The New Coffeehouse Investor'
     click_on 'Shelves'
     find("a[href='#modal-didn-t-want-to-finish']").click
+    sleep 1
     click_link 'By Mail'
     fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
     fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')

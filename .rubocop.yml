@@ -464,6 +464,9 @@ Style/HashSyntax:
 Style/ImplicitRuntimeError:
   Enabled: false
 
+Style/InlineComment:
+  Enabled: false
+
 Style/Lambda:
   EnforcedStyle: literal
   SupportedStyles:
