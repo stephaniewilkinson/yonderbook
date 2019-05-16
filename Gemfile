@@ -36,10 +36,10 @@ end
 
 group :test do
   gem 'capybara-selenium'
-  gem 'chromedriver-helper', '~> 1.0'
   gem 'minitest'
   gem 'minitest-capybara'
   gem 'rack-test'
+  gem 'webdrivers', '~> 3.0' # remove pin after fixing warning in the terminal
 end
 
 group :production do
