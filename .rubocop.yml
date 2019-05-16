@@ -87,7 +87,7 @@ Layout/ExtraSpacing:
   AllowForAlignment: true
   ForceEqualSignAlignment: false
 
-Layout/FirstParameterIndentation:
+Layout/IndentFirstArgument:
   EnforcedStyle: special_for_inner_method_call_in_parentheses
   SupportedStyles:
     - consistent
@@ -104,7 +104,7 @@ Layout/IndentationWidth:
   Width: 2
   IgnoredPatterns: []
 
-Layout/IndentArray:
+Layout/IndentFirstArrayElement:
   EnforcedStyle: consistent
   SupportedStyles:
     - special_inside_parentheses
@@ -115,22 +115,13 @@ Layout/IndentArray:
 Layout/IndentAssignment:
   IndentationWidth: ~
 
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
   EnforcedStyle: consistent
   SupportedStyles:
     - special_inside_parentheses
     - consistent
     - align_braces
   IndentationWidth: ~
-
-Layout/IndentHeredoc:
-  EnforcedStyle: auto_detection
-  SupportedStyles:
-    - auto_detection
-    - squiggly
-    - active_support
-    - powerpack
-    - unindent
 
 Layout/MultilineArrayBraceLayout:
   EnforcedStyle: symmetrical
