@@ -29,7 +29,7 @@ GEM
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
-    ffi (1.10.0)
+    ffi (1.11.0)
     gender_detector (2.0.0)
     i18n (1.6.0)
       concurrent-ruby (~> 1.0)
