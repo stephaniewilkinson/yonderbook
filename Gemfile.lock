@@ -112,7 +112,7 @@ GEM
       ethon (>= 0.9.0)
     unicode-display_width (1.6.0)
     unicode_utils (1.4.0)
-    webdrivers (3.9.2)
+    webdrivers (3.9.3)
       nokogiri (~> 1.6)
       rubyzip (~> 1.0)
       selenium-webdriver (~> 3.0)
@@ -152,7 +152,7 @@ DEPENDENCIES
   tilt
   typhoeus
   unicode_utils
-  webdrivers (~> 3.0)
+  webdrivers (~> 3.9)
   zbar
 
 RUBY VERSION
