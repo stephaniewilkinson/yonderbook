@@ -27,7 +27,7 @@ GEM
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
-    ffi (1.11.0)
+    ffi (1.11.1)
     gender_detector (2.0.0)
     i18n (1.6.0)
       concurrent-ruby (~> 1.0)
@@ -78,7 +78,7 @@ GEM
       rack
     roda-route_list (2.1.0)
       roda
-    rollbar (2.19.3)
+    rollbar (2.20.0)
       multi_json
     rubocop (0.69.0)
       jaro_winkler (~> 1.5.1)
