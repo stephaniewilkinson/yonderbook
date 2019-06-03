@@ -9,7 +9,7 @@ require 'rollbar/middleware/rack'
 require 'securerandom'
 require 'tilt'
 require 'zbar'
-require 'webdrivers'
+
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
 require_relative 'lib/cache'

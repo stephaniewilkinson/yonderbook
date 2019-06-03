@@ -152,7 +152,7 @@ DEPENDENCIES
   tilt
   typhoeus
   unicode_utils
-  webdrivers (~> 4.0)
+  webdrivers
   zbar
 
 RUBY VERSION
