@@ -39,7 +39,7 @@ group :test do
   gem 'minitest'
   gem 'minitest-capybara'
   gem 'rack-test'
-  gem 'webdrivers', '~> 3.9' # remove pin after fixing warning in the terminal
+  gem 'webdrivers', '~> 4.0' # remove pin after fixing warning in the terminal
 end
 
 group :production do
