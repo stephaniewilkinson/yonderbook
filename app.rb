@@ -42,17 +42,16 @@ class App < Roda
 
     session['session_id'] ||= SecureRandom.uuid
 
+    # route: GET /
     r.root do
       request_token = Auth.fetch_request_token
       Cache.set session, request_token: request_token
-      # route: GET /
-      r.get true do
-        @auth_url = request_token.authorize_url
-        view 'welcome'
-      end
+
+      @auth_url = request_token.authorize_url
+      view 'welcome'
     end
 
-    r.on 'login' do
+    r.is 'login' do
       request_token = Cache.get session, :request_token
       # TODO: this is blocking people who are already logged in but not a huge deal
       unless request_token
@@ -71,7 +70,7 @@ class App < Roda
       end
     end
 
-    r.on 'about' do
+    r.is 'about' do
       # route: GET /about
       r.get do
         view 'about'
@@ -134,7 +133,7 @@ class App < Roda
             end
           end
 
-          r.on 'overdrive' do
+          r.is 'overdrive' do
             # TODO: have browser get their location
             # route: GET /auth/shelves/:id/overdrive
             r.get true do
@@ -151,7 +150,7 @@ class App < Roda
         end
       end
 
-      r.on 'availability' do
+      r.is 'availability' do
         # route: GET /auth/availability
         r.get do
           # TODO: Sort titles by recently added to goodreads list
@@ -170,7 +169,7 @@ class App < Roda
       end
 
       # TODO: add library logos to the cards in the views
-      r.on 'library' do
+      r.is 'library' do
         # route: POST /auth/library?zipcode=90029
         r.post do
           @shelf_name = Cache.get session, :shelf_name
