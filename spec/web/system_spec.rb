@@ -27,7 +27,7 @@ describe App do
     visit '/'
     visit '/auth/shelves'
     click_on 'Log in with goodreads'
-    fill_in 'Email Address', with: ENV.fetch('GOODREADS_EMAIL')
+    fill_in 'Email address', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'Sign in'
     visit '/auth/users/1'
