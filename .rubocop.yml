@@ -348,11 +348,6 @@ Naming/VariableName:
 Naming/VariableNumber:
   EnforcedStyle: snake_case
 
-#################### Rails ################################
-
-Rails:
-  Enabled: false
-
 #################### Styles ################################
 
 Style/Alias:
@@ -416,6 +411,9 @@ Style/ConditionalAssignment:
     - assign_inside_condition
   SingleLineConditionsOnly: true
   IncludeTernaryExpressions: true
+
+Style/ConstantVisibility:
+  Enabled: false
 
 Style/Copyright:
   Enabled: false
