@@ -63,6 +63,7 @@ p,
   -webkit-column-gap: 2em;
   -moz-column-gap: 2em;
   column-gap: 2em;
+  padding-bottom: 2em;
 }
 
 .card {
