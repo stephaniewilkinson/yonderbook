@@ -6,12 +6,12 @@ ruby File.read(File.join(__dir__, '.ruby-version')).chomp.delete_prefix('ruby-')
 
 gem 'area'
 gem 'dotenv'
+gem 'falcon'
 gem 'gender_detector'
 gem 'i18n', '>= 1'
 gem 'nokogiri'
 gem 'oauth'
 gem 'oauth2'
-gem 'puma'
 gem 'rack-host-redirect'
 gem 'rake'
 gem 'roda'
