@@ -1,6 +1,6 @@
 {
   "name": "yonderbook",
-  "scripts": {},
+  "repository": "https://github.com/stephaniewilkinson/yonderbook",
   "env": {
     "GOODREADS_API_KEY": {
       "required": true
