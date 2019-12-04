@@ -15,7 +15,7 @@ Layout/AccessModifierIndentation:
   EnforcedStyle: indent
   IndentationWidth: ~
 
-Layout/AlignHash:
+Layout/HashAlignment:
   EnforcedHashRocketStyle: key
   SupportedHashRocketStyles:
     - key
@@ -33,7 +33,7 @@ Layout/AlignHash:
     - ignore_implicit
     - ignore_explicit
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   EnforcedStyle: with_first_parameter
   SupportedStyles:
     - with_first_parameter
@@ -87,7 +87,7 @@ Layout/ExtraSpacing:
   AllowForAlignment: true
   ForceEqualSignAlignment: false
 
-Layout/IndentFirstArgument:
+Layout/FirstArgumentIndentation:
   EnforcedStyle: special_for_inner_method_call_in_parentheses
   SupportedStyles:
     - consistent
@@ -104,7 +104,7 @@ Layout/IndentationWidth:
   Width: 2
   IgnoredPatterns: []
 
-Layout/IndentFirstArrayElement:
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
   SupportedStyles:
     - special_inside_parentheses
@@ -112,10 +112,7 @@ Layout/IndentFirstArrayElement:
     - align_brackets
   IndentationWidth: ~
 
-Layout/IndentAssignment:
-  IndentationWidth: ~
-
-Layout/IndentFirstHashElement:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
   SupportedStyles:
     - special_inside_parentheses
@@ -237,7 +234,7 @@ Layout/SpaceInsideStringInterpolation:
     - space
     - no_space
 
-Layout/TrailingBlankLines:
+Layout/TrailingEmptyLines:
   EnforcedStyle: final_newline
   SupportedStyles:
     - final_newline
@@ -272,7 +269,7 @@ Lint/NumberConversion:
   Enabled: false
 
 Lint/SafeNavigationChain:
-  Whitelist:
+  AllowedMethods:
     - present?
     - blank?
     - presence
@@ -332,11 +329,11 @@ Naming/PredicateName:
     - is_
     - has_
     - have_
-  NamePrefixBlacklist:
+  ForbiddenPrefixes:
     - is_
     - has_
     - have_
-  NameWhitelist:
+  NameAllowedMethods:
     - is_a
 
 Naming/VariableName:
@@ -526,7 +523,7 @@ Style/TrivialAccessors:
 
   AllowDSLWriters: false
   IgnoreClassMethods: false
-  Whitelist:
+  AllowedMethods:
     - to_ary
     - to_a
     - to_c
