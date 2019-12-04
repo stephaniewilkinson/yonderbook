@@ -2,7 +2,6 @@
 
 ENV['RACK_ENV'] = 'test'
 
-require 'capybara/rspec'
 require 'dotenv/load'
 require 'falcon/capybara'
 require 'logger'
