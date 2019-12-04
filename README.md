@@ -7,8 +7,8 @@
 ## Installation
 
 ```
-git clone git@github.com:stephaniewilkinson/bookmooch.git
-cd bookmooch
+git clone git@github.com:stephaniewilkinson/yonderbook.git
+cd yonderbook
 cp .env-example .env # if you msg me I can share my api keys
 rake db:create
 rake db:migrate
