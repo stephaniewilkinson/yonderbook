@@ -8,24 +8,24 @@ require 'minitest/autorun'
 require 'minitest/capybara'
 require 'minitest/pride'
 require 'rack/test'
-require 'webdrivers/chromedriver'
+require 'webdrivers/geckodriver'
 require_relative '../../app'
 
 Capybara.app = App
-Capybara.register_driver :chrome do |app|
-  Capybara::Selenium::Driver.new app, browser: :chrome
+Capybara.register_driver :firefox do |app|
+  Capybara::Selenium::Driver.new app, browser: :firefox
 end
 
-Capybara.register_driver :headless_chrome do |app|
+Capybara.register_driver :headless_firefox do |app|
   Capybara::Selenium::Driver.new app,
-                                 browser: :chrome
+                                 browser: :firefox
 end
 
-Capybara.javascript_driver = :chrome
+Capybara.javascript_driver = :firefox
 
 Capybara.configure do |config|
   config.run_server = true
   config.server_port = 9292
-  config.default_driver = :chrome
+  config.default_driver = :firefox
   config.app_host = 'http://localhost:9292'
 end

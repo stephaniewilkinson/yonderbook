@@ -11,19 +11,19 @@ end
 
 namespace :db do
   task :create_user do
-    sh 'createuser -U postgres bookmooch || true'
+    sh 'createuser -U postgres yonderbook || true'
   end
 
   desc 'Setup development and test databases'
   task create: %i[create_user] do
-    sh 'createdb -U postgres -O bookmooch bookmooch_development'
-    sh 'createdb -U postgres -O bookmooch bookmooch_test'
+    sh 'createdb -U postgres -O yonderbook yonderbook_development'
+    sh 'createdb -U postgres -O yonderbook yonderbook_test'
   end
 
   desc 'Drop the development and test databases'
   task :drop do
-    sh 'dropdb bookmooch_development'
-    sh 'dropdb bookmooch_test'
+    sh 'dropdb yonderbook_development'
+    sh 'dropdb yonderbook_test'
   end
 
   desc 'Migrate development and test databases'
