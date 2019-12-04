@@ -1,0 +1,38 @@
+{
+  "name": "yonderbook",
+  "scripts": {},
+  "env": {
+    "GOODREADS_API_KEY": {
+      "required": true
+    },
+    "GOODREADS_SECRET": {
+      "required": true
+    },
+    "OVERDRIVE_KEY": {
+      "required": true
+    },
+    "OVERDRIVE_SECRET": {
+      "required": true
+    },
+    "SESSION_SECRET": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+    "sendgrid"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/sheck/heroku-buildpack-zbar"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-ruby.git"
+    },
+  ],
+  "stack": "heroku-18"
+}
