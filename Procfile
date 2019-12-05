@@ -1,1 +1,1 @@
-web: falcon
+web: falcon -p "$PORT"
