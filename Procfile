@@ -1,1 +1,1 @@
-web: falcon --threaded -n4 -p "$PORT"
+web: falcon --threaded --count 4 -p "$PORT"
