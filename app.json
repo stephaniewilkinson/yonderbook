@@ -17,14 +17,5 @@
     "SESSION_SECRET": {
       "required": true
     }
-  },
-  "buildpacks": [
-    {
-      "url": "https://github.com/sheck/heroku-buildpack-zbar"
-    },
-    {
-      "url": "https://github.com/heroku/heroku-buildpack-ruby.git"
-    },
-  ],
-  "stack": "heroku-18"
+  }
 }
