@@ -1,1 +1,1 @@
-web: bundle exec falcon serve —-hostname 0.0.0.0 --threaded --count 4 --port "$PORT"
+web: bundle exec falcon serve —-bind "0.0.0.0:$PORT" --threaded --count 4
