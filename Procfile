@@ -1,1 +1,1 @@
-web: falcon serve —h "0.0.0.0" -p "$PORT" --threaded -n 4
+web: falcon serve --threaded -n 4 -h "0.0.0.0" -p "$PORT"
