@@ -3,12 +3,14 @@
 ENV['RACK_ENV'] = 'test'
 
 require 'dotenv/load'
+require 'falcon/capybara'
 require 'logger'
 require 'minitest/autorun'
 require 'minitest/capybara'
 require 'minitest/pride'
 require 'rack/test'
 require 'webdrivers/geckodriver'
+
 require_relative '../../app'
 
 Capybara.app = App
@@ -24,6 +26,7 @@ end
 Capybara.javascript_driver = :firefox
 
 Capybara.configure do |config|
+  config.server = :falcon
   config.run_server = true
   config.server_port = 9292
   config.default_driver = :firefox

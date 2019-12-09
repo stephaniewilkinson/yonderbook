@@ -12,8 +12,11 @@ cd yonderbook
 cp .env-example .env # if you msg me I can share my api keys
 rake db:create
 rake db:migrate
-rackup
 ```
+
+## Start the Server
+`falcon`
+
 
 ## Testing
 
@@ -26,3 +29,11 @@ TODO: Link back to the page on Goodreads where the data data appears. For instan
 ## Routing
 
 This app uses the [roda-route-list plugin.](https://github.com/jeremyevans/roda-route_list) This makes all the routes available in a /routes.json file.
+
+## Creating a self-signed certificate
+
+```
+openssl req -x509 -out localhost.crt -keyout localhost.key \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj '/CN=localhost' -extensions EXT -config <( \
+   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")

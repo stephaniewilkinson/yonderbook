@@ -8,7 +8,7 @@ require 'roda'
 require 'rollbar/middleware/rack'
 require 'securerandom'
 require 'tilt'
-require 'zbar'
+# require 'zbar'
 
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
