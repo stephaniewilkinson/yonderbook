@@ -21,7 +21,6 @@ gem 'sendgrid-ruby'
 gem 'sequel'
 gem 'sequel_pg'
 gem 'tilt'
-gem 'typhoeus'
 gem 'unicode_utils'
 gem 'zbar'
 
