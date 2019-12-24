@@ -5,6 +5,7 @@ source 'https://rubygems.org'
 ruby File.read(File.join(__dir__, '.ruby-version')).chomp.delete_prefix('ruby-')
 
 gem 'area'
+gem 'async-http'
 gem 'dotenv'
 gem 'falcon'
 gem 'falcon-capybara'

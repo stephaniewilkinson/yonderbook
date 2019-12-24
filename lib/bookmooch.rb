@@ -1,30 +1,51 @@
 # frozen_string_literal: true
 
-require 'typhoeus'
+require 'async'
+require 'async/barrier'
+require 'async/http/client'
+require 'async/http/endpoint'
+require 'base64'
+require 'uri'
 
 module Bookmooch
   BASE_URL = 'http://api.bookmooch.com'
+  PATH = '/api/userbook'
 
   module_function
 
   def books_added_and_failed isbns_and_image_urls, username, password
-    hydra = Typhoeus::Hydra.new(max_concurrency: 200)
-    isbn_batches = isbns_and_image_urls.map { |h| h[:isbn] }.reject(&:empty?).each_slice(300).map { |isbns| isbns.join('+') }
+    isbns = isbns_and_image_urls.map { |h| h[:isbn] }.reject(&:empty?)
+    isbn_batches = isbns.each_slice(300).map { |isbn_batch| isbn_batch.join('+') }
 
-    requests = isbn_batches.map do |isbn_batch|
-      params = {asins: isbn_batch, target: 'wishlist', action: 'add'}
-      request = Typhoeus::Request.new "#{BASE_URL}/api/userbook", params: params, username: username, password: password
-      hydra.queue request
+    task = Async do
+      endpoint = Async::HTTP::Endpoint.parse(BASE_URL)
+      client = Async::HTTP::Client.new(endpoint)
+      barrier = Async::Barrier.new
 
-      request
+      basic_auth_credentials = Base64.strict_encode64 "#{username}:#{password}"
+      headers = {'Authorization' => "Basic #{basic_auth_credentials}"}
+
+      added_isbns = []
+
+      isbn_batches.each do |isbn_batch|
+        params = URI.encode_www_form(asins: isbn_batch, target: 'wishlist', action: 'add')
+        path = "#{PATH}?#{params}"
+
+        barrier.async do
+          response = client.get path, headers
+          response.read.lines(chomp: true).each do |isbn|
+            added_isbns << isbn
+          end
+        end
+      end
+
+      barrier.wait
+
+      added_isbns
+    ensure
+      client&.close
     end
 
-    hydra.run
-
-    added_isbns = requests.flat_map do |request|
-      request.response.body.lines(chomp: true)
-    end
-
-    isbns_and_image_urls.partition { |h| added_isbns.include? h[:isbn] }
+    isbns_and_image_urls.partition { |h| task.wait.include? h[:isbn] }
   end
 end

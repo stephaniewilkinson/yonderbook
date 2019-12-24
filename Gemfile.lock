@@ -163,6 +163,7 @@ PLATFORMS
 
 DEPENDENCIES
   area
+  async-http
   capybara-selenium
   dotenv
   falcon
