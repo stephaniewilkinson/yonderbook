@@ -305,11 +305,11 @@ Metrics/ClassLength:
 Metrics/CyclomaticComplexity:
   Max: 20
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 160
 
 Metrics/ModuleLength:
-  Max: 110
+  Max: 150
 
 Metrics/MethodLength:
   CountComments: false
@@ -333,7 +333,7 @@ Naming/PredicateName:
     - is_
     - has_
     - have_
-  NameAllowedMethods:
+  AllowedMethods:
     - is_a
 
 Naming/VariableName:

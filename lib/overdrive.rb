@@ -101,29 +101,7 @@ class Overdrive
     books_with_ids = @books.map(&:first).select(&:id)
     batches = books_with_ids.map(&:id).each_slice(25)
 
-    task = Async do
-      endpoint = Async::HTTP::Endpoint.parse(BASE_URL)
-      client = Async::HTTP::Client.new(endpoint)
-      barrier = Async::Barrier.new
-
-      responses = []
-
-      batches.each do |batch|
-        path = "/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
-
-        barrier.async do
-          response = client.get path, 'Authorization' => "Bearer #{@token}"
-          responses << response
-        end
-      end
-
-      barrier.wait
-
-      responses
-    end
-
-    responses = task.wait
-
+    responses = async_responses(batches).wait
     responses.each_with_index do |response, i|
       body = JSON.parse response.read
 
@@ -174,5 +152,30 @@ class Overdrive
     end
 
     task.wait
+  end
+
+  private
+
+  def async_responses batches
+    Async do
+      endpoint = Async::HTTP::Endpoint.parse(BASE_URL)
+      client = Async::HTTP::Client.new(endpoint)
+      barrier = Async::Barrier.new
+
+      responses = []
+
+      batches.each do |batch|
+        path = "/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
+
+        barrier.async do
+          response = client.get path, 'Authorization' => "Bearer #{@token}"
+          responses << response
+        end
+      end
+
+      barrier.wait
+
+      responses
+    end
   end
 end

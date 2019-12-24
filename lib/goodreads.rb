@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 require 'async'
 require 'async/barrier'
 require 'async/http/client'
