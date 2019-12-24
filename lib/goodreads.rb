@@ -35,7 +35,10 @@ module Goodreads
       internet = Async::HTTP::Internet.new
       response = internet.get uri.to_s
       response.read
+    ensure
+      internet&.close
     end
+
     doc = Nokogiri::XML task.wait
     shelf_names = doc.xpath('//shelves//name').children.to_a
     shelf_books = doc.xpath('//shelves//book_count').children.map(&:to_s).map(&:to_i)
@@ -53,16 +56,12 @@ module Goodreads
   end
 
   def get_requests uri, number_of_pages, access_token
-    task = Async do
+    get_bodies = Async do
       endpoint = Async::HTTP::Endpoint.parse(uri)
       client = Async::HTTP::Client.new(endpoint)
       barrier = Async::Barrier.new
 
-      status = Async do
-        client.head(uri)
-      end
-
-      if status.wait == 200
+      if client.head(uri).status == 200
         bodies = []
 
         1.upto(number_of_pages).each do |page|
@@ -80,9 +79,11 @@ module Goodreads
           access_token.get("#{uri}&page=#{page}").response.body
         end
       end
+    ensure
+      client&.close
     end
 
-    task.wait
+    get_bodies.wait
   end
 
   def get_book_details bodies
@@ -160,6 +161,8 @@ module Goodreads
       else
         [:error, response_code]
       end
+    ensure
+      internet&.close
     end
 
     task.wait

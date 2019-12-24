@@ -34,6 +34,8 @@ class Overdrive
 
         response = internet.get "#{MAPBOX_URI}?#{params}"
         response.read
+      ensure
+        internet&.close
       end
 
       libraries = JSON.parse task.wait
@@ -67,6 +69,8 @@ class Overdrive
       internet = Async::HTTP::Internet.new
       response = internet.get(library_uri, 'Authorization' => "Bearer #{token}")
       response.read
+    ensure
+      internet&.close
     end
 
     body = JSON.parse task.wait
@@ -149,6 +153,8 @@ class Overdrive
       barrier.wait
 
       books
+    ensure
+      client&.close
     end
 
     task.wait
@@ -176,6 +182,8 @@ class Overdrive
       barrier.wait
 
       responses
+    ensure
+      client&.close
     end
   end
 end

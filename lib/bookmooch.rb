@@ -17,7 +17,7 @@ module Bookmooch
     isbns = isbns_and_image_urls.map { |h| h[:isbn] }.reject(&:empty?)
     isbn_batches = isbns.each_slice(300).map { |isbn_batch| isbn_batch.join('+') }
 
-    task = Async do
+    async_isbns = Async do
       endpoint = Async::HTTP::Endpoint.parse(BASE_URL)
       client = Async::HTTP::Client.new(endpoint)
       barrier = Async::Barrier.new
@@ -46,6 +46,6 @@ module Bookmooch
       client&.close
     end
 
-    isbns_and_image_urls.partition { |h| task.wait.include? h[:isbn] }
+    isbns_and_image_urls.partition { |h| async_isbns.wait.include? h[:isbn] }
   end
 end
