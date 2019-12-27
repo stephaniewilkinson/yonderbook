@@ -53,7 +53,7 @@ class Overdrive
     @book_info = book_info
     @token = token
     @collection_token = collection_token consortium_id, @token
-    @books = create_books_with_overdrive_info
+    @books = async_books_with_overdrive_info.wait
   end
 
   def token
@@ -106,12 +106,12 @@ class Overdrive
     batches = books_with_ids.map(&:id).each_slice(25)
 
     responses = async_responses(batches).wait
-    responses.each_with_index do |response, i|
-      body = JSON.parse response.read
+    responses.each.with_index 1 do |(raw_body, status), batch_number|
+      body = JSON.parse raw_body
 
-      if response.status >= 500
-        warn "skipping batch #{i.succ} of #{responses.size} ..."
-        warn "status code: #{body['code']}"
+      if status >= 400
+        warn "skipping batch #{batch_number} of #{responses.size} ..."
+        warn "status code: #{status}"
         warn "body: #{body.inspect}"
         # {"errorCode"=>"InternalError", "message"=>"An unexpected error has occurred.", "token"=>"8b0c9f8c-2c5c-41f4-8b32-907f23baf111"}
         next
@@ -125,10 +125,12 @@ class Overdrive
     end
   end
 
-  def create_books_with_overdrive_info
-    # TODO: update API to v2
-    task = Async do
-      endpoint = Async::HTTP::Endpoint.parse Overdrive::API_URI
+  private
+
+  def async_books_with_overdrive_info
+    Async do
+      # TODO: update API to v2
+      endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint
       barrier = Async::Barrier.new
 
@@ -143,9 +145,9 @@ class Overdrive
 
         barrier.async do
           params = URI.encode_www_form minimum: false, q: "\"#{book[:title]}\""
-          availability_path = "/collections/#{@collection_token}/products?#{params}"
-
+          availability_path = "/v1/collections/#{@collection_token}/products?#{params}"
           response = client.get(availability_path, 'Authorization' => "Bearer #{@token}")
+
           books << [title, response.read]
         end
       end
@@ -156,11 +158,7 @@ class Overdrive
     ensure
       client&.close
     end
-
-    task.wait
   end
-
-  private
 
   def async_responses batches
     Async do
@@ -175,7 +173,7 @@ class Overdrive
 
         barrier.async do
           response = client.get path, 'Authorization' => "Bearer #{@token}"
-          responses << response
+          responses << [response.read, response.status]
         end
       end
 
