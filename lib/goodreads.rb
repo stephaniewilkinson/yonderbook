@@ -16,6 +16,7 @@ module Goodreads
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
+  BASE_URL = "https://#{HOST}"
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
   USERS = DB[:users]
   BOOK_DETAILS = %w[isbn book/image_url title authors/author/name published rating].freeze
@@ -47,26 +48,27 @@ module Goodreads
   end
 
   def get_books shelf_name, goodreads_user_id, access_token
-    uri = "https://www.goodreads.com/review/list/#{goodreads_user_id}.xml?key=#{API_KEY}&v=2&shelf=#{shelf_name}&per_page=200"
+    path = "/review/list/#{goodreads_user_id}.xml?key=#{API_KEY}&v=2&shelf=#{shelf_name}&per_page=200"
+    uri = "#{BASE_URL}#{path}"
     response = access_token.get(uri)
     doc = Nokogiri::XML response.body
     number_of_pages = doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(200).ceil
-    bodies = get_requests uri, number_of_pages, access_token
+    bodies = get_requests path, number_of_pages, access_token
     get_book_details bodies
   end
 
-  def get_requests uri, number_of_pages, access_token
+  def get_requests path, number_of_pages, access_token
     get_bodies = Async do
-      endpoint = Async::HTTP::Endpoint.parse(uri)
+      endpoint = Async::HTTP::Endpoint.parse(BASE_URL)
       client = Async::HTTP::Client.new(endpoint)
       barrier = Async::Barrier.new
 
-      if client.head(uri).status == 200
+      if client.head(path).status == 200
         bodies = []
 
         1.upto(number_of_pages).each do |page|
           barrier.async do
-            response = client.get "&page=#{page}"
+            response = client.get "#{path}&page=#{page}"
             bodies << response.read
           end
         end
@@ -76,7 +78,7 @@ module Goodreads
         bodies
       else
         1.upto(number_of_pages).map do |page|
-          access_token.get("#{uri}&page=#{page}").response.body
+          access_token.get("#{BASE_URL}#{path}&page=#{page}").response.body
         end
       end
     ensure
