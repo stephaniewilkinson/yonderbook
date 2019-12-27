@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require 'async'
+require 'async/barrier'
+require 'async/http/client'
+require 'async/http/endpoint'
+require 'async/http/internet'
+require 'uri'
 require 'oauth2'
-require 'typhoeus'
 
 class Overdrive
-  API_URI    = 'https://api.overdrive.com/v1'
+  BASE_URL   = 'https://api.overdrive.com'
+  API_URI    = "#{BASE_URL}/v1"
   MAPBOX_URI = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
   OAUTH_URI  = 'https://oauth.overdrive.com'
   KEY        = ENV.fetch 'OVERDRIVE_KEY'
@@ -22,8 +28,17 @@ class Overdrive
 
   class << self
     def local_libraries latlon
-      response = Typhoeus.get MAPBOX_URI, params: {latLng: latlon, radius: 50}
-      libraries = JSON.parse response.body
+      task = Async do
+        internet = Async::HTTP::Internet.new
+        params = URI.encode_www_form latLng: latlon, radius: 50
+
+        response = internet.get "#{MAPBOX_URI}?#{params}"
+        response.read
+      ensure
+        internet&.close
+      end
+
+      libraries = JSON.parse task.wait
 
       libraries.first(10).map do |l|
         consortium_id = l['consortiumId']
@@ -38,7 +53,7 @@ class Overdrive
     @book_info = book_info
     @token = token
     @collection_token = collection_token consortium_id, @token
-    @books = create_books_with_overdrive_info
+    @books = async_books_with_overdrive_info.wait
   end
 
   def token
@@ -49,9 +64,17 @@ class Overdrive
   # Four digit library id from user submitted form, fetching the library-specific endpoint
   def collection_token consortium_id, token
     library_uri = "#{API_URI}/libraries/#{consortium_id}"
-    response = Typhoeus.get library_uri, headers: {Authorization: "Bearer #{token}"}
-    res = JSON.parse(response.body)
-    res['collectionToken']
+
+    task = Async do
+      internet = Async::HTTP::Internet.new
+      response = internet.get(library_uri, 'Authorization' => "Bearer #{token}")
+      response.read
+    ensure
+      internet&.close
+    end
+
+    body = JSON.parse task.wait
+    body['collectionToken']
   end
 
   def fetch_titles_availability
@@ -62,9 +85,8 @@ class Overdrive
   end
 
   def add_id_and_url_to_books
-    @books.each do |book, request|
-      body = request.response.body
-      next if body.empty?
+    @books.each do |book, body|
+      next unless body
 
       products = JSON.parse(body)['products']
       next unless products
@@ -80,26 +102,16 @@ class Overdrive
 
   def add_library_availability_to_books
     # TODO: expand this section to include links and ids for other book formats
-    hydra = Typhoeus::Hydra.new
     books_with_ids = @books.map(&:first).select(&:id)
     batches = books_with_ids.map(&:id).each_slice(25)
 
-    requests = batches.map do |batch|
-      uri = "https://api.overdrive.com/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
-      Typhoeus::Request.new uri, headers: {Authorization: "Bearer #{@token}"}
-    end
+    responses = async_responses(batches).wait
+    responses.each.with_index 1 do |(raw_body, status), batch_number|
+      body = JSON.parse raw_body
 
-    requests.each { |request| hydra.queue request }
-
-    hydra.run
-
-    requests.each_with_index do |request, i|
-      response = request.response
-      body = JSON.parse response.body
-
-      if response.code >= 500
-        warn "skipping batch #{i.succ} of #{requests.size} ..."
-        warn "status code: #{body['code']}"
+      if status >= 400
+        warn "skipping batch #{batch_number} of #{responses.size} ..."
+        warn "status code: #{status}"
         warn "body: #{body.inspect}"
         # {"errorCode"=>"InternalError", "message"=>"An unexpected error has occurred.", "token"=>"8b0c9f8c-2c5c-41f4-8b32-907f23baf111"}
         next
@@ -113,27 +125,63 @@ class Overdrive
     end
   end
 
-  def create_books_with_overdrive_info
-    hydra = Typhoeus::Hydra.new
+  private
 
-    books = @book_info.map do |book|
-      params = URI.encode_www_form minimum: false, q: "\"#{book[:title]}\""
-      availability_url = "#{Overdrive::API_URI}/collections/#{@collection_token}/products?#{params}"
+  def async_books_with_overdrive_info
+    Async do
+      # TODO: update API to v2
+      endpoint = Async::HTTP::Endpoint.parse BASE_URL
+      client = Async::HTTP::Client.new endpoint
+      barrier = Async::Barrier.new
 
-      title = Title.new isbn: book[:isbn],
-                        image: book[:image_url],
-                        title: book[:title],
-                        copies_available: 0,
-                        copies_owned: 0
+      books = []
 
-      request = Typhoeus::Request.new availability_url, headers: {Authorization: "Bearer #{@token}"}
-      hydra.queue request
+      @book_info.each do |book|
+        title = Title.new isbn: book[:isbn],
+                          image: book[:image_url],
+                          title: book[:title],
+                          copies_available: 0,
+                          copies_owned: 0
 
-      [title, request]
+        barrier.async do
+          params = URI.encode_www_form minimum: false, q: "\"#{book[:title]}\""
+          availability_path = "/v1/collections/#{@collection_token}/products?#{params}"
+          response = client.get(availability_path, 'Authorization' => "Bearer #{@token}")
+
+          books << [title, response.read]
+        end
+      end
+
+      barrier.wait
+
+      books
+    ensure
+      client&.close
     end
+  end
 
-    hydra.run
+  def async_responses batches
+    Async do
+      endpoint = Async::HTTP::Endpoint.parse(BASE_URL)
+      client = Async::HTTP::Client.new(endpoint)
+      barrier = Async::Barrier.new
 
-    books
+      responses = []
+
+      batches.each do |batch|
+        path = "/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
+
+        barrier.async do
+          response = client.get path, 'Authorization' => "Bearer #{@token}"
+          responses << [response.read, response.status]
+        end
+      end
+
+      barrier.wait
+
+      responses
+    ensure
+      client&.close
+    end
   end
 end

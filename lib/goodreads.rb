@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'async'
+require 'async/barrier'
+require 'async/http/client'
+require 'async/http/endpoint'
+require 'async/http/internet'
 require 'gender_detector'
 require 'nokogiri'
 require 'oauth'
-require 'typhoeus'
 require 'uri'
 require_relative 'db'
 
@@ -27,7 +31,15 @@ module Goodreads
     uri.path = '/shelf/list.xml'
     uri.query = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
 
-    doc = Nokogiri::XML Typhoeus.get(uri).body
+    task = Async do
+      internet = Async::HTTP::Internet.new
+      response = internet.get uri.to_s
+      response.read
+    ensure
+      internet&.close
+    end
+
+    doc = Nokogiri::XML task.wait
     shelf_names = doc.xpath('//shelves//name').children.to_a
     shelf_books = doc.xpath('//shelves//book_count').children.map(&:to_s).map(&:to_i)
 
@@ -39,32 +51,44 @@ module Goodreads
     response = access_token.get(uri)
     doc = Nokogiri::XML response.body
     number_of_pages = doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(200).ceil
-    requests = get_requests uri, number_of_pages, access_token
-    get_book_details requests
+    bodies = get_requests uri, number_of_pages, access_token
+    get_book_details bodies
   end
 
   def get_requests uri, number_of_pages, access_token
-    if Typhoeus.head(uri).code == 200
-      hydra = Typhoeus::Hydra.new
+    get_bodies = Async do
+      endpoint = Async::HTTP::Endpoint.parse(uri)
+      client = Async::HTTP::Client.new(endpoint)
+      barrier = Async::Barrier.new
 
-      requests = 1.upto(number_of_pages).map do |page|
-        request = Typhoeus::Request.new "#{uri}&page=#{page}"
-        hydra.queue request
-        request
-      end
+      if client.head(uri).status == 200
+        bodies = []
 
-      hydra.run
-      requests
-    else
-      1.upto(number_of_pages).map do |page|
-        access_token.get("#{uri}&page=#{page}")
+        1.upto(number_of_pages).each do |page|
+          barrier.async do
+            response = client.get "&page=#{page}"
+            bodies << response.read
+          end
+        end
+
+        barrier.wait
+
+        bodies
+      else
+        1.upto(number_of_pages).map do |page|
+          access_token.get("#{uri}&page=#{page}").response.body
+        end
       end
+    ensure
+      client&.close
     end
+
+    get_bodies.wait
   end
 
-  def get_book_details requests
-    requests.flat_map do |request|
-      doc = Nokogiri::XML request.response.body
+  def get_book_details bodies
+    bodies.flat_map do |body|
+      doc = Nokogiri::XML body
       data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text).grep_v(/\A\n\z/) }.transpose
 
       data.map do |isbn, image_url, title, author, published_year, rating|
@@ -120,17 +144,27 @@ module Goodreads
   def fetch_book_data isbn
     uri = new_uri
     uri.path = "/book/isbn/#{isbn}"
-    response = Typhoeus.get uri, params: {key: API_KEY}
-    case response.code
-    when 200
-      doc = Nokogiri::XML(response.body)
-      title = doc.xpath('//title').text
-      image_url = doc.xpath('//image_url').first.text
-      book = Book.new title: title, image_url: image_url, isbn: isbn
+    uri.query = URI.encode_www_form(key: API_KEY)
 
-      [:ok, book]
-    else
-      [:error, response.code]
+    task = Async do
+      response = internet.get uri.to_s
+      response_code = response.status
+
+      case response_code
+      when 200
+        doc = Nokogiri::XML(response.read)
+        title = doc.xpath('//title').text
+        image_url = doc.xpath('//image_url').first.text
+        book = Book.new title: title, image_url: image_url, isbn: isbn
+
+        [:ok, book]
+      else
+        [:error, response_code]
+      end
+    ensure
+      internet&.close
     end
+
+    task.wait
   end
 end
