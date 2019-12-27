@@ -78,9 +78,8 @@ class App < Roda
     end
 
     r.on 'auth' do
-      @user = @users.first(goodreads_user_id: session['goodreads_user_id'])
-      r.redirect '/' unless @user
-      @goodreads_user_id = @user[:goodreads_user_id]
+      @goodreads_user_id = session['goodreads_user_id']
+      r.redirect '/' unless @goodreads_user_id
 
       # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
       r.on 'shelves' do
@@ -96,6 +95,7 @@ class App < Roda
 
           @book_info = Cache.get session, @shelf_name.to_sym
           unless @book_info
+            @user = @users.first(goodreads_user_id: @goodreads_user_id)
             access_token = Auth.rebuild_access_token @user
             @book_info = Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
             Cache.set session, @shelf_name.to_sym => @book_info
