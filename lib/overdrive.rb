@@ -5,16 +5,19 @@ require 'async/barrier'
 require 'async/http/client'
 require 'async/http/endpoint'
 require 'async/http/internet'
+require 'async/semaphore'
 require 'uri'
 require 'oauth2'
 
 class Overdrive
-  BASE_URL   = 'https://api.overdrive.com'
-  API_URI    = "#{BASE_URL}/v1"
-  MAPBOX_URI = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
-  OAUTH_URI  = 'https://oauth.overdrive.com'
-  KEY        = ENV.fetch 'OVERDRIVE_KEY'
-  SECRET     = ENV.fetch 'OVERDRIVE_SECRET'
+  BASE_URL     = 'https://api.overdrive.com'
+  API_URI      = "#{BASE_URL}/v1"
+  MAPBOX_URI   = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
+  OAUTH_URI    = 'https://oauth.overdrive.com'
+  KEY          = ENV.fetch 'OVERDRIVE_KEY'
+  SECRET       = ENV.fetch 'OVERDRIVE_SECRET'
+  CLIENT_COUNT = 8
+  RETRIES      = 2
 
   Title = Struct.new :title,
                      :image,
@@ -127,36 +130,63 @@ class Overdrive
 
   private
 
+  def title book
+    Title.new(
+      isbn: book[:isbn],
+      image: book[:image_url],
+      title: book[:title],
+      copies_available: 0,
+      copies_owned: 0
+    )
+  end
+
+  def availability_path book
+    title = "\"#{book.fetch :title}\""
+    params = URI.encode_www_form minimum: false, limit: 1, q: title
+
+    "/v1/collections/#{@collection_token}/products?#{params}"
+  end
+
   def async_books_with_overdrive_info
-    Async do
-      # TODO: update API to v2
+    Async do |task|
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint
+      clients = Array.new(CLIENT_COUNT) { Async::HTTP::Client.new endpoint }
+      current_client = CLIENT_COUNT.times.cycle
       barrier = Async::Barrier.new
+      semaphore = Async::Semaphore.new 50, parent: barrier
 
-      books = []
+      task.with_timeout 25 do
+        books = []
 
-      @book_info.each do |book|
-        title = Title.new isbn: book[:isbn],
-                          image: book[:image_url],
-                          title: book[:title],
-                          copies_available: 0,
-                          copies_owned: 0
+        @book_info.each.with_index 1 do |book, book_number|
+          semaphore.async do
+            retries ||= RETRIES
 
-        barrier.async do
-          params = URI.encode_www_form minimum: false, q: "\"#{book[:title]}\""
-          availability_path = "/v1/collections/#{@collection_token}/products?#{params}"
-          response = client.get(availability_path, 'Authorization' => "Bearer #{@token}")
+            response = clients.fetch(current_client.next).get(availability_path(book), 'Authorization' => "Bearer #{@token}")
+            body = response.read
+            Async.logger.info "Book number #{book_number} of #{@book_info.size} response code: #{response.status}"
 
-          books << [title, response.read]
+            books << [title(book), body]
+          rescue SocketError
+            unless retries.positive?
+              Async.logger.error "Skipping ISBN: #{book[:isbn]} after #{RETRIES} retries"
+              next
+            end
+
+            Async.logger.warn "Retrying book title `#{book[:title].inspect}' due to SocketError"
+            retries -= 1
+            retry
+          end
         end
+
+        barrier.wait
+
+        books
+      rescue Async::TimeoutError
+        books
       end
-
-      barrier.wait
-
-      books
     ensure
-      client&.close
+      clients.each { |client| client&.close }
     end
   end
 
@@ -168,11 +198,13 @@ class Overdrive
 
       responses = []
 
-      batches.each do |batch|
-        path = "/v2/collections/#{@collection_token}/availability?products=#{batch.join ','}"
+      batches.each.with_index 1 do |batch, batch_number|
+        params = URI.encode_www_form products: batch.join(',')
+        path = "/v2/collections/#{@collection_token}/availability?#{params}"
 
         barrier.async do
           response = client.get path, 'Authorization' => "Bearer #{@token}"
+          Async.logger.info "Batch number #{batch_number} of #{batches.size} response code: #{response.status}"
           responses << [response.read, response.status]
         end
       end
