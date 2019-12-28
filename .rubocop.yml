@@ -294,7 +294,7 @@ Performance/RedundantMerge:
 
 #################### Metrics ###############################
 Metrics/AbcSize:
-  Max: 35
+  Max: 37
 
 Metrics/BlockLength:
   Max: 200
