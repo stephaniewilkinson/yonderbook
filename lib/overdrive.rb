@@ -140,7 +140,7 @@ class Overdrive
     )
   end
 
-  def availability_path book
+  def availability_path(book)
     title = "\"#{book.fetch :title}\""
     params = URI.encode_www_form minimum: false, limit: 1, q: title
 
@@ -151,7 +151,7 @@ class Overdrive
     Async do |task|
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       clients = Array.new(CLIENT_COUNT) { Async::HTTP::Client.new endpoint }
-      current_client = CLIENT_COUNT.times.cycle
+      client_pool = clients.cycle
       barrier = Async::Barrier.new
       semaphore = Async::Semaphore.new 50, parent: barrier
 
@@ -162,7 +162,7 @@ class Overdrive
           semaphore.async do
             retries ||= RETRIES
 
-            response = clients.fetch(current_client.next).get(availability_path(book), 'Authorization' => "Bearer #{@token}")
+            response = client_pool.next.get(availability_path(book), 'Authorization' => "Bearer #{@token}")
             body = response.read
             Async.logger.info "Book number #{book_number} of #{@book_info.size} response code: #{response.status}"
 
