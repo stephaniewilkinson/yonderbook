@@ -140,7 +140,7 @@ class Overdrive
     )
   end
 
-  def availability_path(book)
+  def availability_path book
     title = "\"#{book.fetch :title}\""
     params = URI.encode_www_form minimum: false, limit: 1, q: title
 
