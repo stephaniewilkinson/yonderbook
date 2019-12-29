@@ -16,8 +16,6 @@ class Overdrive
   OAUTH_URI    = 'https://oauth.overdrive.com'
   KEY          = ENV.fetch 'OVERDRIVE_KEY'
   SECRET       = ENV.fetch 'OVERDRIVE_SECRET'
-  CLIENT_COUNT = 8
-  RETRIES      = 2
 
   Title = Struct.new :title,
                      :image,
@@ -150,32 +148,19 @@ class Overdrive
   def async_books_with_overdrive_info
     Async do |task|
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      clients = Array.new(CLIENT_COUNT) { Async::HTTP::Client.new endpoint }
-      client_pool = clients.cycle
+      client = Async::HTTP::Client.new endpoint, connection_limit: 16
       barrier = Async::Barrier.new
-      semaphore = Async::Semaphore.new 50, parent: barrier
 
       task.with_timeout 25 do
         books = []
 
         @book_info.each.with_index 1 do |book, book_number|
-          semaphore.async do
-            retries ||= RETRIES
-
-            response = client_pool.next.get(availability_path(book), 'Authorization' => "Bearer #{@token}")
+          barrier.async do
+            response = client.get(availability_path(book), 'Authorization' => "Bearer #{@token}")
             body = response.read
             Async.logger.info "Book number #{book_number} of #{@book_info.size} response code: #{response.status}"
 
             books << [title(book), body]
-          rescue SocketError
-            unless retries.positive?
-              Async.logger.error "Skipping ISBN: #{book[:isbn]} after #{RETRIES} retries"
-              next
-            end
-
-            Async.logger.warn "Retrying book title `#{book[:title].inspect}' due to SocketError"
-            retries -= 1
-            retry
           end
         end
 
@@ -186,14 +171,14 @@ class Overdrive
         books
       end
     ensure
-      clients.each { |client| client&.close }
+      client&.close
     end
   end
 
   def async_responses batches
     Async do
-      endpoint = Async::HTTP::Endpoint.parse(BASE_URL)
-      client = Async::HTTP::Client.new(endpoint)
+      endpoint = Async::HTTP::Endpoint.parse BASE_URL
+      client = Async::HTTP::Client.new endpoint, connection_limit: 16
       barrier = Async::Barrier.new
 
       responses = []

@@ -18,8 +18,8 @@ module Bookmooch
     isbn_batches = isbns.each_slice(300).map { |isbn_batch| isbn_batch.join('+') }
 
     async_isbns = Async do
-      endpoint = Async::HTTP::Endpoint.parse(BASE_URL)
-      client = Async::HTTP::Client.new(endpoint)
+      endpoint = Async::HTTP::Endpoint.parse BASE_URL
+      client = Async::HTTP::Client.new endpoint, connection_limit: 16
       barrier = Async::Barrier.new
 
       basic_auth_credentials = Base64.strict_encode64 "#{username}:#{password}"
