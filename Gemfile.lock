@@ -138,7 +138,7 @@ GEM
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
-    sendgrid-ruby (6.0.1)
+    sendgrid-ruby (6.0.2)
       ruby_http_client (~> 3.3.0)
     sequel (5.28.0)
     sequel_pg (1.12.4)
