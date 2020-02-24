@@ -42,7 +42,7 @@ GEM
     concurrent-ruby (1.1.6)
     console (1.8.1)
     dotenv (2.7.5)
-    falcon (0.35.3)
+    falcon (0.35.4)
       async (~> 1.13)
       async-container (~> 0.16.0)
       async-http (~> 0.50.0)
