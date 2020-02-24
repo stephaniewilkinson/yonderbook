@@ -116,7 +116,7 @@ GEM
     rack-unreloader (1.7.0)
     rainbow (3.0.0)
     rake (13.0.1)
-    regexp_parser (1.6.0)
+    regexp_parser (1.7.0)
     roda (3.29.0)
       rack
     roda-route_list (2.1.0)
