@@ -386,13 +386,6 @@ Style/BlockDelimiters:
     - proc
     - it
 
-Style/BracesAroundHashParameters:
-  EnforcedStyle: context_dependent
-  SupportedStyles:
-    - braces
-    - no_braces
-    - context_dependent
-
 Style/CollectionMethods:
   PreferredMethods:
     collect: 'map'
