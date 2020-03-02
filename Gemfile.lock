@@ -144,7 +144,7 @@ GEM
       rubyzip (>= 1.2.2)
     sendgrid-ruby (6.1.0)
       ruby_http_client (~> 3.4.0)
-    sequel (5.29.0)
+    sequel (5.30.0)
     sequel_pg (1.12.4)
       pg (>= 0.18.0, != 1.2.0)
       sequel (>= 4.38.0)
