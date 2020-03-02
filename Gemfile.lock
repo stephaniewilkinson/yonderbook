@@ -89,7 +89,7 @@ GEM
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
     parallel (1.19.1)
-    parser (2.7.0.2)
+    parser (2.7.0.3)
       ast (~> 2.4.0)
     pg (1.2.2)
     process-group (1.2.1)
@@ -123,7 +123,7 @@ GEM
     roda-route_list (2.1.0)
       roda
     rollbar (2.24.0)
-    rubocop (0.80.0)
+    rubocop (0.80.1)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.7.0.1)
