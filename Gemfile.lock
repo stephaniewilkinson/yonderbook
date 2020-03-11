@@ -25,7 +25,7 @@ GEM
       async (~> 1.14)
     async-pool (0.2.0)
       async (~> 1.8)
-    build-environment (1.12.1)
+    build-environment (1.13.0)
     capybara (3.31.0)
       addressable
       mini_mime (>= 0.1.3)
