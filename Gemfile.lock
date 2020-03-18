@@ -10,7 +10,7 @@ GEM
       console (~> 1.0)
       nio4r (~> 2.3)
       timers (~> 4.1)
-    async-container (0.16.2)
+    async-container (0.16.3)
       async (~> 1.0)
       async-io (~> 1.26)
       process-group
@@ -21,7 +21,7 @@ GEM
       protocol-http (~> 0.14.1)
       protocol-http1 (~> 0.10.0)
       protocol-http2 (~> 0.10.0)
-    async-io (1.27.3)
+    async-io (1.27.4)
       async (~> 1.14)
     async-pool (0.2.0)
       async (~> 1.8)
