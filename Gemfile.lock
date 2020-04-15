@@ -60,7 +60,7 @@ GEM
       capybara
       falcon (~> 0.19)
       selenium-webdriver
-    faraday (1.0.0)
+    faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
     ffi (1.12.2)
