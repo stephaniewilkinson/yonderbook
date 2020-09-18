@@ -259,6 +259,9 @@ Lint/Debugger:
   Include:
     - app/**/*.rb
 
+Lint/ConstantResolution:
+  Enabled: false
+
 Lint/InheritException:
   EnforcedStyle: runtime_error
   SupportedStyles:

@@ -27,26 +27,24 @@ class Overdrive
                      :availability_url,
                      keyword_init: true
 
-  class << self
-    def local_libraries latlon
-      task = Async do
-        internet = Async::HTTP::Internet.new
-        params = URI.encode_www_form latLng: latlon, radius: 50
+  def self.local_libraries latlon
+    task = Async do
+      internet = Async::HTTP::Internet.new
+      params = URI.encode_www_form latLng: latlon, radius: 50
 
-        response = internet.get "#{MAPBOX_URI}?#{params}"
-        response.read
-      ensure
-        internet&.close
-      end
+      response = internet.get "#{MAPBOX_URI}?#{params}"
+      response.read
+    ensure
+      internet&.close
+    end
 
-      libraries = JSON.parse task.wait
+    libraries = JSON.parse task.wait
 
-      libraries.first(10).map do |l|
-        consortium_id = l['consortiumId']
-        consortium_name = l['consortiumName']
+    libraries.first(10).map do |l|
+      consortium_id = l['consortiumId']
+      consortium_name = l['consortiumName']
 
-        [consortium_id, consortium_name]
-      end
+      [consortium_id, consortium_name]
     end
   end
 
