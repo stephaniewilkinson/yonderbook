@@ -1,7 +1,7 @@
 require: rubocop-performance
 
 AllCops:
-  TargetRubyVersion: 2.6.5
+  TargetRubyVersion: 2.7.1
   EnabledByDefault: true
 
 #################### Bundler ##############################
@@ -258,6 +258,9 @@ Layout/EndAlignment:
 Lint/Debugger:
   Include:
     - app/**/*.rb
+
+Lint/ConstantResolution:
+  Enabled: false
 
 Lint/InheritException:
   EnforcedStyle: runtime_error
