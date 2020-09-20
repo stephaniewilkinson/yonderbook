@@ -29,23 +29,19 @@
 <!-- TODO: add a spinner here so users know its working -->
       <div id="modal-<%= name %>" class="modal small">
         <div class="modal-content">
-          <h4 class="center"> &nbsp; Choose a format</h4>
+          <h4 class="center">Choose a format</h4>
           <br>
-          <div class="row">
-            <div class="col m6 offset-m2">
-              <a href="shelves/<%= name %>/overdrive" class="modal-close cyan btn-large waves-effect waves-green btn right">
-                <i class="material-icons right">cloud_download</i>
-                eBooks
-              </a>
-            </div>
+          <div class="row center">
+            <a href="shelves/<%= name %>/overdrive" class="modal-close cyan btn-large waves-effect waves-green btn center">
+              <i class="material-icons right">cloud_download</i>
+              eBooks
+            </a>
           </div>
-          <div class="row">
-            <div class="col m6 offset-m2">
-              <a href="shelves/<%= name %>/bookmooch" class="modal-close btn-large waves-effect waves-green btn right">
-                <i class="material-icons right">markunread_mailbox</i>
-                By Mail
-              </a>
-            </div>
+          <div class="row center">
+            <a href="shelves/<%= name %>/bookmooch" class="modal-close btn-large waves-effect waves-green btn center">
+              <i class="material-icons right">markunread_mailbox</i>
+              By Mail
+            </a>
           </div>
         </div>
       </div>
