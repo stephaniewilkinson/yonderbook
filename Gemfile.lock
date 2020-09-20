@@ -62,7 +62,6 @@ GEM
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
-    ffi (1.13.1)
     gender_detector (2.0.0)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
@@ -138,7 +137,6 @@ GEM
       rubocop (>= 0.87.0)
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.10.1)
-    ruby_http_client (3.5.1)
     rubyzip (2.3.0)
     samovar (2.1.4)
       console (~> 1.0)
@@ -146,8 +144,6 @@ GEM
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
-    sendgrid-ruby (6.3.4)
-      ruby_http_client (~> 3.4)
     sequel (5.36.0)
     sequel_pg (1.13.0)
       pg (>= 0.18.0, != 1.2.0)
@@ -162,8 +158,6 @@ GEM
       selenium-webdriver (>= 3.0, < 4.0)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zbar (0.3.0)
-      ffi (~> 1.0)
 
 PLATFORMS
   ruby
@@ -192,13 +186,11 @@ DEPENDENCIES
   rollbar
   rubocop
   rubocop-performance
-  sendgrid-ruby
   sequel
   sequel_pg
   tilt
   unicode_utils
   webdrivers
-  zbar
 
 RUBY VERSION
    ruby 2.7.1p83

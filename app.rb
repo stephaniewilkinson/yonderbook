@@ -37,7 +37,6 @@ class App < Roda
     r.public
     r.assets
 
-    @books = DB[:books]
     @users = DB[:users]
 
     session['session_id'] ||= SecureRandom.uuid
@@ -201,88 +200,6 @@ class App < Roda
             r.redirect 'shelves'
           end
           view 'library'
-        end
-      end
-
-      r.on 'inventory' do
-        # route: GET /auth/inventory/new
-        r.get 'new' do
-          view 'inventory/new'
-        end
-
-        # route: GET /inventory/:id
-        r.get Integer do |book_id|
-          @book = @books.first(id: book_id)
-          @user = @users.first(id: @book[:user_id])
-          view 'inventory/show'
-        end
-
-        # route: POST /auth/inventory/create?barcode_image="isbn.jpg"
-        r.post 'create' do
-          image = r[:barcode_image][:tempfile]
-          barcodes = ZBar::Image.from_jpeg(image).process
-
-          if barcodes.any?
-            r.redirect '/' unless goodreads_user_id
-
-            barcodes.each do |barcode|
-              isbn = barcode.data
-              status, book = Goodreads.fetch_book_data isbn
-
-              raise "#{status}: #{book}" unless status == :ok
-
-              @books.insert isbn: isbn, user_id: @user[:id], cover_image_url: book.image_url, title: book.title
-            end
-            r.redirect '/inventory/index'
-          else
-            flash[:error] = 'no barcode detected, please try again'
-            r.redirect 'auth/inventory/new'
-          end
-        end
-
-        # route: GET /auth/inventory
-        r.get do
-          view 'inventory/index'
-        end
-      end
-
-      r.on 'users' do
-        # TODO: write authorization for these routes properly
-        # route: GET /auth/users
-        r.get true do
-          # TODO: make a jwt
-          if session['goodreads_user_id'] == '7208734'
-            view 'users/index'
-          else
-            view 'welcome'
-          end
-        end
-
-        r.on String do |id|
-          # route: GET /auth/users/:id
-          r.get true do
-            if @user == @users.first(id: id)
-              view 'users/show'
-            else
-              view 'welcome'
-            end
-          end
-
-          # route: GET /auth/users/:id/edit
-          r.get 'edit' do
-            view 'users/edit'
-          end
-
-          # route: POST /auth/users/:id
-          r.post true do
-            @users.where(goodreads_user_id: @goodreads_user_id).update(
-              email: r.params['email'],
-              first_name: r.params['first_name'],
-              last_name: r.params['last_name']
-            )
-            @user = @users.where(goodreads_user_id: @goodreads_user_id).first
-            view 'users/show'
-          end
         end
       end
     end

@@ -17,12 +17,10 @@ gem 'oauth2'
 gem 'rack-host-redirect'
 gem 'rake'
 gem 'roda'
-gem 'sendgrid-ruby'
 gem 'sequel'
 gem 'sequel_pg'
 gem 'tilt'
 gem 'unicode_utils'
-gem 'zbar'
 
 group :development do
   gem 'rack-unreloader'
