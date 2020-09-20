@@ -22,7 +22,6 @@ gem 'sequel'
 gem 'sequel_pg'
 gem 'tilt'
 gem 'unicode_utils'
-gem 'zbar'
 
 group :development do
   gem 'rack-unreloader'
