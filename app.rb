@@ -37,7 +37,6 @@ class App < Roda
     r.public
     r.assets
 
-    @books = DB[:books]
     @users = DB[:users]
 
     session['session_id'] ||= SecureRandom.uuid
@@ -201,48 +200,6 @@ class App < Roda
             r.redirect 'shelves'
           end
           view 'library'
-        end
-      end
-
-      r.on 'inventory' do
-        # route: GET /auth/inventory/new
-        r.get 'new' do
-          view 'inventory/new'
-        end
-
-        # route: GET /inventory/:id
-        r.get Integer do |book_id|
-          @book = @books.first(id: book_id)
-          @user = @users.first(id: @book[:user_id])
-          view 'inventory/show'
-        end
-
-        # route: POST /auth/inventory/create?barcode_image="isbn.jpg"
-        r.post 'create' do
-          image = r[:barcode_image][:tempfile]
-          barcodes = ZBar::Image.from_jpeg(image).process
-
-          if barcodes.any?
-            r.redirect '/' unless goodreads_user_id
-
-            barcodes.each do |barcode|
-              isbn = barcode.data
-              status, book = Goodreads.fetch_book_data isbn
-
-              raise "#{status}: #{book}" unless status == :ok
-
-              @books.insert isbn: isbn, user_id: @user[:id], cover_image_url: book.image_url, title: book.title
-            end
-            r.redirect '/inventory/index'
-          else
-            flash[:error] = 'no barcode detected, please try again'
-            r.redirect 'auth/inventory/new'
-          end
-        end
-
-        # route: GET /auth/inventory
-        r.get do
-          view 'inventory/index'
         end
       end
     end
