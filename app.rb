@@ -245,46 +245,6 @@ class App < Roda
           view 'inventory/index'
         end
       end
-
-      r.on 'users' do
-        # TODO: write authorization for these routes properly
-        # route: GET /auth/users
-        r.get true do
-          # TODO: make a jwt
-          if session['goodreads_user_id'] == '7208734'
-            view 'users/index'
-          else
-            view 'welcome'
-          end
-        end
-
-        r.on String do |id|
-          # route: GET /auth/users/:id
-          r.get true do
-            if @user == @users.first(id: id)
-              view 'users/show'
-            else
-              view 'welcome'
-            end
-          end
-
-          # route: GET /auth/users/:id/edit
-          r.get 'edit' do
-            view 'users/edit'
-          end
-
-          # route: POST /auth/users/:id
-          r.post true do
-            @users.where(goodreads_user_id: @goodreads_user_id).update(
-              email: r.params['email'],
-              first_name: r.params['first_name'],
-              last_name: r.params['last_name']
-            )
-            @user = @users.where(goodreads_user_id: @goodreads_user_id).first
-            view 'users/show'
-          end
-        end
-      end
     end
   rescue OAuth::Unauthorized, StandardError, ScriptError => e
     raise e unless ENV['RACK_ENV'] == 'production'
