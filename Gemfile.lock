@@ -60,8 +60,9 @@ GEM
       capybara
       falcon (~> 0.34)
       selenium-webdriver
-    faraday (1.0.1)
+    faraday (1.1.0)
       multipart-post (>= 1.2, < 3)
+      ruby2_keywords
     fastercsv (1.5.5)
     fiber-local (1.0.0)
     gender_detector (2.0.0)
@@ -139,6 +140,7 @@ GEM
       rubocop (>= 0.87.0)
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.10.1)
+    ruby2_keywords (0.0.2)
     rubyzip (2.3.0)
     samovar (2.1.4)
       console (~> 1.0)
