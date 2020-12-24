@@ -6,7 +6,7 @@ GEM
     area (0.10.0)
       fastercsv (~> 1.5)
     ast (2.4.1)
-    async (1.27.0)
+    async (1.28.0)
       console (~> 1.10)
       nio4r (~> 2.3)
       timers (~> 4.1)
