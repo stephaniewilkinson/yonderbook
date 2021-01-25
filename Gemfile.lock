@@ -56,7 +56,7 @@ GEM
       process-metrics (~> 0.2.0)
       rack (>= 1.0)
       samovar (~> 2.1)
-    falcon-capybara (1.5.0)
+    falcon-capybara (1.5.1)
       capybara
       falcon (~> 0.34)
       selenium-webdriver
@@ -104,7 +104,7 @@ GEM
       samovar (~> 2.1)
     protocol-hpack (1.4.2)
     protocol-http (0.21.0)
-    protocol-http1 (0.13.1)
+    protocol-http1 (0.13.2)
       protocol-http (~> 0.19)
     protocol-http2 (0.14.1)
       protocol-hpack (~> 1.4)
