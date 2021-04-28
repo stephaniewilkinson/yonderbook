@@ -1,0 +1,39 @@
+version: 2
+updates:
+- package-ecosystem: bundler
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  allow:
+  - dependency-type: direct
+  - dependency-type: indirect
+  ignore:
+  - dependency-name: chromedriver-helper
+    versions:
+    - "< 2.0.2, >= 2.0.1.a"
+  - dependency-name: chromedriver-helper
+    versions:
+    - "< 2.1.1, >= 2.1.0.a"
+  - dependency-name: chromedriver-helper
+    versions:
+    - "< 2.1, >= 2.0.a"
+  - dependency-name: roda
+    versions:
+    - 3.42.0
+    - 3.43.0
+  - dependency-name: nokogiri
+    versions:
+    - 1.11.2
+  - dependency-name: async-http
+    versions:
+    - 0.54.1
+  - dependency-name: localhost
+    versions:
+    - 1.1.7
+  - dependency-name: ast
+    versions:
+    - 2.4.2
+  - dependency-name: webdrivers
+    versions:
+    - 4.5.0
