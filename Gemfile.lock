@@ -68,7 +68,7 @@ GEM
     fastercsv (1.5.5)
     fiber-local (1.0.0)
     gender_detector (2.0.0)
-    i18n (1.8.7)
+    i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     jwt (2.2.2)
     localhost (1.1.6)
