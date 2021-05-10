@@ -10,7 +10,7 @@ GEM
       console (~> 1.10)
       nio4r (~> 2.3)
       timers (~> 4.1)
-    async-container (0.16.8)
+    async-container (0.16.11)
       async (~> 1.0)
       async-io (~> 1.26)
     async-http (0.53.1)
