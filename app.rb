@@ -30,6 +30,7 @@ class App < Roda
   plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
   plugin :slash_path_empty
   plugin :render
+  plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
 
   compile_assets
   # TODO: figure out how to reroute 404s to /
