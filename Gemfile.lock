@@ -79,7 +79,7 @@ GEM
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     jwt (2.2.3)
-    localhost (1.1.6)
+    localhost (1.1.8)
     mapping (1.1.1)
     method_source (1.0.0)
     mini_mime (1.1.0)
