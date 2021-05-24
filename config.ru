@@ -8,6 +8,7 @@ when 'production', 'staging'
     config.enabled = true
   end
   require_relative 'app'
+  logger.level = Logger::DEBUG
   run App.freeze.app
 when 'test'
   require 'dotenv/load'
