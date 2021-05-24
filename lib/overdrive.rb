@@ -17,15 +17,7 @@ class Overdrive
   KEY          = ENV.fetch 'OVERDRIVE_KEY'
   SECRET       = ENV.fetch 'OVERDRIVE_SECRET'
 
-  Title = Struct.new :title,
-                     :image,
-                     :copies_available,
-                     :copies_owned,
-                     :isbn,
-                     :url,
-                     :id,
-                     :availability_url,
-                     keyword_init: true
+  Title = Struct.new :title, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, keyword_init: true
 
   def self.local_libraries latlon
     task = Async do
@@ -127,13 +119,7 @@ class Overdrive
   private
 
   def title book
-    Title.new(
-      isbn: book[:isbn],
-      image: book[:image_url],
-      title: book[:title],
-      copies_available: 0,
-      copies_owned: 0
-    )
+    Title.new(isbn: book[:isbn], image: book[:image_url], title: book[:title], copies_available: 0, copies_owned: 0)
   end
 
   def availability_path book

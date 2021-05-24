@@ -9,6 +9,9 @@ AllCops:
 Bundler/GemComment:
   Enabled: false
 
+Bundler/GemVersion:
+  Enabled: false
+
 #################### Layout ###############################
 
 Layout/AccessModifierIndentation:
