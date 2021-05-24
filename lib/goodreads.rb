@@ -137,7 +137,7 @@ module Goodreads
   end
 
   def plot_books_over_time books
-    books.map { |book| [book[:title], Integer(book[:published_year])] unless book[:published_year].empty? }.compact
+    books.filter_map { |book| [book[:title], Integer(book[:published_year])] unless book[:published_year].empty? }
   end
 
   def rating_stats books

@@ -19,8 +19,7 @@ Capybara.register_driver :firefox do |app|
 end
 
 Capybara.register_driver :headless_firefox do |app|
-  Capybara::Selenium::Driver.new app,
-                                 browser: :firefox
+  Capybara::Selenium::Driver.new app, browser: :firefox
 end
 
 Capybara.javascript_driver = :firefox

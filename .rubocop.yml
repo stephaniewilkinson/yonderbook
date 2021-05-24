@@ -9,6 +9,9 @@ AllCops:
 Bundler/GemComment:
   Enabled: false
 
+Bundler/GemVersion:
+  Enabled: false
+
 #################### Layout ###############################
 
 Layout/AccessModifierIndentation:
@@ -99,6 +102,9 @@ Layout/IndentationConsistency:
   EnforcedStyle: normal
   SupportedStyles:
     - normal
+
+Layout/SingleLineBlockChain:
+  Enabled: false
 
 Layout/IndentationWidth:
   Width: 2
