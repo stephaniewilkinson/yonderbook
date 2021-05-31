@@ -83,7 +83,8 @@ GEM
     mapping (1.1.1)
     method_source (1.0.0)
     mini_mime (1.1.0)
-    mini_portile2 (2.5.1)
+    mini_portile2 (2.5.2)
+      net-ftp (~> 0.1)
     minitest (5.14.4)
     minitest-capybara (0.9.0)
       capybara
@@ -92,6 +93,10 @@ GEM
     multi_json (1.15.0)
     multi_xml (0.6.0)
     multipart-post (2.1.1)
+    net-ftp (0.1.2)
+      net-protocol
+      time
+    net-protocol (0.1.0)
     nio4r (2.5.7)
     nokogiri (1.11.5)
       mini_portile2 (~> 2.5.0)
@@ -165,6 +170,7 @@ GEM
       pg (>= 0.18.0, != 1.2.0)
       sequel (>= 4.38.0)
     tilt (2.0.10)
+    time (0.1.0)
     timers (4.3.3)
     unicode-display_width (2.0.0)
     unicode_utils (1.4.0)
