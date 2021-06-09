@@ -40,7 +40,7 @@ GEM
       selenium-webdriver
     childprocess (3.0.0)
     coderay (1.1.3)
-    concurrent-ruby (1.1.8)
+    concurrent-ruby (1.1.9)
     console (1.12.0)
       fiber-local
     dotenv (2.7.6)
