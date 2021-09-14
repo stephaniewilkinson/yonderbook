@@ -60,7 +60,7 @@ GEM
       capybara
       falcon (~> 0.34)
       selenium-webdriver
-    faraday (1.7.0)
+    faraday (1.7.2)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
