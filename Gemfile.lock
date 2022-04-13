@@ -172,7 +172,7 @@ GEM
       sequel (>= 4.38.0)
     tilt (2.0.10)
     timers (4.3.3)
-    unicode-display_width (2.0.0)
+    unicode-display_width (2.1.0)
     unicode_utils (1.4.0)
     webdrivers (4.6.1)
       nokogiri (~> 1.6)
