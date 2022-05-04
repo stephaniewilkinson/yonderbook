@@ -86,7 +86,9 @@ GEM
     multi_xml (0.6.0)
     nokogiri (1.13.4-x86_64-darwin)
       racc (~> 1.4)
-    oauth (0.5.8)
+    nokogiri (1.13.4-x86_64-linux)
+      racc (~> 1.4)
+    oauth (0.5.10)
     oauth2 (1.4.9)
       faraday (>= 0.17.3, < 3.0)
       jwt (>= 1.0, < 3.0)
@@ -168,6 +170,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   area
