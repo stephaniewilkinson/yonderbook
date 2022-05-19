@@ -84,7 +84,9 @@ GEM
       rake
     multi_json (1.15.0)
     multi_xml (0.6.0)
-    nokogiri (1.13.4-x86_64-darwin)
+    nokogiri (1.13.6-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.13.6-x86_64-linux)
       racc (~> 1.4)
     oauth (0.5.8)
     oauth2 (1.4.9)
@@ -168,6 +170,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   area
