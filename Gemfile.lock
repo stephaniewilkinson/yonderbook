@@ -71,6 +71,7 @@ GEM
     i18n (1.10.0)
       concurrent-ruby (~> 1.0)
     io-event (1.0.5)
+    json (2.6.2)
     jwt (2.3.0)
     localhost (1.1.9)
     mapping (1.1.1)
@@ -85,6 +86,8 @@ GEM
     multi_json (1.15.0)
     multi_xml (0.6.0)
     nokogiri (1.13.4-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.13.4-x86_64-linux)
       racc (~> 1.4)
     oauth (0.5.8)
     oauth2 (1.4.9)
@@ -120,23 +123,24 @@ GEM
     rack-unreloader (1.8.0)
     rainbow (3.1.1)
     rake (13.0.6)
-    regexp_parser (2.3.0)
+    regexp_parser (2.5.0)
     rexml (3.2.5)
     roda (3.55.0)
       rack
     roda-route_list (2.1.0)
       roda
     rollbar (3.3.0)
-    rubocop (1.27.0)
+    rubocop (1.33.0)
+      json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
-      rexml
-      rubocop-ast (>= 1.16.0, < 2.0)
+      rexml (>= 3.2.5, < 4.0)
+      rubocop-ast (>= 1.19.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.17.0)
+    rubocop-ast (1.19.1)
       parser (>= 3.1.1.0)
     rubocop-performance (1.13.3)
       rubocop (>= 1.7.0, < 2.0)
@@ -157,7 +161,7 @@ GEM
       sequel (>= 4.38.0)
     tilt (2.0.10)
     timers (4.3.3)
-    unicode-display_width (2.1.0)
+    unicode-display_width (2.2.0)
     unicode_utils (1.4.0)
     webdrivers (5.0.0)
       nokogiri (~> 1.6)
@@ -168,6 +172,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   area
