@@ -86,6 +86,8 @@ GEM
     multi_xml (0.6.0)
     nokogiri (1.13.4-x86_64-darwin)
       racc (~> 1.4)
+    nokogiri (1.13.4-x86_64-linux)
+      racc (~> 1.4)
     oauth (0.5.8)
     oauth2 (1.4.9)
       faraday (>= 0.17.3, < 3.0)
@@ -101,7 +103,7 @@ GEM
       console (~> 1.8)
       samovar (~> 2.1)
     protocol-hpack (1.4.2)
-    protocol-http (0.22.5)
+    protocol-http (0.22.9)
     protocol-http1 (0.14.2)
       protocol-http (~> 0.22)
     protocol-http2 (0.14.2)
@@ -168,6 +170,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   area
