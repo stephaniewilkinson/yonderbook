@@ -6,25 +6,26 @@ GEM
     area (0.10.0)
       fastercsv (~> 1.5)
     ast (2.4.2)
-    async (2.0.1)
+    async (2.2.1)
       console (~> 1.10)
-      io-event (~> 1.0.0)
+      io-event (~> 1.1.0)
       timers (~> 4.1)
     async-container (0.16.12)
       async
       async-io
-    async-http (0.56.5)
+    async-http (0.56.6)
       async (>= 1.25)
       async-io (>= 1.28)
       async-pool (>= 0.2)
       protocol-http (~> 0.22.0)
       protocol-http1 (~> 0.14.0)
       protocol-http2 (~> 0.14.0)
-    async-http-cache (0.4.2)
+      traces (~> 0.4.0)
+    async-http-cache (0.4.3)
       async-http (~> 0.56)
-    async-io (1.33.0)
+    async-io (1.34.0)
       async
-    async-pool (0.3.9)
+    async-pool (0.3.12)
       async (>= 1.25)
     build-environment (1.13.0)
     capybara (3.36.0)
@@ -45,7 +46,7 @@ GEM
     console (1.15.0)
       fiber-local
     dotenv (2.7.6)
-    falcon (0.39.2)
+    falcon (0.40.1)
       async
       async-container (~> 0.16.0)
       async-http (~> 0.56.0)
@@ -70,7 +71,7 @@ GEM
     gender_detector (2.0.0)
     i18n (1.10.0)
       concurrent-ruby (~> 1.0)
-    io-event (1.0.5)
+    io-event (1.1.2)
     jwt (2.3.0)
     localhost (1.1.9)
     mapping (1.1.1)
@@ -85,6 +86,8 @@ GEM
     multi_json (1.15.0)
     multi_xml (0.6.0)
     nokogiri (1.13.4-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.13.4-x86_64-linux)
       racc (~> 1.4)
     oauth (0.5.8)
     oauth2 (1.4.9)
@@ -157,6 +160,7 @@ GEM
       sequel (>= 4.38.0)
     tilt (2.0.10)
     timers (4.3.3)
+    traces (0.4.1)
     unicode-display_width (2.1.0)
     unicode_utils (1.4.0)
     webdrivers (5.0.0)
@@ -168,6 +172,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   area
