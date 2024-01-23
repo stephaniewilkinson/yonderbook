@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake'
+
 case ENV.fetch('RACK_ENV', nil)
 when 'production', 'staging'
   require 'rollbar'
