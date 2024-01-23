@@ -28,7 +28,7 @@ namespace :db do
 
   desc 'Migrate development and test databases'
   task :migrate do
-    original_env = ENV['RACK_ENV']
+    original_env = ENV.fetch('RACK_ENV', nil)
     %w[test development].each do |env|
       ENV['RACK_ENV'] = env
       Dir['migrate/*'].sort.each do |migration|

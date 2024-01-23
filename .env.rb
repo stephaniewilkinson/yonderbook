@@ -2,7 +2,7 @@
 
 ENV['RACK_ENV'] ||= 'development'
 
-ENV['DATABASE_URL'] ||= case ENV['RACK_ENV']
+ENV['DATABASE_URL'] ||= case ENV.fetch('RACK_ENV', nil)
 when 'test'
   'postgres:///yonderbook_test'
 when 'production'

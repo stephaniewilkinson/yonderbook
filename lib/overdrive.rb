@@ -6,8 +6,8 @@ require 'async/http/client'
 require 'async/http/endpoint'
 require 'async/http/internet'
 require 'async/semaphore'
-require 'uri'
 require 'oauth2'
+require 'uri'
 
 class Overdrive
   BASE_URL     = 'https://api.overdrive.com'

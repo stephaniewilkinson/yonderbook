@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-case ENV['RACK_ENV']
+case ENV.fetch('RACK_ENV', nil)
 when 'production', 'staging'
   require 'rollbar'
   Rollbar.configure do |config|
-    config.access_token = '83f1303f9940479bb34a23e006c8886d'
+    config.access_token = '0302f64ea01249dfb3084cb21eae862c'
     config.enabled = true
   end
   require_relative 'app'
