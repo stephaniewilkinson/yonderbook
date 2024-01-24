@@ -28,7 +28,6 @@ GEM
       async
     async-pool (0.4.0)
       async (>= 1.25)
-    bigdecimal (3.1.6)
     build-environment (1.13.0)
     capybara (3.39.2)
       addressable
@@ -115,7 +114,6 @@ GEM
     parser (3.3.0.5)
       ast (~> 2.4.1)
       racc
-    pg (1.5.4)
     process-metrics (0.2.1)
       console (~> 1.8)
       samovar (~> 2.1)
@@ -177,11 +175,6 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
-    sequel (5.76.0)
-      bigdecimal
-    sequel_pg (1.17.1)
-      pg (>= 0.18.0, != 1.2.0)
-      sequel (>= 4.38.0)
     snaky_hash (2.0.1)
       hashie
       version_gem (~> 1.1, >= 1.1.1)
@@ -231,8 +224,6 @@ DEPENDENCIES
   rollbar
   rubocop
   rubocop-performance
-  sequel
-  sequel_pg
   tilt
   unicode_utils
   webdrivers

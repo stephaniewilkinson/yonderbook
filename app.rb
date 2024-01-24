@@ -13,9 +13,7 @@ require 'tilt'
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
 require_relative 'lib/cache'
-require_relative 'lib/db'
 require_relative 'lib/goodreads'
-require_relative 'lib/models'
 require_relative 'lib/overdrive'
 
 class App < Roda

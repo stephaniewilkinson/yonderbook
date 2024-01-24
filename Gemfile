@@ -18,8 +18,6 @@ gem 'rack-host-redirect'
 gem 'rackup'
 gem 'rake'
 gem 'roda'
-gem 'sequel'
-gem 'sequel_pg'
 gem 'tilt'
 gem 'unicode_utils'
 
