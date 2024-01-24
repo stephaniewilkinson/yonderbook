@@ -59,8 +59,12 @@ class App < Roda
 
       # route: GET /login
       r.get do
-        goodreads_user_id, goodreads_token, goodreads_secret = Goodreads.fetch_user request_token
+        goodreads_user_id, access_token, access_token_secret = Goodreads.fetch_user request_token
+        session['access_token'] = access_token
+        session['access_token_secret'] = access_token_secret
+
         session['goodreads_user_id'] = goodreads_user_id
+
         r.redirect '/auth/shelves'
       rescue OAuth::Unauthorized
         flash[:error] = 'Please authenticate first'

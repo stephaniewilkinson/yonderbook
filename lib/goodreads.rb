@@ -117,7 +117,7 @@ module Goodreads
     user_id = xml.xpath('//user').first.attributes.first[1].value
     name = xml.xpath('//user').first.children[1].children.text
 
-    [user_id, access_token, goodreads_token, goodreads_secret]
+    [user_id, goodreads_token, goodreads_secret]
   end
 
   def get_gender books
