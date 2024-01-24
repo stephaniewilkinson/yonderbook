@@ -18,6 +18,7 @@ module Goodreads
   HOST = 'www.goodreads.com'
   BASE_URL = "https://#{HOST}"
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
+  USERS = DB[:users]
   BOOK_DETAILS = %w[isbn book/image_url title authors/author/name published rating].freeze
 
   module_function
@@ -108,6 +109,8 @@ module Goodreads
 
   def fetch_user request_token
     access_token = request_token.get_access_token
+    goodreads_token = access_token.token
+    goodreads_secret = access_token.secret
     uri = new_uri
     uri.path = '/api/auth_user'
     response = access_token.get uri.to_s
@@ -115,7 +118,12 @@ module Goodreads
     user_id = xml.xpath('//user').first.attributes.first[1].value
     name = xml.xpath('//user').first.children[1].children.text
 
-    user_id
+    if USERS.first(goodreads_user_id: user_id)
+      USERS.where(goodreads_user_id: user_id).update(access_token: access_token.token, access_token_secret: access_token.secret)
+    else
+      USERS.insert(first_name: name, goodreads_user_id: user_id, access_token: access_token.token, access_token_secret: access_token.secret)
+    end
+    [user_id, goodreads_token, goodreads_secret]
   end
 
   def get_gender books

@@ -61,7 +61,7 @@ class App < Roda
 
       # route: GET /login
       r.get do
-        goodreads_user_id = Goodreads.fetch_user request_token
+        goodreads_user_id, goodreads_token, goodreads_secret = Goodreads.fetch_user request_token
         session['goodreads_user_id'] = goodreads_user_id
         r.redirect '/auth/shelves'
       rescue OAuth::Unauthorized
