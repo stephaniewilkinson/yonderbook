@@ -9,7 +9,6 @@ require 'gender_detector'
 require 'nokogiri'
 require 'oauth'
 require 'uri'
-require_relative 'db'
 
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title, keyword_init: true
