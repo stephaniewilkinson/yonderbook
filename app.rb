@@ -38,8 +38,6 @@ class App < Roda
     r.public
     r.assets
 
-    @users = DB[:users]
-
     session['session_id'] ||= SecureRandom.uuid
 
     # route: GET /
@@ -95,8 +93,7 @@ class App < Roda
 
           @book_info = Cache.get session, @shelf_name.to_sym
           unless @book_info
-            @user ||= @users.first(goodreads_user_id: @goodreads_user_id)
-            access_token = Auth.rebuild_access_token @user
+            access_token = Auth.rebuild_access_token(session['access_token'], session['access_token_secret'])
             @book_info = Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
             Cache.set session, @shelf_name.to_sym => @book_info
           end
