@@ -35,7 +35,6 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Run tests
-      with:
+      env:
         GOODREADS_SECRET: ${{ secrets.GOODREADS_SECRET }}
-        GOODREADS_API_KEY: ${{ secrets.GOODREADS_SECRET }}
       run: bundle exec rake
