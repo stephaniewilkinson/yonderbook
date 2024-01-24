@@ -37,4 +37,13 @@ jobs:
     - name: Run tests
       env:
         GOODREADS_SECRET: ${{ secrets.GOODREADS_SECRET }}
+        GOODREADS_API_KEY: ${{ secrets.GOODREADS_API_KEY }}
+        OVERDRIVE_KEY: ${{ secrets.OVERDRIVE_KEY }}
+        OVERDRIVE_SECRET: ${{ secrets.OVERDRIVE_SECRET }}
+        GOODREADS_EMAIL: ${{ secrets.GOODREADS_EMAIL }}
+        GOODREADS_PASSWORD: ${{ secrets.GOODREADS_PASSWORD }}
+        BOOKMOOCH_USERNAME: ${{ secrets.BOOKMOOCH_USERNAME }}
+        BOOKMOOCH_PASSWORD: ${{ secrets.BOOKMOOCH_PASSWORD }}
+        RACK_ENV: ${{ secrets.RACK_ENV }}
+        SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
       run: bundle exec rake
