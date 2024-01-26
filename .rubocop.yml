@@ -108,7 +108,6 @@ Layout/SingleLineBlockChain:
 
 Layout/IndentationWidth:
   Width: 2
-  IgnoredPatterns: []
 
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
@@ -390,10 +389,6 @@ Style/BlockDelimiters:
     - let!
     - subject
     - watch
-  IgnoredMethods:
-    - lambda
-    - proc
-    - it
 
 Style/CollectionMethods:
   PreferredMethods:
