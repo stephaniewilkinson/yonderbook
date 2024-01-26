@@ -1,7 +1,7 @@
 require: rubocop-performance
 
 AllCops:
-  TargetRubyVersion: 2.7.1
+  TargetRubyVersion: 3.2.3
   EnabledByDefault: true
 
 #################### Bundler ##############################

@@ -41,7 +41,7 @@ class App < Roda
     # route: GET /
     r.root do
       request_token = Auth.fetch_request_token
-      Cache.set session, request_token: request_token
+      Cache.set(session, request_token:)
 
       @auth_url = request_token.authorize_url
       view 'welcome'
@@ -142,7 +142,7 @@ class App < Roda
             # route: POST /auth/shelves/:id/overdrive?consortium=1047
             r.post do
               titles = Overdrive.new(@book_info, r['consortium']).fetch_titles_availability
-              Cache.set session, titles: titles
+              Cache.set(session, titles:)
               r.redirect '/auth/availability'
             end
           end
@@ -184,8 +184,7 @@ class App < Roda
             r.redirect "shelves/#{@shelf_name}/overdrive"
           end
 
-          @local_libraries = Overdrive.local_libraries zip.to_latlon.delete ' '
-
+          @local_libraries = Overdrive.local_libraries zip.delete ' '
           Cache.set session, libraries: @local_libraries
           r.redirect '/auth/library'
         end

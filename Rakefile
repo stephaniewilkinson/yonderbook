@@ -31,7 +31,7 @@ namespace :db do
     original_env = ENV.fetch('RACK_ENV', nil)
     %w[test development].each do |env|
       ENV['RACK_ENV'] = env
-      Dir['migrate/*'].sort.each do |migration|
+      Dir['migrate/*'].each do |migration|
         sh "ruby #{migration}"
       end
     end

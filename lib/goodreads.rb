@@ -15,7 +15,7 @@ module Goodreads
   API_KEY = ENV.fetch 'GOODREADS_API_KEY'
   GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
-  BASE_URL = "https://#{HOST}"
+  BASE_URL = "https://#{HOST}".freeze
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
   BOOK_DETAILS = %w[isbn book/image_url title authors/author/name published rating].freeze
 
@@ -94,11 +94,11 @@ module Goodreads
 
       data.map do |isbn, image_url, title, author, published_year, rating|
         {
-          isbn: isbn,
-          image_url: image_url,
-          title: title,
-          author: author,
-          published_year: published_year,
+          isbn:,
+          image_url:,
+          title:,
+          author:,
+          published_year:,
           ratings: rating
         }
       end
@@ -153,7 +153,7 @@ module Goodreads
         doc = Nokogiri::XML(response.read)
         title = doc.xpath('//title').text
         image_url = doc.xpath('//image_url').first.text
-        book = Book.new title: title, image_url: image_url, isbn: isbn
+        book = Book.new(title:, image_url:, isbn:)
 
         [:ok, book]
       else

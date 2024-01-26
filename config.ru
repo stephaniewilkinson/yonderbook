@@ -28,7 +28,7 @@ else
   logger = Logger.new $stdout
   logger.level = Logger::DEBUG
 
-  Unreloader = Rack::Unreloader.new(subclasses: %w[Roda Sequel::Model], logger: logger, reload: true) { App }
+  Unreloader = Rack::Unreloader.new(subclasses: %w[Roda Sequel::Model], logger:, reload: true) { App }
   Unreloader.require('app.rb') { 'App' }
   run Unreloader
 end

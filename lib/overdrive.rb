@@ -11,27 +11,29 @@ require 'uri'
 
 class Overdrive
   BASE_URL     = 'https://api.overdrive.com'
-  API_URI      = "#{BASE_URL}/v1"
-  MAPBOX_URI   = 'https://www.overdrive.com/mapbox/find-libraries-by-location'
+  API_URI      = "#{BASE_URL}/v1".freeze
+  MAPBOX_URI   = 'https://www.overdrive.com/mapbox/find-libraries-by-query'
   OAUTH_URI    = 'https://oauth.overdrive.com'
   KEY          = ENV.fetch 'OVERDRIVE_KEY'
   SECRET       = ENV.fetch 'OVERDRIVE_SECRET'
 
   Title = Struct.new :title, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, keyword_init: true
 
-  def self.local_libraries latlon
+  def self.local_libraries zip_code
+    # here is teh url that overdrive uses to search
+    # https://www.overdrive.com/mapbox/find-libraries-by-query?query=91302&includePublicLibraries=true&includeSchoolLibraries=true&sort=distance
+
     task = Async do
       internet = Async::HTTP::Internet.new
-      params = URI.encode_www_form latLng: latlon, radius: 50
-
+      params = URI.encode_www_form query: zip_code, includePublicLibraries: true, includeSchoolLibraries: false
       response = internet.get "#{MAPBOX_URI}?#{params}"
       response.read
     ensure
       internet&.close
     end
-
     libraries = JSON.parse task.wait
-
+    # they have changed the JSON payload here so it only responds with the 'consortium' and the libraries are nested
+    # maybe this is ok though
     libraries.first(10).map do |l|
       consortium_id = l['consortiumId']
       consortium_name = l['consortiumName']
@@ -138,11 +140,12 @@ class Overdrive
       task.with_timeout 25 do
         books = []
 
-        @book_info.each.with_index 1 do |book, book_number|
+        @book_info.each.with_index 1 do |book, _book_number|
           barrier.async do
             response = client.get(availability_path(book), 'Authorization' => "Bearer #{@token}")
             body = response.read
-            Async.logger.info "Book number #{book_number} of #{@book_info.size} response code: #{response.status}"
+
+            warn "Book number #{book_number} of #{@book_info.size} response code: #{response.status}"
 
             books << [title(book), body]
           end
