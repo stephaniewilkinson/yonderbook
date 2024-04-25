@@ -33,6 +33,7 @@ module Bookmooch
 
         barrier.async do
           response = client.get path, headers
+          # The response is empty for big shelves
           response.read.lines(chomp: true).each do |isbn|
             added_isbns << isbn
           end
