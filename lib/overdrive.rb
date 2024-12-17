@@ -45,6 +45,7 @@ class Overdrive
   def initialize book_info, consortium_id
     @book_info = book_info
     @token = token
+
     @collection_token = collection_token consortium_id, @token
     @books = async_books_with_overdrive_info.wait
   end
@@ -113,9 +114,9 @@ class Overdrive
       body['availability'].each do |result|
         # fail occurs here
 
-        book = @books.find { |title, _|
+        book = @books.find do |title, _|
           title.id = result['reserveId']
-        }.first
+        end.first
         book.copies_available = result['copiesAvailable']
         book.copies_owned = result['copiesOwned']
       end

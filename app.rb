@@ -64,7 +64,7 @@ class App < Roda
 
         r.redirect '/auth/shelves'
       rescue OAuth::Unauthorized
-        flash[:error] = 'Please authenticate first'
+        flash[:error] = 'Fetched details! Click login'
         r.redirect '/'
       end
     end

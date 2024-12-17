@@ -114,7 +114,7 @@ module Goodreads
     response = access_token.get uri.to_s
     xml = Nokogiri::XML response.body
     user_id = xml.xpath('//user').first.attributes.first[1].value
-    name = xml.xpath('//user').first.children[1].children.text
+    xml.xpath('//user').first.children[1].children.text
 
     [user_id, goodreads_token, goodreads_secret]
   end
