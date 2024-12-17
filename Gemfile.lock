@@ -1,39 +1,42 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.8.6)
-      public_suffix (>= 2.0.2, < 6.0)
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
     area (0.10.0)
       fastercsv (~> 1.5)
     ast (2.4.2)
-    async (2.8.0)
-      console (~> 1.10)
+    async (2.21.1)
+      console (~> 1.29)
       fiber-annotation
-      io-event (~> 1.1)
-      timers (~> 4.1)
-    async-container (0.16.12)
-      async
-      async-io
-    async-http (0.62.0)
-      async (>= 1.25)
-      async-io (>= 1.28)
-      async-pool (>= 0.2)
-      protocol-http (~> 0.25.0)
-      protocol-http1 (~> 0.16.0)
-      protocol-http2 (~> 0.15.0)
-      traces (>= 0.10.0)
-    async-http-cache (0.4.3)
+      io-event (~> 1.6, >= 1.6.5)
+    async-container (0.18.3)
+      async (~> 2.10)
+    async-http (0.86.0)
+      async (>= 2.10.2)
+      async-pool (~> 0.9)
+      io-endpoint (~> 0.14)
+      io-stream (~> 0.6)
+      metrics (~> 0.12)
+      protocol-http (~> 0.43)
+      protocol-http1 (>= 0.28.1)
+      protocol-http2 (~> 0.22)
+      traces (~> 0.10)
+    async-http-cache (0.4.4)
       async-http (~> 0.56)
-    async-io (1.41.0)
-      async
-    async-pool (0.4.0)
+    async-pool (0.10.2)
       async (>= 1.25)
-    build-environment (1.13.0)
-    capybara (3.39.2)
+      traces
+    async-service (0.12.0)
+      async
+      async-container (~> 0.16)
+    base64 (0.2.0)
+    bigdecimal (3.1.8)
+    capybara (3.40.0)
       addressable
       matrix
       mini_mime (>= 0.1.3)
-      nokogiri (~> 1.8)
+      nokogiri (~> 1.11)
       rack (>= 1.6.0)
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
@@ -42,59 +45,72 @@ GEM
       capybara
       selenium-webdriver
     coderay (1.1.3)
-    concurrent-ruby (1.2.3)
-    console (1.23.3)
+    concurrent-ruby (1.3.4)
+    console (1.29.0)
       fiber-annotation
-      fiber-local
-    dotenv (2.8.1)
-    falcon (0.42.3)
+      fiber-local (~> 1.1)
+      json
+    csv (3.3.0)
+    dotenv (3.1.4)
+    drb (2.2.1)
+    falcon (0.48.3)
       async
-      async-container (~> 0.16.0)
-      async-http (~> 0.57)
-      async-http-cache (~> 0.4.0)
-      async-io (~> 1.22)
-      build-environment (~> 1.13)
+      async-container (~> 0.18)
+      async-http (~> 0.75)
+      async-http-cache (~> 0.4)
+      async-service (~> 0.10)
       bundler
       localhost (~> 1.1)
       openssl (~> 3.0)
-      process-metrics (~> 0.2.0)
-      protocol-rack (~> 0.1)
-      samovar (~> 2.1)
-    falcon-capybara (1.5.2)
+      process-metrics (~> 0.2)
+      protocol-http (~> 0.31)
+      protocol-rack (~> 0.7)
+      samovar (~> 2.3)
+    falcon-capybara (1.6.1)
       capybara (~> 3.37)
-      falcon (~> 0.34)
+      falcon
       selenium-webdriver
-    faraday (2.9.0)
-      faraday-net_http (>= 2.0, < 3.2)
-    faraday-net_http (3.1.0)
-      net-http
+    faraday (2.12.1)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-net_http (3.4.0)
+      net-http (>= 0.5.0)
     fastercsv (1.5.5)
     fiber-annotation (0.2.0)
-    fiber-local (1.0.0)
+    fiber-local (1.1.0)
+      fiber-storage
+    fiber-storage (1.0.0)
     gender_detector (2.0.0)
     hashie (5.0.0)
-    i18n (1.14.1)
+    i18n (1.14.6)
       concurrent-ruby (~> 1.0)
-    io-event (1.4.2)
-    json (2.7.1)
-    jwt (2.7.1)
+    io-endpoint (0.14.0)
+    io-event (1.7.4)
+    io-stream (0.6.1)
+    json (2.9.0)
+    jwt (2.9.3)
+      base64
     language_server-protocol (3.17.0.3)
-    localhost (1.1.10)
+    localhost (1.3.1)
+    logger (1.6.2)
     mapping (1.1.1)
     matrix (0.4.2)
-    method_source (1.0.0)
+    method_source (1.1.0)
+    metrics (0.12.1)
     mini_mime (1.1.5)
-    minitest (5.21.2)
+    minitest (5.25.4)
     minitest-capybara (0.9.0)
       capybara
       minitest (~> 5.0)
       rake
-    multi_xml (0.6.0)
-    net-http (0.4.1)
+    multi_xml (0.7.1)
+      bigdecimal (~> 3.1)
+    net-http (0.6.0)
       uri
-    nokogiri (1.16.0-x86_64-darwin)
+    nokogiri (1.16.8-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.0-x86_64-linux)
+    nokogiri (1.16.8-x86_64-linux)
       racc (~> 1.4)
     oauth (1.1.0)
       oauth-tty (~> 1.0, >= 1.0.1)
@@ -110,65 +126,65 @@ GEM
       snaky_hash (~> 2.0)
       version_gem (~> 1.1)
     openssl (3.2.0)
-    parallel (1.24.0)
-    parser (3.3.0.5)
+    ostruct (0.6.0)
+    parallel (1.26.3)
+    parser (3.3.6.0)
       ast (~> 2.4.1)
       racc
-    process-metrics (0.2.1)
+    process-metrics (0.3.0)
       console (~> 1.8)
+      json (~> 2)
       samovar (~> 2.1)
-    protocol-hpack (1.4.2)
-    protocol-http (0.25.0)
-    protocol-http1 (0.16.1)
+    protocol-hpack (1.5.1)
+    protocol-http (0.47.1)
+    protocol-http1 (0.28.1)
       protocol-http (~> 0.22)
-    protocol-http2 (0.15.1)
+    protocol-http2 (0.22.0)
       protocol-hpack (~> 1.4)
       protocol-http (~> 0.18)
-    protocol-rack (0.4.1)
-      protocol-http (~> 0.23)
+    protocol-rack (0.11.0)
+      protocol-http (~> 0.43)
       rack (>= 1.0)
-    pry (0.14.2)
+    pry (0.15.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (5.0.4)
-    racc (1.7.3)
-    rack (3.0.8)
+    public_suffix (6.0.1)
+    racc (1.8.1)
+    rack (3.1.8)
     rack-host-redirect (1.3.0)
       rack
     rack-test (2.1.0)
       rack (>= 1.3)
     rack-unreloader (2.1.0)
-    rackup (2.1.0)
+    rackup (2.2.1)
       rack (>= 3)
-      webrick (~> 1.8)
     rainbow (3.1.1)
-    rake (13.1.0)
-    regexp_parser (2.9.0)
-    rexml (3.2.6)
-    roda (3.76.0)
+    rake (13.2.1)
+    regexp_parser (2.9.3)
+    rexml (3.3.9)
+    roda (3.86.0)
       rack
     roda-route_list (2.1.0)
       roda
-    rollbar (3.5.1)
-    rubocop (1.60.2)
+    rollbar (3.6.0)
+    rubocop (1.69.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 1.8, < 3.0)
-      rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.30.0, < 2.0)
+      regexp_parser (>= 2.9.3, < 3.0)
+      rubocop-ast (>= 1.36.2, < 2.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.30.0)
-      parser (>= 3.2.1.0)
-    rubocop-performance (1.20.2)
+      unicode-display_width (>= 2.4.0, < 4.0)
+    rubocop-ast (1.36.2)
+      parser (>= 3.3.1.0)
+    rubocop-performance (1.23.0)
       rubocop (>= 1.48.1, < 2.0)
-      rubocop-ast (>= 1.30.0, < 2.0)
+      rubocop-ast (>= 1.31.1, < 2.0)
     ruby-progressbar (1.13.0)
     rubyzip (2.3.2)
-    samovar (2.2.0)
+    samovar (2.3.0)
       console (~> 1.0)
       mapping (~> 1.0)
     selenium-webdriver (4.10.0)
@@ -178,32 +194,35 @@ GEM
     snaky_hash (2.0.1)
       hashie
       version_gem (~> 1.1, >= 1.1.1)
-    tilt (2.3.0)
-    timers (4.3.5)
-    traces (0.11.1)
-    unicode-display_width (2.5.0)
+    tilt (2.4.0)
+    traces (0.14.1)
+    unicode-display_width (3.1.2)
+      unicode-emoji (~> 4.0, >= 4.0.4)
+    unicode-emoji (4.0.4)
     unicode_utils (1.4.0)
-    uri (0.13.0)
-    version_gem (1.1.3)
+    uri (1.0.2)
+    version_gem (1.1.4)
     webdrivers (5.3.1)
       nokogiri (~> 1.6)
       rubyzip (>= 1.3.0)
       selenium-webdriver (~> 4.0, < 4.11)
-    webrick (1.8.1)
-    websocket (1.2.10)
+    websocket (1.2.11)
     xpath (3.2.0)
       nokogiri (~> 1.8)
 
 PLATFORMS
   x86_64-darwin-21
   x86_64-darwin-23
+  x86_64-darwin-24
   x86_64-linux
 
 DEPENDENCIES
   area
   async-http
   capybara-selenium
+  csv
   dotenv
+  drb
   falcon
   falcon-capybara
   gender_detector
@@ -213,6 +232,7 @@ DEPENDENCIES
   nokogiri
   oauth
   oauth2
+  ostruct
   pry
   rack-host-redirect
   rack-test
@@ -229,7 +249,7 @@ DEPENDENCIES
   webdrivers
 
 RUBY VERSION
-   ruby 3.3.1p55
+   ruby 3.3.5p100
 
 BUNDLED WITH
-   2.5.5
+   2.5.23

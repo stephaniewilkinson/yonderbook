@@ -20,7 +20,6 @@ class App < Roda
   use Rollbar::Middleware::Rack
   use Rack::HostRedirect, 'bookmooch.herokuapp.com' => 'yonderbook.com'
 
-  plugin :halt
   plugin :head
   plugin :assets, css: 'styles.css'
   plugin :public, root: 'assets'
@@ -117,8 +116,7 @@ class App < Roda
 
             # route: POST /auth/shelves/:id/bookmooch?username=foo&password=baz
             r.post do
-              r.halt(403) if r['username'] == 'susanb'
-              @books_added, @books_failed = Bookmooch.books_added_and_failed @book_info, r['username'], r['password']
+              @books_added, @books_failed = Bookmooch.books_added_and_failed @book_info, r.params['username'], r.params['password']
               Cache.set session, books_added: @books_added, books_failed: @books_failed
 
               r.redirect 'bookmooch/results'
@@ -141,7 +139,7 @@ class App < Roda
 
             # route: POST /auth/shelves/:id/overdrive?consortium=1047
             r.post do
-              titles = Overdrive.new(@book_info, r['consortium']).fetch_titles_availability
+              titles = Overdrive.new(@book_info, r.params['consortium']).fetch_titles_availability
               Cache.set(session, titles:)
               r.redirect '/auth/availability'
             end
@@ -172,7 +170,7 @@ class App < Roda
         # route: POST /auth/library?zipcode=90029
         r.post do
           @shelf_name = Cache.get session, :shelf_name
-          zip = r['zipcode']
+          zip = r.params['zipcode']
 
           if zip.empty?
             flash[:error] = 'You need to enter a zip code'

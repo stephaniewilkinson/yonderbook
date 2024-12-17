@@ -19,7 +19,7 @@ module Bookmooch
 
     async_isbns = Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, connection_limit: 16
+      client = Async::HTTP::Client.new endpoint, limit: 16
       barrier = Async::Barrier.new
 
       basic_auth_credentials = Base64.strict_encode64 "#{username}:#{password}"

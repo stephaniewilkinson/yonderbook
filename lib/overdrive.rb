@@ -60,7 +60,7 @@ class Overdrive
 
     task = Async do
       internet = Async::HTTP::Internet.new
-      response = internet.get(library_uri, 'Authorization' => "Bearer #{token}")
+      response = internet.get(library_uri, {'Authorization' => "Bearer #{token}"})
       response.read
     ensure
       internet&.close
@@ -111,7 +111,11 @@ class Overdrive
       end
 
       body['availability'].each do |result|
-        book = @books.find { |title, _| title.id == result['reserveId'] }.first
+        # fail occurs here
+
+        book = @books.find { |title, _|
+          title.id = result['reserveId']
+        }.first
         book.copies_available = result['copiesAvailable']
         book.copies_owned = result['copiesOwned']
       end
@@ -134,15 +138,15 @@ class Overdrive
   def async_books_with_overdrive_info
     Async do |task|
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, connection_limit: 16
+      client = Async::HTTP::Client.new endpoint, limit: 16
       barrier = Async::Barrier.new
 
       task.with_timeout 25 do
         books = []
 
-        @book_info.each.with_index 1 do |book, _book_number|
+        @book_info.each.with_index 1 do |book, book_number|
           barrier.async do
-            response = client.get(availability_path(book), 'Authorization' => "Bearer #{@token}")
+            response = client.get(availability_path(book), {'Authorization' => "Bearer #{@token}"})
             body = response.read
 
             warn "Book number #{book_number} of #{@book_info.size} response code: #{response.status}"
@@ -165,7 +169,7 @@ class Overdrive
   def async_responses batches
     Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, connection_limit: 16
+      client = Async::HTTP::Client.new endpoint, limit: 16
       barrier = Async::Barrier.new
 
       responses = []
@@ -175,8 +179,8 @@ class Overdrive
         path = "/v2/collections/#{@collection_token}/availability?#{params}"
 
         barrier.async do
-          response = client.get path, 'Authorization' => "Bearer #{@token}"
-          Async.logger.info "Batch number #{batch_number} of #{batches.size} response code: #{response.status}"
+          response = client.get path, {'Authorization' => "Bearer #{@token}"}
+          Console.logger.info "Batch number #{batch_number} of #{batches.size} response code: #{response.status}"
           responses << [response.read, response.status]
         end
       end
