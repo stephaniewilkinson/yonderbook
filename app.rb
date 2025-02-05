@@ -50,7 +50,7 @@ class App < Roda
       request_token = Cache.get session, :request_token
       # TODO: this is blocking people who are already logged in but not a huge deal
       unless request_token
-        flash[:error] = 'Please authenticate first'
+        flash[:error] = "Click 'login' again please"
         r.redirect '/'
       end
 
