@@ -67,7 +67,6 @@ module Goodreads
         1.upto(number_of_pages).each do |page|
           barrier.async do
             response = client.get "#{path}&page=#{page}"
-            Async.logger.info "Fetching page #{page} of #{number_of_pages}"
             bodies << response.read
           end
         end

@@ -8,7 +8,7 @@ require 'base64'
 require 'uri'
 
 module Bookmooch
-  BASE_URL = 'http://api.bookmooch.com'
+  BASE_URL = 'https://api.bookmooch.com'
   PATH = '/api/userbook'
 
   module_function
@@ -34,8 +34,11 @@ module Bookmooch
         barrier.async do
           response = client.get path, headers
           # The response is empty for big shelves
-          response.read.lines(chomp: true).each do |isbn|
-            added_isbns << isbn
+          response_body = response.read
+          if response_body
+            response_body.lines(chomp: true).each do |isbn|
+              added_isbns << isbn
+            end
           end
         end
       end
