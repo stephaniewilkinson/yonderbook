@@ -7,6 +7,7 @@
          url('../fonts/coats_regular-webfont.woff2') format('woff2'),
          url('../fonts/coats_regular-webfont.woff') format('woff'),
          url('../fonts/coats_regular-webfont.svg#coatsregular') format('svg');
+    font-display: swap;
 }
 
 h1,
@@ -28,7 +29,11 @@ body {
 
 .btn {
   border-radius: 20px;
-  background-color: rgba(80, 18, 41, 0.75);
+}
+
+.btn.filled,
+.btn-large.filled {
+  background-color: rgba(80, 18, 41, 0.75) !important;
 }
 
 h1,
@@ -84,6 +89,10 @@ body {
 
 main {
   flex: 1 0 auto;
+}
+
+/* Load background images after initial render for better performance */
+main.loaded {
   background-image: url(../img/clouds/2.png), url(../img/clouds/10.png);
   background-repeat: no-repeat;
   background-size: 400px;
@@ -102,4 +111,7 @@ main {
   background-position: center;
   background-repeat: no-repeat;
   background-size: 40%;
+  color: #501229 !important;
+  text-decoration: none !important;
+  font-weight: 500;
 }

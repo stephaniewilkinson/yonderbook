@@ -22,6 +22,7 @@ class App < Roda
 
   plugin :head
   plugin :assets, css: 'styles.css'
+  plugin :assets_preloading
   plugin :public, root: 'assets'
   plugin :flash
   plugin :sessions, secret: ENV.fetch('SESSION_SECRET')

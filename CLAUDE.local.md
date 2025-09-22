@@ -39,6 +39,16 @@ views/
 - **Code quality**: `bundle exec rubocop` (available in dev/test groups)
 - **Route updates**: `bundle exec rake routes:update` (updates routes.json)
 
+## Testing & Performance
+- **Server URL**: https://localhost:9292 (Falcon serves HTTPS by default)
+- **Server Type**: Falcon async HTTP server with forked workers (count: 20)
+- **Modal Testing**: Materialize v2.x uses `M.Modal.init()` instead of jQuery `.modal()`
+- **Background Images**: Progressive loading implemented for better perceived performance
+- **Font Loading**: Custom fonts use `font-display: swap` to prevent layout shifts
+- **Asset Pipeline**: Roda assets plugin with preloading support enabled
+- **Lighthouse Audits**: `lighthouse https://localhost:9292 --chrome-flags="--ignore-certificate-errors"`
+- **Performance Baseline**: FCP: 3.7s, LCP: 10.8s, Speed Index: 6.9s (post-optimization)
+
 ## Testing Notes
 - **Framework**: Minitest with Capybara for browser testing
 - **Runtime**: Approximately 2-4 minutes for full test suite

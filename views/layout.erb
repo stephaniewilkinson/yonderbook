@@ -3,24 +3,21 @@
   <head>
     <title>Yonderbook | Tools for the Tech-savvy & Bookish</title>
     <meta charset="UTF-8">
-    <!--Import Google Icon Font-->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-
-    <!--Import css-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-
-    <%= assets(:css) %>
-
-    <!--Import jQuery before materialize.js-->
-    <script
-    src="https://code.jquery.com/jquery-3.2.1.min.js"
-    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-    crossorigin="anonymous">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <!-- Preload critical resources for faster loading -->
+    <%= preload_assets_link_tags(:css) %>
+    <link rel="preload" href="https://fonts.googleapis.com/css?family=Lato&display=swap" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/css/materialize.min.css" as="style">
+
+    <!-- Load fonts with display=swap for better performance -->
+    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/css/materialize.min.css">
+
+    <%= assets(:css) %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96996170-1"></script>
     <script>
@@ -34,7 +31,7 @@
 
   <body>
     <main>
-      <nav class="transparent">
+      <nav class="nav navbar transparent">
         <div class="nav-wrapper">
           <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href="/about"><i class="material-icons left">info_outline</i>About</a></li>
@@ -56,11 +53,27 @@
       </div>
     </main>
 
-    <% if flash['error'] %>
-      <script type="text/javascript">
-        Materialize.toast("<%= flash['error'] %>", 4000)
-      </script>
-    <% end %>
+    <!-- JavaScript at end of body for optimized loading (per Materialize docs) -->
+    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/js/materialize.min.js"></script>
+
+    <!-- Initialize Materialize components -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize modals
+        var elems = document.querySelectorAll('.modal');
+        var instances = M.Modal.init(elems);
+
+        // Progressive enhancement: Load background images after critical content
+        setTimeout(function() {
+          document.querySelector('main').classList.add('loaded');
+        }, 100);
+
+        // Show flash messages
+        <% if flash['error'] %>
+          M.toast({html: "<%= flash['error'] %>", displayLength: 4000});
+        <% end %>
+      });
+    </script>
 
     <!-- Start of Async Drift Code -->
     <script>
