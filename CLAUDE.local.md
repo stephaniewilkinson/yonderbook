@@ -33,11 +33,11 @@ views/
 ```
 
 ## Development Commands
-- **Start server**: `falcon`
+- **Start server**: `bundle exec falcon`
 - **Run tests**: `bundle exec rake` (default task, ~2-4 minutes runtime)
-- **Database setup**: `rake db:create && rake db:migrate`
-- **Code quality**: `rubocop` (available in dev/test groups)
-- **Route updates**: `rake routes:update` (updates routes.json)
+- **Database setup**: `bundle exec rake db:create && bundle exec rake db:migrate`
+- **Code quality**: `bundle exec rubocop` (available in dev/test groups)
+- **Route updates**: `bundle exec rake routes:update` (updates routes.json)
 
 ## Testing Notes
 - **Framework**: Minitest with Capybara for browser testing
