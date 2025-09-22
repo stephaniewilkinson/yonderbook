@@ -46,11 +46,11 @@ module Goodreads
   end
 
   def get_books shelf_name, goodreads_user_id, access_token
-    path = "/review/list/#{goodreads_user_id}.xml?key=#{API_KEY}&v=2&shelf=#{shelf_name}&per_page=200"
+    path = "/review/list/#{goodreads_user_id}.xml?key=#{API_KEY}&v=2&shelf=#{shelf_name}&per_page=100"
     uri = "#{BASE_URL}#{path}"
     response = access_token.get(uri)
     doc = Nokogiri::XML response.body
-    number_of_pages = doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(200).ceil
+    number_of_pages = doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(100).ceil
     bodies = get_requests path, number_of_pages, access_token
     get_book_details bodies
   end
