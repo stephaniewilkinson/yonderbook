@@ -58,7 +58,7 @@ module Goodreads
   def get_requests path, number_of_pages, access_token
     get_bodies = Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, limit: 16
+      client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
 
       if client.head(path).status == 200
@@ -68,10 +68,16 @@ module Goodreads
           barrier.async do
             response = client.get "#{path}&page=#{page}"
             bodies << response.read
+          ensure
+            response&.close
           end
         end
 
-        barrier.wait
+        begin
+          barrier.wait
+        ensure
+          barrier&.stop
+        end
 
         bodies
       else
