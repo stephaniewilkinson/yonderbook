@@ -1,4 +1,5 @@
-require: rubocop-performance
+plugins:
+  - rubocop-performance
 
 AllCops:
   TargetRubyVersion: 3.2.3
@@ -332,7 +333,7 @@ Metrics/PerceivedComplexity:
 
 #################### Naming ################################
 
-Naming/PredicateName:
+Naming/PredicatePrefix:
   NamePrefix:
     - is_
     - has_
