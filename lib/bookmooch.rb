@@ -19,7 +19,7 @@ module Bookmooch
 
     async_isbns = Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, limit: 16
+      client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
 
       basic_auth_credentials = Base64.strict_encode64 "#{username}:#{password}"
@@ -35,15 +35,19 @@ module Bookmooch
           response = client.get path, headers
           # The response is empty for big shelves
           response_body = response.read
-          if response_body
-            response_body.lines(chomp: true).each do |isbn|
-              added_isbns << isbn
-            end
+          response_body&.lines(chomp: true)&.each do |isbn|
+            added_isbns << isbn
           end
+        ensure
+          response&.close
         end
       end
 
-      barrier.wait
+      begin
+        barrier.wait
+      ensure
+        barrier&.stop
+      end
 
       added_isbns
     ensure

@@ -114,9 +114,7 @@ class Overdrive
       body['availability'].each do |result|
         # fail occurs here
 
-        book = @books.find do |title, _|
-          title.id = result['reserveId']
-        end.first
+        book = @books.find { |title, _| title.id = result['reserveId'] }.first
         book.copies_available = result['copiesAvailable']
         book.copies_owned = result['copiesOwned']
       end
@@ -139,7 +137,7 @@ class Overdrive
   def async_books_with_overdrive_info
     Async do |task|
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, limit: 16
+      client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
 
       task.with_timeout 25 do
@@ -153,10 +151,16 @@ class Overdrive
             warn "Book number #{book_number} of #{@book_info.size} response code: #{response.status}"
 
             books << [title(book), body]
+          ensure
+            response&.close
           end
         end
 
-        barrier.wait
+        begin
+          barrier.wait
+        ensure
+          barrier&.stop
+        end
 
         books
       rescue Async::TimeoutError
@@ -170,7 +174,7 @@ class Overdrive
   def async_responses batches
     Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, limit: 16
+      client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
 
       responses = []
@@ -183,10 +187,16 @@ class Overdrive
           response = client.get path, {'Authorization' => "Bearer #{@token}"}
           Console.logger.info "Batch number #{batch_number} of #{batches.size} response code: #{response.status}"
           responses << [response.read, response.status]
+        ensure
+          response&.close
         end
       end
 
-      barrier.wait
+      begin
+        barrier.wait
+      ensure
+        barrier&.stop
+      end
 
       responses
     ensure

@@ -40,7 +40,7 @@ module Goodreads
 
     doc = Nokogiri::XML task.wait
     shelf_names = doc.xpath('//shelves//name').children.to_a
-    shelf_books = doc.xpath('//shelves//book_count').children.map(&:to_s).map(&:to_i)
+    shelf_books = doc.xpath('//shelves//book_count').children.map { |x| x.to_s.to_i }
 
     shelf_names.zip shelf_books
   end
