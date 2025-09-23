@@ -64,6 +64,41 @@
                 <% end %>
               </div>
             </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+              <button type="button"
+                      class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                      onclick="toggleMobileMenu()">
+                <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Navigation -->
+          <div class="mobile-menu hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">
+              <a href="/about"
+                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                About
+              </a>
+
+              <% if session.key? 'goodreads_user_id' %>
+              <a href="/auth/shelves"
+                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                Shelves
+              </a>
+              <% end %>
+
+              <% if @user %>
+              <a href='/auth/users/<%= @user[:id] %>'
+                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                Account
+              </a>
+              <% end %>
+            </div>
           </div>
         </div>
       </nav>
@@ -75,6 +110,12 @@
 
     <!-- Custom JavaScript -->
     <script>
+      // Mobile menu toggle function
+      function toggleMobileMenu() {
+        var mobileMenu = document.querySelector('.mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
         // Progressive enhancement: Load background images after critical content
         setTimeout(function() {

@@ -1,10 +1,13 @@
 <div class="mt-24">
-  <div class="text-center">
+  <div class="text-center relative">
+    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-20">
+      <img src="/img/objects/1.png" alt="" class="w-16 h-16 object-contain">
+    </div>
     <h3 class="text-3xl font-bold text-gray-900 mb-8">
       Book tools for Goodreads, Libby, and Bookmooch
     </h3>
     <div class="mt-8">
-      <a href='<%= @auth_url %>' class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg rounded-lg shadow-lg transition-colors duration-200" id="login-btn">
+      <a href='<%= @auth_url %>' class="inline-flex items-center px-6 py-3 bg-brand hover:bg-brand-hover text-white font-semibold text-lg rounded-lg shadow-lg transition-colors duration-200" id="login-btn">
         <span class="btn-text flex items-center">
           Log in with Goodreads
           <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
