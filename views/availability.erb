@@ -1,94 +1,110 @@
-<div class="row">
-  <div class="col l6 s12 offset-l3 m8 offset-m2">
-    <h3>Finished!</h3>
-    <p>There are <%= @available_books.size %> books available to check out right now.</p>
-    <p>You can join the waiting list for <%= @waitlist_books.size %> books.</p>
-    <div class="progress">
-      <div class="determinate" style="width: 100%"></div>
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="text-center relative">
+    <div class="absolute -top-6 right-8 opacity-30">
+      <img src="/img/objects/50.png" alt="" class="w-12 h-12 object-contain">
+    </div>
+    <h3 class="text-2xl font-bold text-gray-900 mb-4">Finished!</h3>
+    <p class="text-gray-600 mb-2">There are <%= @available_books.size %> books available to check out right now.</p>
+    <p class="text-gray-600 mb-4">You can join the waiting list for <%= @waitlist_books.size %> books.</p>
+    <div class="w-full bg-gray-200 rounded-full h-2">
+      <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
     </div>
     <!-- TODO: add name of shelf and name of library -->
   </div>
 </div>
 
-<div class="row">
-  <ul class="tabs">
-    <% unless @available_books.empty?  %>
-      <li class="tab col s4 teal lighten-5"><a href="#available">Available<span class="badge"><%= @available_books.size %></span></a></li>
-    <% end %>
-    <% unless @waitlist_books.empty? %>
-      <li class="tab col s4 yellow lighten-5"><a href="#waitlist">Waitlist<span class="badge"><%= @waitlist_books.size %></span></a></li>
-    <% end %>
-    <!-- TODO: this count is incorrect, its not taking non-isbn books into account -->
-    <li class="tab col s4 red lighten-5"><a href="#unavailable">Unavailable<span class="badge"><%= @unavailable_books.size %></span></a></li>
-  </ul>
+<div class="max-w-6xl mx-auto">
+  <el-tab-group>
+    <el-tab-list class="flex border-b border-gray-200 mb-6">
+      <% unless @available_books.empty? %>
+        <button type="button" class="flex-1 py-2 px-4 text-center font-medium text-sm border-b-2 border-green-500 text-green-600 bg-green-50">
+          Available
+          <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-green-100 text-green-800 rounded-full"><%= @available_books.size %></span>
+        </button>
+      <% end %>
+      <% unless @waitlist_books.empty? %>
+        <button type="button" class="flex-1 py-2 px-4 text-center font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+          Waitlist
+          <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full"><%= @waitlist_books.size %></span>
+        </button>
+      <% end %>
+      <!-- TODO: this count is incorrect, its not taking non-isbn books into account -->
+      <button type="button" class="flex-1 py-2 px-4 text-center font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+        Unavailable
+        <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-red-100 text-red-800 rounded-full"><%= @unavailable_books.size %></span>
+      </button>
+    </el-tab-list>
 
-  <% unless @available_books.empty?  %>
-    <div id="available" class="col s12 teal lighten-5">
-      <h5>Available Books</h5>
-      <div class="cards-container-large">
-        <% @available_books.each do |title| %>
-          <div class="card hoverable">
-            <div class="card-image">
-              <img src="<%= title.image %>" alt="Book Cover Photo">
-            </div>
-            <div class="card-content">
-              <div class="row">
-                <p><%= title.title %></p>
-                <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
+    <el-tab-panels>
+      <% unless @available_books.empty? %>
+        <div class="bg-green-50 p-6 rounded-lg">
+          <h5 class="text-xl font-semibold text-gray-900 mb-6">Available Books</h5>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <% @available_books.each do |title| %>
+              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+                <div class="aspect-w-2 aspect-h-3">
+                  <img src="<%= title.image %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
+                </div>
+                <div class="p-4">
+                  <p class="text-sm font-medium text-gray-900 mb-2 line-clamp-2"><%= title.title %></p>
+                  <p class="text-xs text-gray-500 mb-3">Copies: <%= title.copies_available %>/<%= title.copies_owned %></p>
+                  <a href="<%= title.url %>"
+                     class="w-full inline-flex items-center justify-center px-3 py-2 brand-secondary text-white text-sm font-medium rounded-md transition-colors duration-200">
+                    <img src="/svg/book.svg" alt="Book" class="w-4 h-4 mr-1">
+                    Read
+                  </a>
+                </div>
               </div>
-              <div class="row">
-                <a href="<%= title.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Read</a>
-              </div>
-            </div>
+            <% end %>
           </div>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
+        </div>
+      <% end %>
 
-  <% unless @waitlist_books.empty? %>
-    <div id="waitlist" class="col s12 yellow lighten-5">
-      <h5>Join the waitlist</h5>
-      <div class="cards-container-large yellow lighten-5">
-        <% @waitlist_books.each do |title| %>
-          <div class="card hoverable">
-            <div class="card-image">
-              <img src="<%= title.image %>" alt="Book Cover Photo">
-            </div>
-            <div class="card-content">
-              <div class="row">
-                <p><%= title.title %></p>
-                <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
+      <% unless @waitlist_books.empty? %>
+        <div <% if @available_books.empty? %>class="bg-yellow-50 p-6 rounded-lg"<% else %>hidden class="bg-yellow-50 p-6 rounded-lg"<% end %>>
+          <h5 class="text-xl font-semibold text-gray-900 mb-6">Join the waitlist</h5>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <% @waitlist_books.each do |title| %>
+              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+                <div class="aspect-w-2 aspect-h-3">
+                  <img src="<%= title.image %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
+                </div>
+                <div class="p-4">
+                  <p class="text-sm font-medium text-gray-900 mb-2 line-clamp-2"><%= title.title %></p>
+                  <p class="text-xs text-gray-500 mb-3">Copies: <%= title.copies_available %>/<%= title.copies_owned %></p>
+                  <a href="<%= title.url %>"
+                     class="w-full inline-flex items-center justify-center px-3 py-2 brand-secondary text-white text-sm font-medium rounded-md transition-colors duration-200">
+                    <img src="/svg/book.svg" alt="Book" class="w-4 h-4 mr-1">
+                    Reserve
+                  </a>
+                </div>
               </div>
-              <div class="row">
-                <a href="<%= title.url %>" class="btn waves-effect"><i class="material-icons right">book</i>Reserve</a>
-              </div>
-            </div>
+            <% end %>
           </div>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
+        </div>
+      <% end %>
 
-  <% unless @unavailable_books.empty? %>
-    <div id="unavailable" class="col s12 red lighten-5">
-      <h5>Not available at this library</h5>
-      <a href="/auth/library" class="waves-effect waves-light btn">Try a different library</a>
-      <div class="cards-container">
-        <% @unavailable_books.each do |title| %>
-          <div class="card hoverable">
-            <div class="card-image">
-              <img src="<%= title.image %>" alt="Book Cover Photo">
-            </div>
-            <div class="card-content">
-              <div class="row">
-                <p><%= title.title %></p>
-                <small>Copies Available: <%= title.copies_available %>/<%= title.copies_owned %></small>
+      <div <% if @available_books.empty? && @waitlist_books.empty? %>class="bg-red-50 p-6 rounded-lg"<% else %>hidden class="bg-red-50 p-6 rounded-lg"<% end %>>
+        <h5 class="text-xl font-semibold text-gray-900 mb-4">Not available at this library</h5>
+        <a href="/auth/library" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg mb-6 transition-colors duration-200">
+          <img src="/svg/refresh.svg" alt="Try different library" class="w-4 h-4 mr-2">
+          Try a different library
+        </a>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <% @unavailable_books.each do |title| %>
+            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden opacity-75">
+              <div class="aspect-w-2 aspect-h-3">
+                <img src="<%= title.image %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
+              </div>
+              <div class="p-4">
+                <p class="text-sm font-medium text-gray-900 mb-2 line-clamp-2"><%= title.title %></p>
+                <p class="text-xs text-gray-500">Copies: <%= title.copies_available %>/<%= title.copies_owned %></p>
               </div>
             </div>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
-    </div>
-  <% end %>
+    </el-tab-panels>
+  </el-tab-group>
 </div>
+

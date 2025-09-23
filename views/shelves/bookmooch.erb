@@ -1,46 +1,73 @@
-<div class="row">
-  <div class="col m6 offset-m3">
-    <div class="row">
-      <div class="col m3">
-        <i class="medium material-icons">book</i>
+<div class="max-w-2xl mx-auto">
+  <div class="mb-8">
+    <div class="flex items-center mb-6">
+      <div class="flex-shrink-0 mr-4">
+        <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
       </div>
-      <h4>Receive books</h4>
-      <p>Add these books to your Bookmooch wishlist, so Bookmooch will email you when they become available to mooch. Then get them by mail!</p>
+      <div>
+        <h4 class="text-2xl font-bold text-gray-900 mb-2">Receive books</h4>
+        <p class="text-gray-600">Add these books to your Bookmooch wishlist, so Bookmooch will email you when they become available to mooch. Then get them by mail!</p>
+      </div>
     </div>
-    <div class="card blue-grey darken-1">
-      <div class="card-image">
-        <img src="http://i.bookmooch.com/images/bookmooch_logo.gif">
+
+    <div class="bg-slate-700 rounded-lg shadow-lg overflow-hidden">
+      <div class="p-4 bg-slate-600">
+        <img src="http://i.bookmooch.com/images/bookmooch_logo.gif" alt="BookMooch Logo" class="h-12">
       </div>
-      <div class="card-content white-text">
-        <span class="card-title">Mooch these books</span>
-        <p>Enter your credentials to log into Bookmooch.com.</p>
-          <form action="bookmooch" method="post">
-            <div class="input-field col s6">
-              Username: <input type="text" name="username">
+      <div class="p-6">
+        <h5 class="text-xl font-semibold text-white mb-4">Mooch these books</h5>
+        <p class="text-gray-300 mb-6">Enter your credentials to log into Bookmooch.com.</p>
+
+        <form action="bookmooch" method="post">
+          <div class="space-y-4 mb-6">
+            <div>
+              <label for="username" class="block text-sm font-medium text-gray-300 mb-2">Username:</label>
+              <input type="text"
+                     id="username"
+                     name="username"
+                     class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-md text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500">
             </div>
-            <div class="input-field col s6">
-              Password: <input type="password" name="password">
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password:</label>
+              <input type="password"
+                     id="password"
+                     name="password"
+                     class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-md text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500">
             </div>
-            <button class="btn progress waves-effect waves-light" type="submit" name="action">Authenticate
-              <i class="material-icons right">send</i>
-            </button>
-            <button class="progress disabled teal sending btn hide">sending to bookmooch
-              <i class="material-icons right">send</i>
-              <div class="loader"></div>
-            </button>
-          </form>
+          </div>
+
+          <button class="authenticate-btn w-full inline-flex items-center justify-center px-6 py-3 brand-secondary text-white font-semibold rounded-lg shadow-lg transition-colors duration-200"
+                  type="submit"
+                  name="action">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+            Authenticate
+          </button>
+
+          <button class="sending-btn hidden w-full inline-flex items-center justify-center px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg shadow-lg"
+                  type="button"
+                  disabled>
+            <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Sending to BookMooch...
+          </button>
+        </form>
       </div>
     </div>
   </div>
 </div>
 
 <script type="text/javascript">
-  var oldbutton = document.getElementsByClassName('waves-effect')[0];
-  var newbutton = document.getElementsByClassName('sending')[0];
-  var loader = document.getElementsByClassName('loader')[0];
+  var oldbutton = document.getElementsByClassName('authenticate-btn')[0];
+  var newbutton = document.getElementsByClassName('sending-btn')[0];
+
   oldbutton.onclick = function(){
-    newbutton.classList.remove('hide');
-    oldbutton.classList.add('hide');
-    loader.classList.add('indeterminate');
+    newbutton.classList.remove('hidden');
+    oldbutton.classList.add('hidden');
   };
 </script>

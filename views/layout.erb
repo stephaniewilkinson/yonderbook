@@ -9,13 +9,23 @@
     <!-- Preload critical resources for faster loading -->
     <%= preload_assets_link_tags(:css) %>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/css/materialize.min.css" as="style">
 
     <!-- Load fonts with display=swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/css/materialize.min.css">
+    <!-- Tailwind CSS with Custom Colors -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand': '#501229'
+            }
+          }
+        }
+      }
+    </script>
 
     <%= assets(:css) %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -31,47 +41,126 @@
 
   <body>
     <main>
-      <nav class="nav navbar transparent">
-        <div class="nav-wrapper">
-          <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="/about"><i class="material-icons left">info_outline</i>&nbsp; About</a></li>
-            <% if session.key? 'goodreads_user_id' %>
-            <li><a href="/auth/shelves"><i class="material-icons left">library_books</i>Shelves</a></li>
-            <% end %>
-            <% if @user %>
-            <li><a href='/auth/users/<%= @user[:id] %>'><i class="material-icons left">person</i>Account</a></li>
-            <% end %>
-          </ul>
-          <a href="/" class="brand-logo center">
-            Yonderbook
-          </a>
+      <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="flex-shrink-0">
+              <a href="/" class="flex items-center space-x-2 text-2xl font-bold brand-color transition-colors duration-200">
+                <img src="/svg/book-nav.svg" alt="Book" class="w-8 h-8 brand-color">
+                <span class="brand-logo bg-gradient-to-r from-maroon-600 to-maroon-800 bg-clip-text text-transparent font-coats">
+                  Yonderbook
+                </span>
+              </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:block">
+              <div class="ml-10 flex items-center space-x-1">
+                <a href="/about"
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                  <img src="/svg/info-circle.svg" alt="About" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                  About
+                </a>
+
+                <% if session.key? 'goodreads_user_id' %>
+                <a href="/auth/shelves"
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                  <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                  Shelves
+                </a>
+                <% end %>
+
+                <% if @user %>
+                <a href='/auth/users/<%= @user[:id] %>'
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                  <img src="/svg/user.svg" alt="Account" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                  Account
+                </a>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+              <button type="button"
+                      class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                      onclick="toggleMobileMenu()">
+                <img src="/svg/menu.svg" alt="Menu" class="block h-6 w-6">
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Navigation -->
+          <div class="mobile-menu hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">
+              <a href="/about"
+                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                About
+              </a>
+
+              <% if session.key? 'goodreads_user_id' %>
+              <a href="/auth/shelves"
+                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                Shelves
+              </a>
+              <% end %>
+
+              <% if @user %>
+              <a href='/auth/users/<%= @user[:id] %>'
+                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                Account
+              </a>
+              <% end %>
+            </div>
+          </div>
         </div>
       </nav>
 
-      <div class="container">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <%= yield %>
       </div>
     </main>
 
-    <!-- JavaScript at end of body for optimized loading (per Materialize docs) -->
-    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/js/materialize.min.js"></script>
-
-    <!-- Initialize Materialize components -->
+    <!-- Custom JavaScript -->
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // Initialize modals
-        var elems = document.querySelectorAll('.modal');
-        var instances = M.Modal.init(elems);
+      // Mobile menu toggle function
+      function toggleMobileMenu() {
+        var mobileMenu = document.querySelector('.mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+      }
 
+      document.addEventListener('DOMContentLoaded', function() {
         // Progressive enhancement: Load background images after critical content
         setTimeout(function() {
           document.querySelector('main').classList.add('loaded');
         }, 100);
 
-        // Show flash messages
+        // Show flash messages (converted from Materialize toast)
         <% if flash['error'] %>
-          M.toast({html: "<%= flash['error'] %>", displayLength: 4000});
+          // Simple toast notification without Materialize
+          var toast = document.createElement('div');
+          toast.textContent = "<%= flash['error'] %>";
+          toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+          document.body.appendChild(toast);
+          setTimeout(function() {
+            toast.remove();
+          }, 4000);
         <% end %>
+
+        // Enhanced login button with loading state
+        var loginBtn = document.getElementById('login-btn');
+        if (loginBtn) {
+          loginBtn.addEventListener('click', function() {
+            var btnText = this.querySelector('.btn-text');
+            var spinner = this.querySelector('#login-spinner');
+            if (btnText && spinner) {
+              btnText.style.display = 'none';
+              spinner.style.display = 'inline-block';
+              this.style.pointerEvents = 'none';
+            }
+          });
+        }
       });
     </script>
 

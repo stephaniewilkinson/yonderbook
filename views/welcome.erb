@@ -1,23 +1,18 @@
-<div class="row" style="margin-top: 6rem;">
-  <div class="col s12">
-    <h3 class="center">
-    Book tools for Goodreads, Libby, and Bookmooch
+<div class="mt-24">
+  <div class="text-center relative">
+    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-20">
+      <img src="/img/objects/1.png" alt="" class="w-16 h-16 object-contain">
+    </div>
+    <h3 class="text-3xl font-bold text-gray-900 mb-8">
+      Book tools for Goodreads, Libby, and Bookmooch
     </h3>
-    <div class="center" style="margin-top: 2rem;">
-      <!-- TODO: make this login button better -->
-      <a href='<%= @auth_url %>' class="btn-large btn filled icon-right waves-effect waves-light" id="login-btn">
-        <span class="btn-text">Log in with Goodreads<i class="material-icons">open_in_new</i></span>
-        <div class="preloader-wrapper small active" id="login-spinner" style="display: none;">
-          <div class="spinner-layer spinner-green-only">
-            <div class="circle-clipper left">
-              <div class="circle"></div>
-            </div><div class="gap-patch">
-              <div class="circle"></div>
-            </div><div class="circle-clipper right">
-              <div class="circle"></div>
-            </div>
-          </div>
-        </div>
+    <div class="mt-8">
+      <a href='<%= @auth_url %>' class="inline-flex items-center px-6 py-3 bg-brand text-white font-semibold text-lg rounded-lg shadow-lg transition-colors duration-200" id="login-btn">
+        <span class="btn-text flex items-center">
+          Log in with Goodreads
+          <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-2">
+        </span>
+        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2" id="login-spinner" style="display: none;"></div>
       </a>
     </div>
   </div>
