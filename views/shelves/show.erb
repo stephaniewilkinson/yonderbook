@@ -1,17 +1,17 @@
-<h4 class="white-text">Your <em><%= @shelf_name %></em> shelf</h4>
+<h4 class="text-white text-2xl font-bold">Your <em><%= @shelf_name %></em> shelf</h4>
 <h5>
   There are <%= @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size).count %> books from <%= @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size).first %> on this shelf, more than any other year.
   <p></p>
 </h5>
-<div style="width: 100%; height: 50rem" id="histogram"></div>
-<h5 class="center">
+<div class="w-full h-[50rem]" id="histogram"></div>
+<h5 class="text-center text-lg font-semibold">
   Your <em><%= @shelf_name %></em> shelf contains <%= @women %> books by women, and <%= @men %> books by men.
 </h5>
-<div id="sexchart" style="width: 100%; height: 50rem"></div>
-<h5 class="center">
+<div id="sexchart" class="w-full h-[50rem]"></div>
+<h5 class="text-center text-lg font-semibold">
   Your average rating is <%= @ratings.sum { |k, v| k * v }.fdiv(@ratings.values.sum).round(2) %> for books on your <em><%= @shelf_name %></em> shelf.
 </h5>
-<div id="pieratings" style="width: 100%; height: 50rem"></div>
+<div id="pieratings" class="w-full h-[50rem]"></div>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">

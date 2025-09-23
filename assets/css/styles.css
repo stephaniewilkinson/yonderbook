@@ -27,28 +27,6 @@ body {
   text-rendering: optimizeLegibility;
   font-feature-settings: "kern" 1;
 }
-.brand-color {
-  color: #501229 !important;
-}
-
-.brand-secondary {
-  background-color: #369b9a;
-}
-
-.brand-secondary:hover {
-  background-color: #2d7a79;
-}
-
-body {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  background-image: linear-gradient(to top, #CAf7eb 0%, #138586 100%);
-}
-
-main {
-  flex: 1 0 auto;
-}
 
 main.loaded {
   background-image: url(../img/clouds/2.png), url(../img/clouds/10.png);

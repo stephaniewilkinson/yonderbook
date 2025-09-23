@@ -20,7 +20,8 @@
         theme: {
           extend: {
             colors: {
-              'brand': '#501229'
+              'brand': '#501229',
+              'secondary': '#369b9a'
             }
           }
         }
@@ -39,15 +40,15 @@
     </script>
   </head>
 
-  <body>
-    <main>
+  <body class="flex flex-col min-h-screen bg-gradient-to-t from-[#CAf7eb] to-[#138586]">
+    <main class="flex-1">
       <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex-shrink-0">
-              <a href="/" class="flex items-center space-x-2 text-2xl font-bold brand-color transition-colors duration-200">
-                <img src="/svg/book-nav.svg" alt="Book" class="w-8 h-8 brand-color">
+              <a href="/" class="flex items-center space-x-2 text-2xl font-bold text-brand transition-colors duration-200">
+                <img src="/svg/book-nav.svg" alt="Book" class="w-8 h-8 text-brand">
                 <span class="brand-logo bg-gradient-to-r from-maroon-600 to-maroon-800 bg-clip-text text-transparent font-coats">
                   Yonderbook
                 </span>
@@ -58,14 +59,14 @@
             <div class="hidden md:block">
               <div class="ml-10 flex items-center space-x-1">
                 <a href="/about"
-                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
                   <img src="/svg/info-circle.svg" alt="About" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                   About
                 </a>
 
                 <% if session.key? 'goodreads_user_id' %>
                 <a href="/auth/shelves"
-                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
                   <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                   Shelves
                 </a>
@@ -73,7 +74,7 @@
 
                 <% if @user %>
                 <a href='/auth/users/<%= @user[:id] %>'
-                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
                   <img src="/svg/user.svg" alt="Account" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                   Account
                 </a>
