@@ -1,51 +1,85 @@
-<div class="row">
-  <div class="col l6 s12 offset-l3 m8 offset-m2">
-    <h3>Step 1</h3>
-    <div class="progress">
-      <div class="determinate" style="width: 25%"></div>
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="text-center">
+    <h3 class="text-2xl font-bold text-gray-900 mb-4">Step 1</h3>
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+      <div class="bg-blue-600 h-2 rounded-full" style="width: 25%"></div>
     </div>
-    <h5>Choose a shelf</h5>
+    <h5 class="text-xl font-semibold text-gray-700">Choose a shelf</h5>
   </div>
 </div>
-<!-- TODO: make these columns into thirds since most people only have three shelves -->
-<div class="row">
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
   <% @shelves.sort_by { |_, count| -count }.each do |name, count| %>
-    <div class="col s12 m6">
-      <div class="card green lighten-5">
-        <div class="card-content">
-          <h6 class="card-title"><%= name %></h6>
-          <p class="grey-text text-darken-1"><%= count %> book<%= 's' if count != 1 %></p>
-        </div>
-        <div class="card-action">
-          <% if count.positive? %>
-            <a class="maroon left" href="shelves/<%= name %>"><i class="material-icons right">bar_chart</i>Stats</a>
-            <a class="maroon right modal-trigger" href="#modal-<%= name %>"><i class="material-icons right">import_contacts</i>get books</a>
-          <% end %>
-          <p></p>
-        </div>
+    <div class="bg-green-50 border border-green-200 rounded-lg shadow-md overflow-hidden">
+      <div class="p-6">
+        <h6 class="text-lg font-semibold text-gray-900 mb-2"><%= name %></h6>
+        <p class="text-gray-600"><%= count %> book<%= 's' if count != 1 %></p>
+      </div>
+      <div class="px-6 py-4 bg-gray-50 border-t border-green-200 flex justify-between items-center">
+        <% if count.positive? %>
+          <a class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 hover:text-red-800" href="shelves/<%= name %>">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            Stats
+          </a>
+          <button class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 hover:text-red-800 modal-trigger" onclick="openModal('modal-<%= name %>')">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            get books
+          </button>
+        <% end %>
       </div>
     </div>
 
-<!-- TODO: add a spinner here so users know its working -->
-      <div id="modal-<%= name %>" class="modal small">
-        <div class="modal-content">
-          <h4 class="center">Choose a format</h4>
-          <br>
-          <div class="row center">
-            <a href="shelves/<%= name %>/overdrive" class="modal-close cyan btn-large waves-effect waves-green btn center">
-              <i class="material-icons right">cloud_download</i>
-              eBooks
+    <!-- Modal -->
+    <div id="modal-<%= name %>" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+          <h4 class="text-lg font-semibold text-gray-900 mb-6">Choose a format</h4>
+          <div class="space-y-4">
+            <a href="shelves/<%= name %>/overdrive" class="block w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+              <div class="flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                </svg>
+                eBooks
+              </div>
             </a>
-          </div>
-          <div class="row center">
-            <a href="shelves/<%= name %>/bookmooch" class="modal-close btn-large waves-effect waves-green btn center">
-              <i class="material-icons right">markunread_mailbox</i>
-              By Mail
+            <a href="shelves/<%= name %>/bookmooch" class="block w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+              <div class="flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                By Mail
+              </div>
             </a>
+            <button onclick="closeModal('modal-<%= name %>')" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+              Cancel
+            </button>
           </div>
         </div>
       </div>
-    <% end %>
+    </div>
+  <% end %>
 </div>
+
+<script>
+function openModal(modalId) {
+  document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+  if (event.target.classList.contains('bg-opacity-50')) {
+    event.target.classList.add('hidden');
+  }
+});
+</script>
 
 <!-- Modal initialization moved to layout.erb for better performance -->

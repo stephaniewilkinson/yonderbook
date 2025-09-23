@@ -9,13 +9,12 @@
     <!-- Preload critical resources for faster loading -->
     <%= preload_assets_link_tags(:css) %>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/css/materialize.min.css" as="style">
 
     <!-- Load fonts with display=swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/css/materialize.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <%= assets(:css) %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -31,47 +30,82 @@
 
   <body>
     <main>
-      <nav class="nav navbar transparent">
-        <div class="nav-wrapper">
-          <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="/about"><i class="material-icons left">info_outline</i>&nbsp; About</a></li>
-            <% if session.key? 'goodreads_user_id' %>
-            <li><a href="/auth/shelves"><i class="material-icons left">library_books</i>Shelves</a></li>
-            <% end %>
-            <% if @user %>
-            <li><a href='/auth/users/<%= @user[:id] %>'><i class="material-icons left">person</i>Account</a></li>
-            <% end %>
-          </ul>
-          <a href="/" class="brand-logo center">
-            Yonderbook
-          </a>
+      <nav class="bg-transparent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex-shrink-0">
+              <a href="/" class="text-2xl font-bold text-gray-800">
+                Yonderbook
+              </a>
+            </div>
+            <div class="hidden md:block">
+              <div class="ml-10 flex items-baseline space-x-4">
+                <a href="/about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  About
+                </a>
+                <% if session.key? 'goodreads_user_id' %>
+                <a href="/auth/shelves" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                  </svg>
+                  Shelves
+                </a>
+                <% end %>
+                <% if @user %>
+                <a href='/auth/users/<%= @user[:id] %>' class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                  Account
+                </a>
+                <% end %>
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
 
-      <div class="container">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <%= yield %>
       </div>
     </main>
 
-    <!-- JavaScript at end of body for optimized loading (per Materialize docs) -->
-    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.2.2/dist/js/materialize.min.js"></script>
-
-    <!-- Initialize Materialize components -->
+    <!-- Custom JavaScript -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        // Initialize modals
-        var elems = document.querySelectorAll('.modal');
-        var instances = M.Modal.init(elems);
-
         // Progressive enhancement: Load background images after critical content
         setTimeout(function() {
           document.querySelector('main').classList.add('loaded');
         }, 100);
 
-        // Show flash messages
+        // Show flash messages (converted from Materialize toast)
         <% if flash['error'] %>
-          M.toast({html: "<%= flash['error'] %>", displayLength: 4000});
+          // Simple toast notification without Materialize
+          var toast = document.createElement('div');
+          toast.textContent = "<%= flash['error'] %>";
+          toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+          document.body.appendChild(toast);
+          setTimeout(function() {
+            toast.remove();
+          }, 4000);
         <% end %>
+
+        // Enhanced login button with loading state
+        var loginBtn = document.getElementById('login-btn');
+        if (loginBtn) {
+          loginBtn.addEventListener('click', function() {
+            var btnText = this.querySelector('.btn-text');
+            var spinner = this.querySelector('#login-spinner');
+            if (btnText && spinner) {
+              btnText.style.display = 'none';
+              spinner.style.display = 'inline-block';
+              this.style.pointerEvents = 'none';
+            }
+          });
+        }
       });
     </script>
 
