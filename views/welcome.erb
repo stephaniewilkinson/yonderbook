@@ -7,12 +7,10 @@
       Book tools for Goodreads, Libby, and Bookmooch
     </h3>
     <div class="mt-8">
-      <a href='<%= @auth_url %>' class="inline-flex items-center px-6 py-3 bg-brand hover:bg-brand-hover text-white font-semibold text-lg rounded-lg shadow-lg transition-colors duration-200" id="login-btn">
+      <a href='<%= @auth_url %>' class="inline-flex items-center px-6 py-3 bg-brand text-white font-semibold text-lg rounded-lg shadow-lg transition-colors duration-200" id="login-btn">
         <span class="btn-text flex items-center">
           Log in with Goodreads
-          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-          </svg>
+          <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-2">
         </span>
         <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2" id="login-spinner" style="display: none;"></div>
       </a>

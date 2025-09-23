@@ -13,8 +13,19 @@
     <!-- Load fonts with display=swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS with Custom Colors -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand': '#501229'
+            }
+          }
+        }
+      }
+    </script>
 
     <%= assets(:css) %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -30,35 +41,40 @@
 
   <body>
     <main>
-      <nav class="bg-transparent">
+      <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
             <div class="flex-shrink-0">
-              <a href="/" class="text-2xl font-bold text-gray-800">
-                Yonderbook
+              <a href="/" class="flex items-center space-x-2 text-2xl font-bold brand-color transition-colors duration-200">
+                <img src="/svg/book-nav.svg" alt="Book" class="w-8 h-8 brand-color">
+                <span class="brand-logo bg-gradient-to-r from-maroon-600 to-maroon-800 bg-clip-text text-transparent font-coats">
+                  Yonderbook
+                </span>
               </a>
             </div>
+
+            <!-- Desktop Navigation -->
             <div class="hidden md:block">
-              <div class="ml-10 flex items-baseline space-x-4">
-                <a href="/about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
+              <div class="ml-10 flex items-center space-x-1">
+                <a href="/about"
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                  <img src="/svg/info-circle.svg" alt="About" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                   About
                 </a>
+
                 <% if session.key? 'goodreads_user_id' %>
-                <a href="/auth/shelves" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                  </svg>
+                <a href="/auth/shelves"
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                  <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                   Shelves
                 </a>
                 <% end %>
+
                 <% if @user %>
-                <a href='/auth/users/<%= @user[:id] %>' class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                  </svg>
+                <a href='/auth/users/<%= @user[:id] %>'
+                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:brand-color hover:bg-gray-50 rounded-lg transition-all duration-200">
+                  <img src="/svg/user.svg" alt="Account" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                   Account
                 </a>
                 <% end %>
@@ -70,9 +86,7 @@
               <button type="button"
                       class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
                       onclick="toggleMobileMenu()">
-                <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                <img src="/svg/menu.svg" alt="Menu" class="block h-6 w-6">
               </button>
             </div>
           </div>
