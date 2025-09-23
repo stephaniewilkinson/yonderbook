@@ -24,7 +24,6 @@ describe App do
   end
 
   it 'lets user log in and look at a shelf' do
-    skip 'External auth test requires manual interaction'
     visit '/'
     visit '/auth/shelves'
     click_on 'Log in with Goodreads'
