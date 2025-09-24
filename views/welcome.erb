@@ -1,10 +1,10 @@
 <!-- Hero Section -->
-<div class="relative bg-white overflow-hidden rounded-3xl  shadow-lg">
+<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg">
 
-  <div class="relative max-w-7xl mx-auto sm:px-6 lg:px-8 py-24 sm:py-32">
-    <div class="grid lg:grid-cols-2 gap-12 items-center">
+  <div class="relative max-w-7xl mx-auto sm:px-6 lg:px-8 py-16 sm:py-20">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
       <!-- Left Column: Content -->
-      <div class="text-center lg:text-left">
+      <div class="text-left">
         <h1 class="text-4xl sm:text-5xl lg:text-5xl font-bold text-gray-900 mb-6 font-coats">
           <span class="block">Turn your reading list</span>
           <span class="block">into free books</span>
@@ -14,7 +14,7 @@
           Automatically find your want-to-read books at your library and through book swaps
         </p>
 
-        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
+        <div class="flex flex-col sm:flex-row gap-4 justify-start items-start">
           <a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
             <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
             Log in with Goodreads
@@ -29,7 +29,7 @@
       </div>
 
       <!-- Right Column: Hero Image -->
-      <div class="relative">
+      <div class="relative hidden md:block">
         <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 shadow-2xl">
           <!-- Floating book elements -->
           <div class="relative h-full">
@@ -58,102 +58,111 @@
       </div>
     </div>
 
+    <!-- Visual Break -->
+    <div class="py-12">
+      <div class="flex items-center">
+        <div aria-hidden="true" class="w-full border-t border-gray-300"></div>
+        <div class="relative flex justify-center">
+          <span class="bg-white px-3 text-base font-semibold text-gray-900">Features</span>
+        </div>
+        <div aria-hidden="true" class="w-full border-t border-gray-300"></div>
+      </div>
+    </div>
+
     <!-- Features Section -->
-    <div class="pt-16">
-      <div class="text-center mb-16">
+    <div class="pt-8 px-6 lg:px-8">
+      <div class="text-left mb-16">
         <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
           From want-to-read to currently-reading in three steps
         </h2>
-        <p class="max-w-2xl mx-auto text-xl text-gray-600">
+        <p class="max-w-2xl text-xl text-gray-600">
           Let us find your books for free at your library or get them delivered to your mailbox for free.
         </p>
       </div>
 
       <div class="space-y-16">
       <!-- Feature 1: Connect Your Lists -->
-      <div class="flex flex-col lg:flex-row items-center gap-12">
+      <div class="flex flex-col sm:flex-row items-center gap-12">
         <div class="flex-shrink-0">
-          <div class="w-32 h-32 bg-gradient-to-br from-brand to-gray-700 rounded-2xl flex items-center justify-center shadow-lg">
-            <span class="text-5xl">📚</span>
+          <div class="relative w-32 h-32 bg-gradient-to-br from-brand to-gray-800 rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div class="absolute inset-0 bg-white opacity-20 rounded-3xl blur-sm"></div>
+            <img src="/svg/book.svg" alt="Book" class="relative w-16 h-16 text-white filter brightness-0 invert drop-shadow-lg">
           </div>
         </div>
-        <div class="flex-1 text-center lg:text-left">
+        <div class="flex-1 text-left">
           <h3 class="text-2xl font-bold text-gray-900 mb-4">Connect Your Lists</h3>
           <p class="text-lg text-gray-600 mb-6">
             Import from Goodreads to get your entire want-to-read collection and reading history in one place.
           </p>
-          <ul class="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-gray-500">
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
+          <div class="flex flex-wrap gap-3 justify-start">
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-gray-800 text-white">
               One-click Goodreads import
-            </li>
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
+            </span>
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-gray-800 text-white">
               All your shelves and books
-            </li>
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
+            </span>
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-gray-800 text-white">
               Analyze your reading patterns
-            </li>
-          </ul>
+            </span>
+          </div>
         </div>
       </div>
 
       <!-- Feature 2: Find Free Copies -->
-      <div class="flex flex-col lg:flex-row items-center gap-12">
+      <div class="flex flex-col sm:flex-row items-center gap-12">
         <div class="flex-shrink-0">
-          <div class="w-32 h-32 bg-gradient-to-br from-secondary to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <span class="text-5xl">🔍</span>
+          <div class="relative w-32 h-32 bg-gradient-to-br from-secondary to-gray-700 rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div class="absolute inset-0 bg-white opacity-20 rounded-3xl blur-sm"></div>
+            <svg class="relative w-16 h-16 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
           </div>
         </div>
-        <div class="flex-1 text-center lg:text-left">
+        <div class="flex-1 text-left">
           <h3 class="text-2xl font-bold text-gray-900 mb-4">Find Free Copies</h3>
           <p class="text-lg text-gray-600 mb-6">
             We automatically check your library catalog and book trading sites for availability. Never buy a book that's free again.
           </p>
-          <ul class="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-gray-500">
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
+          <div class="flex flex-wrap gap-3 justify-start">
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-secondary to-gray-700 text-white">
               Library catalog search
-            </li>
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
+            </span>
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-secondary to-gray-700 text-white">
               BookMooch availability alerts
-            </li>
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
-              Email alerts from BookMooch
-            </li>
-          </ul>
+            </span>
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-secondary to-gray-700 text-white">
+              Never buy books that are free
+            </span>
+          </div>
         </div>
       </div>
 
       <!-- Feature 3: Start Reading -->
-      <div class="flex flex-col lg:flex-row items-center gap-12">
+      <div class="flex flex-col sm:flex-row items-center gap-12">
         <div class="flex-shrink-0">
-          <div class="w-32 h-32 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg">
-            <span class="text-5xl">📖</span>
+          <div class="relative w-32 h-32 bg-gradient-to-br from-brand to-secondary rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-all duration-300">
+            <div class="absolute inset-0 bg-white opacity-20 rounded-3xl blur-sm"></div>
+            <svg class="relative w-16 h-16 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
           </div>
         </div>
-        <div class="flex-1 text-center lg:text-left">
+        <div class="flex-1 text-left">
           <h3 class="text-2xl font-bold text-gray-900 mb-4">Start Reading</h3>
           <p class="text-lg text-gray-600 mb-6">
             We'll help you request books on BookMooch, a book trading community, where you'll get emails when the books you want are available for free through the mail.
           </p>
-          <ul class="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-gray-500">
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
+          <div class="flex flex-wrap gap-3 justify-start">
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-secondary text-white">
               Direct Libby integration
-            </li>
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
+            </span>
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-secondary text-white">
               One-click book requests
-            </li>
-            <li class="flex items-center">
-              <img src="/svg/checkmark.svg" alt="Check" class="w-4 h-4 mr-2 text-green-500">
-              Cross-platform tracking
-            </li>
-          </ul>
+            </span>
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-secondary text-white">
+              Free books by mail
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -163,7 +172,7 @@
 <!-- Coming Soon Banner -->
 <div class="bg-secondary py-4">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center">
+    <div class="text-left">
       <p class="text-white font-semibold">
         <span class="bg-white text-orange-600 px-2 py-1 rounded-md text-sm font-bold mr-3">COMING SOON</span>
         Own all your book data in one place. Import from Kindle, Audible, and more platforms coming soon!
@@ -172,16 +181,16 @@
   </div>
 </div>
 <!-- CTA Section -->
-<div class="bg-gradient-to-r from-brand to-secondary py-16 text-center px-4 sm:px-6 lg:px-8">
+<div class="bg-gradient-to-l from-brand to-secondary py-16 text-left px-4 sm:px-6 lg:px-8">
 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
     Ready to turn your wishlist into free books?
 </h2>
 <p class="text-xl text-gray-200 mb-8">
     Connect your Goodreads account and start finding your want-to-read books for free at your library and through book swaps.
 </p>
-<a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-white text-brand font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-    <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3">
+<a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+    <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
     Log in with Goodreads
-    <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-3 opacity-60">
+    <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-3 opacity-80">
 </a>
 </div>

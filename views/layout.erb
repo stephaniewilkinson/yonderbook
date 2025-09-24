@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/svg/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/svg/favicon.svg?v=2">
 
     <!-- Preload critical resources for faster loading -->
     <%= preload_assets_link_tags(:css) %>
@@ -48,14 +48,14 @@
 
   <body class="flex flex-col min-h-screen bg-gradient-to-t from-[#CAf7eb] to-[#138586]">
     <main class="flex-1">
-      <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+      <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50 rounded-b-lg">
         <div class="max-w-7xl mx-auto">
           <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex-shrink-0">
               <a href="/" class="flex items-center space-x-2 text-2xl font-bold text-brand transition-colors duration-200">
                 <img src="/svg/book-nav.svg" alt="Book" class="w-8 h-8 text-brand">
-                <span class="brand-logo bg-gradient-to-r from-maroon-600 to-maroon-800 bg-clip-text text-transparent font-coats">
+                <span class="brand-logo bg-gradient-to-r from-maroon-600 to-maroon-800 bg-clip-text text-transparent font-black font-coats">
                   Yonderbook
                 </span>
               </a>
