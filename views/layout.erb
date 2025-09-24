@@ -15,6 +15,9 @@
 
     <!-- Tailwind CSS with Custom Colors -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -149,19 +152,6 @@
           }, 4000);
         <% end %>
 
-        // Enhanced login button with loading state
-        var loginBtn = document.getElementById('login-btn');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', function() {
-            var btnText = this.querySelector('.btn-text');
-            var spinner = this.querySelector('#login-spinner');
-            if (btnText && spinner) {
-              btnText.style.display = 'none';
-              spinner.style.display = 'inline-block';
-              this.style.pointerEvents = 'none';
-            }
-          });
-        }
       });
     </script>
 

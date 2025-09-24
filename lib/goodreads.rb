@@ -141,7 +141,10 @@ module Goodreads
   end
 
   def rating_stats books
-    books.group_by { |book| book[:rating].to_i }.transform_values(&:size)
+    books.group_by { |book|
+      rating_value = book[:ratings] || book[:rating]
+      rating_value.to_i
+    }.transform_values(&:size)
   end
 
   def fetch_book_data isbn

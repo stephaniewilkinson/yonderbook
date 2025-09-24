@@ -1,99 +1,590 @@
 <h4 class="text-white text-2xl font-bold">Your <em><%= @shelf_name %></em> shelf</h4>
-<h5>
+<h5 class="text-center text-lg font-semibold text-white">
+  Publication Years
+</h5>
+<p class="text-center text-sm text-gray-200 mb-4">
   There are <%= @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size).count %> books from <%= @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size).first %> on this shelf, more than any other year.
-  <p></p>
+</p>
+<div class="w-full bg-white bg-opacity-40 backdrop-blur-sm rounded-xl shadow-lg border border-white border-opacity-20">
+  <div class="h-96 p-6">
+    <canvas id="publicationChart"></canvas>
+  </div>
+</div>
+<!-- TODO: Re-enable gender distribution chart once reliable male/female detection is implemented
+<h5 class="text-center text-lg font-semibold text-white">
+  Author Gender Distribution
 </h5>
-<div class="w-full h-[50rem]" id="histogram"></div>
-<h5 class="text-center text-lg font-semibold">
-  Your <em><%= @shelf_name %></em> shelf contains <%= @women %> books by women, and <%= @men %> books by men.
-</h5>
-<div id="sexchart" class="w-full h-[50rem]"></div>
-<h5 class="text-center text-lg font-semibold">
-  Your average rating is <%= @ratings.sum { |k, v| k * v }.fdiv(@ratings.values.sum).round(2) %> for books on your <em><%= @shelf_name %></em> shelf.
-</h5>
-<div id="pieratings" class="w-full h-[50rem]"></div>
+<p class="text-center text-sm text-gray-200 mb-4 italic">
+  * Gender estimates based on author name popularity - these are statistical guesses, not definitive classifications
+</p>
+<div class="w-full bg-white bg-opacity-40 backdrop-blur-sm rounded-xl shadow-lg border border-white border-opacity-20">
+  <div class="px-6 py-4 bg-gradient-to-r from-brand to-secondary text-white rounded-t-xl">
+    <div class="text-center">
+      <div class="text-sm font-medium opacity-90">Your Shelf Contains</div>
+      <div class="text-lg font-bold">
+        <%= @women %> books by women, <%= @men %> books by men
+      </div>
+    </div>
+  </div>
+  <div class="h-96 p-6">
+    <canvas id="genderPieChart"></canvas>
+  </div>
+</div>
+-->
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<h5 class="text-center text-lg font-semibold mt-8 text-white">
+  Rating Distribution
+</h5>
+<div class="w-full bg-white bg-opacity-40 backdrop-blur-sm rounded-xl shadow-lg border border-white border-opacity-20">
+  <div class="px-6 py-4 bg-gradient-to-r from-brand to-secondary text-white rounded-t-xl">
+    <div class="text-center">
+      <div class="text-sm font-medium opacity-90">Shelf Average</div>
+      <div class="text-2xl font-bold">
+        <%= @ratings.reject { |k, v| k == 0 }.sum { |k, v| k * v }.fdiv(@ratings.reject { |k, v| k == 0 }.values.sum).round(2) %> ⭐
+      </div>
+    </div>
+  </div>
+  <div class="h-96 p-6">
+    <canvas id="ratingsBarChart"></canvas>
+  </div>
+</div>
+
 <script type="text/javascript">
-  google.charts.load("current", {packages:["corechart"]});
-  google.charts.setOnLoadCallback(drawChart);
+  // Register the datalabels plugin and disable it by default
+  Chart.register(ChartDataLabels);
+  Chart.defaults.plugins.datalabels.display = false;
 
-  function drawChart() {
-    var data = google.visualization.arrayToDataTable([
-      ['Gender', 'Count'],
-      ['Women', <%= @women %>],
-      ['Men', <%= @men %>],
-      ['Unknown', <%= @andy %>]
-    ]);
+  // Prepare book data once for all charts
+  const booksData = <%= @book_info.to_json %>;
 
-    var options = {
-      pieHole: 0.4,
-      colors: ['#228d8d', '#a86b8a', '#808080'],
-      fontName: "inherit",
-      pieSliceText: 'label',
-      is3D: true,
-      title: 'Genders of the authors on your <%= @shelf_name %> shelf',
-      backgroundColor: { fill:'transparent' },
-      // chartArea:{top:0,},
-    };
+  /* TODO: Re-enable gender distribution chart once reliable male/female detection is implemented
+  // Chart.js Gender Stacked Bar Chart
+  const genderCtx = document.getElementById('genderPieChart').getContext('2d');
 
-    var chart = new google.visualization.PieChart(document.getElementById('sexchart'));
-    chart.draw(data, options);
-  }
+  // Group books by gender
+  const booksByGender = {
+    'Women': [],
+    'Men': [],
+    'Unknown': []
+  };
+
+  booksData.forEach(book => {
+    // This matches the Ruby gender detection logic from goodreads.rb
+    const authorFirstName = book.author ? book.author.split(' ')[0] : '';
+    // For now, we'll need to categorize based on the existing data
+    // Since we don't have individual gender data per book, we'll distribute evenly
+    // This is a limitation - ideally we'd have gender info per book in the JSON
+
+    // We'll use a simple approach: distribute books evenly within each category
+    const totalBooks = booksData.length;
+    const womenCount = <%= @women %>;
+    const menCount = <%= @men %>;
+    const unknownCount = <%= @andy %>;
+
+    const bookIndex = booksData.indexOf(book);
+    if (bookIndex < womenCount) {
+      booksByGender['Women'].push(book);
+    } else if (bookIndex < womenCount + menCount) {
+      booksByGender['Men'].push(book);
+    } else {
+      booksByGender['Unknown'].push(book);
+    }
+  });
+
+  const genderLabels = ['Women', 'Men', 'Unknown'];
+  const colors = [
+    'rgba(34, 141, 141, 0.8)',   // Teal for women
+    'rgba(168, 107, 138, 0.8)',  // Purple for men
+    'rgba(156, 163, 175, 0.8)'   // Gray for unknown
+  ];
+
+  // Create individual datasets for each book (as segments)
+  let genderDatasets = [];
+
+  Object.keys(booksByGender).forEach((gender, genderIndex) => {
+    booksByGender[gender].forEach((book, bookIndex) => {
+      let data = [0, 0, 0];
+      data[genderIndex] = 1; // Each book contributes 1 to its gender category
+
+      genderDatasets.push({
+        label: book.title,
+        data: data,
+        backgroundColor: colors[genderIndex],
+        borderColor: colors[genderIndex].replace('0.8', '1'),
+        borderWidth: 1,
+        bookTitle: book.title,
+        author: book.author,
+        gender: gender
+      });
+    });
+  });
+
+  const genderPieChart = new Chart(genderCtx, {
+    type: 'bar',
+    data: {
+      labels: genderLabels,
+      datasets: genderDatasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      font: {
+        family: 'Lato, sans-serif'
+      },
+      interaction: {
+        intersect: true,
+        mode: 'point'
+      },
+      plugins: {
+        title: {
+          display: false
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: 'white',
+          bodyColor: 'white',
+          borderColor: 'rgba(255, 255, 255, 0.2)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          displayColors: false,
+          animation: {
+            duration: 0
+          },
+          filter: function(tooltipItem) {
+            return tooltipItem.parsed.y > 0;
+          },
+          callbacks: {
+            title: function(context) {
+              const datasetIndex = context[0].datasetIndex;
+              const dataset = context[0].chart.data.datasets[datasetIndex];
+              return dataset.bookTitle;
+            },
+            label: function(context) {
+              const datasetIndex = context.datasetIndex;
+              const dataset = context.chart.data.datasets[datasetIndex];
+
+              let lines = [];
+              lines.push(`By ${dataset.author}`);
+              lines.push(`Gender: ${dataset.gender}`);
+
+              return lines;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: 'rgba(75, 85, 99, 0.8)',
+            font: {
+              family: 'Lato, sans-serif',
+              size: 12,
+              weight: '500'
+            }
+          },
+          title: {
+            display: true,
+            text: 'Author Gender',
+            color: 'rgba(55, 65, 81, 1)',
+            font: {
+              family: 'coatsregular, Lato, sans-serif',
+              size: 14,
+              weight: 'bold'
+            }
+          },
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            color: 'rgba(75, 85, 99, 0.8)',
+            font: {
+              family: 'Lato, sans-serif',
+              size: 12
+            }
+          },
+          title: {
+            display: true,
+            text: 'Number of Books',
+            color: 'rgba(55, 65, 81, 1)',
+            font: {
+              family: 'coatsregular, Lato, sans-serif',
+              size: 14,
+              weight: 'bold'
+            }
+          },
+          grid: {
+            color: 'rgba(156, 163, 175, 0.2)',
+            lineWidth: 1
+          }
+        }
+      },
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+  */
 </script>
 
 <script type="text/javascript">
-  google.charts.load("current", {packages:["corechart"]});
-  google.charts.setOnLoadCallback(drawChart);
+  // Chart.js Stacked Bar Chart for Publication Years
+  const pubCtx = document.getElementById('publicationChart').getContext('2d');
 
-  const labels = [{label: 'Title', id: 'title'}, {label: 'Year', id: 'year', type: 'string'}];
-  const histogram_dataset = <%= @histogram_dataset %>;
+  // Group books by publication year
+  const booksByYear = {};
 
-  histogram_dataset.unshift(labels);
+  booksData.forEach(book => {
+    const year = book.published_year && book.published_year.trim() !== '' ? book.published_year : 'Unknown';
+    if (!booksByYear[year]) {
+      booksByYear[year] = [];
+    }
+    booksByYear[year].push(book);
+  });
 
-  function drawChart() {
-    var data = google.visualization.arrayToDataTable(histogram_dataset);
+  // Sort years and create labels (exclude Unknown)
+  const existingYears = Object.keys(booksByYear)
+    .filter(year => year !== 'Unknown')
+    .map(year => parseInt(year))
+    .sort((a, b) => a - b);
 
-    var options = {
-      title: 'Publication years of these books',
-      legend: { position: 'none' },
-      fontName: 'inherit',
-      hAxis: {format: ' '},
-      backgroundColor: { fill:'transparent' },
-      // chartArea:{top:0,},
-    };
+  // Create continuous range of years including gaps
+  const sortedYears = [];
+  if (existingYears.length > 0) {
+    const minYear = Math.min(...existingYears);
+    const maxYear = Math.max(...existingYears);
 
-    var chart = new google.visualization.Histogram(document.getElementById('histogram'));
-    chart.draw(data, options);
+    for (let year = minYear; year <= maxYear; year++) {
+      sortedYears.push(year.toString());
+      // Initialize empty array for years with no books
+      if (!booksByYear[year.toString()]) {
+        booksByYear[year.toString()] = [];
+      }
+    }
   }
+
+  // Generate a gradient of colors for years
+  function generateYearColor(yearIndex, totalYears) {
+    const hue = (yearIndex / totalYears) * 360;
+    return `hsla(${hue}, 65%, 60%, 0.8)`;
+  }
+
+  // Create individual datasets for each book
+  let yearDatasets = [];
+  let yearIndex = 0;
+
+  sortedYears.forEach(year => {
+    const color = generateYearColor(yearIndex, sortedYears.length);
+    booksByYear[year].forEach((book, bookIndex) => {
+      let data = new Array(sortedYears.length).fill(0);
+      data[yearIndex] = 1; // Each book contributes 1 to its year
+
+      yearDatasets.push({
+        label: book.title,
+        data: data,
+        backgroundColor: color,
+        borderColor: color.replace('0.8', '1'),
+        borderWidth: 1,
+        bookTitle: book.title,
+        author: book.author,
+        year: year
+      });
+    });
+    yearIndex++;
+  });
+
+  const publicationChart = new Chart(pubCtx, {
+    type: 'bar',
+    data: {
+      labels: sortedYears,
+      datasets: yearDatasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      font: {
+        family: 'Lato, sans-serif'
+      },
+      interaction: {
+        intersect: true,
+        mode: 'point'
+      },
+      plugins: {
+        title: {
+          display: false
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: 'white',
+          bodyColor: 'white',
+          borderColor: 'rgba(255, 255, 255, 0.2)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          displayColors: false,
+          animation: {
+            duration: 0
+          },
+          filter: function(tooltipItem) {
+            return tooltipItem.parsed.y > 0;
+          },
+          callbacks: {
+            title: function(context) {
+              const datasetIndex = context[0].datasetIndex;
+              const dataset = context[0].chart.data.datasets[datasetIndex];
+              return dataset.bookTitle;
+            },
+            label: function(context) {
+              const datasetIndex = context.datasetIndex;
+              const dataset = context.chart.data.datasets[datasetIndex];
+
+              let lines = [];
+              lines.push(`By ${dataset.author}`);
+              lines.push(`Published: ${dataset.year}`);
+
+              return lines;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: 'rgba(75, 85, 99, 0.8)',
+            font: {
+              family: 'Lato, sans-serif',
+              size: 10,
+              weight: '500'
+            },
+            maxRotation: 45,
+            minRotation: 45
+          },
+          title: {
+            display: true,
+            text: 'Publication Year',
+            color: 'rgba(55, 65, 81, 1)',
+            font: {
+              family: 'coatsregular, Lato, sans-serif',
+              size: 14,
+              weight: 'bold'
+            }
+          },
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            color: 'rgba(75, 85, 99, 0.8)',
+            font: {
+              family: 'Lato, sans-serif',
+              size: 12
+            }
+          },
+          title: {
+            display: true,
+            text: 'Number of Books',
+            color: 'rgba(55, 65, 81, 1)',
+            font: {
+              family: 'coatsregular, Lato, sans-serif',
+              size: 14,
+              weight: 'bold'
+            }
+          },
+          grid: {
+            color: 'rgba(156, 163, 175, 0.2)',
+            lineWidth: 1
+          }
+        }
+      },
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
 </script>
 
+
 <script type="text/javascript">
-  google.charts.load("current", {packages:["corechart"]});
-  google.charts.setOnLoadCallback(drawChart);
-  function drawChart() {
-    var data = google.visualization.arrayToDataTable([
-      ['Rating', 'Count'],
-      ['Unrated', <%= @ratings.fetch 0, 0 %>],
-      ['1 Star',  <%= @ratings.fetch 1, 0 %>],
-      ['2 Stars', <%= @ratings.fetch 2, 0 %>],
-      ['3 Stars', <%= @ratings.fetch 3, 0 %>],
-      ['4 Stars', <%= @ratings.fetch 4, 0 %>],
-      ['5 Stars', <%= @ratings.fetch 5, 0 %>]
-    ]);
+  // Chart.js Stacked Bar Chart for Ratings Distribution
+  const ctx = document.getElementById('ratingsBarChart').getContext('2d');
 
-    var options = {
-      pieHole: 0.4,
-      fontName: "inherit",
-      pieSliceText: 'label',
-      is3D: true,
-      title: 'How you rated books on your <%= @shelf_name %> shelf',
-      colors: ['#808080', '#228d8d', '#a86b8a', '51767e', 'ee7283', 'e6a189', '9d6f7b'],
-      backgroundColor: { fill:'transparent' },
-      // chartArea:{top:0,},
-    };
+  // Group books by rating
+  const booksByRating = {
+    0: [], 1: [], 2: [], 3: [], 4: [], 5: []
+  };
 
-    var chart = new google.visualization.PieChart(document.getElementById('pieratings'));
-    chart.draw(data, options);
-  }
+  booksData.forEach(book => {
+    const rating = parseInt(book.ratings) || 0;
+    booksByRating[rating].push(book);
+  });
+
+  const ratingLabels = ['Unrated', '1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'];
+  const colors = [
+    'rgba(156, 163, 175, 0.8)',  // Gray for unrated
+    'rgba(239, 68, 68, 0.8)',    // Red for 1 star
+    'rgba(251, 146, 60, 0.8)',   // Orange for 2 stars
+    'rgba(251, 191, 36, 0.8)',   // Yellow for 3 stars
+    'rgba(34, 197, 94, 0.8)',    // Green for 4 stars
+    'rgba(16, 185, 129, 0.8)'    // Emerald for 5 stars
+  ];
+
+  // Create individual datasets for each book (as segments)
+  let datasets = [];
+
+  Object.keys(booksByRating).forEach(rating => {
+    const ratingNum = parseInt(rating);
+    booksByRating[rating].forEach((book, bookIndex) => {
+      let data = [0, 0, 0, 0, 0, 0];
+      data[ratingNum] = 1; // Each book contributes 1 to its rating category
+
+      datasets.push({
+        label: book.title,
+        data: data,
+        backgroundColor: colors[ratingNum],
+        borderColor: colors[ratingNum].replace('0.8', '1'),
+        borderWidth: 1,
+        bookTitle: book.title,
+        author: book.author,
+        rating: ratingNum
+      });
+    });
+  });
+
+  const ratingsBarChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ratingLabels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      font: {
+        family: 'Lato, sans-serif'
+      },
+      interaction: {
+        intersect: true,
+        mode: 'point'
+      },
+      plugins: {
+        title: {
+          display: false
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: 'white',
+          bodyColor: 'white',
+          borderColor: 'rgba(255, 255, 255, 0.2)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          displayColors: false,
+          animation: {
+            duration: 0
+          },
+          filter: function(tooltipItem) {
+            return tooltipItem.parsed.y > 0; // Only show tooltip for non-zero segments
+          },
+          callbacks: {
+            title: function(context) {
+              const datasetIndex = context[0].datasetIndex;
+              const dataset = context[0].chart.data.datasets[datasetIndex];
+              return dataset.bookTitle;
+            },
+            label: function(context) {
+              const datasetIndex = context.datasetIndex;
+              const dataset = context.chart.data.datasets[datasetIndex];
+              const ratingValue = dataset.rating;
+
+              let lines = [];
+              lines.push(`By ${dataset.author}`);
+
+              if (ratingValue === 0) {
+                lines.push('Not rated');
+              } else {
+                lines.push(`Rated ${ratingValue} star${ratingValue > 1 ? 's' : ''}`);
+              }
+
+              return lines;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: 'rgba(75, 85, 99, 0.8)',
+            font: {
+              family: 'Lato, sans-serif',
+              size: 12,
+              weight: '500'
+            }
+          },
+          title: {
+            display: true,
+            text: 'Rating',
+            color: 'rgba(55, 65, 81, 1)',
+            font: {
+              family: 'coatsregular, Lato, sans-serif',
+              size: 14,
+              weight: 'bold'
+            }
+          },
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            color: 'rgba(75, 85, 99, 0.8)',
+            font: {
+              family: 'Lato, sans-serif',
+              size: 12
+            }
+          },
+          title: {
+            display: true,
+            text: 'Number of Books',
+            color: 'rgba(55, 65, 81, 1)',
+            font: {
+              family: 'coatsregular, Lato, sans-serif',
+              size: 14,
+              weight: 'bold'
+            }
+          },
+          grid: {
+            color: 'rgba(156, 163, 175, 0.2)',
+            lineWidth: 1
+          }
+        }
+      },
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
 </script>
