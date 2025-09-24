@@ -6,6 +6,9 @@
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/svg/favicon.svg">
+
     <!-- Preload critical resources for faster loading -->
     <%= preload_assets_link_tags(:css) %>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" as="style">
@@ -46,7 +49,7 @@
   <body class="flex flex-col min-h-screen bg-gradient-to-t from-[#CAf7eb] to-[#138586]">
     <main class="flex-1">
       <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
           <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex-shrink-0">
@@ -121,7 +124,7 @@
         </div>
       </nav>
 
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
+      <div class="max-w-7xl mx-auto pt-8">
         <%= yield %>
       </div>
     </main>
