@@ -2,11 +2,13 @@
 
 case ENV.fetch('RACK_ENV', nil)
 when 'production', 'staging'
-  require 'rollbar'
-  Rollbar.configure do |config|
-    config.access_token = '0302f64ea01249dfb3084cb21eae862c'
-    config.enabled = true
+  require 'sentry-ruby'
+
+  Sentry.init do |config|
+    config.dsn = 'https://22a8f30b43dede96513c7638fdd0110e@o4510085954666496.ingest.us.sentry.io/4510085957353472'
+    config.send_default_pii = true
   end
+
   require_relative 'app'
   logger = Logger.new $stdout
   logger.level = Logger::DEBUG

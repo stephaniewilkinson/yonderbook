@@ -44,5 +44,5 @@ group :test do
 end
 
 group :production do
-  gem 'rollbar'
+  gem 'sentry-ruby'
 end

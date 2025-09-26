@@ -5,7 +5,6 @@ system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 require 'area'
 require 'rack/host_redirect'
 require 'roda'
-require 'rollbar/middleware/rack'
 require 'securerandom'
 require 'tilt'
 # require 'zbar'
