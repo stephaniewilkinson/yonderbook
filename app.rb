@@ -12,6 +12,7 @@ require 'tilt'
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
 require_relative 'lib/cache'
+require_relative 'lib/email'
 require_relative 'lib/goodreads'
 require_relative 'lib/overdrive'
 

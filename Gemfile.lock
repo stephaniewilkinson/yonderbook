@@ -59,6 +59,7 @@ GEM
       fiber-local (~> 1.1)
       json
     csv (3.3.5)
+    date (3.4.1)
     dotenv (3.1.8)
     drb (2.2.3)
     falcon (0.52.3)
@@ -123,6 +124,15 @@ GEM
       bigdecimal (~> 3.1)
     net-http (0.6.0)
       uri
+    net-imap (0.5.10)
+      date
+      net-protocol
+    net-pop (0.1.2)
+      net-protocol
+    net-protocol (0.2.2)
+      timeout
+    net-smtp (0.5.1)
+      net-protocol
     nokogiri (1.18.10-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-linux-gnu)
@@ -215,6 +225,7 @@ GEM
       version_gem (>= 1.1.8, < 3)
     string-format (0.2.0)
     tilt (2.6.1)
+    timeout (0.4.3)
     traces (0.18.2)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
@@ -247,6 +258,7 @@ DEPENDENCIES
   falcon-capybara
   gender_detector
   i18n (>= 1)
+  mail
   minitest
   minitest-capybara
   nokogiri
