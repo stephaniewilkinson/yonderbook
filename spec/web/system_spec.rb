@@ -25,18 +25,23 @@ describe App do
 
   it 'lets user log in and look at a shelf' do
     visit '/'
-    visit '/auth/shelves'
-    click_on 'Log in with Goodreads'
+    # First login attempt - this will redirect to Goodreads
+    first(:link, 'Log in with Goodreads').click
     click_on(class: 'authPortalSignInButton')
     fill_in 'ap_email', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'Password', with: ENV.fetch('GOODREADS_PASSWORD')
     click_on 'signInSubmit'
+    sleep 2
+    visit '/'
+    first(:link, 'Log in with Goodreads').click
+    click_on 'Shelves'
     assert_text 'Choose a shelf'
-    click_link 'Stats'
-    assert_text 'Publication years'
+    all(:link, 'Stats')[2].click
+    sleep 5
+    assert_text 'Publication Years'
     click_on 'Shelves'
     assert_text 'to-read'
-    click_button 'get books'
+    click_button 'Get Books'
     assert_text 'format'
     click_link 'eBooks'
     fill_in 'zipcode', with: '94103'

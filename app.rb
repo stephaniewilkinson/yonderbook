@@ -5,6 +5,7 @@ system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 require 'area'
 require 'rack/host_redirect'
 require 'roda'
+require 'sentry-ruby'
 require 'securerandom'
 require 'tilt'
 # require 'zbar'
@@ -17,7 +18,7 @@ require_relative 'lib/goodreads'
 require_relative 'lib/overdrive'
 
 class App < Roda
-  use Rollbar::Middleware::Rack
+  use Sentry::Rack::CaptureExceptions
   use Rack::HostRedirect, 'bookmooch.herokuapp.com' => 'yonderbook.com'
 
   plugin :head
