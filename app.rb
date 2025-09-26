@@ -5,8 +5,8 @@ system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 require 'area'
 require 'rack/host_redirect'
 require 'roda'
-require 'sentry-ruby'
 require 'securerandom'
+require 'sentry-ruby'
 require 'tilt'
 # require 'zbar'
 
