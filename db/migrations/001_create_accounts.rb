@@ -13,14 +13,6 @@ Sequel.migration do
       DateTime :updated_at, null: false, default: Sequel::CURRENT_TIMESTAMP
     end
 
-    # Account verification (email confirmation)
-    create_table :account_verification_keys do
-      foreign_key :id, :accounts, primary_key: true, type: :Bignum
-      String :key, null: false
-      DateTime :requested_at, null: false, default: Sequel::CURRENT_TIMESTAMP
-      DateTime :email_last_sent, null: false, default: Sequel::CURRENT_TIMESTAMP
-    end
-
     # Password reset
     create_table :account_password_reset_keys do
       foreign_key :id, :accounts, primary_key: true, type: :Bignum
@@ -34,20 +26,11 @@ Sequel.migration do
       foreign_key :id, :accounts, primary_key: true, type: :Bignum
       Integer :number, null: false, default: 1
     end
-
-    # Remember me tokens
-    create_table :account_remember_keys do
-      foreign_key :id, :accounts, primary_key: true, type: :Bignum
-      String :key, null: false
-      DateTime :deadline, null: false
-    end
   end
 
   down do
-    drop_table :account_remember_keys
     drop_table :account_login_failures
     drop_table :account_password_reset_keys
-    drop_table :account_verification_keys
     drop_table :accounts
   end
 end
