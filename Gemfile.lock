@@ -6,7 +6,7 @@ GEM
     area (0.10.0)
       fastercsv (~> 1.5)
     ast (2.4.3)
-    async (2.32.0)
+    async (2.33.0)
       console (~> 1.29)
       fiber-annotation
       io-event (~> 1.11)
@@ -39,6 +39,7 @@ GEM
       async-container (~> 0.16)
       string-format (~> 0.2)
     base64 (0.3.0)
+    bcrypt (3.1.20)
     bigdecimal (3.2.3)
     capybara (3.40.0)
       addressable
@@ -79,7 +80,7 @@ GEM
       capybara (~> 3.37)
       falcon
       selenium-webdriver
-    faraday (2.13.4)
+    faraday (2.14.0)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -124,7 +125,7 @@ GEM
       bigdecimal (~> 3.1)
     net-http (0.6.0)
       uri
-    net-imap (0.5.10)
+    net-imap (0.5.11)
       date
       net-protocol
     net-pop (0.1.2)
@@ -160,7 +161,7 @@ GEM
     prism (1.5.1)
     protocol-hpack (1.5.1)
     protocol-http (0.54.0)
-    protocol-http1 (0.35.1)
+    protocol-http1 (0.35.2)
       protocol-http (~> 0.22)
     protocol-http2 (0.23.0)
       protocol-hpack (~> 1.4)
@@ -190,7 +191,10 @@ GEM
       rack
     roda-route_list (2.1.0)
       roda
-    rubocop (1.80.2)
+    rodauth (2.40.0)
+      roda (>= 2.6.0)
+      sequel (>= 4)
+    rubocop (1.81.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -198,7 +202,7 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.46.0, < 2.0)
+      rubocop-ast (>= 1.47.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
     rubocop-ast (1.47.1)
@@ -220,9 +224,13 @@ GEM
     sentry-ruby (5.28.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
+    sequel (5.97.0)
+      bigdecimal
     snaky_hash (2.0.3)
       hashie (>= 0.1.0, < 6)
       version_gem (>= 1.1.8, < 3)
+    sqlite3 (2.7.4-x86_64-darwin)
+    sqlite3 (2.7.4-x86_64-linux-gnu)
     string-format (0.2.0)
     tilt (2.6.1)
     timeout (0.4.3)
@@ -251,6 +259,7 @@ PLATFORMS
 DEPENDENCIES
   area
   async-http
+  bcrypt
   capybara-selenium
   csv
   dotenv
@@ -274,9 +283,12 @@ DEPENDENCIES
   rake
   roda
   roda-route_list
+  rodauth
   rubocop
   rubocop-performance
   sentry-ruby
+  sequel
+  sqlite3
   tilt
   unicode_utils
   webdrivers
@@ -285,4 +297,4 @@ RUBY VERSION
    ruby 3.3.6p108
 
 BUNDLED WITH
-   2.5.22
+   2.7.2

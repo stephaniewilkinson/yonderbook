@@ -13,6 +13,7 @@ require 'tilt'
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
 require_relative 'lib/cache'
+require_relative 'lib/database'
 require_relative 'lib/email'
 require_relative 'lib/goodreads'
 require_relative 'lib/overdrive'
@@ -27,9 +28,42 @@ class App < Roda
   plugin :public, root: 'assets'
   plugin :flash
   plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
+  plugin :route_csrf
   plugin :slash_path_empty
   plugin :render
   plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
+
+  # Minimal Rodauth configuration
+  plugin :rodauth do
+    db DB
+    enable :login, :logout, :create_account
+    hmac_secret ENV.fetch('SESSION_SECRET')
+
+    # Use password_hash column in accounts table instead of separate table
+    password_hash_table :accounts
+    password_hash_id_column :id
+    password_hash_column :password_hash
+
+    # Customize field labels and requirements
+    login_label 'Email'
+    login_param 'email'
+    login_column :email
+    login_input_type 'email'
+    require_password_confirmation? false
+    require_login_confirmation? false
+
+    # Change routes to avoid conflict with Goodreads OAuth callback
+    login_route 'authenticate'
+    create_account_route 'sign-up'
+
+    # Redirect to home page after successful auth actions
+    login_redirect '/home'
+    create_account_redirect '/home'
+    logout_redirect '/'
+
+    # Custom error messages for better UX
+    login_error_flash 'Invalid email or password'
+  end
 
   compile_assets
   # TODO: figure out how to reroute 404s to /
@@ -37,14 +71,23 @@ class App < Roda
     r.public
     r.assets
 
+    # Rodauth routes (login, create-account, etc.)
+    r.rodauth
+
     session['session_id'] ||= SecureRandom.uuid
 
     # route: GET /
     r.root do
-      request_token = Auth.fetch_request_token
-      Cache.set(session, request_token:)
+      begin
+        request_token = Auth.fetch_request_token
+        Cache.set(session, request_token:)
+        @auth_url = request_token.authorize_url
+      rescue StandardError
+        # Goodreads API is deprecated and often returns errors
+        # Set a placeholder URL or skip OAuth setup in test environment
+        @auth_url = ENV['RACK_ENV'] == 'test' ? '#goodreads-oauth-broken' : nil
+      end
 
-      @auth_url = request_token.authorize_url
       view 'welcome'
     end
 
@@ -78,9 +121,50 @@ class App < Roda
       end
     end
 
+    r.is 'home' do
+      # route: GET /home
+      r.get do
+        # Generate auth URL for Goodreads connection if not already connected
+        unless session['goodreads_user_id']
+          begin
+            request_token = Cache.get(session, :request_token)
+            unless request_token
+              request_token = Auth.fetch_request_token
+              Cache.set(session, request_token:) if request_token
+            end
+            @auth_url = request_token&.authorize_url || '/connect-goodreads'
+          rescue OpenSSL::SSL::SSLError
+            @auth_url = '/connect-goodreads'
+          end
+        end
+
+        view 'home'
+      end
+    end
+
+    r.is 'connect-goodreads' do
+      # route: GET /connect-goodreads
+      r.get do
+        # If already connected, redirect to home
+        r.redirect '/home' if session['goodreads_user_id']
+
+        begin
+          request_token = Auth.fetch_request_token
+          Cache.set(session, request_token:) if request_token
+          @auth_url = request_token&.authorize_url || '#'
+        rescue OpenSSL::SSL::SSLError
+          @auth_url = '#' # Placeholder when SSL fails
+        end
+        view 'connect_goodreads'
+      end
+    end
+
     r.on 'auth' do
       @goodreads_user_id = session['goodreads_user_id']
-      r.redirect '/' unless @goodreads_user_id
+      unless @goodreads_user_id
+        flash[:error] = 'Please connect your Goodreads account first'
+        r.redirect '/home'
+      end
 
       # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
       r.on 'shelves' do

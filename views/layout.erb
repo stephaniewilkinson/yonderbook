@@ -70,20 +70,34 @@
                   About
                 </a>
 
-                <% if session.key? 'goodreads_user_id' %>
-                <a href="/auth/shelves"
-                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
-                  <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
-                  Shelves
-                </a>
-                <% end %>
-
-                <% if @user %>
-                <a href='/auth/users/<%= @user[:id] %>'
-                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
-                  <img src="/svg/user.svg" alt="Account" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
-                  Account
-                </a>
+                <% if rodauth.logged_in? %>
+                  <a href="/home"
+                     class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
+                    <img src="/svg/book.svg" alt="Home" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                    Home
+                  </a>
+                  <% if session.key? 'goodreads_user_id' %>
+                  <a href="/auth/shelves"
+                     class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
+                    <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                    Shelves
+                  </a>
+                  <% end %>
+                  <a href="/logout"
+                     class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
+                    <img src="/svg/user.svg" alt="Logout" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                    Logout
+                  </a>
+                <% else %>
+                  <a href="/authenticate"
+                     class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
+                    <img src="/svg/user.svg" alt="Login" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                    Login
+                  </a>
+                  <a href="/sign-up"
+                     class="group inline-flex items-center px-3 py-2 ml-2 text-sm font-medium text-white bg-brand hover:bg-opacity-90 rounded-lg transition-all duration-200">
+                    Sign Up
+                  </a>
                 <% end %>
               </div>
             </div>
@@ -106,18 +120,30 @@
                 About
               </a>
 
-              <% if session.key? 'goodreads_user_id' %>
-              <a href="/auth/shelves"
-                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
-                Shelves
-              </a>
-              <% end %>
-
-              <% if @user %>
-              <a href='/auth/users/<%= @user[:id] %>'
-                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
-                Account
-              </a>
+              <% if rodauth.logged_in? %>
+                <a href="/home"
+                   class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                  Home
+                </a>
+                <% if session.key? 'goodreads_user_id' %>
+                <a href="/auth/shelves"
+                   class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                  Shelves
+                </a>
+                <% end %>
+                <a href="/logout"
+                   class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                  Logout
+                </a>
+              <% else %>
+                <a href="/authenticate"
+                   class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                  Login
+                </a>
+                <a href="/sign-up"
+                   class="block px-3 py-2 text-base font-medium text-white bg-brand hover:bg-opacity-90 rounded-md transition-colors duration-200">
+                  Sign Up
+                </a>
               <% end %>
             </div>
           </div>

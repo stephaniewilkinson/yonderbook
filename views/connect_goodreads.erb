@@ -1,0 +1,76 @@
+<!-- Connect Goodreads Section -->
+<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg max-w-4xl mx-auto">
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+    <div class="text-center">
+      <h1 class="text-4xl sm:text-5xl lg:text-5xl font-bold text-gray-900 mb-6 font-coats">
+        Connect Your Goodreads Account
+      </h1>
+
+      <p class="text-xl sm:text-2xl text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+        Connect your Goodreads account to import your books and start finding them for free at your library and through book swaps
+      </p>
+
+      <!-- Connection Instructions -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+        <h3 class="text-lg font-semibold text-blue-900 mb-4">How to connect your Goodreads account:</h3>
+        <div class="space-y-3 text-left">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+            <p class="text-blue-800">Click "Connect with Goodreads" below</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
+            <p class="text-blue-800">Log into your Goodreads account (you'll stay on Goodreads)</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
+            <p class="text-blue-800">Return to this page and click "Connect with Goodreads" again</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold text-sm">4</div>
+            <p class="text-blue-800">Access all your shelves and book features</p>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-blue-300">
+          <p class="text-sm text-blue-700 text-left">
+            <strong>Why the extra steps?</strong> Goodreads <a href="https://www.goodreads.com/topic/show/21788520-api-deprecation" class="text-brand hover:underline" target="_blank">deprecated their API</a> in December 2020, breaking automatic login redirects. We can still access your book data, but the connection flow requires these manual steps.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <% if @auth_url %>
+          <a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+            <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
+            Connect with Goodreads
+            <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-3 opacity-80 filter brightness-0 invert">
+          </a>
+        <% end %>
+
+        <a href="/home" class="inline-flex items-center px-6 py-4 bg-transparent border-2 border-gray-400 text-gray-600 font-semibold text-lg rounded-xl hover:border-brand hover:text-brand transition-all duration-200">
+          Back to Home
+        </a>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <p class="text-gray-600">
+          <strong>What happens next?</strong> Once connected, you'll be able to:
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center mt-4">
+          <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-gray-800 text-white">
+            Import all your shelves
+          </span>
+          <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-gray-800 text-white">
+            Analyze reading patterns
+          </span>
+          <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-gray-800 text-white">
+            Find books at your library
+          </span>
+          <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-br from-brand to-gray-800 text-white">
+            Book trading alerts
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

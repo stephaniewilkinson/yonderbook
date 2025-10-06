@@ -1,0 +1,35 @@
+<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg max-w-md mx-auto">
+  <div class="relative px-6 sm:px-8 py-12">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 font-coats">
+        Log Out
+      </h1>
+      <p class="text-lg text-gray-600">
+        Are you sure you want to log out?
+      </p>
+    </div>
+
+    <% if flash['error'] %>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+        <p class="text-sm"><%= flash['error'] %></p>
+      </div>
+    <% end %>
+
+    <form method="post" action="<%= rodauth.logout_path %>" class="space-y-4">
+      <%= csrf_tag(rodauth.logout_path) %>
+
+      <div class="flex gap-3">
+        <button type="submit" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          Log Out
+        </button>
+
+        <a href="/home" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-200 text-gray-700 font-bold text-lg rounded-xl shadow hover:shadow-lg hover:bg-gray-300 transition-all duration-200">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>

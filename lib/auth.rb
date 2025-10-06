@@ -12,7 +12,7 @@ module Auth
 
   def fetch_request_token
     OAUTH_CONSUMER.get_request_token
-  rescue Net::HTTPBadResponse, Net::OpenTimeout
+  rescue Net::HTTPBadResponse, Net::OpenTimeout, Net::HTTPFatalError
     # Starting with the simplest fix. If this doesn't work, the next idea
     # is to create a new consumer here and retry.
     tries ||= 0
