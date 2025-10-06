@@ -6,6 +6,7 @@ ruby File.read(File.join(__dir__, '.ruby-version')).chomp.delete_prefix('ruby-')
 
 gem 'area'
 gem 'async-http'
+gem 'bcrypt'
 gem 'csv'
 gem 'dotenv'
 gem 'drb'
@@ -22,6 +23,9 @@ gem 'rack-host-redirect'
 gem 'rackup'
 gem 'rake'
 gem 'roda'
+gem 'rodauth'
+gem 'sequel'
+gem 'sqlite3'
 gem 'tilt'
 gem 'unicode_utils'
 

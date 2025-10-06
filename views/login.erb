@@ -1,0 +1,74 @@
+<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg max-w-md mx-auto">
+  <div class="relative px-6 sm:px-8 py-12">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 font-coats">
+        Welcome Back
+      </h1>
+      <p class="text-lg text-gray-600">
+        Log in to access your reading tools
+      </p>
+    </div>
+
+    <% if flash['error'] %>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+        <p class="text-sm"><%= flash['error'] %></p>
+      </div>
+    <% end %>
+
+    <% if rodauth.field_error('login') || rodauth.field_error('password') %>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+        <% if rodauth.field_error('login') %>
+          <p class="text-sm"><%= rodauth.field_error('login') %></p>
+        <% end %>
+        <% if rodauth.field_error('password') %>
+          <p class="text-sm"><%= rodauth.field_error('password') %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <form method="post" action="<%= rodauth.login_path %>" class="space-y-4">
+      <%= csrf_tag(rodauth.login_path) %>
+
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+          Email
+        </label>
+        <input type="email"
+               name="email"
+               id="email"
+               value="<%= rodauth.param('email') %>"
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200"
+               required>
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+          Password
+        </label>
+        <input type="password"
+               name="password"
+               id="password"
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200"
+               required>
+      </div>
+
+      <div class="pt-2">
+        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+          </svg>
+          Log In
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-600">
+        Don't have an account?
+        <a href="/sign-up" class="text-brand font-medium hover:underline">
+          Sign up
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

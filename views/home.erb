@@ -75,31 +75,3 @@
     </div>
   </div>
 </div>
-
-<!-- Quick Actions -->
-<div class="bg-gradient-to-l from-brand to-secondary rounded-2xl shadow-lg p-6 text-white">
-  <h3 class="text-xl font-bold mb-4">Quick Actions</h3>
-  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    <% if session.key? 'goodreads_user_id' %>
-      <a href="/auth/shelves" class="flex items-center space-x-3 bg-white bg-opacity-20 rounded-lg p-3 hover:bg-opacity-30 transition-all duration-200">
-        <img src="/svg/book.svg" alt="Shelves" class="w-5 h-5 filter brightness-0 invert">
-        <span class="font-medium">Browse Shelves</span>
-      </a>
-    <% else %>
-      <a href="/connect-goodreads" class="flex items-center space-x-3 bg-white bg-opacity-20 rounded-lg p-3 hover:bg-opacity-30 transition-all duration-200">
-        <img src="/img/goodreads-icon.png" alt="Connect" class="w-5 h-5 filter brightness-0 invert">
-        <span class="font-medium">Connect Goodreads</span>
-      </a>
-    <% end %>
-
-    <a href="/about" class="flex items-center space-x-3 bg-white bg-opacity-20 rounded-lg p-3 hover:bg-opacity-30 transition-all duration-200">
-      <img src="/svg/info-circle.svg" alt="About" class="w-5 h-5 filter brightness-0 invert">
-      <span class="font-medium">Learn More</span>
-    </a>
-
-    <a href="/logout" class="flex items-center space-x-3 bg-white bg-opacity-20 rounded-lg p-3 hover:bg-opacity-30 transition-all duration-200">
-      <img src="/svg/user.svg" alt="Account" class="w-5 h-5 filter brightness-0 invert">
-      <span class="font-medium">Account Settings</span>
-    </a>
-  </div>
-</div>

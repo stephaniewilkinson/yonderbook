@@ -14,41 +14,50 @@
           Automatically find your want-to-read books at your library and through book swaps
         </p>
 
-        <!-- Login Instructions -->
-        <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">First time logging in? Follow these steps:</h3>
+        <!-- Account Creation Notice -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
+          <h3 class="text-lg font-semibold text-amber-900 mb-4">📢 New: Account Creation Required</h3>
+          <p class="text-amber-800 mb-4">
+            To provide a more reliable experience, we now require you to create a Yonderbook account first. Don't worry - it only takes 30 seconds!
+          </p>
           <div class="space-y-3">
             <div class="flex items-center gap-3">
               <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
-              <p class="text-gray-700">Click "Log in with Goodreads" below</p>
+              <p class="text-amber-800">Create your Yonderbook account below</p>
             </div>
             <div class="flex items-center gap-3">
               <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
-              <p class="text-gray-700">Log into your Goodreads account (you'll stay on Goodreads)</p>
+              <p class="text-amber-800">Connect your Goodreads account to import your books</p>
             </div>
             <div class="flex items-center gap-3">
               <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
-              <p class="text-gray-700">Return to this page and click "Log in with Goodreads" again</p>
+              <p class="text-amber-800">Access all your shelves and book features</p>
             </div>
           </div>
-          <div class="mt-4 pt-3 border-t border-gray-300">
-            <p class="text-sm text-gray-600">
-              <strong>Why the extra steps?</strong> Goodreads <a href="https://www.goodreads.com/topic/show/21788520-api-deprecation" class="text-brand hover:underline" target="_blank">deprecated their API</a> in December 2020, breaking automatic login redirects. We can still access your book data, but the login flow requires these manual steps.
-              <a href="https://debugger.medium.com/goodreads-is-retiring-its-current-api-and-book-loving-developers-arent-happy-11ed764dd95" class="text-brand hover:underline" target="_blank">Read more about the API deprecation</a>.
+          <div class="mt-4 pt-3 border-t border-amber-300">
+            <p class="text-sm text-amber-700">
+              <strong>Why this change?</strong> Goodreads <a href="https://www.goodreads.com/topic/show/21788520-api-deprecation" class="text-brand hover:underline" target="_blank">deprecated their API</a> in December 2020, making direct login unreliable. By creating a Yonderbook account, you'll have consistent access to your book data and features, independent of Goodreads API issues.
             </p>
           </div>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-start items-start">
-          <a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-            <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
-            Log in with Goodreads
-            <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-3 opacity-80 filter brightness-0 invert">
+          <a href="/sign-up" class="inline-flex items-center px-8 py-4 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            Create Your Account
           </a>
 
-          <a href="/about" class="inline-flex items-center px-8 py-4 bg-transparent border-2 border-brand text-brand font-semibold text-lg rounded-xl hover:bg-brand hover:text-white transition-all duration-200">
-            <img src="/svg/info-circle.svg" alt="Info" class="w-5 h-5 mr-3">
-            Learn More
+          <a href="/authenticate" class="inline-flex items-center px-6 py-4 bg-transparent border-2 border-brand text-brand font-semibold text-lg rounded-xl hover:bg-brand hover:text-white transition-all duration-200">
+            Already have an account? Log in
+          </a>
+        </div>
+
+        <div class="mt-6">
+          <a href="/about" class="inline-flex items-center text-gray-600 hover:text-brand transition-colors duration-200">
+            <img src="/svg/info-circle.svg" alt="Info" class="w-5 h-5 mr-2">
+            Learn more about Yonderbook
           </a>
         </div>
       </div>
@@ -211,11 +220,12 @@
     Ready to turn your wishlist into free books?
 </h2>
 <p class="text-xl text-gray-200 mb-8">
-    Connect your Goodreads account and start finding your want-to-read books for free at your library and through book swaps.
+    Create your account, connect your Goodreads, and start finding your want-to-read books for free at your library and through book swaps.
 </p>
-<a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-    <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
-    Log in with Goodreads
-    <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-3 opacity-80">
+<a href="/sign-up" class="inline-flex items-center px-8 py-4 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+    </svg>
+    Get Started - Create Account
 </a>
 </div>

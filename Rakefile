@@ -9,7 +9,8 @@ Rake::TestTask.new do |test|
   test.warning = false
 end
 
-# Database tasks removed - using session-based approach for now
+# Load database tasks
+Dir.glob('lib/tasks/*.rake').each { |file| load file }
 
 namespace :routes do
   desc 'Update the routes.json metadata file'

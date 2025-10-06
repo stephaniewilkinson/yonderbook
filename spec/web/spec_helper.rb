@@ -13,6 +13,10 @@ require 'webdrivers/geckodriver'
 
 require_relative '../../app'
 
+# Run migrations for test database (in-memory SQLite)
+Sequel.extension :migration
+Sequel::Migrator.run(DB, 'db/migrations')
+
 Capybara.app = App
 Capybara.register_driver :firefox do |app|
   Capybara::Selenium::Driver.new app, browser: :firefox
