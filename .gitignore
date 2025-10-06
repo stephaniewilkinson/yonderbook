@@ -6,3 +6,6 @@
 .bundle/
 .claude
 CLAUDE.md
+*.db
+*.sqlite
+*.sqlite3
