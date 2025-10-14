@@ -9,6 +9,7 @@ require 'minitest/autorun'
 require 'minitest/capybara'
 require 'minitest/pride'
 require 'rack/test'
+require 'selenium-webdriver'
 
 require_relative '../../app'
 
