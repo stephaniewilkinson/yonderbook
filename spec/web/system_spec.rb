@@ -50,7 +50,7 @@ describe App do
           fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
           fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
           find('#signInSubmit').click
-          sleep 5  # Wait for CVF/redirect
+          sleep 5 # Wait for CVF/redirect
         end
 
         # Check if OAuth completed after sign-in
