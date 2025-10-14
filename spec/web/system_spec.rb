@@ -45,26 +45,27 @@ describe App do
 
     visit '/home'
 
-    # Only complete OAuth flow if not already connected to Goodreads
-    unless page.has_text?('View Your Shelves', wait: 2)
-      click_link 'Connect with Goodreads'
-      click_link 'Connect with Goodreads'
-      sleep 2
+    click_link 'Connect with Goodreads'
+    click_link 'Connect with Goodreads'
+    sleep 2
+    click_button 'Sign in with email'
+    sleep 2 # Wait for sign-in form to load
 
-      # Only sign in if we see the sign-in button (not already authenticated with Goodreads)
-      if page.has_button?('Sign in with email', wait: 2)
-        click_button 'Sign in with email'
-        sleep 2 # Wait for sign-in form to load
+    fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
+    fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
+    find('#signInSubmit').click
 
-        fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
-        fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
-        find('#signInSubmit').click
-        sleep 15
-      else
-        # Already authenticated with Goodreads, just wait for redirect
-        sleep 5
-      end
-    end
+    visit '/home'
+
+    click_link 'Connect with Goodreads'
+    click_link 'Connect with Goodreads'
+    sleep 2
+    click_button 'Sign in with email'
+    sleep 2 # Wait for sign-in form to load
+
+    fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
+    fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
+    find('#signInSubmit').click
 
     visit '/auth/shelves'
     assert_text 'Choose a shelf'
