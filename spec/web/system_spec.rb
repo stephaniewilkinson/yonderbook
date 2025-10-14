@@ -22,7 +22,6 @@ describe App do
     fake_password = 'SecurePassword123!'
 
     # First create a Rodauth account
-    puts 'Creating Rodauth account...'
     visit '/'
     click_link 'Sign Up'
     fill_in 'Email', with: fake_email
@@ -31,58 +30,38 @@ describe App do
     click_button 'Create Account'
 
     # Should be redirected to home page
-    puts 'Checking for home page...'
     assert_text 'Welcome to Yonderbook!'
 
-    # Try to connect with Goodreads - this will show the OAuth flow
-    puts 'Starting Goodreads OAuth flow (attempt 1)...'
-    click_link 'Connect with Goodreads'
-    click_link 'Connect with Goodreads'
-    sleep 2
-    puts "Current URL: #{page.current_url}"
-    click_button 'Sign in with email'
-    sleep 2 # Wait for sign-in form to load
+    # Try to connect with Goodreads - OAuth flow requires 3 attempts to bypass Amazon CVF
+    3.times do
+      click_link 'Connect with Goodreads'
+      click_link 'Connect with Goodreads'
+      sleep 2
 
-    puts 'Filling in credentials (attempt 1)...'
-    fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
-    fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
-    find('#signInSubmit').click
+      # Check if already authenticated (redirected to /auth/shelves)
+      break if page.current_url.include?('/auth/shelves')
 
-    puts 'Visiting /home (attempt 1 complete)...'
-    visit '/home'
+      # Only try to sign in if we're on Goodreads sign-in page
+      if page.has_button?('Sign in with email', wait: 2)
+        click_button 'Sign in with email'
+        sleep 2
 
-    puts 'Starting Goodreads OAuth flow (attempt 2)...'
-    click_link 'Connect with Goodreads'
-    click_link 'Connect with Goodreads'
-    sleep 2
-    puts "Current URL: #{page.current_url}"
-    click_button 'Sign in with email'
-    sleep 2 # Wait for sign-in form to load
+        if page.has_field?('email', wait: 2) && page.has_field?('password', wait: 2)
+          fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
+          fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
+          find('#signInSubmit').click
+          sleep 5  # Wait for CVF/redirect
+        end
 
-    puts 'Filling in credentials (attempt 2)...'
-    fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
-    fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
-    find('#signInSubmit').click
+        # Check if OAuth completed after sign-in
+        break if page.current_url.include?('/auth/shelves')
+      end
 
-    puts 'Visiting /home (attempt 2 complete)...'
-    visit '/home'
+      visit '/home' unless page.current_url.include?('/auth/shelves')
+    end
 
-    puts 'Starting Goodreads OAuth flow (attempt 3)...'
-    click_link 'Connect with Goodreads'
-    click_link 'Connect with Goodreads'
-    sleep 2
-    puts "Current URL: #{page.current_url}"
-    click_button 'Sign in with email'
-    sleep 2 # Wait for sign-in form to load
-
-    puts 'Filling in credentials (attempt 3)...'
-    fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
-    fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
-    find('#signInSubmit').click
-
-    puts 'Visiting /auth/shelves...'
+    # Final visit to get OAuth tokens
     visit '/auth/shelves'
-    puts "Current URL: #{page.current_url}"
     assert_text 'Choose a shelf'
     all(:link, 'Stats')[2].click
     sleep 10
@@ -98,7 +77,7 @@ describe App do
     click_on 'Find a library'
     sleep 10
     find('button[id="1683"]').click # Click the library selection button by consortium ID
-    sleep 2  # Wait for OverDrive API to respond
+    sleep 5  # Wait for OverDrive API to respond
     assert_text 'Available'
     click_on 'Unavailable'
     sleep 1  # Wait for the unavailable books section to load
@@ -113,7 +92,7 @@ describe App do
     fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
     fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
     click_button 'Authenticate'
-    sleep 20 # Wait for BookMooch API to respond
+    sleep 30 # Wait for BookMooch API to respond (increased for CI)
     assert_text 'Success!'
   end
 
