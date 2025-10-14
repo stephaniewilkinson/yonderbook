@@ -9,9 +9,9 @@ name: Ruby
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -20,32 +20,25 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        ruby-version: ['3.3.6']
-
-    services:
-      selenium:
-        image: selenium/standalone-chrome
-
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Ruby
-
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
+        ruby-version-file: '.ruby-version'
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: Run RuboCop
+      run: bundle exec rubocop
     - name: Run tests
       env:
         GOODREADS_SECRET: ${{ secrets.GOODREADS_SECRET }}
         GOODREADS_API_KEY: ${{ secrets.GOODREADS_API_KEY }}
-        OVERDRIVE_KEY: ${{ secrets.OVERDRIVE_KEY }}
-        OVERDRIVE_SECRET: ${{ secrets.OVERDRIVE_SECRET }}
         GOODREADS_EMAIL: ${{ secrets.GOODREADS_EMAIL }}
         GOODREADS_PASSWORD: ${{ secrets.GOODREADS_PASSWORD }}
+        OVERDRIVE_KEY: ${{ secrets.OVERDRIVE_KEY }}
+        OVERDRIVE_SECRET: ${{ secrets.OVERDRIVE_SECRET }}
         BOOKMOOCH_USERNAME: ${{ secrets.BOOKMOOCH_USERNAME }}
         BOOKMOOCH_PASSWORD: ${{ secrets.BOOKMOOCH_PASSWORD }}
-        RACK_ENV: ${{ secrets.RACK_ENV }}
+        RACK_ENV: test
         SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
       run: bundle exec rake
