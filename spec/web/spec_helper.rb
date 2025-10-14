@@ -9,7 +9,6 @@ require 'minitest/autorun'
 require 'minitest/capybara'
 require 'minitest/pride'
 require 'rack/test'
-require 'webdrivers/geckodriver'
 
 require_relative '../../app'
 

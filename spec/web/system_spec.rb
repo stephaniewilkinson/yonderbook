@@ -17,6 +17,90 @@ describe App do
     assert_includes last_response.body, 'Yonderbook'
   end
 
+  it 'lets user log in and see Goodreads connection options' do
+    fake_email = "test_goodreads_user_#{Time.now.to_i}@example.com"
+    fake_password = 'SecurePassword123!'
+
+    # First create a Rodauth account
+    visit '/'
+    click_link 'Sign Up'
+    fill_in 'Email', with: fake_email
+    fill_in 'Confirm Email', with: fake_email if page.has_field?('Confirm Email')
+    fill_in 'Password', with: fake_password
+    click_button 'Create Account'
+
+    # Should be redirected to home page
+    assert_text 'Welcome to Yonderbook!'
+
+    # Try to connect with Goodreads - this will show the OAuth flow
+    click_link 'Connect with Goodreads'
+    click_link 'Connect with Goodreads'
+    sleep 2
+    click_button 'Sign in with email'
+    sleep 2 # Wait for sign-in form to load
+
+    fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
+    fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
+    find('#signInSubmit').click
+
+    visit '/home'
+
+    # Only complete OAuth flow if not already connected to Goodreads
+    unless page.has_text?('View Your Shelves', wait: 2)
+      click_link 'Connect with Goodreads'
+      click_link 'Connect with Goodreads'
+      sleep 2
+
+      # Only sign in if we see the sign-in button (not already authenticated with Goodreads)
+      if page.has_button?('Sign in with email', wait: 2)
+        click_button 'Sign in with email'
+        sleep 2 # Wait for sign-in form to load
+
+        fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
+        fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
+        find('#signInSubmit').click
+        sleep 15
+      else
+        # Already authenticated with Goodreads, just wait for redirect
+        sleep 5
+      end
+    end
+
+    visit '/auth/shelves'
+    assert_text 'Choose a shelf'
+    all(:link, 'Stats')[2].click
+    sleep 10
+    assert_text 'Publication Years'
+    click_on 'Shelves'
+    assert_text 'to-read'
+    first(:button, 'Get Books').click
+    assert_text 'Choose a format'
+    # Click eBooks link directly by visiting the overdrive path
+    visit '/auth/shelves/to-read/overdrive'
+    assert_text 'zip code'
+    fill_in 'zipcode', with: '94103'
+    click_on 'Find a library'
+    sleep 10
+    find('button[id="1683"]').click # Click the library selection button by consortium ID
+    sleep 2  # Wait for OverDrive API to respond
+    assert_text 'Available'
+    click_on 'Unavailable'
+    sleep 1  # Wait for the unavailable books section to load
+    assert_text 'Unavailable' # Just verify we can see the unavailable section
+    click_on 'Shelves'
+    assert_text 'abandoned'
+    all(:button, 'Get Books').find { |btn| btn.text == 'Get Books' }.click # Click Get Books for abandoned shelf
+    assert_text 'Choose a format'
+    within('.fixed') do # Within the modal
+      find('a', text: 'By Mail').click
+    end
+    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
+    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
+    click_button 'Authenticate'
+    sleep 20 # Wait for BookMooch API to respond
+    assert_text 'Success!'
+  end
+
   it 'responds to /about' do
     get '/about'
     assert last_response.ok?
@@ -58,7 +142,7 @@ describe App do
     # Fill in login form
     fill_in 'Email', with: fake_email
     fill_in 'Password', with: fake_password
-    click_button 'Login'
+    click_button 'Log In'
 
     # Should be redirected to home page after successful login
     assert_text 'Welcome to Yonderbook!'
@@ -68,70 +152,5 @@ describe App do
     assert_link 'Logout'
     refute_link 'Login'
     refute_link 'Sign Up'
-  end
-
-  it 'lets user log in and see Goodreads connection options' do
-    fake_email = "test_goodreads_user_#{Time.now.to_i}@example.com"
-    fake_password = 'SecurePassword123!'
-
-    # First create a Rodauth account
-    visit '/'
-    click_link 'Sign Up'
-    fill_in 'Email', with: fake_email
-    fill_in 'Confirm Email', with: fake_email if page.has_field?('Confirm Email')
-    fill_in 'Password', with: fake_password
-    click_button 'Create Account'
-
-    # Should be redirected to home page
-    assert_text 'Welcome to Yonderbook!'
-
-    # Try to connect with Goodreads - this will show the OAuth flow
-    click_link 'Connect with Goodreads'
-
-    # Since Goodreads API is deprecated, we just verify the page loads
-    # and shows appropriate content for connection attempt
-    assert_text 'Goodreads'
-
-    # Test that the home page properly handles the broken OAuth
-    visit '/home'
-    assert_text 'Welcome to Yonderbook!'
-
-    # Verify that user can navigate without OAuth working
-    visit '/about'
-    assert_text 'About'
-    first(:link, 'Log in with Goodreads').click
-    click_on 'Shelves'
-    assert_text 'Choose a shelf'
-    all(:link, 'Stats')[2].click
-    sleep 5
-    assert_text 'Publication Years'
-    click_on 'Shelves'
-    assert_text 'to-read'
-    first(:button, 'Get Books').click
-    assert_text 'Choose a format'
-    # Click eBooks link directly by visiting the overdrive path
-    visit '/auth/shelves/to-read/overdrive'
-    assert_text 'zip code'
-    fill_in 'zipcode', with: '94103'
-    click_on 'Find a library'
-    assert_text 'Library'
-    find('button[id="1683"]').click  # Click the library selection button by consortium ID
-    sleep 5  # Wait for OverDrive API to respond
-    assert_text 'Available'
-    click_on 'Unavailable'
-    sleep 1  # Wait for the unavailable books section to load
-    assert_text 'Unavailable'  # Just verify we can see the unavailable section
-    click_on 'Shelves'
-    assert_text 'abandoned'
-    all(:button, 'Get Books').find { |btn| btn.text == 'Get Books' }.click  # Click Get Books for abandoned shelf
-    assert_text 'Choose a format'
-    within('.fixed') do  # Within the modal
-      find('a', text: 'By Mail').click
-    end
-    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
-    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
-    click_button 'Authenticate'
-    sleep 10  # Wait for BookMooch API to respond
-    assert_text 'Success!'
   end
 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-source 'https://rubygems.org'
+source 'https://gem.coop'
 
 ruby File.read(File.join(__dir__, '.ruby-version')).chomp.delete_prefix('ruby-')
 
@@ -22,6 +22,7 @@ gem 'ostruct'
 gem 'rack-host-redirect'
 gem 'rackup'
 gem 'rake'
+gem 'rinda'
 gem 'roda'
 gem 'rodauth'
 gem 'sequel'
@@ -37,7 +38,10 @@ end
 group :development, :test do
   gem 'pry'
   gem 'rubocop'
+  gem 'rubocop-minitest'
   gem 'rubocop-performance'
+  gem 'rubocop-rake'
+  gem 'rubocop-sequel'
 end
 
 group :test do
@@ -45,7 +49,6 @@ group :test do
   gem 'minitest'
   gem 'minitest-capybara'
   gem 'rack-test'
-  gem 'webdrivers'
 end
 
 group :production do

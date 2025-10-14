@@ -16,12 +16,10 @@
 <div class="max-w-6xl mx-auto">
   <el-tab-group>
     <el-tab-list class="flex border-b border-gray-200 mb-6">
-      <% unless @available_books.empty? %>
-        <button type="button" class="flex-1 py-2 px-4 text-center font-medium text-sm border-b-2 border-green-500 text-green-600 bg-green-50">
-          Available
-          <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-green-100 text-green-800 rounded-full"><%= @available_books.size %></span>
-        </button>
-      <% end %>
+      <button type="button" class="flex-1 py-2 px-4 text-center font-medium text-sm border-b-2 border-green-500 text-green-600 bg-green-50">
+        Available
+        <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-green-100 text-green-800 rounded-full"><%= @available_books.size %></span>
+      </button>
       <% unless @waitlist_books.empty? %>
         <button type="button" class="flex-1 py-2 px-4 text-center font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
           Waitlist
@@ -36,9 +34,11 @@
     </el-tab-list>
 
     <el-tab-panels>
-      <% unless @available_books.empty? %>
-        <div class="bg-green-50 p-6 rounded-lg">
-          <h5 class="text-xl font-semibold text-gray-900 mb-6">Available Books</h5>
+      <div class="bg-green-50 p-6 rounded-lg">
+        <h5 class="text-xl font-semibold text-gray-900 mb-6">Available Books</h5>
+        <% if @available_books.empty? %>
+          <p class="text-gray-600 text-center">No books are currently available to check out.</p>
+        <% else %>
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             <% @available_books.each do |title| %>
               <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
@@ -57,8 +57,8 @@
               </div>
             <% end %>
           </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
 
       <% unless @waitlist_books.empty? %>
         <div <% if @available_books.empty? %>class="bg-yellow-50 p-6 rounded-lg"<% else %>hidden class="bg-yellow-50 p-6 rounded-lg"<% end %>>
