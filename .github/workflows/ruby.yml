@@ -22,10 +22,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Read Ruby version
+      id: ruby-version
+      run: echo "version=$(cat .ruby-version | tr -d 'ruby-')" >> $GITHUB_OUTPUT
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version-file: '.ruby-version'
+        ruby-version: ${{ steps.ruby-version.outputs.version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Run RuboCop
       run: bundle exec rubocop
