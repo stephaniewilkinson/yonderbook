@@ -25,6 +25,9 @@ end
 Capybara.register_driver :headless_firefox do |app|
   options = Selenium::WebDriver::Firefox::Options.new
   options.add_argument('--headless')
+  options.add_argument('--disable-blink-features=AutomationControlled')
+  options.add_preference('dom.webdriver.enabled', false)
+  options.add_preference('useAutomationExtension', false)
   Capybara::Selenium::Driver.new app, browser: :firefox, options: options
 end
 
