@@ -22,7 +22,7 @@ describe App do
     fake_password = 'SecurePassword123!'
 
     # First create a Rodauth account
-    puts "Creating Rodauth account..."
+    puts 'Creating Rodauth account...'
     visit '/'
     click_link 'Sign Up'
     fill_in 'Email', with: fake_email
@@ -31,11 +31,11 @@ describe App do
     click_button 'Create Account'
 
     # Should be redirected to home page
-    puts "Checking for home page..."
+    puts 'Checking for home page...'
     assert_text 'Welcome to Yonderbook!'
 
     # Try to connect with Goodreads - this will show the OAuth flow
-    puts "Starting Goodreads OAuth flow (attempt 1)..."
+    puts 'Starting Goodreads OAuth flow (attempt 1)...'
     click_link 'Connect with Goodreads'
     click_link 'Connect with Goodreads'
     sleep 2
@@ -43,15 +43,15 @@ describe App do
     click_button 'Sign in with email'
     sleep 2 # Wait for sign-in form to load
 
-    puts "Filling in credentials (attempt 1)..."
+    puts 'Filling in credentials (attempt 1)...'
     fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
     find('#signInSubmit').click
 
-    puts "Visiting /home (attempt 1 complete)..."
+    puts 'Visiting /home (attempt 1 complete)...'
     visit '/home'
 
-    puts "Starting Goodreads OAuth flow (attempt 2)..."
+    puts 'Starting Goodreads OAuth flow (attempt 2)...'
     click_link 'Connect with Goodreads'
     click_link 'Connect with Goodreads'
     sleep 2
@@ -59,15 +59,15 @@ describe App do
     click_button 'Sign in with email'
     sleep 2 # Wait for sign-in form to load
 
-    puts "Filling in credentials (attempt 2)..."
+    puts 'Filling in credentials (attempt 2)...'
     fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
     find('#signInSubmit').click
 
-    puts "Visiting /home (attempt 2 complete)..."
+    puts 'Visiting /home (attempt 2 complete)...'
     visit '/home'
 
-    puts "Starting Goodreads OAuth flow (attempt 3)..."
+    puts 'Starting Goodreads OAuth flow (attempt 3)...'
     click_link 'Connect with Goodreads'
     click_link 'Connect with Goodreads'
     sleep 2
@@ -75,12 +75,12 @@ describe App do
     click_button 'Sign in with email'
     sleep 2 # Wait for sign-in form to load
 
-    puts "Filling in credentials (attempt 3)..."
+    puts 'Filling in credentials (attempt 3)...'
     fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
     fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
     find('#signInSubmit').click
 
-    puts "Visiting /auth/shelves..."
+    puts 'Visiting /auth/shelves...'
     visit '/auth/shelves'
     puts "Current URL: #{page.current_url}"
     assert_text 'Choose a shelf'
