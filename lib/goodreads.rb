@@ -17,7 +17,7 @@ module Goodreads
   HOST = 'www.goodreads.com'
   BASE_URL = "https://#{HOST}".freeze
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
-  BOOK_DETAILS = %w[isbn book/image_url title authors/author/name published rating].freeze
+  BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating].freeze
 
   module_function
 

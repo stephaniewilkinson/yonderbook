@@ -9,3 +9,4 @@ CLAUDE.md
 *.db
 *.sqlite
 *.sqlite3
+/docs

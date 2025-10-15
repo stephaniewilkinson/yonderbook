@@ -225,8 +225,9 @@ class App < Roda
 
             # route: POST /auth/shelves/:id/overdrive?consortium=1047
             r.post do
-              titles = Overdrive.new(@book_info, r.params['consortium']).fetch_titles_availability
-              Cache.set(session, titles:)
+              overdrive = Overdrive.new(@book_info, r.params['consortium'])
+              titles = overdrive.fetch_titles_availability
+              Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
               r.redirect '/auth/availability'
             end
           end
@@ -238,6 +239,9 @@ class App < Roda
         r.get do
           # TODO: Sort titles by recently added to goodreads list
           @titles = Cache.get session, :titles
+          @collection_token = Cache.get session, :collection_token
+          @website_id = Cache.get session, :website_id
+          @library_url = Cache.get session, :library_url
 
           unless @titles
             flash[:error] = 'Please choose a shelf first'
@@ -246,7 +250,8 @@ class App < Roda
 
           @available_books = @titles.select { |a| a.copies_available.positive? }
           @waitlist_books = @titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? }
-          @unavailable_books = @titles.select { |a| a.copies_owned.zero? }
+          @no_isbn_books = @titles.select(&:no_isbn)
+          @unavailable_books = @titles.select { |a| a.copies_owned.zero? && !a.no_isbn }
           view 'availability'
         end
       end
