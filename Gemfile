@@ -25,6 +25,7 @@ gem 'rake'
 gem 'rinda'
 gem 'roda'
 gem 'rodauth'
+gem 'sentry-ruby'
 gem 'sequel'
 gem 'sqlite3'
 gem 'tilt'
@@ -49,8 +50,4 @@ group :test do
   gem 'minitest'
   gem 'minitest-capybara'
   gem 'rack-test'
-end
-
-group :production do
-  gem 'sentry-ruby'
 end

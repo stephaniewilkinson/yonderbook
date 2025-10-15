@@ -1,14 +1,25 @@
 # frozen_string_literal: true
 
+# Initialize Sentry for all environments
+require 'sentry-ruby'
+
+Sentry.init do |config|
+  config.dsn = ENV.fetch('SENTRY_DSN', nil)
+  config.environment = ENV.fetch('RACK_ENV', 'development')
+  config.enabled_environments = %w[development test production staging]
+  config.send_default_pii = true
+
+  # Send errors from all environments to ensure tracking works
+  config.traces_sample_rate = ENV['RACK_ENV'] == 'production' ? 0.1 : 1.0
+
+  # Don't send errors if DSN is not configured
+  config.before_send = ->(event, _hint) do
+    event if ENV['SENTRY_DSN'] && !ENV['SENTRY_DSN'].empty?
+  end
+end
+
 case ENV.fetch('RACK_ENV', nil)
 when 'production', 'staging'
-  require 'sentry-ruby'
-
-  Sentry.init do |config|
-    config.dsn = 'https://22a8f30b43dede96513c7638fdd0110e@o4510085954666496.ingest.us.sentry.io/4510085957353472'
-    config.send_default_pii = true
-  end
-
   require_relative 'app'
   logger = Logger.new $stdout
   logger.level = Logger::DEBUG
