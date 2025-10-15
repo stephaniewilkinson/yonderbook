@@ -33,8 +33,6 @@ class Overdrive
       internet&.close
     end
     libraries = JSON.parse task.wait
-    # they have changed the JSON payload here so it only responds with the 'consortium' and the libraries are nested
-    # maybe this is ok though
     libraries.first(10).map do |l|
       consortium_id = l['consortiumId']
       consortium_name = l['consortiumName']
@@ -139,7 +137,7 @@ class Overdrive
     batches = books_with_ids.map(&:id).each_slice(25)
 
     responses = async_responses(batches).wait
-    responses.each.with_index 1 do |(raw_body, status), batch_number|
+    responses.each.with_index 1 do |(raw_body, status), _batch_number|
       body = JSON.parse raw_body
 
       if status >= 400
@@ -163,7 +161,8 @@ class Overdrive
     books_by_key = {}
 
     @books.each do |book, body|
-      key = book_key(book)
+      # Use ISBN as key if available, otherwise use normalized title
+      key = book.isbn&.empty? == false ? book.isbn : TitleNormalizer.normalize(book.title)
 
       if books_by_key[key]
         books_by_key[key] = [book, body] if should_replace?(book, books_by_key[key].first)
@@ -176,15 +175,6 @@ class Overdrive
   end
 
   private
-
-  def book_key book
-    # Use ISBN as key if available, otherwise use normalized title
-    if book.isbn && !book.isbn.empty?
-      book.isbn
-    else
-      TitleNormalizer.normalize(book.title)
-    end
-  end
 
   def should_replace? candidate_edition, current_best_edition
     # Replace if candidate edition has ANY availability and current best doesn't
