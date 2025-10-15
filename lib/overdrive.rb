@@ -112,9 +112,9 @@ class Overdrive
       end
 
       body['availability'].each do |result|
-        # fail occurs here
+        book = @books.find { |title, _| title.id&.downcase == result['reserveId']&.downcase }&.first
+        next unless book
 
-        book = @books.find { |title, _| title.id = result['reserveId'] }.first
         book.copies_available = result['copiesAvailable']
         book.copies_owned = result['copiesOwned']
       end
