@@ -1,42 +1,60 @@
-<div class="row">
-
-<% unless @books_added.empty? %>
-  <h1 class="green-text">Success!</h1>
-<% else %>
-  <h1>No books added. Your credentials may have been typed incorrectly. </h1>
-  <a href="https://yonderbook.com">Try again</a> or <a href="https://twitter.com/stephanieblack">contact the developer.</a>
-<% end %>
-</div>
-
-<div class="green lighten-5">
-  <h4>These <%= @books_added.size %> books are now on your wishlist</h4>
-  <div class="cards-container">
-    <% @books_added.each do |book| %>
-      <div class="card hoverable">
-        <div class="card-image">
-          <img src="<%= book[:image_url] %>">
-        </div>
-        <div class="card-content">
-          <small><%= book[:title] %></small>
-        </div>
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="text-center relative">
+    <div class="absolute -top-6 right-8 opacity-30">
+      <img src="/img/objects/50.png" alt="" class="w-12 h-12 object-contain">
+    </div>
+    <% unless @books_added.empty? %>
+      <h3 class="text-2xl font-bold text-gray-900 mb-4">Success!</h3>
+      <p class="text-gray-600 mb-2">Added <%= @books_added.size %> books to your BookMooch wishlist.</p>
+      <% if @books_failed.size > 0 %>
+        <p class="text-gray-600 mb-4">Couldn't add <%= @books_failed.size %> books.</p>
+      <% end %>
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="bg-green-600 h-2 rounded-full w-full"></div>
+      </div>
+    <% else %>
+      <h3 class="text-2xl font-bold text-red-600 mb-4">No Books Added</h3>
+      <p class="text-gray-600 mb-4">Your credentials may have been typed incorrectly.</p>
+      <div class="flex gap-4 justify-center">
+        <a href="https://yonderbook.com" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors">Try again</a>
+        <a href="https://twitter.com/stephanieblack" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">Contact developer</a>
       </div>
     <% end %>
   </div>
 </div>
-<div class="red lighten-5">
-  <h4>Couldn't Add <%= @books_failed.size %> Books</h4>
-    <p>If some books imported but not others, it's possible that bookmooch doesn't have them listed. </p>
-    <p>Try adding them to your wishlist using a different edition, aka a different ISBN.</p>
-    <div class="cards-container">
-    <% @books_failed.each do |book| %>
-      <div class="card hoverable">
-        <div class="card-image">
-          <img src="<%= book[:image_url] %>">
-        </div>
-        <div class="card-content">
-          <small><%= book[:title] %></small>
-        </div>
-      </div>
-    <% end %>
-  </div>
-</div>
+
+<%
+  tabs = [
+    {
+      label: 'Added',
+      title: "These #{@books_added.size} books are now on your wishlist",
+      color: 'green',
+      count: @books_added.size,
+      empty_message: 'No books were added to your wishlist.',
+      books: @books_added.map do |book|
+        {
+          image: book[:image_url],
+          title: book[:title],
+          author: book[:author] || 'Unknown Author'
+        }
+      end
+    },
+    {
+      label: "Couldn't Add",
+      title: "Couldn't Add #{@books_failed.size} Books",
+      color: 'red',
+      count: @books_failed.size,
+      description: "If some books imported but not others, it's possible that BookMooch doesn't have them listed. Try adding them to your wishlist using a different edition, aka a different ISBN.",
+      empty_message: 'All books were successfully added!',
+      books: @books_failed.map do |book|
+        {
+          image: book[:image_url],
+          title: book[:title],
+          author: book[:author] || 'Unknown Author'
+        }
+      end
+    }
+  ]
+%>
+
+<%= render('_tabbed_availability_results', locals: {tabs: tabs}) %>

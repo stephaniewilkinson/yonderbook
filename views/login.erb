@@ -9,16 +9,10 @@
       </p>
     </div>
 
-    <% if flash['error'] %>
+    <% if rodauth.field_error('email') || rodauth.field_error('password') %>
       <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-        <p class="text-sm"><%= flash['error'] %></p>
-      </div>
-    <% end %>
-
-    <% if rodauth.field_error('login') || rodauth.field_error('password') %>
-      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-        <% if rodauth.field_error('login') %>
-          <p class="text-sm"><%= rodauth.field_error('login') %></p>
+        <% if rodauth.field_error('email') %>
+          <p class="text-sm"><%= rodauth.field_error('email') %></p>
         <% end %>
         <% if rodauth.field_error('password') %>
           <p class="text-sm"><%= rodauth.field_error('password') %></p>
@@ -37,6 +31,7 @@
                name="email"
                id="email"
                value="<%= rodauth.param('email') %>"
+               autocomplete="email"
                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200"
                required>
       </div>
@@ -48,6 +43,7 @@
         <input type="password"
                name="password"
                id="password"
+               autocomplete="current-password"
                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200"
                required>
       </div>
