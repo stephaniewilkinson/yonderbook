@@ -296,10 +296,8 @@ class App < Roda
     Sentry.capture_exception(e)
 
     # In production, redirect gracefully; in dev/test, raise to see full error
-    if ENV['RACK_ENV'] == 'production'
-      r.redirect '/'
-    else
-      raise e
-    end
+    raise e unless ENV['RACK_ENV'] == 'production'
+
+    r.redirect '/'
   end
 end
