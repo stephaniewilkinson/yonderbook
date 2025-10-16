@@ -237,7 +237,6 @@ class App < Roda
       r.is 'availability' do
         # route: GET /auth/availability
         r.get do
-          # TODO: Sort titles by recently added to goodreads list
           @titles = Cache.get session, :titles
           @collection_token = Cache.get session, :collection_token
           @website_id = Cache.get session, :website_id
@@ -248,10 +247,11 @@ class App < Roda
             r.redirect 'shelves'
           end
 
-          @available_books = @titles.select { |a| a.copies_available.positive? }
-          @waitlist_books = @titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? }
-          @no_isbn_books = @titles.select(&:no_isbn)
-          @unavailable_books = @titles.select { |a| a.copies_owned.zero? && !a.no_isbn }
+          # Sort each category by most recently added to Goodreads shelf (descending)
+          @available_books = @titles.select { |a| a.copies_available.positive? }.sort_by { |book| book.date_added || '' }.reverse
+          @waitlist_books = @titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? }.sort_by { |book| book.date_added || '' }.reverse
+          @no_isbn_books = @titles.select(&:no_isbn).sort_by { |book| book.date_added || '' }.reverse
+          @unavailable_books = @titles.select { |a| a.copies_owned.zero? && !a.no_isbn }.sort_by { |book| book.date_added || '' }.reverse
           view 'availability'
         end
       end

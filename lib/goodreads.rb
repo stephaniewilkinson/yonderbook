@@ -17,7 +17,7 @@ module Goodreads
   HOST = 'www.goodreads.com'
   BASE_URL = "https://#{HOST}".freeze
   GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
-  BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating].freeze
+  BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating date_added].freeze
 
   module_function
 
@@ -97,14 +97,16 @@ module Goodreads
       doc = Nokogiri::XML body
       data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text).grep_v(/\A\n\z/) }.transpose
 
-      data.map do |isbn, image_url, title, author, published_year, rating|
+      data.map do |book_data|
+        isbn, image_url, title, author, published_year, rating, date_added = book_data
         {
           isbn:,
           image_url:,
           title:,
           author:,
           published_year:,
-          ratings: rating
+          ratings: rating,
+          date_added:
         }
       end
     end
