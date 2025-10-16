@@ -62,8 +62,7 @@ class App < Roda
     logout_redirect '/'
 
     # Custom error messages for better UX
-    login_error_flash 'Invalid email or password'
-    no_matching_login_message 'No account found with that email address'
+    no_matching_login_message 'No account exists with that email. Please create an account.'
   end
 
   compile_assets
