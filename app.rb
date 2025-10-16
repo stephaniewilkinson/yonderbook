@@ -63,6 +63,7 @@ class App < Roda
 
     # Custom error messages for better UX
     login_error_flash 'Invalid email or password'
+    no_matching_login_message 'No account found with that email address'
   end
 
   compile_assets
