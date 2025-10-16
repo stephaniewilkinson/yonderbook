@@ -18,6 +18,19 @@ Sequel.extension :migration
 Sequel::Migrator.run(DB, 'db/migrations')
 
 Capybara.app = App
+Capybara.register_driver :chrome do |app|
+  Capybara::Selenium::Driver.new app, browser: :chrome
+end
+
+Capybara.register_driver :headless_chrome do |app|
+  options = Selenium::WebDriver::Chrome::Options.new
+  options.add_argument('--headless')
+  options.add_argument('--disable-blink-features=AutomationControlled')
+  options.add_argument('--disable-dev-shm-usage')
+  options.add_argument('--no-sandbox')
+  Capybara::Selenium::Driver.new app, browser: :chrome, options: options
+end
+
 Capybara.register_driver :firefox do |app|
   Capybara::Selenium::Driver.new app, browser: :firefox
 end
@@ -31,8 +44,8 @@ Capybara.register_driver :headless_firefox do |app|
   Capybara::Selenium::Driver.new app, browser: :firefox, options: options
 end
 
-# Use headless Firefox in CI environments
-driver = ENV['CI'] ? :headless_firefox : :firefox
+# Use Firefox in CI (GitHub Actions), Chrome locally (Firefox 144.0 broken on macOS)
+driver = ENV['CI'] ? :headless_firefox : :chrome
 
 Capybara.javascript_driver = driver
 

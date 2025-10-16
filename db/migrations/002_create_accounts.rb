@@ -8,6 +8,8 @@ Sequel.migration do
       String :email, null: false
       index :email, unique: true
       String :password_hash
+      String :first_name
+      String :last_name
       Integer :status_id, null: false, default: 1
       DateTime :created_at, null: false, default: Sequel::CURRENT_TIMESTAMP
       DateTime :updated_at, null: false, default: Sequel::CURRENT_TIMESTAMP
