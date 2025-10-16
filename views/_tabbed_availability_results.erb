@@ -1,0 +1,78 @@
+<div class="max-w-6xl mx-auto">
+  <el-tab-group>
+    <el-tab-list class="flex space-x-4 mb-6">
+      <% tabs.each do |tab| %>
+        <button type="button" class="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-200 aria-selected:bg-<%= tab[:color] %>-100 aria-selected:text-<%= tab[:color] %>-700">
+          <%= tab[:label] %>
+          <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-<%= tab[:color] %>-200 text-<%= tab[:color] %>-800 rounded-full"><%= tab[:count] %></span>
+        </button>
+      <% end %>
+    </el-tab-list>
+
+    <el-tab-panels>
+      <% tabs.each do |tab| %>
+        <div class="bg-<%= tab[:color] %>-50 p-6 rounded-lg">
+          <h5 class="text-xl font-semibold text-gray-900 mb-6"><%= tab[:title] %></h5>
+          <% if tab[:description] %>
+            <p class="text-gray-600 mb-6"><%= tab[:description] %></p>
+          <% end %>
+          <% if tab[:action_button] %>
+            <a href="<%= tab[:action_button][:url] %>" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg mb-6 transition-colors duration-200">
+              <img src="<%= tab[:action_button][:icon] %>" alt="<%= tab[:action_button][:label] %>" class="w-4 h-4 mr-2">
+              <%= tab[:action_button][:label] %>
+            </a>
+          <% end %>
+          <% if tab[:books].empty? %>
+            <p class="text-gray-600 text-center"><%= tab[:empty_message] %></p>
+          <% else %>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              <% tab[:books].each do |book| %>
+                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden <%= book[:opacity] ? 'opacity-75' : '' %> flex flex-col">
+                  <div class="aspect-w-2 aspect-h-3">
+                    <img src="<%= book[:image] %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
+                  </div>
+                  <div class="p-4 flex flex-col flex-1">
+                    <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2"><%= book[:title] %></h3>
+                    <p class="text-sm text-gray-600 mb-1"><%= book[:author] %></p>
+                    <% if book[:isbn] %>
+                      <p class="text-xs text-gray-400 mb-3 font-mono">ISBN: <%= book[:isbn] %></p>
+                    <% end %>
+                    <div class="mt-auto">
+                      <% if book[:status_label] %>
+                        <div class="flex items-center justify-between mb-3">
+                          <span class="text-xs font-medium text-gray-700"><%= book[:status_label] %></span>
+                          <% if book[:status_value] %>
+                            <span class="text-sm font-bold text-<%= tab[:color] %>-600"><%= book[:status_value] %></span>
+                          <% end %>
+                        </div>
+                      <% end %>
+                      <% if book[:button] %>
+                        <a href="<%= book[:button][:url] %>"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="w-full inline-flex items-center justify-center px-3 py-2 <%= book[:button][:class] %> text-white text-sm font-medium rounded-md transition-colors duration-200"
+                           <% if book[:button][:title] %>
+                           title="<%= book[:button][:title] %>"
+                           <% end %>>
+                          <% if book[:button][:icon_svg] %>
+                            <%= book[:button][:icon_svg] %>
+                          <% elsif book[:button][:icon] %>
+                            <img src="<%= book[:button][:icon] %>" alt="<%= book[:button][:label] %>" class="w-4 h-4 mr-1">
+                          <% end %>
+                          <%= book[:button][:label] %>
+                        </a>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </el-tab-panels>
+  </el-tab-group>
+</div>
+
+<!-- Tailwind Plus Elements for interactive tab components -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1"></script>
