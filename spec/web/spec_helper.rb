@@ -31,8 +31,21 @@ Capybara.register_driver :headless_chrome do |app|
   Capybara::Selenium::Driver.new app, browser: :chrome, options: options
 end
 
-# Use headless Chrome in CI environments
-driver = ENV['CI'] ? :headless_chrome : :chrome
+Capybara.register_driver :firefox do |app|
+  Capybara::Selenium::Driver.new app, browser: :firefox
+end
+
+Capybara.register_driver :headless_firefox do |app|
+  options = Selenium::WebDriver::Firefox::Options.new
+  options.add_argument('--headless')
+  options.add_argument('--disable-blink-features=AutomationControlled')
+  options.add_preference('dom.webdriver.enabled', false)
+  options.add_preference('useAutomationExtension', false)
+  Capybara::Selenium::Driver.new app, browser: :firefox, options: options
+end
+
+# Use Firefox in CI (GitHub Actions), Chrome locally (Firefox 144.0 broken on macOS)
+driver = ENV['CI'] ? :headless_firefox : :chrome
 
 Capybara.javascript_driver = driver
 
