@@ -292,8 +292,14 @@ class App < Roda
       end
     end
   rescue OAuth::Unauthorized, StandardError, ScriptError => e
-    raise e unless ENV['RACK_ENV'] == 'production'
+    # Always send to Sentry first
+    Sentry.capture_exception(e)
 
-    r.redirect '/'
+    # In production, redirect gracefully; in dev/test, raise to see full error
+    if ENV['RACK_ENV'] == 'production'
+      r.redirect '/'
+    else
+      raise e
+    end
   end
 end

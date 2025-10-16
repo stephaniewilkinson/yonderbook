@@ -17,8 +17,9 @@ else
   Sequel.sqlite('db/development.db')
 end
 
-# Enable SQL logging in development
-DB.loggers << Logger.new($stdout) if ENV.fetch('RACK_ENV', 'development') == 'development'
+# Enable SQL logging in all environments
+# Logs to stdout which Render captures in deployment logs
+DB.loggers << Logger.new($stdout)
 
 # Create database directory if it doesn't exist
 FileUtils.mkdir_p('db')
