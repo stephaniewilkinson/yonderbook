@@ -5,7 +5,8 @@
     </div>
     <h3 class="text-2xl font-bold text-gray-900 mb-4">Finished!</h3>
     <p class="text-gray-600 mb-2">There are <%= @available_books.size %> books available to check out right now.</p>
-    <p class="text-gray-600 mb-4">You can join the waiting list for <%= @waitlist_books.size %> books.</p>
+    <p class="text-gray-600 mb-2">You can join the waiting list for <%= @waitlist_books.size %> books.</p>
+    <p class="text-gray-600 mb-4"><%= @no_isbn_books.size %> books could not be matched (missing ISBN).</p>
     <div class="w-full bg-gray-200 rounded-full h-2">
       <div class="bg-green-600 h-2 rounded-full w-full"></div>
     </div>
@@ -24,10 +25,13 @@
         Waitlist
         <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full"><%= @waitlist_books.size %></span>
       </button>
-      <!-- TODO: this count is incorrect, its not taking non-isbn books into account -->
       <button type="button" class="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-200 aria-selected:bg-red-100 aria-selected:text-red-700">
         Unavailable
         <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-red-100 text-red-800 rounded-full"><%= @unavailable_books.size %></span>
+      </button>
+      <button type="button" class="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-200 aria-selected:bg-gray-100 aria-selected:text-gray-700">
+        Could Not Match
+        <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium bg-gray-200 text-gray-800 rounded-full"><%= @no_isbn_books.size %></span>
       </button>
     </el-tab-list>
 
@@ -39,18 +43,33 @@
         <% else %>
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             <% @available_books.each do |title| %>
-              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden flex flex-col">
                 <div class="aspect-w-2 aspect-h-3">
                   <img src="<%= title.image %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
                 </div>
-                <div class="p-4">
-                  <p class="text-sm font-medium text-gray-900 mb-2 line-clamp-2"><%= title.title %></p>
-                  <p class="text-xs text-gray-500 mb-3">Copies: <%= title.copies_available %>/<%= title.copies_owned %></p>
-                  <a href="<%= title.url %>"
-                     class="w-full inline-flex items-center justify-center px-3 py-2 bg-secondary hover:bg-secondary/80 text-white text-sm font-medium rounded-md transition-colors duration-200">
-                    <img src="/svg/book.svg" alt="Book" class="w-4 h-4 mr-1">
-                    Read
-                  </a>
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2"><%= title.title %></h3>
+                  <p class="text-sm text-gray-600 mb-1"><%= title.author %></p>
+                  <p class="text-xs text-gray-400 mb-3 font-mono">ISBN: <%= title.isbn %></p>
+                  <div class="mt-auto">
+                    <div class="flex items-center justify-between mb-3">
+                      <span class="text-xs font-medium text-gray-700">Available:</span>
+                      <span class="text-sm font-bold text-green-600">
+                        <% if title.copies_owned == 999999 %>
+                          Unlimited
+                        <% else %>
+                          <%= title.copies_available %>/<%= title.copies_owned %>
+                        <% end %>
+                      </span>
+                    </div>
+                    <a href="<%= title.url %>"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="w-full inline-flex items-center justify-center px-3 py-2 bg-secondary hover:bg-secondary/80 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                      <img src="/svg/book.svg" alt="Book" class="w-4 h-4 mr-1">
+                      Read
+                    </a>
+                  </div>
                 </div>
               </div>
             <% end %>
@@ -65,18 +84,33 @@
         <% else %>
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             <% @waitlist_books.each do |title| %>
-              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden flex flex-col">
                 <div class="aspect-w-2 aspect-h-3">
                   <img src="<%= title.image %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
                 </div>
-                <div class="p-4">
-                  <p class="text-sm font-medium text-gray-900 mb-2 line-clamp-2"><%= title.title %></p>
-                  <p class="text-xs text-gray-500 mb-3">Copies: <%= title.copies_available %>/<%= title.copies_owned %></p>
-                  <a href="<%= title.url %>"
-                     class="w-full inline-flex items-center justify-center px-3 py-2 bg-secondary hover:bg-secondary/80 text-white text-sm font-medium rounded-md transition-colors duration-200">
-                    <img src="/svg/book.svg" alt="Book" class="w-4 h-4 mr-1">
-                    Reserve
-                  </a>
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2"><%= title.title %></h3>
+                  <p class="text-sm text-gray-600 mb-1"><%= title.author %></p>
+                  <p class="text-xs text-gray-400 mb-3 font-mono">ISBN: <%= title.isbn %></p>
+                  <div class="mt-auto">
+                    <div class="flex items-center justify-between mb-3">
+                      <span class="text-xs font-medium text-gray-700">Waitlist:</span>
+                      <span class="text-sm font-bold text-yellow-600">
+                        <% if title.copies_owned == 999999 %>
+                          Unlimited
+                        <% else %>
+                          <%= title.copies_available %>/<%= title.copies_owned %>
+                        <% end %>
+                      </span>
+                    </div>
+                    <a href="<%= title.url %>"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="w-full inline-flex items-center justify-center px-3 py-2 bg-secondary hover:bg-secondary/80 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                      <img src="/svg/book.svg" alt="Book" class="w-4 h-4 mr-1">
+                      Reserve
+                    </a>
+                  </div>
                 </div>
               </div>
             <% end %>
@@ -95,13 +129,66 @@
         <% else %>
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             <% @unavailable_books.each do |title| %>
-              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden opacity-75">
+              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden opacity-75 flex flex-col">
                 <div class="aspect-w-2 aspect-h-3">
                   <img src="<%= title.image %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
                 </div>
-                <div class="p-4">
-                  <p class="text-sm font-medium text-gray-900 mb-2 line-clamp-2"><%= title.title %></p>
-                  <p class="text-xs text-gray-500">Copies: <%= title.copies_available %>/<%= title.copies_owned %></p>
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2"><%= title.title %></h3>
+                  <p class="text-sm text-gray-600 mb-1"><%= title.author %></p>
+                  <p class="text-xs text-gray-400 mb-3 font-mono">ISBN: <%= title.isbn %></p>
+                  <div class="mt-auto">
+                    <div class="flex items-center justify-between mb-3">
+                      <span class="text-xs font-medium text-gray-700">Not owned by library</span>
+                    </div>
+                    <a href="https://link.overdrive.com/?websiteID=<%= @website_id %>"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="w-full inline-flex items-center justify-center px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+                       title="Search your library for: <%= title.title %> by <%= title.author %>">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                      </svg>
+                      Search library
+                    </a>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="bg-gray-50 p-6 rounded-lg">
+        <h5 class="text-xl font-semibold text-gray-900 mb-4">Could not match to library catalog</h5>
+        <p class="text-gray-600 mb-6">These books are missing ISBN information in Goodreads, so we couldn't search for them in your library's catalog. Try searching for them manually on your library's website.</p>
+        <% if @no_isbn_books.empty? %>
+          <p class="text-gray-600 text-center">All books on your shelf have ISBN numbers!</p>
+        <% else %>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <% @no_isbn_books.each do |title| %>
+              <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden opacity-75 flex flex-col">
+                <div class="aspect-w-2 aspect-h-3">
+                  <img src="<%= title.image %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
+                </div>
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2"><%= title.title %></h3>
+                  <p class="text-sm text-gray-600 mb-1"><%= title.author %></p>
+                  <div class="mt-auto">
+                    <div class="flex items-center justify-between mb-3">
+                      <span class="text-xs font-medium text-gray-700">Missing ISBN</span>
+                    </div>
+                    <a href="https://link.overdrive.com/?websiteID=<%= @website_id %>"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="w-full inline-flex items-center justify-center px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+                       title="Search your library for: <%= title.title %> by <%= title.author %>">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                      </svg>
+                      Search library
+                    </a>
+                  </div>
                 </div>
               </div>
             <% end %>

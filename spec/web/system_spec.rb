@@ -77,10 +77,10 @@ describe App do
     click_on 'Find a library'
     sleep 10
     find('button[id="1683"]').click # Click the library selection button by consortium ID
-    sleep 5  # Wait for OverDrive API to respond
+    sleep 10 # Wait for OverDrive API to respond
     assert_text 'Available'
     click_on 'Unavailable'
-    sleep 1  # Wait for the unavailable books section to load
+    sleep 1 # Wait for the unavailable books section to load
     assert_text 'Unavailable' # Just verify we can see the unavailable section
     click_on 'Shelves'
     assert_text 'abandoned'
