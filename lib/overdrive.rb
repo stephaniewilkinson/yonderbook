@@ -295,7 +295,7 @@ class Overdrive
     product_author.downcase.include?(author_last_name)
   end
 
-  def isbn_matches_in_metadata? client, product, target_isbn
+  def isbn_matches_in_metadata? _client, _product, target_isbn
     alternate_isbns = AlternateIsbns.fetch_alternate_isbns([target_isbn])
     all_isbns = alternate_isbns[target_isbn] || []
     all_isbns.include?(target_isbn)
