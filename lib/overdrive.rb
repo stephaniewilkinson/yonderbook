@@ -8,6 +8,7 @@ require 'async/http/internet'
 require 'async/semaphore'
 require 'oauth2'
 require 'uri'
+require_relative 'alternate_isbns'
 require_relative 'title_normalizer'
 
 class Overdrive
@@ -295,37 +296,9 @@ class Overdrive
   end
 
   def isbn_matches_in_metadata? client, product, target_isbn
-    product_id = product['id']
-    metadata = fetch_product_metadata(client, product_id)
-    all_isbns = extract_all_isbns(metadata)
+    alternate_isbns = AlternateIsbns.fetch_alternate_isbns([target_isbn])
+    all_isbns = alternate_isbns[target_isbn] || []
     all_isbns.include?(target_isbn)
-  end
-
-  def fetch_product_metadata client, product_id
-    metadata_path = "/v1/collections/#{@collection_token}/products/#{product_id}/metadata"
-    response = client.get(metadata_path, {'Authorization' => "Bearer #{@token}"})
-    metadata_body = response.read
-    response.close
-    JSON.parse(metadata_body)
-  rescue StandardError
-    {} # Return empty hash on error
-  ensure
-    response&.close
-  end
-
-  def extract_all_isbns metadata
-    isbns = []
-    metadata['formats']&.each do |format|
-      next unless format['identifiers']
-
-      format['identifiers'].each do |identifier|
-        isbns << identifier['value'] if identifier['type'] == 'ISBN'
-      end
-    end
-    metadata['otherFormatIdentifiers']&.each do |identifier|
-      isbns << identifier['value'] if identifier['type'] == 'ISBN'
-    end
-    isbns
   end
 
   def async_responses batches

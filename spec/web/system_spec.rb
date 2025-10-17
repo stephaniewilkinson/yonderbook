@@ -77,8 +77,8 @@ describe App do
     click_on 'Find a library'
     sleep 10
     find('button[id="1683"]').click # Click the library selection button by consortium ID
-    sleep 10 # Wait for OverDrive API to respond
-    assert_text 'Available'
+    sleep 15 # Wait for OverDrive API to respond and page to render
+    assert_text 'Available', wait: 30 # Give extra time for slow API response
     click_on 'Unavailable'
     sleep 1 # Wait for the unavailable books section to load
     assert_text 'Unavailable' # Just verify we can see the unavailable section
@@ -94,6 +94,7 @@ describe App do
     click_button 'Authenticate'
     sleep 30 # Wait for BookMooch API to respond (increased for CI)
     assert_text 'Success!'
+    sleep 2 # Give Selenium time to clean up session before next test
   end
 
   it 'responds to /about' do
@@ -147,5 +148,6 @@ describe App do
     assert_link 'Logout'
     refute_link 'Login'
     refute_link 'Sign Up'
+    sleep 2 # Give Selenium time to clean up session before next test
   end
 end
