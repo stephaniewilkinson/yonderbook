@@ -12,9 +12,9 @@ GEM
       io-event (~> 1.11)
       metrics (~> 0.12)
       traces (~> 0.18)
-    async-container (0.27.4)
+    async-container (0.27.6)
       async (~> 2.22)
-    async-container-supervisor (0.6.1)
+    async-container-supervisor (0.6.4)
       async-service
       io-endpoint
       memory-leak (~> 0.5)
