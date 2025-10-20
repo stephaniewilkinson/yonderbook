@@ -11,6 +11,8 @@ module Bookmooch
   BASE_URL = 'https://api.bookmooch.com'
   PATH = '/api/userbook'
 
+  class AuthenticationError < StandardError; end
+
   module_function
 
   def books_added_and_failed isbns_and_image_urls, username, password
@@ -76,6 +78,13 @@ module Bookmooch
   end
 
   def collect_added_isbns response_body, added_isbns, batch_idx, batch_isbn_count
+    # Check if response is HTML error page
+    if response_body&.match?(/\A\s*<(!DOCTYPE|html)/i)
+      Console.logger.error "BookMooch Batch #{batch_idx + 1}: Authentication failed - received HTML error page"
+      Console.logger.error "First 200 chars: #{response_body[0..200]}"
+      raise AuthenticationError, 'Invalid BookMooch credentials. Try using your username, not your email address.'
+    end
+
     batch_added = 0
     response_body&.lines(chomp: true)&.each do |isbn|
       added_isbns << isbn
