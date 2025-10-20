@@ -206,6 +206,9 @@ class App < Roda
               Cache.set session, books_added: @books_added, books_failed: @books_failed
 
               r.redirect 'bookmooch/results'
+            rescue Bookmooch::AuthenticationError => e
+              flash[:error] = e.message
+              r.redirect 'bookmooch'
             end
 
             # route: GET /auth/shelves/:id/bookmooch/results
