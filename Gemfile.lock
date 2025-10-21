@@ -96,7 +96,7 @@ GEM
       concurrent-ruby (~> 1.0)
     io-endpoint (0.15.2)
     io-event (1.14.0)
-    io-stream (0.10.0)
+    io-stream (0.11.0)
     ipaddr (1.2.7)
     json (2.13.2)
     jwt (3.1.2)
