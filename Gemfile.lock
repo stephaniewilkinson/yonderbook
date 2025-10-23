@@ -30,6 +30,8 @@ GEM
       traces (~> 0.10)
     async-http-cache (0.4.6)
       async-http (~> 0.56)
+    async-limiter (2.0.0)
+      async (>= 2.31)
     async-pool (0.11.0)
       async (>= 2.0)
     async-service (0.14.4)
@@ -273,6 +275,7 @@ PLATFORMS
 DEPENDENCIES
   area
   async-http
+  async-limiter
   bcrypt
   capybara-selenium
   csv

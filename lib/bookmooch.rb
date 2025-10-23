@@ -6,6 +6,7 @@ require 'async/http/client'
 require 'async/http/endpoint'
 require 'base64'
 require 'uri'
+require_relative 'alternate_isbns'
 
 module Bookmooch
   BASE_URL = 'https://api.bookmooch.com'
@@ -16,13 +17,72 @@ module Bookmooch
   module_function
 
   def books_added_and_failed isbns_and_image_urls, username, password
-    isbns = isbns_and_image_urls.map { |h| h[:isbn] }.reject(&:empty?)
-    Console.logger.info "BookMooch: Starting with #{isbns.count} ISBNs"
-    isbn_batches = isbns.each_slice(300).map { |isbn_batch| isbn_batch.join('+') }
+    original_isbns = isbns_and_image_urls.map { |h| h[:isbn] }.reject(&:empty?)
+    empty_isbn_count = isbns_and_image_urls.count { |h| h[:isbn].empty? }
+    Console.logger.info "BookMooch: Total books: #{isbns_and_image_urls.count}, " \
+                        "Books with ISBNs: #{original_isbns.count}, Books without ISBNs: #{empty_isbn_count}"
+    Console.logger.info "BookMooch: Starting with #{original_isbns.count} original ISBNs"
+
+    # Fetch and expand ISBNs with alternates
+    expanded_isbns, isbn_to_original = fetch_and_expand_isbns(original_isbns)
+
+    # Send all ISBNs to BookMooch
+    added_isbns = send_expanded_isbns(expanded_isbns, username, password)
+
+    # Map successfully added ISBNs back to original ISBNs
+    successfully_added_originals = map_to_originals(added_isbns, isbn_to_original, original_isbns.count)
+
+    isbns_and_image_urls.partition { |h| successfully_added_originals.include? h[:isbn] }
+  end
+
+  def fetch_and_expand_isbns original_isbns
+    Console.logger.info 'BookMooch: Fetching alternate ISBNs from Open Library...'
+    alternate_isbn_map = AlternateIsbns.fetch_alternate_isbns(original_isbns)
+    Console.logger.info "BookMooch: Found alternate ISBNs for #{alternate_isbn_map.count} books"
+
+    expanded_isbns, isbn_to_original = expand_isbns_with_alternates(original_isbns, alternate_isbn_map)
+    Console.logger.info "BookMooch: Expanded to #{expanded_isbns.count} total ISBNs (including alternates)"
+
+    [expanded_isbns, isbn_to_original]
+  end
+
+  def send_expanded_isbns expanded_isbns, username, password
+    isbn_batches = expanded_isbns.each_slice(300).map { |isbn_batch| isbn_batch.join('+') }
     Console.logger.info "BookMooch: Split into #{isbn_batches.count} batches"
 
-    added_isbns = send_isbn_batches(isbn_batches, username, password, isbns.count)
-    isbns_and_image_urls.partition { |h| added_isbns.include? h[:isbn] }
+    send_isbn_batches(isbn_batches, username, password, expanded_isbns.count)
+  end
+
+  def map_to_originals added_isbns, isbn_to_original, original_count
+    successfully_added_originals = added_isbns.filter_map { |isbn| isbn_to_original[isbn] }.uniq
+    Console.logger.info "BookMooch: Successfully added #{successfully_added_originals.count}/#{original_count} books"
+    successfully_added_originals
+  end
+
+  def expand_isbns_with_alternates original_isbns, alternate_isbn_map
+    expanded_isbns = []
+    isbn_to_original = {}
+    total_alternates_added = 0
+
+    original_isbns.each do |original_isbn|
+      # Add the original ISBN
+      expanded_isbns << original_isbn
+      isbn_to_original[original_isbn] = original_isbn
+
+      # Add all alternate ISBNs if available
+      alternates = alternate_isbn_map[original_isbn]
+      next unless alternates
+
+      alternates.each do |alternate_isbn|
+        expanded_isbns << alternate_isbn
+        isbn_to_original[alternate_isbn] = original_isbn
+        total_alternates_added += 1
+      end
+    end
+
+    avg = total_alternates_added.to_f / alternate_isbn_map.count
+    Console.logger.info "BookMooch: Added #{total_alternates_added} alternate ISBNs (avg: #{avg.round(1)} per book with alternates)"
+    [expanded_isbns.uniq, isbn_to_original]
   end
 
   def send_isbn_batches isbn_batches, username, password, total_count

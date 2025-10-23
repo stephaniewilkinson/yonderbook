@@ -78,7 +78,7 @@ describe App do
     sleep 10
     find('button[id="1683"]').click # Click the library selection button by consortium ID
     sleep 15 # Wait for OverDrive API to respond and page to render
-    assert_text 'Available', wait: 30 # Give extra time for slow API response
+    assert page.has_text?('Available', wait: 30) # Give extra time for slow API response
     click_on 'Unavailable'
     sleep 1 # Wait for the unavailable books section to load
     assert_text 'Unavailable' # Just verify we can see the unavailable section
