@@ -1,29 +1,17 @@
-<div class="max-w-4xl mx-auto mb-8">
-  <div class="text-center relative">
-    <div class="absolute -top-6 right-8 opacity-30">
-      <img src="/img/objects/50.png" alt="" class="w-12 h-12 object-contain">
-    </div>
-    <% unless @books_added.empty? %>
-      <h3 class="text-2xl font-bold text-gray-900 mb-4">Success!</h3>
-      <p class="text-gray-600 mb-2">Added <%= @books_added.size %> books to your BookMooch wishlist.</p>
-      <% if @books_failed.size > 0 %>
-        <p class="text-gray-600 mb-4">Couldn't add <%= @books_failed.size %> books.</p>
-      <% end %>
-      <div class="w-full bg-gray-200 rounded-full h-2">
-        <div class="bg-green-600 h-2 rounded-full w-full"></div>
-      </div>
-    <% else %>
-      <h3 class="text-2xl font-bold text-red-600 mb-4">No Books Added</h3>
-      <p class="text-gray-600 mb-4">Your credentials may have been typed incorrectly.</p>
-      <div class="flex gap-4 justify-center">
-        <a href="https://yonderbook.com" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors">Try again</a>
-        <a href="https://twitter.com/stephanieblack" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">Contact developer</a>
-      </div>
-    <% end %>
-  </div>
-</div>
-
 <%
+  # Build summary lines for header
+  summary_lines = []
+  unless @books_added.empty?
+    summary_lines << "Added #{@books_added.size} books to your BookMooch wishlist."
+    summary_lines << "Couldn't add #{@books_failed.size} books." if @books_failed.size > 0
+    summary_lines << "#{@books_failed_no_isbn.size} books could not be matched (missing ISBN)." if @books_failed_no_isbn.size > 0
+  end
+
+  header = {
+    title: @books_added.empty? ? 'No Books Added' : 'Success!',
+    summary_lines: @books_added.empty? ? nil : summary_lines
+  }
+
   tabs = [
     {
       label: 'Added',
@@ -35,7 +23,13 @@
         {
           image: book[:image_url],
           title: book[:title],
-          author: book[:author] || 'Unknown Author'
+          author: book[:author] || 'Unknown Author',
+          isbn: book[:bookmooch_isbn],
+          button: book[:bookmooch_isbn] ? {
+            url: "https://bookmooch.com/m/detail/#{book[:bookmooch_isbn]}",
+            label: 'View on BookMooch',
+            class: 'bg-emerald-600 hover:bg-emerald-700'
+          } : nil
         }
       end
     },
@@ -53,8 +47,23 @@
           author: book[:author] || 'Unknown Author'
         }
       end
+    },
+    {
+      label: 'Could Not Match',
+      title: "Could Not Match #{@books_failed_no_isbn.size} Books",
+      color: 'gray',
+      count: @books_failed_no_isbn.size,
+      description: 'These books are missing ISBN information in Goodreads. Without an ISBN, we cannot match them to the BookMooch catalog. Try editing the book details in Goodreads to add ISBN information.',
+      empty_message: 'All books on your shelf have ISBN numbers!',
+      books: @books_failed_no_isbn.map do |book|
+        {
+          image: book[:image_url],
+          title: book[:title],
+          author: book[:author] || 'Unknown Author'
+        }
+      end
     }
   ]
 %>
 
-<%= render('_tabbed_availability_results', locals: {tabs: tabs}) %>
+<%= render('_tabbed_availability_results', header:, tabs:) %>

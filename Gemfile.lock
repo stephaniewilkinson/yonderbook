@@ -38,6 +38,11 @@ GEM
       async
       async-container (~> 0.16)
       string-format (~> 0.2)
+    async-websocket (0.30.0)
+      async-http (~> 0.76)
+      protocol-http (~> 0.34)
+      protocol-rack (~> 0.7)
+      protocol-websocket (~> 0.17)
     base64 (0.3.0)
     bcrypt (3.1.20)
     bigdecimal (3.3.1)
@@ -172,6 +177,8 @@ GEM
       io-stream (>= 0.10)
       protocol-http (~> 0.43)
       rack (>= 1.0)
+    protocol-websocket (0.20.2)
+      protocol-http (~> 0.2)
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -197,6 +204,10 @@ GEM
       rack
     roda-route_list (2.1.0)
       roda
+    roda-websockets (0.1.0)
+      async-websocket (~> 0.12)
+      falcon (~> 0.33)
+      roda (~> 3.0)
     rodauth (2.41.0)
       roda (>= 2.6.0)
       sequel (>= 4)
@@ -301,6 +312,7 @@ DEPENDENCIES
   rinda
   roda
   roda-route_list
+  roda-websockets
   rodauth
   rubocop
   rubocop-minitest

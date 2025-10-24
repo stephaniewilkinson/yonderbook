@@ -307,12 +307,11 @@ class Overdrive
       client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
       responses = []
-      batches.each.with_index 1 do |batch, batch_number|
+      batches.each.with_index 1 do |batch, _batch_number|
         params = URI.encode_www_form products: batch.join(',')
         path = "/v2/collections/#{@collection_token}/availability?#{params}"
         barrier.async do
           response = client.get path, {'Authorization' => "Bearer #{@token}"}
-          Console.logger.info "Batch number #{batch_number} of #{batches.size} response code: #{response.status}"
           responses << [response.read, response.status]
         ensure
           response&.close

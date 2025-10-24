@@ -1,20 +1,16 @@
-<div class="max-w-4xl mx-auto mb-8">
-  <div class="text-center relative">
-    <div class="absolute -top-6 right-8 opacity-30">
-      <img src="/img/objects/50.png" alt="" class="w-12 h-12 object-contain">
-    </div>
-    <h3 class="text-2xl font-bold text-gray-900 mb-4">Finished!</h3>
-    <p class="text-gray-600 mb-2">There are <%= @available_books.size %> books available to check out right now.</p>
-    <p class="text-gray-600 mb-2">You can join the waiting list for <%= @waitlist_books.size %> books.</p>
-    <p class="text-gray-600 mb-4"><%= @no_isbn_books.size %> books could not be matched (missing ISBN).</p>
-    <div class="w-full bg-gray-200 rounded-full h-2">
-      <div class="bg-green-600 h-2 rounded-full w-full"></div>
-    </div>
-    <!-- TODO: add name of shelf and name of library -->
-  </div>
-</div>
-
 <%
+  # Build summary lines for header
+  summary_lines = [
+    "There are #{@available_books.size} books available to check out right now.",
+    "You can join the waiting list for #{@waitlist_books.size} books.",
+    "#{@no_isbn_books.size} books could not be matched (missing ISBN)."
+  ]
+
+  header = {
+    title: 'Finished!',
+    summary_lines: summary_lines
+  }
+
   # Shared search button SVG
   search_icon = '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>'
 
@@ -107,4 +103,4 @@
   ]
 %>
 
-<%= render('_tabbed_availability_results', locals: {tabs: tabs}) %>
+<%= render('_tabbed_availability_results', header:, tabs:) %>
