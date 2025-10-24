@@ -32,6 +32,5 @@ else
   Sequel.sqlite('db/development.db', foreign_keys: true, synchronous: :normal, temp_store: :memory, timeout: 5000)
 end
 
-# Enable SQL logging in all environments
-# Logs to stdout which Render captures in deployment logs
-DB.loggers << Logger.new($stdout)
+# Enable SQL logging in development only
+DB.loggers << Logger.new($stdout) if ENV.fetch('RACK_ENV', 'development') == 'development'

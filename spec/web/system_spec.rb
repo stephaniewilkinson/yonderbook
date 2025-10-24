@@ -71,20 +71,20 @@ describe App do
     first(:button, 'Get Books').click
     assert_text 'Choose a format'
     # Click eBooks link directly by visiting the overdrive path
-    visit '/auth/shelves/to-read/overdrive'
+    visit '/auth/shelves/zora/overdrive'
     assert_text 'zip code'
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
     sleep 10
     find('button[id="1683"]').click # Click the library selection button by consortium ID
-    sleep 10 # Wait for OverDrive API to respond
-    assert_text 'Available'
+    sleep 15 # Wait for OverDrive API to respond and page to render
+    assert page.has_text?('Available', wait: 30) # Give extra time for slow API response
     click_on 'Unavailable'
     sleep 1 # Wait for the unavailable books section to load
     assert_text 'Unavailable' # Just verify we can see the unavailable section
     click_on 'Shelves'
     assert_text 'abandoned'
-    all(:button, 'Get Books').find { |btn| btn.text == 'Get Books' }.click # Click Get Books for abandoned shelf
+    find('button[onclick="openModal(\'modal-zora\')"]').click # Click Get Books for zora shelf
     assert_text 'Choose a format'
     within('.fixed') do # Within the modal
       find('a', text: 'By Mail').click
@@ -92,8 +92,11 @@ describe App do
     fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
     fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
     click_button 'Authenticate'
-    sleep 30 # Wait for BookMooch API to respond (increased for CI)
+    # Should redirect to progress page
+    assert_text 'Importing Books to BookMooch'
+    sleep 300 # Wait for WebSocket connection and BookMooch API to complete (increased for CI)
     assert_text 'Success!'
+    sleep 2 # Give Selenium time to clean up session before next test
   end
 
   it 'responds to /about' do
@@ -147,5 +150,6 @@ describe App do
     assert_link 'Logout'
     refute_link 'Login'
     refute_link 'Sign Up'
+    sleep 2 # Give Selenium time to clean up session before next test
   end
 end

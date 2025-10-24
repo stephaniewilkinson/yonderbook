@@ -17,6 +17,7 @@ require_relative 'lib/database'
 require_relative 'lib/email'
 require_relative 'lib/goodreads'
 require_relative 'lib/overdrive'
+require_relative 'lib/websockets'
 
 class App < Roda
   use Sentry::Rack::CaptureExceptions
@@ -32,6 +33,7 @@ class App < Roda
   plugin :slash_path_empty
   plugin :render
   plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
+  plugin :websockets
 
   # Minimal Rodauth configuration
   plugin :rodauth do
@@ -75,6 +77,11 @@ class App < Roda
     r.rodauth
 
     session['session_id'] ||= SecureRandom.uuid
+
+    # route: WebSocket /ws/bookmooch/:session_id
+    r.on 'ws', 'bookmooch', String do |session_id|
+      r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
+    end
 
     # route: GET /
     r.root do
@@ -202,19 +209,32 @@ class App < Roda
 
             # route: POST /auth/shelves/:id/bookmooch?username=foo&password=baz
             r.post do
-              @books_added, @books_failed = Bookmooch.books_added_and_failed @book_info, r.params['username'], r.params['password']
-              Cache.set session, books_added: @books_added, books_failed: @books_failed
+              # Store job params in cache for WebSocket to pick up
+              Cache.set_by_id(
+                session['session_id'],
+                bookmooch_book_info: @book_info,
+                bookmooch_username: r.params['username'],
+                bookmooch_password: r.params['password']
+              )
 
-              r.redirect 'bookmooch/results'
-            rescue Bookmooch::AuthenticationError => e
-              flash[:error] = e.message
-              r.redirect 'bookmooch'
+              # Redirect to progress page which will connect via WebSocket
+              r.redirect 'bookmooch/progress'
+            end
+
+            # route: GET /auth/shelves/:id/bookmooch/progress
+            r.get 'progress' do
+              @session_id = session['session_id']
+              view 'bookmooch_progress'
             end
 
             # route: GET /auth/shelves/:id/bookmooch/results
             r.get 'results' do
               @books_added = Cache.get session, :books_added
-              @books_failed = Cache.get session, :books_failed
+              books_failed = Cache.get session, :books_failed
+
+              # Separate books that failed due to missing ISBN vs other reasons
+              @books_failed_no_isbn, @books_failed = books_failed.partition { |book| book[:isbn].nil? || book[:isbn].empty? }
+
               view 'bookmooch'
             end
           end
