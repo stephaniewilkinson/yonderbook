@@ -1,0 +1,34 @@
+<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg max-w-md mx-auto">
+  <div class="relative px-6 sm:px-8 py-12">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 font-coats">
+        Account Settings
+      </h1>
+      <p class="text-lg text-gray-600">
+        Manage your Yonderbook account
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <div class="bg-gray-50 rounded-lg p-4">
+        <p class="text-sm text-gray-600 mb-1">Email</p>
+        <p class="text-lg font-medium text-gray-900"><%= rodauth.account[:email] %></p>
+      </div>
+
+      <div class="pt-4 space-y-3">
+        <a href="<%= rodauth.reset_password_request_path %>"
+           class="w-full inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium text-lg rounded-xl hover:bg-gray-200 transition-all duration-200">
+          Change Password
+        </a>
+
+        <form method="post" action="<%= rodauth.logout_path %>">
+          <%= csrf_tag(rodauth.logout_path) %>
+          <button type="submit"
+                  class="w-full inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-red-700 transition-all duration-200">
+            Log Out
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

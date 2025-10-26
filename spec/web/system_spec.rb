@@ -29,6 +29,15 @@ describe App do
     fill_in 'Password', with: fake_password
     click_button 'Create Account'
 
+    # Manually verify the account so the user can log in
+    verify_account(fake_email)
+
+    # Log in with the verified account
+    visit '/authenticate'
+    fill_in 'Email', with: fake_email
+    fill_in 'Password', with: fake_password
+    click_button 'Log In'
+
     # Should be redirected to home page
     assert_text 'Welcome to Yonderbook!'
 
@@ -119,12 +128,21 @@ describe App do
     fill_in 'Password', with: fake_password
     click_button 'Create Account'
 
-    # Should be redirected to home page after successful account creation
+    # Manually verify the account so the user can log in
+    verify_account(fake_email)
+
+    # Log in with the verified account
+    visit '/authenticate'
+    fill_in 'Email', with: fake_email
+    fill_in 'Password', with: fake_password
+    click_button 'Log In'
+
+    # Should be redirected to home page after successful login
     assert_text 'Welcome to Yonderbook!'
     assert_text 'Connect with Goodreads'
 
     # Test logout
-    click_link 'Logout'
+    click_button 'Logout'
 
     # Should be back on the welcome page
     assert_text 'Yonderbook'
@@ -146,8 +164,8 @@ describe App do
     assert_text 'Welcome to Yonderbook!'
     assert_text 'Connect with Goodreads'
 
-    # Verify we're logged in by checking for logout link
-    assert_link 'Logout'
+    # Verify we're logged in by checking for logout button
+    assert_button 'Logout'
     refute_link 'Login'
     refute_link 'Sign Up'
     sleep 2 # Give Selenium time to clean up session before next test

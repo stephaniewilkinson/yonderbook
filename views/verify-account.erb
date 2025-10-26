@@ -1,0 +1,32 @@
+<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg max-w-md mx-auto">
+  <div class="relative px-6 sm:px-8 py-12">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 font-coats">
+        Verify Your Account
+      </h1>
+      <p class="text-lg text-gray-600">
+        Click the button below to verify your email address
+      </p>
+    </div>
+
+    <% if rodauth.field_error('key') %>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+        <p class="text-sm"><%= rodauth.field_error('key') %></p>
+      </div>
+    <% end %>
+
+    <form method="post" action="<%= rodauth.verify_account_path %>" class="space-y-4">
+      <%= csrf_tag(rodauth.verify_account_path) %>
+      <input type="hidden" name="<%= rodauth.verify_account_key_param %>" value="<%= rodauth.param(rodauth.verify_account_key_param) %>">
+
+      <div class="pt-2">
+        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Verify Account
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
