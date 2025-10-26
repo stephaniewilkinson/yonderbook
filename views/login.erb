@@ -63,13 +63,20 @@
       </div>
     </form>
 
-    <div class="mt-6 text-center">
+    <div class="mt-6 text-center space-y-2">
       <p class="text-sm text-gray-600">
         Don't have an account?
         <a href="/sign-up" class="text-brand font-medium hover:underline">
           Sign up
         </a>
       </p>
+      <div>
+        <form method="get" action="<%= rodauth.verify_account_resend_path %>">
+          <button type="submit" class="inline-flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-all duration-200">
+            Send verification email again
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
