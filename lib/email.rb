@@ -9,17 +9,26 @@ class EmailService
       # Only use console output in test environment, send real emails in development
       return console_output(to, subject, html) if test_environment?
 
-      # Set API key globally for Resend
-      Resend.api_key = ENV.fetch('RESEND_API_KEY')
+      begin
+        # Set API key globally for Resend
+        Resend.api_key = ENV.fetch('RESEND_API_KEY')
 
-      params = {from: from_email, to: [to], subject: subject, html: html}
-      params[:text] = text if text
+        # Generate plain text version if not provided (helps with spam filters)
+        text ||= html_to_text(html)
 
-      Resend::Emails.send(params)
-    rescue StandardError => e
-      puts "Email delivery error: #{e.message}"
-      puts "Email params: #{params.inspect}"
-      raise e
+        params = {from: from_email_with_name, to: [to], subject: subject, html: html, text: text}
+
+        result = Resend::Emails.send(params)
+        puts "✓ Email sent successfully to #{to}: #{subject}"
+        puts "  Resend response: #{result.inspect}"
+        result
+      rescue StandardError => e
+        puts "✗ Email delivery error: #{e.class} - #{e.message}"
+        puts "  To: #{to}"
+        puts "  Subject: #{subject}"
+        puts "  Backtrace: #{e.backtrace.first(5).join("\n  ")}"
+        raise e
+      end
     end
 
     private
