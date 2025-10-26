@@ -93,7 +93,7 @@ describe App do
     assert_text 'Unavailable' # Just verify we can see the unavailable section
     click_on 'Shelves'
     assert_text 'abandoned'
-    find('button[onclick="openModal(\'modal-zora\')"]').click # Click Get Books for zora shelf
+    find('button[onclick="openModal(\'modal-abandoned\')"]').click # Click Get Books for zora shelf
     assert_text 'Choose a format'
     within('.fixed') do # Within the modal
       find('a', text: 'By Mail').click
@@ -103,7 +103,7 @@ describe App do
     click_button 'Authenticate'
     # Should redirect to progress page
     assert_text 'Importing Books to BookMooch'
-    sleep 300 # Wait for WebSocket connection and BookMooch API to complete (increased for CI)
+    sleep 120 # Wait for WebSocket connection and BookMooch API to complete (increased for CI)
     assert_text 'Success!'
     sleep 2 # Give Selenium time to clean up session before next test
   end
