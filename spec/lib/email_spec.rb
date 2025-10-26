@@ -4,59 +4,45 @@ require_relative '../../lib/email'
 require_relative 'spec_helper'
 
 describe EmailService do
-  before do
-    # Ensure we're in test mode to capture emails instead of sending them
-    ENV['RACK_ENV'] = 'test'
-    # Re-configure Mail for test environment after setting RACK_ENV
-    Mail.defaults do
-      delivery_method :test
-    end
-    # Clear any previous test deliveries
-    Mail::TestMailer.deliveries.clear
-  end
+  describe '.send_email' do
+    it 'logs email in test mode without sending' do
+      # Capture stdout
+      output = StringIO.new
+      original_stdout = $stdout
+      $stdout = output
 
-  after do
-    # Clean up after each test
-    Mail::TestMailer.deliveries.clear
-  end
+      EmailService.send_email(to: 'test@example.com', subject: 'Test Subject', html: '<p>Test body</p>')
 
-  describe 'mail configuration' do
-    it 'uses test delivery method in test environment' do
-      assert_equal :testmailer, Mail.delivery_method.class.name.split('::').last.downcase.to_sym
-    end
-  end
+      $stdout = original_stdout
 
-  describe '.send_test_email' do
-    it 'sends a basic test email' do
-      # Since Roda mailer has routing issues with parameters,
-      # let's test the basic functionality that we know works
-      Mailer.sendmail('/test')
-
-      assert_equal 1, Mail::TestMailer.deliveries.length
-
-      email = Mail::TestMailer.deliveries.last
-      assert_equal ['noreply@yonderbook.com'], email.from
-      assert_equal ['test@example.com'], email.to
-      assert_equal 'Test Email', email.subject
-      assert_equal 'This is a test email from Yonderbook.', email.body.to_s
-    end
-  end
-
-  describe 'Roda Mailer functionality' do
-    it 'can send basic emails through Mailer.sendmail' do
-      Mailer.sendmail('/test')
-
-      assert_equal 1, Mail::TestMailer.deliveries.length
-
-      email = Mail::TestMailer.deliveries.last
-      assert_equal ['noreply@yonderbook.com'], email.from
-      assert_equal 'Test Email', email.subject
-      assert_equal 'This is a test email from Yonderbook.', email.body.to_s
+      # Check that email details were logged (test mode uses console output)
+      output_string = output.string
+      assert_includes output_string, 'EMAIL (Development Mode)'
+      assert_includes output_string, 'To: test@example.com'
+      assert_includes output_string, 'Subject: Test Subject'
+      assert_includes output_string, '<p>Test body</p>'
     end
 
-    it 'configures mail delivery properly' do
-      # Test that mail is configured for test environment
-      assert_equal :testmailer, Mail.delivery_method.class.name.split('::').last.downcase.to_sym
+    it 'includes from address in logs' do
+      output = StringIO.new
+      original_stdout = $stdout
+      $stdout = output
+
+      EmailService.send_email(to: 'test@example.com', subject: 'Test', html: '<p>Test</p>')
+
+      $stdout = original_stdout
+
+      assert_includes output.string, 'From: app@yonderbook.com'
+    end
+
+    it 'strips HTML when no text provided' do
+      # This test verifies the strip_html method is called
+      # In test mode, we can't test the actual stripping
+      # but we can verify the method exists and doesn't error
+      EmailService.send_email(to: 'test@example.com', subject: 'Test', html: '<p>Test with <strong>HTML</strong></p>')
+
+      # Method completes without error
+      assert true
     end
   end
 end

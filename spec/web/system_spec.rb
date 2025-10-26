@@ -29,6 +29,15 @@ describe App do
     fill_in 'Password', with: fake_password
     click_button 'Create Account'
 
+    # Manually verify the account so the user can log in
+    verify_account(fake_email)
+
+    # Log in with the verified account
+    visit '/authenticate'
+    fill_in 'Email', with: fake_email
+    fill_in 'Password', with: fake_password
+    click_button 'Log In'
+
     # Should be redirected to home page
     assert_text 'Welcome to Yonderbook!'
 
@@ -84,7 +93,7 @@ describe App do
     assert_text 'Unavailable' # Just verify we can see the unavailable section
     click_on 'Shelves'
     assert_text 'abandoned'
-    find('button[onclick="openModal(\'modal-zora\')"]').click # Click Get Books for zora shelf
+    find('button[onclick="openModal(\'modal-abandoned\')"]').click # Click Get Books for zora shelf
     assert_text 'Choose a format'
     within('.fixed') do # Within the modal
       find('a', text: 'By Mail').click
@@ -94,7 +103,7 @@ describe App do
     click_button 'Authenticate'
     # Should redirect to progress page
     assert_text 'Importing Books to BookMooch'
-    sleep 300 # Wait for WebSocket connection and BookMooch API to complete (increased for CI)
+    sleep 120 # Wait for WebSocket connection and BookMooch API to complete (increased for CI)
     assert_text 'Success!'
     sleep 2 # Give Selenium time to clean up session before next test
   end
@@ -119,12 +128,24 @@ describe App do
     fill_in 'Password', with: fake_password
     click_button 'Create Account'
 
-    # Should be redirected to home page after successful account creation
+    # Manually verify the account so the user can log in
+    verify_account(fake_email)
+
+    # Log in with the verified account
+    visit '/authenticate'
+    fill_in 'Email', with: fake_email
+    fill_in 'Password', with: fake_password
+    click_button 'Log In'
+
+    # Should be redirected to home page after successful login
     assert_text 'Welcome to Yonderbook!'
     assert_text 'Connect with Goodreads'
 
+    # Wait for flash notification to auto-dismiss before clicking logout
+    sleep 5
+
     # Test logout
-    click_link 'Logout'
+    click_button 'Logout'
 
     # Should be back on the welcome page
     assert_text 'Yonderbook'
@@ -146,8 +167,8 @@ describe App do
     assert_text 'Welcome to Yonderbook!'
     assert_text 'Connect with Goodreads'
 
-    # Verify we're logged in by checking for logout link
-    assert_link 'Logout'
+    # Verify we're logged in by checking for logout button
+    assert_button 'Logout'
     refute_link 'Login'
     refute_link 'Sign Up'
     sleep 2 # Give Selenium time to clean up session before next test

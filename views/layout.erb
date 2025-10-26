@@ -41,6 +41,10 @@
 
       gtag('config', 'UA-96996170-1');
     </script>
+
+    <!-- Pixel Code - https://app.tinyanalytics.io/ -->
+    <script defer src="https://app.tinyanalytics.io/pixel/KyJ6JipBW9No4r00"></script>
+    <!-- END Pixel Code -->
   </head>
 
   <body class="flex flex-col min-h-screen bg-gradient-to-t from-[#CAf7eb] to-[#138586]">
@@ -80,11 +84,18 @@
                     Shelves
                   </a>
                   <% end %>
-                  <a href="/logout"
+                  <a href="/account"
                      class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
-                    <img src="/svg/user.svg" alt="Logout" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
-                    Logout
+                    <img src="/svg/user.svg" alt="Account" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                    Account
                   </a>
+                  <form method="post" action="<%= rodauth.logout_path %>" class="inline-block">
+                    <%= csrf_tag(rodauth.logout_path) %>
+                    <button type="submit"
+                            class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
+                      Logout
+                    </button>
+                  </form>
                 <% else %>
                   <a href="/authenticate"
                      class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
@@ -128,10 +139,17 @@
                   Shelves
                 </a>
                 <% end %>
-                <a href="/logout"
+                <a href="/account"
                    class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
-                  Logout
+                  Account
                 </a>
+                <form method="post" action="<%= rodauth.logout_path %>">
+                  <%= csrf_tag(rodauth.logout_path) %>
+                  <button type="submit"
+                          class="block w-full text-left px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                    Logout
+                  </button>
+                </form>
               <% else %>
                 <a href="/authenticate"
                    class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
@@ -147,6 +165,8 @@
         </div>
       </nav>
 
+      <%= partial 'flash_notifications' %>
+
       <div class="max-w-7xl mx-auto px-4 md:px-8 pt-8">
         <%= yield %>
       </div>
@@ -160,24 +180,15 @@
         mobileMenu.classList.toggle('hidden');
       }
 
+      // Auto-dismiss flash messages with fade out
       document.addEventListener('DOMContentLoaded', function() {
-        // Progressive enhancement: Load background images after critical content
-        setTimeout(function() {
-          document.querySelector('main').classList.add('loaded');
-        }, 100);
-
-        // Show flash messages (converted from Materialize toast)
-        <% if flash['error'] %>
-          // Simple toast notification without Materialize
-          var toast = document.createElement('div');
-          toast.textContent = "<%= flash['error'] %>";
-          toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-          document.body.appendChild(toast);
-          setTimeout(function() {
-            toast.remove();
-          }, 4000);
-        <% end %>
-
+        ['flash-error', 'flash-notice'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) {
+            setTimeout(function() { el.style.opacity = '0'; }, 3500);
+            setTimeout(function() { el.remove(); }, 4000);
+          }
+        });
       });
     </script>
 

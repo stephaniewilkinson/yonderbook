@@ -56,3 +56,32 @@ Capybara.configure do |config|
   config.default_driver = driver
   config.app_host = 'http://localhost:9292'
 end
+
+# Helper module for test utilities
+module TestHelpers
+  # Helper method to manually verify an account in tests
+  def verify_account email
+    # Wait for account to be created (async operation)
+    account = nil
+    10.times do
+      account = DB[:accounts].where(email: email).first
+      break if account
+
+      sleep 0.1
+    end
+
+    return unless account
+
+    # Update status to verified (status 2)
+    DB[:accounts].where(id: account[:id]).update(status_id: 2)
+    # Remove verification key if it exists
+    DB[:account_verification_keys].where(id: account[:id]).delete
+  end
+end
+
+# Include the helper module in Minitest
+module Minitest
+  class Test
+    include TestHelpers
+  end
+end
