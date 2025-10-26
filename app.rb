@@ -32,6 +32,7 @@ class App < Roda
   plugin :route_csrf
   plugin :slash_path_empty
   plugin :render
+  plugin :partials
   plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
   plugin :websockets
 

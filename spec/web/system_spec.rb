@@ -141,6 +141,9 @@ describe App do
     assert_text 'Welcome to Yonderbook!'
     assert_text 'Connect with Goodreads'
 
+    # Wait for flash notification to auto-dismiss before clicking logout
+    sleep 5
+
     # Test logout
     click_button 'Logout'
 
