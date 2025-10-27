@@ -32,7 +32,7 @@ describe EmailService do
 
       $stdout = original_stdout
 
-      assert_includes output.string, 'From: app@yonderbook.com'
+      assert_includes output.string, 'From: Yonderbook <app@yonderbook.com>'
     end
 
     it 'strips HTML when no text provided' do

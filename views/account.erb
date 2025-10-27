@@ -12,7 +12,7 @@
     <div class="space-y-4">
       <div class="bg-gray-50 rounded-lg p-4">
         <p class="text-sm text-gray-600 mb-1">Email</p>
-        <p class="text-lg font-medium text-gray-900"><%= rodauth.account[:email] %></p>
+        <p class="text-lg font-medium text-gray-900"><%= rodauth.logged_in? ? DB[:accounts].where(id: rodauth.session_value).get(:email) : '' %></p>
       </div>
 
       <div class="pt-4 space-y-3">

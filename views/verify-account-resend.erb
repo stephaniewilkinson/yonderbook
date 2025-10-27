@@ -1,0 +1,53 @@
+<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg max-w-md mx-auto">
+  <div class="relative px-6 sm:px-8 py-12">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 font-coats">
+        Resend Verification Email
+      </h1>
+      <p class="text-lg text-gray-600">
+        If you no longer have the email to verify your account, enter your email address below to receive a new verification link
+      </p>
+    </div>
+
+    <% if rodauth.field_error('login') %>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+        <p class="text-sm"><%= rodauth.field_error('login') %></p>
+      </div>
+    <% end %>
+
+    <form method="post" action="<%= rodauth.verify_account_resend_path %>" class="space-y-4">
+      <%= csrf_tag(rodauth.verify_account_resend_path) %>
+
+      <div>
+        <label for="login" class="block text-sm font-medium text-gray-700 mb-1">
+          Email
+        </label>
+        <input type="email"
+               name="login"
+               id="login"
+               value="<%= rodauth.param('login') || rodauth.param('email') %>"
+               autocomplete="email"
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200"
+               required>
+      </div>
+
+      <div class="pt-2">
+        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          Send Verification Email Again
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-600">
+        Already verified?
+        <a href="<%= rodauth.login_path %>" class="text-brand font-medium hover:underline">
+          Log in
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
