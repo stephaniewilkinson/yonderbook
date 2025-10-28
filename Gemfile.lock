@@ -14,11 +14,12 @@ GEM
       traces (~> 0.18)
     async-container (0.27.7)
       async (~> 2.22)
-    async-container-supervisor (0.7.0)
+    async-container-supervisor (0.8.0)
       async-service
       io-endpoint
       memory (~> 0.7)
       memory-leak (~> 0.5)
+      process-metrics
     async-http (0.92.1)
       async (>= 2.10.2)
       async-pool (~> 0.11)
@@ -181,6 +182,10 @@ GEM
       ast (~> 2.4.1)
       racc
     prism (1.6.0)
+    process-metrics (0.6.0)
+      console (~> 1.8)
+      json (~> 2)
+      samovar (~> 2.1)
     protocol-hpack (1.5.1)
     protocol-http (0.55.0)
     protocol-http1 (0.35.2)
