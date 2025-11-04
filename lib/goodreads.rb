@@ -112,7 +112,7 @@ module Goodreads
     end
   end
 
-  def fetch_user request_token
+  def fetch_user request_token, yonderbook_user_id
     access_token = request_token.get_access_token
     goodreads_token = access_token.token
     goodreads_secret = access_token.secret
@@ -123,19 +123,25 @@ module Goodreads
     user_id = xml.xpath('//user').first.attributes.first[1].value
     xml.xpath('//user').first.children[1].children.text
 
+    # Save Goodreads connection to database
+    save_goodreads_connection(yonderbook_user_id, user_id, goodreads_token, goodreads_secret)
+
     [user_id, goodreads_token, goodreads_secret]
   end
 
-  def get_gender books
-    grouped = books.group_by do |book|
-      GENDER_DETECTOR.get_gender book.fetch(:title).split.first
-    end
-    count = grouped.transform_values(&:size)
-    mostly_female = count.values_at(:female, :mostly_female).compact.sum
-    mostly_male = count.values_at(:male, :mostly_male).compact.sum
-    androgynous = count.fetch :andy, 0
+  def save_goodreads_connection yonderbook_user_id, user_id, token, secret
+    connection = GoodreadsConnection[user_id: yonderbook_user_id, goodreads_user_id: user_id]
+    attrs = {access_token: token, access_token_secret: secret, connected_at: Time.now}
+    connection ? connection.update(attrs) : GoodreadsConnection.create(attrs.merge(user_id: yonderbook_user_id, goodreads_user_id: user_id))
+  end
 
-    [mostly_female, mostly_male, androgynous]
+  def get_gender books
+    count = books.group_by { |book| GENDER_DETECTOR.get_gender book.fetch(:title).split.first }.transform_values(&:size)
+    [
+      count.values_at(:female, :mostly_female).compact.sum,
+      count.values_at(:male, :mostly_male).compact.sum,
+      count.fetch(:andy, 0)
+    ]
   end
 
   def plot_books_over_time books
@@ -143,11 +149,7 @@ module Goodreads
   end
 
   def rating_stats books
-    grouped = books.group_by do |book|
-      rating_value = book[:ratings] || book[:rating]
-      rating_value.to_i
-    end
-    grouped.transform_values(&:size)
+    books.group_by { |book| (book[:ratings] || book[:rating]).to_i }.transform_values(&:size)
   end
 
   def fetch_book_data isbn

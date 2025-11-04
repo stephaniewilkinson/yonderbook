@@ -3,7 +3,7 @@
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 font-coats">
-        Welcome to Yonderbook! 📚
+        Welcome to Yonderbook!
       </h1>
       <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
         You're all set up! Now let's connect your reading services to start finding your books for free.
@@ -26,7 +26,7 @@
         <h3 class="text-lg font-bold text-gray-900 mb-2">Goodreads</h3>
         <p class="text-gray-600 mb-4">Import your reading lists, want-to-read books, and analyze your reading patterns.</p>
 
-        <% if session.key? 'goodreads_user_id' %>
+        <% if @user.goodreads_connected? %>
           <div class="flex items-center space-x-2 mb-3">
             <div class="w-2 h-2 bg-green-500 rounded-full"></div>
             <span class="text-sm font-medium text-green-700">Connected</span>

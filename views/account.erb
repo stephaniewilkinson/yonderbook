@@ -15,6 +15,30 @@
         <p class="text-lg font-medium text-gray-900"><%= rodauth.logged_in? ? DB[:accounts].where(id: rodauth.session_value).get(:email) : '' %></p>
       </div>
 
+      <!-- Goodreads Connection Status -->
+      <% if @user.goodreads_connected? %>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center mb-2">
+                <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <p class="text-sm font-semibold text-gray-900">Goodreads Connected</p>
+              </div>
+              <p class="text-sm text-gray-600 mb-3">
+                Your Goodreads account is connected. We store your Goodreads user ID and access tokens to provide you with ongoing service.
+              </p>
+              <form method="post" action="/account/disconnect-goodreads" onsubmit="return confirm('This will permanently delete your Goodreads connection and all associated data. You will need to reconnect to use Goodreads features. Continue?')">
+                <%= csrf_tag('/account/disconnect-goodreads') %>
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 bg-red-600 text-white font-medium text-sm rounded-lg hover:bg-red-700 transition-all duration-200">
+                  Disconnect Goodreads
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
       <div class="pt-4 space-y-3">
         <a href="<%= rodauth.reset_password_request_path %>"
            class="w-full inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium text-lg rounded-xl hover:bg-gray-200 transition-all duration-200">

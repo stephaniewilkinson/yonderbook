@@ -16,6 +16,7 @@ require_relative 'lib/cache'
 require_relative 'lib/database'
 require_relative 'lib/email'
 require_relative 'lib/goodreads'
+require_relative 'lib/models'
 require_relative 'lib/overdrive'
 require_relative 'lib/websockets'
 
@@ -106,6 +107,32 @@ class App < Roda
   end
 
   compile_assets
+
+  # Helper methods
+  def setup_goodreads_auth_url
+    request_token = Cache.get(session, :request_token) || fetch_and_cache_request_token
+    @auth_url = request_token&.authorize_url
+  end
+
+  def fetch_and_cache_request_token
+    Auth.fetch_request_token.tap { |token| Cache.set(session, request_token: token) if token }
+  rescue StandardError
+    nil
+  end
+
+  def load_goodreads_connection
+    @goodreads_connection = @user.goodreads_connection
+    @goodreads_user_id = @goodreads_connection.goodreads_user_id
+  end
+
+  def cached_or_fetch key
+    Cache.get(session, key) || yield.tap { |value| Cache.set(session, key => value) }
+  end
+
+  def sort_by_date_added books
+    books.sort_by { |book| book.date_added || '' }.reverse
+  end
+
   # TODO: figure out how to reroute 404s to /
   route do |r|
     r.public
@@ -113,6 +140,9 @@ class App < Roda
 
     # Rodauth routes (login, create-account, etc.)
     r.rodauth
+
+    # Load current user for authenticated routes
+    @user = Account[rodauth.session_value] if rodauth.logged_in?
 
     session['session_id'] ||= SecureRandom.uuid
 
@@ -123,16 +153,7 @@ class App < Roda
 
     # route: GET /
     r.root do
-      begin
-        request_token = Auth.fetch_request_token
-        Cache.set(session, request_token:)
-        @auth_url = request_token.authorize_url
-      rescue StandardError
-        # Goodreads API is deprecated and often returns errors
-        # Set a placeholder URL or skip OAuth setup in test environment
-        @auth_url = ENV['RACK_ENV'] == 'test' ? '#goodreads-oauth-broken' : nil
-      end
-
+      setup_goodreads_auth_url
       view 'welcome'
     end
 
@@ -146,11 +167,15 @@ class App < Roda
 
       # route: GET /login
       r.get do
-        goodreads_user_id, access_token, access_token_secret = Goodreads.fetch_user request_token
-        session['access_token'] = access_token
-        session['access_token_secret'] = access_token_secret
+        # User must be logged in to save Goodreads connection
+        unless @user
+          flash[:error] = 'Please log in first before connecting Goodreads'
+          r.redirect '/'
+        end
 
-        session['goodreads_user_id'] = goodreads_user_id
+        # Save Goodreads connection to database (user_id passed to fetch_user)
+        Goodreads.fetch_user request_token, @user.id
+        @user.refresh # Reload from database to get new connection
 
         r.redirect '/auth/shelves'
       rescue OAuth::Unauthorized
@@ -159,14 +184,22 @@ class App < Roda
       end
     end
 
-    r.is 'about' do
-      # route: GET /about
-      r.get do
-        view 'about'
-      end
-    end
+    # route: GET /about
+    r.is('about') { r.get { view 'about' } }
 
-    r.is 'account' do
+    r.on 'account' do
+      # route: POST /account/disconnect-goodreads
+      r.post 'disconnect-goodreads' do
+        rodauth.require_login
+        check_csrf!
+
+        # Delete Goodreads connection
+        GoodreadsConnection.where(user_id: @user.id).delete
+
+        flash['notice'] = 'Your Goodreads connection has been removed and your data deleted.'
+        r.redirect '/account'
+      end
+
       # route: GET /account
       r.get do
         rodauth.require_login
@@ -178,20 +211,7 @@ class App < Roda
       # route: GET /home
       r.get do
         rodauth.require_login
-        # Generate auth URL for Goodreads connection if not already connected
-        unless session['goodreads_user_id']
-          begin
-            request_token = Cache.get(session, :request_token)
-            unless request_token
-              request_token = Auth.fetch_request_token
-              Cache.set(session, request_token:) if request_token
-            end
-            @auth_url = request_token&.authorize_url || '/connect-goodreads'
-          rescue OpenSSL::SSL::SSLError
-            @auth_url = '/connect-goodreads'
-          end
-        end
-
+        setup_goodreads_auth_url unless @user&.goodreads_connected?
         view 'home'
       end
     end
@@ -199,26 +219,20 @@ class App < Roda
     r.is 'connect-goodreads' do
       # route: GET /connect-goodreads
       r.get do
-        # If already connected, redirect to home
-        r.redirect '/home' if session['goodreads_user_id']
-
-        begin
-          request_token = Auth.fetch_request_token
-          Cache.set(session, request_token:) if request_token
-          @auth_url = request_token&.authorize_url || '#'
-        rescue OpenSSL::SSL::SSLError
-          @auth_url = '#' # Placeholder when SSL fails
-        end
+        r.redirect '/home' if @user&.goodreads_connected?
+        setup_goodreads_auth_url
         view 'connect_goodreads'
       end
     end
 
     r.on 'auth' do
-      @goodreads_user_id = session['goodreads_user_id']
-      unless @goodreads_user_id
+      # Require Goodreads connection
+      unless @user&.goodreads_connected?
         flash[:error] = 'Please connect your Goodreads account first'
         r.redirect '/home'
       end
+
+      load_goodreads_connection
 
       # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
       r.on 'shelves' do
@@ -232,11 +246,9 @@ class App < Roda
           @shelf_name = shelf_name
           Cache.set session, shelf_name: @shelf_name
 
-          @book_info = Cache.get session, @shelf_name.to_sym
-          unless @book_info
-            access_token = Auth.rebuild_access_token(session['access_token'], session['access_token_secret'])
-            @book_info = Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
-            Cache.set session, @shelf_name.to_sym => @book_info
+          @book_info = cached_or_fetch(@shelf_name.to_sym) do
+            access_token = @goodreads_connection.oauth_access_token
+            Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
           end
 
           # route: GET /auth/shelves/:id
@@ -318,10 +330,10 @@ class App < Roda
           end
 
           # Sort each category by most recently added to Goodreads shelf (descending)
-          @available_books = @titles.select { |a| a.copies_available.positive? }.sort_by { |book| book.date_added || '' }.reverse
-          @waitlist_books = @titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? }.sort_by { |book| book.date_added || '' }.reverse
-          @no_isbn_books = @titles.select(&:no_isbn).sort_by { |book| book.date_added || '' }.reverse
-          @unavailable_books = @titles.select { |a| a.copies_owned.zero? && !a.no_isbn }.sort_by { |book| book.date_added || '' }.reverse
+          @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
+          @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
+          @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
+          @unavailable_books = sort_by_date_added(@titles.select { |a| a.copies_owned.zero? && !a.no_isbn })
           view 'availability'
         end
       end

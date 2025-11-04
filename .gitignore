@@ -10,3 +10,4 @@ CLAUDE.md
 *.sqlite
 *.sqlite3
 /docs
+/planning

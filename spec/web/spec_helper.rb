@@ -11,11 +11,15 @@ require 'minitest/pride'
 require 'rack/test'
 require 'selenium-webdriver'
 
-require_relative '../../app'
+# Load database connection first
+require_relative '../../lib/database'
 
-# Run migrations for test database (in-memory SQLite)
+# Run migrations for test database (in-memory SQLite) BEFORE loading app/models
 Sequel.extension :migration
 Sequel::Migrator.run(DB, 'db/migrations')
+
+# Now load the app (which loads models) - tables exist now
+require_relative '../../app'
 
 Capybara.app = App
 Capybara.register_driver :chrome do |app|
