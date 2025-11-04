@@ -77,7 +77,7 @@
                     <img src="/svg/book.svg" alt="Home" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                     Home
                   </a>
-                  <% if session.key? 'goodreads_user_id' %>
+                  <% if @user&.goodreads_connected? %>
                   <a href="/auth/shelves"
                      class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
                     <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
@@ -133,7 +133,7 @@
                    class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
                   Home
                 </a>
-                <% if session.key? 'goodreads_user_id' %>
+                <% if @user&.goodreads_connected? %>
                 <a href="/auth/shelves"
                    class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
                   Shelves
