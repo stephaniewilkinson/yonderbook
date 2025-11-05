@@ -173,7 +173,7 @@ class App < Roda
         Goodreads.fetch_user request_token, @user.id
         @user.refresh # Reload from database to get new connection
 
-        r.redirect '/auth/shelves'
+        r.redirect '/connections/goodreads/shelves'
       rescue OAuth::Unauthorized
         flash[:error] = 'Fetched details! Click login'
         r.redirect '/'
@@ -215,162 +215,182 @@ class App < Roda
       end
     end
 
-    r.is 'connect-goodreads' do
-      # route: GET /connect-goodreads
-      r.get do
-        r.redirect '/home' if @user&.goodreads_connected?
-        # Always fetch a fresh request token (they expire and can only be used once)
-        request_token = fetch_and_cache_request_token
-        @auth_url = request_token&.authorize_url
-        view 'connect_goodreads'
-      end
-    end
-
-    r.on 'auth' do
-      # Require Goodreads connection
-      unless @user&.goodreads_connected?
-        flash[:error] = 'Please connect your Goodreads account first'
-        r.redirect '/home'
+    r.on 'connections' do
+      # route: GET /connections
+      r.get true do
+        @goodreads_connection = @user&.goodreads_connection
+        view 'connections'
       end
 
-      load_goodreads_connection
-
-      # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
-      r.on 'shelves' do
-        # route: GET /auth/shelves
+      r.on 'goodreads' do
+        # route: GET /connections/goodreads
         r.get true do
-          @shelves = Goodreads.fetch_shelves @goodreads_user_id
-          view 'shelves/index'
+          r.redirect '/home' if @user&.goodreads_connected?
+          # Always fetch a fresh request token (they expire and can only be used once)
+          request_token = fetch_and_cache_request_token
+          @auth_url = request_token&.authorize_url
+          view 'connect_goodreads'
         end
 
-        r.on String do |shelf_name|
-          @shelf_name = shelf_name
-          Cache.set session, shelf_name: @shelf_name
-
-          @book_info = cached_or_fetch(@shelf_name.to_sym) do
-            access_token = @goodreads_connection.oauth_access_token
-            Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
+        # Require Goodreads connection for shelves
+        r.on 'shelves' do
+          unless @user&.goodreads_connected?
+            flash[:error] = 'Please connect your Goodreads account first'
+            r.redirect '/connections/goodreads'
           end
 
-          # route: GET /auth/shelves/:id
+          load_goodreads_connection
+
+          # route: GET /connections/goodreads/shelves
           r.get true do
-            @women, @men, @andy = Goodreads.get_gender @book_info
-            @histogram_dataset = Goodreads.plot_books_over_time @book_info
-            @ratings = Goodreads.rating_stats @book_info
-
-            view 'shelves/show'
+            @shelves = Goodreads.fetch_shelves @goodreads_user_id
+            view 'shelves/index'
           end
 
-          r.on 'bookmooch' do
-            # route: GET /auth/shelves/:id/bookmooch
+          # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
+          r.on String do |shelf_name|
+            @shelf_name = shelf_name
+            Cache.set session, shelf_name: @shelf_name
+
+            @book_info = cached_or_fetch(@shelf_name.to_sym) do
+              access_token = @goodreads_connection.oauth_access_token
+              Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
+            end
+
+            # route: GET /connections/goodreads/shelves/:id
             r.get true do
-              view 'shelves/bookmooch'
+              @women, @men, @andy = Goodreads.get_gender @book_info
+              @histogram_dataset = Goodreads.plot_books_over_time @book_info
+              @ratings = Goodreads.rating_stats @book_info
+
+              view 'shelves/show'
             end
 
-            # route: POST /auth/shelves/:id/bookmooch?username=foo&password=baz
-            r.post do
-              # Store job params in cache for WebSocket to pick up
-              Cache.set_by_id(
-                session['session_id'],
-                bookmooch_book_info: @book_info,
-                bookmooch_username: r.params['username'],
-                bookmooch_password: r.params['password']
-              )
+            r.on 'bookmooch' do
+              # route: GET /connections/goodreads/shelves/:id/bookmooch
+              r.get true do
+                view 'shelves/bookmooch'
+              end
 
-              # Redirect to progress page which will connect via WebSocket
-              r.redirect 'bookmooch/progress'
+              # route: POST /connections/goodreads/shelves/:id/bookmooch?username=foo&password=baz
+              r.post do
+                # Store job params in cache for WebSocket to pick up
+                Cache.set_by_id(
+                  session['session_id'],
+                  bookmooch_book_info: @book_info,
+                  bookmooch_username: r.params['username'],
+                  bookmooch_password: r.params['password']
+                )
+
+                # Redirect to progress page which will connect via WebSocket
+                r.redirect 'bookmooch/progress'
+              end
+
+              # route: GET /connections/goodreads/shelves/:id/bookmooch/progress
+              r.get 'progress' do
+                @session_id = session['session_id']
+                view 'bookmooch_progress'
+              end
+
+              # route: GET /connections/goodreads/shelves/:id/bookmooch/results
+              r.get 'results' do
+                @books_added = Cache.get session, :books_added
+                books_failed = Cache.get session, :books_failed
+
+                # Separate books that failed due to missing ISBN vs other reasons
+                @books_failed_no_isbn, @books_failed = books_failed.partition { |book| book[:isbn].nil? || book[:isbn].empty? }
+
+                view 'bookmooch'
+              end
             end
 
-            # route: GET /auth/shelves/:id/bookmooch/progress
-            r.get 'progress' do
-              @session_id = session['session_id']
-              view 'bookmooch_progress'
-            end
+            r.is 'overdrive' do
+              # TODO: have browser get their location
+              # route: GET /connections/goodreads/shelves/:id/overdrive
+              r.get true do
+                view 'shelves/overdrive'
+              end
 
-            # route: GET /auth/shelves/:id/bookmooch/results
-            r.get 'results' do
-              @books_added = Cache.get session, :books_added
-              books_failed = Cache.get session, :books_failed
-
-              # Separate books that failed due to missing ISBN vs other reasons
-              @books_failed_no_isbn, @books_failed = books_failed.partition { |book| book[:isbn].nil? || book[:isbn].empty? }
-
-              view 'bookmooch'
-            end
-          end
-
-          r.is 'overdrive' do
-            # TODO: have browser get their location
-            # route: GET /auth/shelves/:id/overdrive
-            r.get true do
-              view 'shelves/overdrive'
-            end
-
-            # route: POST /auth/shelves/:id/overdrive?consortium=1047
-            r.post do
-              overdrive = Overdrive.new(@book_info, r.params['consortium'])
-              titles = overdrive.fetch_titles_availability
-              Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
-              r.redirect '/auth/availability'
+              # route: POST /connections/goodreads/shelves/:id/overdrive?consortium=1047
+              r.post do
+                overdrive = Overdrive.new(@book_info, r.params['consortium'])
+                titles = overdrive.fetch_titles_availability
+                Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
+                r.redirect '/connections/goodreads/availability'
+              end
             end
           end
         end
-      end
 
-      r.is 'availability' do
-        # route: GET /auth/availability
-        r.get do
-          @titles = Cache.get session, :titles
-          @collection_token = Cache.get session, :collection_token
-          @website_id = Cache.get session, :website_id
-          @library_url = Cache.get session, :library_url
-
-          unless @titles
-            flash[:error] = 'Please choose a shelf first'
-            r.redirect 'shelves'
+        r.is 'availability' do
+          unless @user&.goodreads_connected?
+            flash[:error] = 'Please connect your Goodreads account first'
+            r.redirect '/connections/goodreads'
           end
 
-          # Sort each category by most recently added to Goodreads shelf (descending)
-          @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
-          @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
-          @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
-          @unavailable_books = sort_by_date_added(@titles.select { |a| a.copies_owned.zero? && !a.no_isbn })
-          view 'availability'
-        end
-      end
+          load_goodreads_connection
 
-      # TODO: add library logos to the cards in the views
-      r.is 'library' do
-        # route: POST /auth/library?zipcode=90029
-        r.post do
-          @shelf_name = Cache.get session, :shelf_name
-          zip = r.params['zipcode']
+          # route: GET /connections/goodreads/availability
+          r.get do
+            @titles = Cache.get session, :titles
+            @collection_token = Cache.get session, :collection_token
+            @website_id = Cache.get session, :website_id
+            @library_url = Cache.get session, :library_url
 
-          if zip.empty?
-            flash[:error] = 'You need to enter a zip code'
-            r.redirect "shelves/#{@shelf_name}/overdrive"
+            unless @titles
+              flash[:error] = 'Please choose a shelf first'
+              r.redirect 'shelves'
+            end
+
+            # Sort each category by most recently added to Goodreads shelf (descending)
+            @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
+            @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
+            @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
+            @unavailable_books = sort_by_date_added(@titles.select { |a| a.copies_owned.zero? && !a.no_isbn })
+            view 'availability'
           end
-
-          unless zip.to_latlon
-            flash[:error] = 'please try a different zip code'
-            r.redirect "shelves/#{@shelf_name}/overdrive"
-          end
-
-          @local_libraries = Overdrive.local_libraries zip.delete ' '
-          Cache.set session, libraries: @local_libraries
-          r.redirect '/auth/library'
         end
 
-        # route: GET /auth/library
-        r.get do
-          @shelf_name = Cache.get session, :shelf_name
-          @local_libraries = Cache.get session, :libraries
-          # TODO: see if we can bring the person back to the choose a library stage rather than all the way back to choose a shelf
-          unless @local_libraries
-            flash[:error] = 'Please choose a shelf first'
-            r.redirect 'shelves'
+        # TODO: add library logos to the cards in the views
+        r.is 'library' do
+          unless @user&.goodreads_connected?
+            flash[:error] = 'Please connect your Goodreads account first'
+            r.redirect '/connections/goodreads'
           end
-          view 'library'
+
+          load_goodreads_connection
+
+          # route: POST /connections/goodreads/library?zipcode=90029
+          r.post do
+            @shelf_name = Cache.get session, :shelf_name
+            zip = r.params['zipcode']
+
+            if zip.empty?
+              flash[:error] = 'You need to enter a zip code'
+              r.redirect "shelves/#{@shelf_name}/overdrive"
+            end
+
+            unless zip.to_latlon
+              flash[:error] = 'please try a different zip code'
+              r.redirect "shelves/#{@shelf_name}/overdrive"
+            end
+
+            @local_libraries = Overdrive.local_libraries zip.delete ' '
+            Cache.set session, libraries: @local_libraries
+            r.redirect '/connections/goodreads/library'
+          end
+
+          # route: GET /connections/goodreads/library
+          r.get do
+            @shelf_name = Cache.get session, :shelf_name
+            @local_libraries = Cache.get session, :libraries
+            # TODO: see if we can bring the person back to the choose a library stage rather than all the way back to choose a shelf
+            unless @local_libraries
+              flash[:error] = 'Please choose a shelf first'
+              r.redirect 'shelves'
+            end
+            view 'library'
+          end
         end
       end
     end

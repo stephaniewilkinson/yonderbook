@@ -1,0 +1,228 @@
+<div class="bg-white md:-mx-8 px-4 md:px-8 py-12 rounded-3xl shadow-lg">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header with whimsical bird element -->
+    <div class="text-center mb-12">
+      <div class="inline-block relative mb-6">
+        <img src="/svg/checkmark-badge.svg" alt="Connected" class="w-16 h-16 text-brand mx-auto">
+        <!-- Floating cloud decoration -->
+        <div class="absolute -top-4 -right-8 opacity-30">
+          <img src="/svg/cloud.svg" alt="" class="w-12 h-12 text-secondary">
+        </div>
+      </div>
+      <h1 class="text-5xl font-bold text-gray-900 mb-4 font-coats">Your Connections</h1>
+      <p class="text-xl text-gray-600">
+        Manage your connected reading services and book platforms
+      </p>
+    </div>
+
+    <!-- Connected Services Section -->
+    <% if @goodreads_connection %>
+    <div class="mb-16">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+        <img src="/svg/checkmark-badge.svg" alt="" class="w-6 h-6 text-emerald-600 mr-3">
+        Connected Services
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Goodreads Connection Card -->
+          <div class="relative group">
+            <!-- Background decoration -->
+            <div class="absolute inset-0 bg-gradient-to-br from-brand to-secondary opacity-5 rounded-2xl transform group-hover:scale-105 transition-all duration-300"></div>
+
+            <div class="relative bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-brand transition-all duration-300 shadow-sm hover:shadow-lg">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center space-x-4">
+                  <!-- Goodreads Icon with bookmark decoration -->
+                  <div class="relative">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl flex items-center justify-center shadow-inner">
+                      <img src="/svg/star.svg" alt="Goodreads" class="w-8 h-8 text-amber-700">
+                    </div>
+                    <!-- Bookmark ribbon decoration -->
+                    <div class="absolute -top-1 -right-1 w-4 h-6 bg-brand rounded-sm shadow-md"></div>
+                  </div>
+
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">Goodreads</h3>
+                    <p class="text-sm text-emerald-600 font-semibold flex items-center">
+                      <img src="/svg/checkmark-badge.svg" alt="Connected" class="w-4 h-4 mr-1">
+                      Connected
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-3 text-sm text-gray-600">
+                <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                  <span class="font-medium">User ID:</span>
+                  <span class="text-gray-900 font-mono"><%= @goodreads_connection.goodreads_user_id %></span>
+                </div>
+                <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                  <span class="font-medium">Connected:</span>
+                  <span class="text-gray-900"><%= @goodreads_connection.connected_at.strftime('%B %d, %Y') %></span>
+                </div>
+                <% if @goodreads_connection.last_synced_at %>
+                  <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                    <span class="font-medium">Last synced:</span>
+                    <span class="text-gray-900"><%= @goodreads_connection.last_synced_at.strftime('%B %d, %Y') %></span>
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
+                <a href="/connections/goodreads/shelves" class="inline-flex items-center text-brand hover:text-secondary font-semibold transition-colors duration-200">
+                  <img src="/svg/book.svg" alt="" class="w-5 h-5 mr-2">
+                  View Your Shelves
+                </a>
+                <form method="post" action="/account/disconnect-goodreads" class="inline-block">
+                  <%= csrf_tag('/account/disconnect-goodreads') %>
+                  <button type="submit"
+                          onclick="return confirm('Are you sure you want to disconnect your Goodreads account? This will remove your connection and delete your synced data.')"
+                          class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-300 hover:border-red-400">
+                    <img src="/svg/x.svg" alt="" class="w-4 h-4 mr-2">
+                    Disconnect
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+    <% end %>
+
+    <!-- Available Services Section -->
+    <% unless @goodreads_connection %>
+    <div class="mb-16">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+        <img src="/svg/plus-circle.svg" alt="" class="w-6 h-6 text-blue-600 mr-3">
+        Available Connections
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Goodreads Available Card -->
+        <div class="relative group">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 opacity-50 rounded-2xl transform group-hover:scale-105 transition-all duration-300"></div>
+
+          <div class="relative bg-white border-2 border-blue-200 rounded-2xl p-6 hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-lg">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-4">
+                <!-- Goodreads Icon -->
+                <div class="relative">
+                  <div class="w-16 h-16 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl flex items-center justify-center shadow-inner">
+                    <img src="/svg/star.svg" alt="Goodreads" class="w-8 h-8 text-amber-700">
+                  </div>
+                </div>
+
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-1">Goodreads</h3>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3 text-sm text-gray-600 mb-6">
+              <p class="leading-relaxed">
+                Connect your Goodreads account to import your shelves, analyze your reading patterns, and find your books at libraries and through book trading.
+              </p>
+            </div>
+
+            <div class="pt-4 border-t border-gray-200">
+              <a href="/connections/goodreads" class="inline-flex items-center px-6 py-3 bg-brand text-white font-semibold rounded-lg hover:bg-opacity-90 transition-all duration-200 shadow-md hover:shadow-lg">
+                <img src="/svg/star.svg" alt="" class="w-5 h-5 mr-2 brightness-0 invert">
+                Connect Goodreads
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% end %>
+
+    <!-- Coming Soon Section -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+        <img src="/svg/plus-circle.svg" alt="" class="w-6 h-6 text-gray-400 mr-3">
+        Coming Soon
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- BookMooch Card -->
+        <div class="relative group">
+          <div class="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-50 rounded-2xl"></div>
+          <div class="relative bg-white border-2 border-dashed border-gray-300 rounded-2xl p-6 opacity-60">
+            <div class="flex flex-col items-center text-center">
+              <div class="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
+                <img src="/svg/book-closed.svg" alt="BookMooch" class="w-8 h-8 text-gray-400">
+              </div>
+              <h3 class="text-lg font-bold text-gray-700 mb-2">BookMooch</h3>
+              <p class="text-sm text-gray-500">Save credentials and auto-add books to your wishlist</p>
+              <span class="mt-4 inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                Coming Soon
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Libby Card -->
+        <div class="relative group">
+          <div class="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-50 rounded-2xl"></div>
+          <div class="relative bg-white border-2 border-dashed border-gray-300 rounded-2xl p-6 opacity-60">
+            <div class="flex flex-col items-center text-center">
+              <div class="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
+                <img src="/svg/book.svg" alt="Libby" class="w-8 h-8 text-gray-400">
+              </div>
+              <h3 class="text-lg font-bold text-gray-700 mb-2">Libby</h3>
+              <p class="text-sm text-gray-500">Save library card and auto-checkout available books</p>
+              <span class="mt-4 inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                Coming Soon
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- OverDrive Card -->
+        <div class="relative group">
+          <div class="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-50 rounded-2xl"></div>
+          <div class="relative bg-white border-2 border-dashed border-gray-300 rounded-2xl p-6 opacity-60">
+            <div class="flex flex-col items-center text-center">
+              <div class="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
+                <img src="/svg/cloud-download.svg" alt="OverDrive" class="w-8 h-8 text-gray-400">
+              </div>
+              <h3 class="text-lg font-bold text-gray-700 mb-2">OverDrive</h3>
+              <p class="text-sm text-gray-500">Connect your library and track book availability</p>
+              <span class="mt-4 inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                Coming Soon
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6 relative overflow-hidden">
+      <!-- Decorative book element -->
+      <div class="absolute -right-8 -bottom-8 opacity-10">
+        <img src="/svg/book-bookmark.svg" alt="" class="w-32 h-32 text-blue-600">
+      </div>
+
+      <div class="relative">
+        <h3 class="text-lg font-bold text-blue-900 mb-3 flex items-center">
+          <img src="/svg/info-circle.svg" alt="" class="w-5 h-5 mr-2">
+          Own Your Book Data
+        </h3>
+        <p class="text-blue-800 leading-relaxed">
+          We're building tools to help you own and centralize all your reading data.
+          Connect multiple platforms and get a complete picture of your reading life across all services.
+          More integrations coming soon!
+        </p>
+      </div>
+    </div>
+
+    <!-- Back to Home Link -->
+    <div class="mt-8 text-center">
+      <a href="/home" class="inline-flex items-center text-gray-600 hover:text-brand transition-colors duration-200 font-semibold">
+        <img src="/svg/arrow-left.svg" alt="" class="w-5 h-5 mr-2">
+        Back to Home
+      </a>
+    </div>
+  </div>
+</div>
