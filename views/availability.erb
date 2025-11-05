@@ -57,7 +57,7 @@
       color: 'red',
       count: @unavailable_books.size,
       empty_message: 'All books from your shelf are available or on the waitlist!',
-      action_button: {url: '/auth/library', icon: '/svg/refresh.svg', label: 'Try a different library'},
+      action_button: {url: '/connections/goodreads/library', icon: '/svg/refresh.svg', label: 'Try a different library'},
       books: @unavailable_books.map do |title|
         {
           image: title.image,

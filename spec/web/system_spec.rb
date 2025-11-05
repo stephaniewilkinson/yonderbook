@@ -47,8 +47,8 @@ describe App do
       click_link 'Connect with Goodreads'
       sleep 2
 
-      # Check if already authenticated (redirected to /auth/shelves)
-      break if page.current_url.include?('/auth/shelves')
+      # Check if already authenticated (redirected to /connections/goodreads/shelves)
+      break if page.current_url.include?('/connections/goodreads/shelves')
 
       # Only try to sign in if we're on Goodreads sign-in page
       if page.has_button?('Sign in with email', wait: 2)
@@ -63,14 +63,14 @@ describe App do
         end
 
         # Check if OAuth completed after sign-in
-        break if page.current_url.include?('/auth/shelves')
+        break if page.current_url.include?('/connections/goodreads/shelves')
       end
 
-      visit '/home' unless page.current_url.include?('/auth/shelves')
+      visit '/home' unless page.current_url.include?('/connections/goodreads/shelves')
     end
 
     # Final visit to get OAuth tokens
-    visit '/auth/shelves'
+    visit '/connections/goodreads/shelves'
     assert_text 'Choose a shelf'
     all(:link, 'Stats')[2].click
     sleep 10
@@ -80,7 +80,7 @@ describe App do
     first(:button, 'Get Books').click
     assert_text 'Choose a format'
     # Click eBooks link directly by visiting the overdrive path
-    visit '/auth/shelves/zora/overdrive'
+    visit '/connections/goodreads/shelves/zora/overdrive'
     assert_text 'zip code'
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
@@ -141,17 +141,14 @@ describe App do
     assert_text 'Welcome to Yonderbook!'
     assert_text 'Connect with Goodreads'
 
-    # Wait for flash notification to auto-dismiss before clicking logout
+    # Wait for flash notification to auto-dismiss before testing logout
     sleep 5
 
-    # Test logout
-    click_button 'Logout'
+    # Test logout by visiting logout path (no logout button in navbar anymore)
+    visit '/logout'
+    click_button 'Log Out' # Confirm logout
 
     # Should be back on the welcome page
-    assert_text 'Yonderbook'
-
-    # Visit home page to force a page reload and check logged out state
-    visit '/'
     assert_text 'Already have an account? Log in'
     assert_text 'Create Your Account'
 
@@ -167,8 +164,8 @@ describe App do
     assert_text 'Welcome to Yonderbook!'
     assert_text 'Connect with Goodreads'
 
-    # Verify we're logged in by checking for logout button
-    assert_button 'Logout'
+    # Verify we're logged in by checking navbar links
+    assert_link 'Account'
     refute_link 'Login'
     refute_link 'Sign Up'
     sleep 2 # Give Selenium time to clean up session before next test

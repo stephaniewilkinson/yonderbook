@@ -50,7 +50,7 @@
   <body class="flex flex-col min-h-screen bg-gradient-to-t from-[#CAf7eb] to-[#138586]">
     <main class="flex-1">
       <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50 rounded-b-lg">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex-shrink-0">
@@ -78,24 +78,22 @@
                     Home
                   </a>
                   <% if @user&.goodreads_connected? %>
-                  <a href="/auth/shelves"
+                  <a href="/connections/goodreads/shelves"
                      class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
                     <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                     Shelves
                   </a>
                   <% end %>
+                  <a href="/connections"
+                     class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
+                    <img src="/svg/checkmark-badge.svg" alt="Connections" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                    Connections
+                  </a>
                   <a href="/account"
                      class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
                     <img src="/svg/user.svg" alt="Account" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
                     Account
                   </a>
-                  <form method="post" action="<%= rodauth.logout_path %>" class="inline-block">
-                    <%= csrf_tag(rodauth.logout_path) %>
-                    <button type="submit"
-                            class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
-                      Logout
-                    </button>
-                  </form>
                 <% else %>
                   <a href="/authenticate"
                      class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
@@ -134,22 +132,19 @@
                   Home
                 </a>
                 <% if @user&.goodreads_connected? %>
-                <a href="/auth/shelves"
+                <a href="/connections/goodreads/shelves"
                    class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
                   Shelves
                 </a>
                 <% end %>
+                <a href="/connections"
+                   class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                  Connections
+                </a>
                 <a href="/account"
                    class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
                   Account
                 </a>
-                <form method="post" action="<%= rodauth.logout_path %>">
-                  <%= csrf_tag(rodauth.logout_path) %>
-                  <button type="submit"
-                          class="block w-full text-left px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
-                    Logout
-                  </button>
-                </form>
               <% else %>
                 <a href="/authenticate"
                    class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
