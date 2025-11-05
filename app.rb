@@ -109,11 +109,6 @@ class App < Roda
   compile_assets
 
   # Helper methods
-  def setup_goodreads_auth_url
-    request_token = Cache.get(session, :request_token) || fetch_and_cache_request_token
-    @auth_url = request_token&.authorize_url
-  end
-
   def fetch_and_cache_request_token
     Auth.fetch_request_token.tap { |token| Cache.set(session, request_token: token) if token }
   rescue StandardError
@@ -153,7 +148,8 @@ class App < Roda
 
     # route: GET /
     r.root do
-      setup_goodreads_auth_url
+      request_token = fetch_and_cache_request_token
+      @auth_url = request_token&.authorize_url
       view 'welcome'
     end
 
@@ -211,7 +207,10 @@ class App < Roda
       # route: GET /home
       r.get do
         rodauth.require_login
-        setup_goodreads_auth_url unless @user&.goodreads_connected?
+        unless @user&.goodreads_connected?
+          request_token = fetch_and_cache_request_token
+          @auth_url = request_token&.authorize_url
+        end
         view 'home'
       end
     end
@@ -220,7 +219,9 @@ class App < Roda
       # route: GET /connect-goodreads
       r.get do
         r.redirect '/home' if @user&.goodreads_connected?
-        setup_goodreads_auth_url
+        # Always fetch a fresh request token (they expire and can only be used once)
+        request_token = fetch_and_cache_request_token
+        @auth_url = request_token&.authorize_url
         view 'connect_goodreads'
       end
     end
