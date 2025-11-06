@@ -1,10 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Yonderbook | Tools for the Tech-savvy & Bookish</title>
+    <title><%= @page_title || "Yonderbook | Find Your Goodreads Books Free at Libraries & Book Swaps" %></title>
     <meta charset="UTF-8">
-    <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="<%= @page_description || "Turn your Goodreads want-to-read list into free books. Automatically find your books at your local library via Libby/OverDrive and through BookMooch book trading. Never buy a book that's free again." %>">
+    <meta name="keywords" content="Goodreads, Libby, OverDrive, BookMooch, free books, library ebooks, book trading, want to read, reading list, free audiobooks, library catalog search">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
+    <meta property="og:title" content="<%= @og_title || @page_title || "Yonderbook | Find Your Goodreads Books Free at Libraries & Book Swaps" %>">
+    <meta property="og:description" content="<%= @og_description || @page_description || "Turn your Goodreads want-to-read list into free books. Automatically find your books at your local library and through book trading." %>">
+    <meta property="og:image" content="<%= @og_image || "https://yonderbook.com/img/yonderbook.png" %>">
+    <meta property="og:site_name" content="Yonderbook">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
+    <meta property="twitter:title" content="<%= @twitter_title || @og_title || @page_title || "Yonderbook | Find Your Goodreads Books Free" %>">
+    <meta property="twitter:description" content="<%= @twitter_description || @og_description || @page_description || "Turn your Goodreads want-to-read list into free books from your library and book swaps." %>">
+    <meta property="twitter:image" content="<%= @twitter_image || @og_image || "https://yonderbook.com/img/yonderbook.png" %>">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/svg/favicon.svg?v=2">
@@ -32,6 +51,49 @@
     </script>
 
     <%= assets(:css) %>
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Yonderbook",
+      "url": "https://yonderbook.com",
+      "description": "Turn your Goodreads want-to-read list into free books. Find your books at libraries via Libby/OverDrive and through BookMooch book trading.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      },
+      "featureList": [
+        "Import Goodreads shelves",
+        "Find books at local libraries",
+        "Check Libby/OverDrive availability",
+        "BookMooch integration",
+        "Reading analytics",
+        "Author diversity tracking"
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Yonderbook",
+      "url": "https://yonderbook.com",
+      "logo": "https://yonderbook.com/svg/book-nav.svg",
+      "sameAs": []
+    }
+    </script>
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96996170-1"></script>
     <script>

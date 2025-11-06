@@ -150,6 +150,9 @@ class App < Roda
     r.root do
       request_token = fetch_and_cache_request_token
       @auth_url = request_token&.authorize_url
+      @page_title = 'Yonderbook | Find Your Goodreads Books Free at Libraries & Book Swaps'
+      @page_description = 'Turn your Goodreads want-to-read list into free books. Automatically find your books at your local library ' \
+                          'via Libby/OverDrive and through BookMooch book trading. Never buy a book that\'s free again.'
       view 'welcome'
     end
 
@@ -181,7 +184,14 @@ class App < Roda
     end
 
     # route: GET /about
-    r.is('about') { r.get { view 'about' } }
+    r.is('about') do
+      r.get do
+        @page_title = 'About Yonderbook | Free Books from Your Goodreads List'
+        @page_description = 'Learn how Yonderbook helps you find free books from your Goodreads want-to-read list at your local ' \
+                            'library and through book trading. Built by a reader with 1,200+ books on their TBR.'
+        view 'about'
+      end
+    end
 
     r.on 'account' do
       # route: POST /account/disconnect-goodreads
