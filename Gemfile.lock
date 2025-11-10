@@ -95,8 +95,8 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-net_http (3.4.1)
-      net-http (>= 0.5.0)
+    faraday-net_http (3.4.2)
+      net-http (~> 0.5)
     fastercsv (1.5.5)
     fiber-annotation (0.2.0)
     fiber-local (1.1.0)
