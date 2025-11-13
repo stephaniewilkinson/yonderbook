@@ -25,7 +25,11 @@ class Overdrive
     task = Async do
       internet = Async::HTTP::Internet.new
       params = URI.encode_www_form query: zip_code, includePublicLibraries: true, includeSchoolLibraries: false
-      response = internet.get "#{MAPBOX_URI}?#{params}"
+      headers = [
+        ['user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'],
+        ['referer', 'https://www.overdrive.com/libraries']
+      ]
+      response = internet.get "#{MAPBOX_URI}?#{params}", headers
       response.read
     ensure
       internet&.close
