@@ -224,7 +224,7 @@ GEM
       drb
       forwardable
       ipaddr
-    roda (3.97.0)
+    roda (3.98.0)
       rack
     roda-route_list (2.1.0)
       roda
