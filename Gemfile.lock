@@ -130,7 +130,7 @@ GEM
       net-smtp
     mapping (1.1.3)
     matrix (0.4.3)
-    memory (0.11.1)
+    memory (0.12.0)
       bake (~> 0.15)
       console
       msgpack
