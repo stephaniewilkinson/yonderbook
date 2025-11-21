@@ -194,7 +194,7 @@ GEM
     protocol-http2 (0.23.0)
       protocol-hpack (~> 1.4)
       protocol-http (~> 0.47)
-    protocol-rack (0.16.0)
+    protocol-rack (0.18.0)
       io-stream (>= 0.10)
       protocol-http (~> 0.43)
       rack (>= 1.0)
