@@ -37,7 +37,7 @@ GEM
       async (>= 2.31)
     async-pool (0.11.0)
       async (>= 2.0)
-    async-service (0.14.4)
+    async-service (0.15.1)
       async
       async-container (~> 0.16)
       string-format (~> 0.2)
@@ -112,7 +112,7 @@ GEM
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     io-endpoint (0.15.2)
-    io-event (1.14.0)
+    io-event (1.14.2)
     io-stream (0.11.0)
     ipaddr (1.2.7)
     json (2.16.0)
