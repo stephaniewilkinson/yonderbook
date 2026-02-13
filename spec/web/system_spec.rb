@@ -114,6 +114,30 @@ describe App do
     assert_includes last_response.body, 'About'
   end
 
+  describe 'page titles' do
+    it 'has correct title format for root page' do
+      get '/'
+      assert_includes last_response.body, '<title>Yonderbook | Find Your Goodreads Books Free at Libraries & Book Swaps</title>'
+    end
+
+    it 'appends Yonderbook suffix to page titles' do
+      get '/about'
+      assert_includes last_response.body, '<title>About | Yonderbook</title>'
+
+      get '/faq'
+      assert_includes last_response.body, '<title>FAQ | Yonderbook</title>'
+
+      get '/how-it-works'
+      assert_includes last_response.body, '<title>How It Works | Yonderbook</title>'
+
+      get '/authenticate'
+      assert_includes last_response.body, '<title>Log In | Yonderbook</title>'
+
+      get '/sign-up'
+      assert_includes last_response.body, '<title>Sign Up | Yonderbook</title>'
+    end
+  end
+
   it 'tests the complete Rodauth authentication flow' do
     fake_email = "test_user_#{Time.now.to_i}@example.com"
     fake_password = 'SecurePassword123!'

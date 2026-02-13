@@ -22,7 +22,7 @@ require_relative 'lib/websockets'
 
 class App < Roda
   use Sentry::Rack::CaptureExceptions
-  use Rack::HostRedirect, 'bookmooch.herokuapp.com' => 'yonderbook.com'
+  use Rack::HostRedirect, 'www.yonderbook.com' => 'yonderbook.com'
 
   plugin :head
   plugin :assets, css: 'styles.css'
@@ -34,6 +34,7 @@ class App < Roda
   plugin :slash_path_empty
   plugin :render
   plugin :partials
+  plugin :content_for
   plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
   plugin :websockets
 
@@ -134,7 +135,12 @@ class App < Roda
     r.assets
 
     # Rodauth routes (login, create-account, etc.)
-    r.rodauth
+    begin
+      r.rodauth
+    rescue Roda::RodaPlugins::RouteCsrf::InvalidToken
+      flash[:error] = 'Your session has expired. Please try again.'
+      r.redirect r.path
+    end
 
     # Load current user for authenticated routes
     @user = Account[rodauth.session_value] if rodauth.logged_in?
@@ -150,9 +156,6 @@ class App < Roda
     r.root do
       request_token = fetch_and_cache_request_token
       @auth_url = request_token&.authorize_url
-      @page_title = 'Yonderbook | Find Your Goodreads Books Free at Libraries & Book Swaps'
-      @page_description = 'Turn your Goodreads want-to-read list into free books. Automatically find your books at your local library ' \
-                          'via Libby/OverDrive and through BookMooch book trading. Never buy a book that\'s free again.'
       view 'welcome'
     end
 
@@ -184,14 +187,13 @@ class App < Roda
     end
 
     # route: GET /about
-    r.is('about') do
-      r.get do
-        @page_title = 'About Yonderbook | Free Books from Your Goodreads List'
-        @page_description = 'Learn how Yonderbook helps you find free books from your Goodreads want-to-read list at your local ' \
-                            'library and through book trading. Built by a reader with 1,200+ books on their TBR.'
-        view 'about'
-      end
-    end
+    r.get('about') { view 'about' }
+
+    # route: GET /faq
+    r.get('faq') { view 'faq' }
+
+    # route: GET /how-it-works
+    r.get('how-it-works') { view 'how_it_works' }
 
     r.on 'account' do
       # route: POST /account/disconnect-goodreads
