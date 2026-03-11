@@ -91,12 +91,6 @@ GEM
       capybara (~> 3.37)
       falcon
       selenium-webdriver
-    faraday (2.14.0)
-      faraday-net_http (>= 2.0, < 3.5)
-      json
-      logger
-    faraday-net_http (3.4.2)
-      net-http (~> 0.5)
     fastercsv (1.5.5)
     fiber-annotation (0.2.0)
     fiber-local (1.1.0)
@@ -116,8 +110,6 @@ GEM
     io-stream (0.11.0)
     ipaddr (1.2.7)
     json (2.16.0)
-    jwt (3.1.2)
-      base64
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     localhost (1.6.0)
@@ -138,6 +130,7 @@ GEM
     method_source (1.1.0)
     metrics (0.15.0)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
     minitest (5.26.1)
     minitest-capybara (0.9.0)
       capybara
@@ -146,8 +139,6 @@ GEM
     msgpack (1.8.0)
     multi_xml (0.7.2)
       bigdecimal (~> 3.1)
-    net-http (0.8.0)
-      uri (>= 0.11.1)
     net-imap (0.5.12)
       date
       net-protocol
@@ -157,6 +148,9 @@ GEM
       timeout
     net-smtp (0.5.1)
       net-protocol
+    nokogiri (1.18.10)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.18.10-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-linux-gnu)
@@ -168,14 +162,7 @@ GEM
       version_gem (~> 1.1, >= 1.1.9)
     oauth-tty (1.0.6)
       version_gem (~> 1.1, >= 1.1.9)
-    oauth2 (2.0.18)
-      faraday (>= 0.17.3, < 4.0)
-      jwt (>= 1.0, < 4.0)
-      logger (~> 1.2)
-      multi_xml (~> 0.5)
-      rack (>= 1.2, < 4)
-      snaky_hash (~> 2.0, >= 2.0.3)
-      version_gem (~> 1.1, >= 1.1.9)
+    oauth2 (0.0.3)
     openssl (3.3.2)
     ostruct (0.6.3)
     parallel (1.27.0)
@@ -282,6 +269,8 @@ GEM
     snaky_hash (2.0.3)
       hashie (>= 0.1.0, < 6)
       version_gem (>= 1.1.8, < 3)
+    sqlite3 (2.8.0)
+      mini_portile2 (~> 2.8.0)
     sqlite3 (2.8.0-x86_64-darwin)
     sqlite3 (2.8.0-x86_64-linux-gnu)
     string-format (0.2.0)
@@ -290,9 +279,8 @@ GEM
     traces (0.18.2)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
-    unicode-emoji (4.1.0)
+    unicode-emoji (4.2.0)
     unicode_utils (1.4.0)
-    uri (1.1.1)
     version_gem (1.1.9)
     websocket (1.2.11)
     xpath (3.2.0)
@@ -323,7 +311,7 @@ DEPENDENCIES
   minitest-capybara
   nokogiri
   oauth
-  oauth2
+  oauth2 (< 2)
   ostruct
   pry
   rack-host-redirect
@@ -349,7 +337,7 @@ DEPENDENCIES
   unicode_utils
 
 RUBY VERSION
-   ruby 3.4.7p58
+   ruby 4.0.1p0
 
 BUNDLED WITH
    2.6.9
