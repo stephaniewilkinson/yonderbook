@@ -29,7 +29,7 @@ class App < Roda
   plugin :assets_preloading
   plugin :public, root: 'assets'
   plugin :flash
-  plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
+  plugin :sessions, secret: ENV.fetch('SESSION_SECRET', nil)
   plugin :route_csrf
   plugin :slash_path_empty
   plugin :render
@@ -42,7 +42,7 @@ class App < Roda
   plugin :rodauth do
     db DB
     enable :login, :logout, :create_account, :verify_account, :reset_password
-    hmac_secret ENV.fetch('SESSION_SECRET')
+    hmac_secret ENV.fetch('SESSION_SECRET', nil)
 
     # Base URL for email links
     base_url ENV.fetch('BASE_URL', 'http://localhost:9292')

@@ -84,8 +84,4 @@ module TestHelpers
 end
 
 # Include the helper module in Minitest
-module Minitest
-  class Test
-    include TestHelpers
-  end
-end
+Minitest::Test.include TestHelpers

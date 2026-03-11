@@ -13,7 +13,7 @@ class EmailService
 
       begin
         # Set API key globally for Resend
-        Resend.api_key = ENV.fetch('RESEND_API_KEY')
+        Resend.api_key = ENV.fetch('RESEND_API_KEY', nil)
 
         params = {from: FROM_EMAIL, to: [to], subject: subject, html: html}
         params[:text] = text if text

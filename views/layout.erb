@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) ? "#{content_for(:title)} | Yonderbook" : "Yonderbook | Find Your Goodreads Books Free at Libraries & Book Swaps" %></title>
+    <title><%= content_for(:title) ? "#{content_for(:title)} | Yonderbook" : "Yonderbook | Goodreads Libby Integration — Find Your Books Free at the Library" %></title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<%= content_for(:description) || "Turn your Goodreads want-to-read list into free books. Automatically find your books at your local library via Libby/OverDrive and through BookMooch book trading. Never buy a book that's free again." %>">
+    <meta name="description" content="<%= content_for(:description) || "Goodreads Libby integration made easy. Automatically check which books on your Goodreads want-to-read shelf are available free at your library through Libby and OverDrive." %>">
     <meta name="keywords" content="Goodreads, Libby, OverDrive, BookMooch, free books, library ebooks, book trading, want to read, reading list, free audiobooks, library catalog search">
 
     <!-- Canonical URL -->
@@ -13,16 +13,16 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
-    <meta property="og:title" content="<%= content_for(:og_title) || content_for(:title) || "Yonderbook | Find Your Goodreads Books Free at Libraries & Book Swaps" %>">
-    <meta property="og:description" content="<%= content_for(:og_description) || content_for(:description) || "Turn your Goodreads want-to-read list into free books. Automatically find your books at your local library and through book trading." %>">
+    <meta property="og:title" content="<%= content_for(:og_title) || content_for(:title) || "Yonderbook | Goodreads Libby Integration — Find Your Books Free at the Library" %>">
+    <meta property="og:description" content="<%= content_for(:og_description) || content_for(:description) || "Goodreads Libby integration made easy. Automatically find which books on your want-to-read shelf are available free at your library." %>">
     <meta property="og:image" content="<%= @og_image || "https://yonderbook.com/img/yonderbook.png" %>">
     <meta property="og:site_name" content="Yonderbook">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
-    <meta property="twitter:title" content="<%= content_for(:twitter_title) || content_for(:og_title) || content_for(:title) || "Yonderbook | Find Your Goodreads Books Free" %>">
-    <meta property="twitter:description" content="<%= content_for(:twitter_description) || content_for(:og_description) || content_for(:description) || "Turn your Goodreads want-to-read list into free books from your library and book swaps." %>">
+    <meta property="twitter:title" content="<%= content_for(:twitter_title) || content_for(:og_title) || content_for(:title) || "Yonderbook | Goodreads Libby Integration" %>">
+    <meta property="twitter:description" content="<%= content_for(:twitter_description) || content_for(:og_description) || content_for(:description) || "Goodreads Libby integration made easy. Find your want-to-read books free at your library." %>">
     <meta property="twitter:image" content="<%= @twitter_image || @og_image || "https://yonderbook.com/img/yonderbook.png" %>">
 
     <!-- Favicon -->

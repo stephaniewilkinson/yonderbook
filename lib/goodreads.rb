@@ -11,12 +11,12 @@ require 'oauth'
 require 'uri'
 
 module Goodreads
-  Book = Struct.new :image_url, :isbn, :title, keyword_init: true
-  API_KEY = ENV.fetch 'GOODREADS_API_KEY'
+  Book = Struct.new :image_url, :isbn, :title
+  API_KEY = ENV.fetch('GOODREADS_API_KEY', nil)
   GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
   BASE_URL = "https://#{HOST}".freeze
-  GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
+  GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET', nil)
   BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating date_added].freeze
 
   module_function
@@ -136,7 +136,7 @@ module Goodreads
   end
 
   def get_gender books
-    count = books.group_by { |book| GENDER_DETECTOR.get_gender book.fetch(:title).split.first }.transform_values(&:size)
+    count = books.group_by { |book| GENDER_DETECTOR.get_gender book[:title].split.first }.transform_values(&:size)
     [
       count.values_at(:female, :mostly_female).compact.sum,
       count.values_at(:male, :mostly_male).compact.sum,
