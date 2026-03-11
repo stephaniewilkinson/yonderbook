@@ -1,0 +1,160 @@
+<% content_for :title, "FAQ" %>
+<% content_for :description, "Frequently asked questions about Yonderbook. Learn how to connect Goodreads, find free library books via Libby/OverDrive, and use BookMooch for book trading." %>
+
+<% # FAQ Schema for this page %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I connect my Goodreads account to Yonderbook?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "First, create a Yonderbook account with your email. Then go to Connections and click 'Connect with Goodreads'. You'll be redirected to Goodreads to authorize the connection. Note: You may need to click the connect button twice—the first click authorizes on Goodreads, the second completes the connection."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Yonderbook free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! Yonderbook is completely free. We help you find free books at your library and through book trading sites like BookMooch."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is Libby and how does it work with Yonderbook?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Libby is a free app by OverDrive that lets you borrow ebooks and audiobooks from your local library. Yonderbook checks if books on your Goodreads want-to-read list are available through your library's Libby catalog, so you can borrow them for free instead of buying them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is BookMooch?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "BookMooch is a book trading community where readers swap physical books for free (you just pay postage). When you add books to your BookMooch wishlist, you get notified when someone lists a copy. Yonderbook helps you add books from your Goodreads list to your BookMooch wishlist automatically."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Yonderbook store my Goodreads data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We only store the minimum data needed to provide our service: your Goodreads user ID and secure connection credentials. Your book lists are fetched fresh from Goodreads each time you use Yonderbook. You can disconnect your Goodreads account and delete all stored data at any time from your Account page."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do I need to create a Yonderbook account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Goodreads deprecated their API in December 2020, making direct login unreliable. By creating a Yonderbook account, you get consistent access to your book data and features, independent of Goodreads API issues."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which libraries does Yonderbook support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yonderbook works with any library that uses OverDrive/Libby for their digital catalog. This includes most public libraries in the United States, Canada, UK, Australia, and many other countries. Just enter your zip code and we'll find libraries near you automatically."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use Yonderbook without Goodreads?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Currently, Yonderbook requires a Goodreads account to import your reading lists. We're exploring options to support other book tracking platforms in the future."
+      }
+    }
+  ]
+}
+</script>
+
+<div class="bg-white md:-mx-8 px-4 md:px-8 py-12 rounded-xl">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
+    <p class="text-xl text-gray-600 mb-12">
+      Everything you need to know about using Yonderbook to find free books
+    </p>
+
+    <div class="space-y-8">
+      <!-- Question 1 -->
+      <div class="border-b border-gray-200 pb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">How do I connect my Goodreads account to Yonderbook?</h2>
+        <p class="text-gray-600 leading-relaxed">
+          First, create a Yonderbook account with your email. Then go to Connections and click "Connect with Goodreads". You'll be redirected to Goodreads to authorize the connection. Note: You may need to click the connect button twice—the first click authorizes on Goodreads, the second completes the connection.
+        </p>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="border-b border-gray-200 pb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Is Yonderbook free to use?</h2>
+        <p class="text-gray-600 leading-relaxed">
+          Yes! Yonderbook is completely free. We help you find free books at your library and through book trading sites like BookMooch.
+        </p>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="border-b border-gray-200 pb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">What is Libby and how does it work with Yonderbook?</h2>
+        <p class="text-gray-600 leading-relaxed">
+          Libby is a free app by OverDrive that lets you borrow ebooks and audiobooks from your local library. Yonderbook checks if books on your Goodreads want-to-read list are available through your library's Libby catalog, so you can borrow them for free instead of buying them.
+        </p>
+      </div>
+
+      <!-- Question 4 -->
+      <div class="border-b border-gray-200 pb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">What is BookMooch?</h2>
+        <p class="text-gray-600 leading-relaxed">
+          BookMooch is a book trading community where readers swap physical books for free (you just pay postage). When you add books to your BookMooch wishlist, you get notified when someone lists a copy. Yonderbook helps you add books from your Goodreads list to your BookMooch wishlist automatically.
+        </p>
+      </div>
+
+      <!-- Question 5 -->
+      <div class="border-b border-gray-200 pb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Does Yonderbook store my Goodreads data?</h2>
+        <p class="text-gray-600 leading-relaxed">
+          We only store the minimum data needed to provide our service: your Goodreads user ID and secure connection credentials. Your book lists are fetched fresh from Goodreads each time you use Yonderbook. You can disconnect your Goodreads account and delete all stored data at any time from your Account page.
+        </p>
+      </div>
+
+      <!-- Question 6 -->
+      <div class="border-b border-gray-200 pb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Why do I need to create a Yonderbook account?</h2>
+        <p class="text-gray-600 leading-relaxed">
+          Goodreads deprecated their API in December 2020, making direct login unreliable. By creating a Yonderbook account, you get consistent access to your book data and features, independent of Goodreads API issues.
+        </p>
+      </div>
+
+      <!-- Question 7 -->
+      <div class="border-b border-gray-200 pb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Which libraries does Yonderbook support?</h2>
+        <p class="text-gray-600 leading-relaxed">
+          Yonderbook works with any library that uses OverDrive/Libby for their digital catalog. This includes most public libraries in the United States, Canada, UK, Australia, and many other countries. Just enter your zip code and we'll find libraries near you automatically.
+        </p>
+      </div>
+
+      <!-- Question 8 -->
+      <div class="border-b border-gray-200 pb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Can I use Yonderbook without Goodreads?</h2>
+        <p class="text-gray-600 leading-relaxed">
+          Currently, Yonderbook requires a Goodreads account to import your reading lists. We're exploring options to support other book tracking platforms in the future.
+        </p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-12 bg-gradient-to-r from-brand to-secondary rounded-xl p-8 text-center">
+      <h2 class="text-2xl font-bold text-white mb-4">Still have questions?</h2>
+      <p class="text-gray-100 mb-6">We're here to help! Use the chat widget in the corner or create an account to get started.</p>
+      <a href="/sign-up" class="inline-flex items-center px-6 py-3 bg-white text-brand font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+        Get Started Free
+      </a>
+    </div>
+  </div>
+</div>
