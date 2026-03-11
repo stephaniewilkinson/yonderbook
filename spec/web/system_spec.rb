@@ -173,11 +173,11 @@ describe App do
     click_button 'Log Out' # Confirm logout
 
     # Should be back on the welcome page
-    assert_text 'Already have an account? Log in'
+    assert_text 'Log in'
     assert_text 'Create Your Account'
 
     # Test login with the same credentials
-    click_link 'Already have an account? Log in'
+    click_link 'Log in'
 
     # Fill in login form
     fill_in 'Email', with: fake_email
