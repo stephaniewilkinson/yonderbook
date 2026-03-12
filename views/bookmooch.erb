@@ -19,7 +19,7 @@
     {
       label: 'Added',
       title: "These #{@books_added.size} books are now on your wishlist",
-      color: 'green',
+      color: 'mauve',
       count: @books_added.size,
       empty_message: 'No books were added to your wishlist.',
       books: @books_added.map do |book|
@@ -31,7 +31,7 @@
           button: book[:bookmooch_isbn] ? {
             url: "https://bookmooch.com/m/detail/#{book[:bookmooch_isbn]}",
             label: 'View on BookMooch',
-            class: 'bg-emerald-600 hover:bg-emerald-700'
+            class: 'bg-mauve-950 hover:bg-mauve-900'
           } : nil
         }
       end
@@ -39,7 +39,7 @@
     {
       label: "Couldn't Add",
       title: "Couldn't Add #{@books_failed.size} Books",
-      color: 'red',
+      color: 'mauve',
       count: @books_failed.size,
       description: "If some books imported but not others, it's possible that BookMooch doesn't have them listed. Try adding them to your wishlist using a different edition, aka a different ISBN.",
       empty_message: 'All books were successfully added!',
@@ -54,7 +54,7 @@
     {
       label: 'Could Not Match',
       title: "Could Not Match #{@books_failed_no_isbn.size} Books",
-      color: 'gray',
+      color: 'mauve',
       count: @books_failed_no_isbn.size,
       description: 'These books are missing ISBN information in Goodreads. Without an ISBN, we cannot match them to the BookMooch catalog. Try editing the book details in Goodreads to add ISBN information.',
       empty_message: 'All books on your shelf have ISBN numbers!',

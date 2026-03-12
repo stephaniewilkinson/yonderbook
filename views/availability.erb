@@ -21,7 +21,7 @@
     {
       label: 'Available',
       title: 'Available Books',
-      color: 'green',
+      color: 'mauve',
       count: @available_books.size,
       empty_message: 'No books are currently available to check out.',
       books: @available_books.map do |title|
@@ -32,14 +32,14 @@
           isbn: title.isbn,
           status_label: 'Available:',
           status_value: title.copies_owned == 999999 ? 'Unlimited' : "#{title.copies_available}/#{title.copies_owned}",
-          button: {url: title.url, icon: '/svg/book.svg', label: 'Read', class: 'bg-secondary hover:bg-secondary/80'}
+          button: {url: title.url, icon: '/svg/book.svg', label: 'Read', class: 'bg-mauve-950 hover:bg-mauve-900'}
         }
       end
     },
     {
       label: 'Waitlist',
       title: 'Join the waitlist',
-      color: 'yellow',
+      color: 'mauve',
       count: @waitlist_books.size,
       empty_message: 'No books are currently on the waitlist.',
       books: @waitlist_books.map do |title|
@@ -50,14 +50,14 @@
           isbn: title.isbn,
           status_label: 'Waitlist:',
           status_value: title.copies_owned == 999999 ? 'Unlimited' : "#{title.copies_available}/#{title.copies_owned}",
-          button: {url: title.url, icon: '/svg/book.svg', label: 'Reserve', class: 'bg-secondary hover:bg-secondary/80'}
+          button: {url: title.url, icon: '/svg/book.svg', label: 'Reserve', class: 'bg-mauve-950 hover:bg-mauve-900'}
         }
       end
     },
     {
       label: 'Unavailable',
       title: 'Not available at this library',
-      color: 'red',
+      color: 'mauve',
       count: @unavailable_books.size,
       empty_message: 'All books from your shelf are available or on the waitlist!',
       action_button: {url: '/connections/goodreads/library', icon: '/svg/refresh.svg', label: 'Try a different library'},
@@ -74,7 +74,7 @@
             icon_svg: search_icon,
             label: 'Search library',
             title: "Search your library for: #{title.title} by #{title.author}",
-            class: 'bg-gray-600 hover:bg-gray-700'
+            class: 'bg-mauve-700 hover:bg-mauve-800'
           }
         }
       end
@@ -82,7 +82,7 @@
     {
       label: 'Could Not Match',
       title: 'Could not match to library catalog',
-      color: 'gray',
+      color: 'mauve',
       count: @no_isbn_books.size,
       description: "These books are missing ISBN information in Goodreads, so we couldn't search for them in your library's catalog. Try searching for them manually on your library's website.",
       empty_message: 'All books on your shelf have ISBN numbers!',
@@ -98,7 +98,7 @@
             icon_svg: search_icon,
             label: 'Search library',
             title: "Search your library for: #{title.title} by #{title.author}",
-            class: 'bg-gray-600 hover:bg-gray-700'
+            class: 'bg-mauve-700 hover:bg-mauve-800'
           }
         }
       end

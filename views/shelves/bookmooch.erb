@@ -5,28 +5,28 @@
   <div class="mb-8">
     <div class="flex items-center mb-6">
       <div class="flex-shrink-0 mr-4">
-        <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-12 h-12 text-mauve-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
         </svg>
       </div>
       <div>
-        <h4 class="text-2xl font-bold text-gray-900 mb-2">Receive books</h4>
-        <p class="text-gray-600">Add these books to your Bookmooch wishlist, so Bookmooch will email you when they become available to mooch. Then get them by mail!</p>
+        <h4 class="font-display text-2xl font-medium text-mauve-950 mb-2">Receive books</h4>
+        <p class="text-mauve-700">Add these books to your Bookmooch wishlist, so Bookmooch will email you when they become available to mooch. Then get them by mail!</p>
       </div>
     </div>
 
-    <div class="bg-slate-700 rounded-lg shadow-lg overflow-hidden">
-      <div class="p-4 bg-slate-600">
+    <div class="rounded-xl bg-mauve-950 overflow-hidden">
+      <div class="p-4 bg-mauve-900">
         <img src="http://i.bookmooch.com/images/bookmooch_logo.gif" alt="BookMooch Logo" class="h-12">
       </div>
       <div class="p-6">
-        <h5 class="text-xl font-semibold text-white mb-4">Mooch these books</h5>
-        <p class="text-gray-300 mb-6">Enter your credentials to log into Bookmooch.com.</p>
+        <h5 class="text-xl font-display font-medium text-white mb-4">Mooch these books</h5>
+        <p class="text-mauve-300 mb-6">Enter your credentials to log into Bookmooch.com.</p>
 
         <form action="bookmooch" method="post">
           <div class="space-y-4 mb-6">
             <div>
-              <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
+              <label for="username" class="block text-sm font-medium text-mauve-300 mb-2">
                 BookMooch Username:
               </label>
               <input type="text"
@@ -34,19 +34,19 @@
                      name="username"
                      placeholder="Enter your BookMooch username"
                      autocomplete="username"
-                     class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-md text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500">
+                     class="w-full px-3 py-2 bg-mauve-900 border border-mauve-700 rounded-xl text-white placeholder-mauve-500 focus:ring-mauve-400 focus:border-mauve-400">
             </div>
             <div>
-              <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password:</label>
+              <label for="password" class="block text-sm font-medium text-mauve-300 mb-2">Password:</label>
               <input type="password"
                      id="password"
                      name="password"
                      autocomplete="current-password"
-                     class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-md text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500">
+                     class="w-full px-3 py-2 bg-mauve-900 border border-mauve-700 rounded-xl text-white placeholder-mauve-500 focus:ring-mauve-400 focus:border-mauve-400">
             </div>
           </div>
 
-          <button class="authenticate-btn w-full inline-flex items-center justify-center px-6 py-3 bg-secondary hover:bg-secondary/80 text-white font-semibold rounded-lg shadow-lg transition-colors duration-200"
+          <button class="authenticate-btn w-full inline-flex items-center justify-center px-6 py-3 bg-white text-mauve-950 font-medium rounded-full hover:bg-mauve-100 transition-colors duration-200"
                   type="submit"
                   name="action">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
             Authenticate
           </button>
 
-          <button class="sending-btn hidden w-full inline-flex items-center justify-center px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg shadow-lg"
+          <button class="sending-btn hidden w-full inline-flex items-center justify-center px-6 py-3 bg-mauve-300 text-mauve-950 font-medium rounded-full"
                   type="button"
                   disabled>
             <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
