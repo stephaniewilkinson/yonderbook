@@ -1,113 +1,100 @@
 <!-- Hero Section -->
-<div class="py-16">
-  <div class="max-w-3xl">
-    <h1 class="font-display text-5xl sm:text-6xl font-medium tracking-tight text-mauve-950 mb-6">
-      Turn your reading list into free books
-    </h1>
+<div class="pt-16 pb-10 relative animate-fade-in-up overflow-hidden">
+  <!-- Vibrant Background Gradients -->
+  <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-bl from-indigo-200/50 via-violet-200/40 to-transparent rounded-full blur-3xl -z-10 -mt-32 -mr-32"></div>
+  <div class="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-mauve-200/50 to-transparent rounded-full blur-3xl -z-10 -ml-32"></div>
 
-    <p class="text-xl text-mauve-600 mb-8 leading-relaxed max-w-2xl">
-      Automatically find your want-to-read books at your library and through book swaps
-    </p>
+  <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 relative z-10 px-4 sm:px-6 lg:px-8">
 
-    <div class="flex flex-col sm:flex-row gap-4">
-      <a href="/sign-up" class="inline-flex items-center justify-center px-8 py-4 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">
-        Create Your Account
-      </a>
+    <!-- Left Column: Text Content -->
+    <div class="flex-1 max-w-3xl">
+      <h1 class="font-display text-5xl sm:text-7xl font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-indigo-950 via-mauve-900 to-violet-900 mb-6 leading-tight">
+        Turn your reading list into free books
+      </h1>
 
-      <a href="/authenticate" class="inline-flex items-center justify-center px-8 py-4 bg-mauve-300 text-mauve-950 font-medium text-lg rounded-full hover:bg-mauve-400 transition-colors duration-200">
-        Log in
-      </a>
+      <p class="text-xl sm:text-2xl text-mauve-700 mb-10 leading-relaxed max-w-2xl font-light">
+        Automatically find your want-to-read books at your library and through book swaps.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="/sign-up" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-indigo-800 via-violet-800 to-mauve-900 text-white font-medium text-lg rounded-full shadow-lg hover:shadow-2xl hover:-translate-y-1 animate-bounce-subtle transition-all duration-300">
+          Create Your Account
+        </a>
+
+        <a href="/authenticate" class="inline-flex items-center justify-center px-8 py-4 glass-panel text-mauve-950 font-medium text-lg rounded-full hover:bg-white/80 transition-colors duration-200">
+          Log in
+        </a>
+      </div>
+
     </div>
 
-    <div class="mt-6">
-      <a href="/about" class="inline-flex items-center text-mauve-600 hover:text-mauve-950 transition-colors duration-200">
-        <img src="/svg/info-circle.svg" alt="Info" class="w-5 h-5 mr-2">
-        Learn more about Yonderbook
-      </a>
+    <!-- Right Column: Hero Image -->
+    <div class="flex-1 w-full max-w-2xl lg:max-w-none relative">
+      <div class="absolute inset-0 bg-gradient-to-tr from-violet-400/20 to-indigo-400/20 rounded-full blur-3xl transform scale-90"></div>
+      <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop" alt="Library visualization" class="relative z-10 w-full h-auto object-cover rounded-3xl drop-shadow-2xl hover:-translate-y-2 transition-transform duration-700" style="max-height: 550px;">
+    </div>
+
+  </div>
+</div>
+
+<!-- Minimalist Features Bar -->
+<div class="pb-12 pt-6 relative z-10 w-full max-w-7xl mx-auto">
+  <div class="w-full grid md:grid-cols-3 gap-y-12 md:gap-y-0 text-center glass-panel rounded-3xl p-10 md:p-12 shadow-2xl relative overflow-hidden group">
+    <!-- Subtle ambient glow -->
+    <div class="absolute inset-0 bg-gradient-to-r from-indigo-100/30 via-violet-100/20 to-mauve-100/30 opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+    <!-- Step 1 -->
+    <div class="relative z-10 px-4">
+      <div class="w-16 h-16 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner text-indigo-700">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+      </div>
+      <h3 class="font-display font-semibold text-2xl text-mauve-950 mb-3">1. Connect Lists</h3>
+      <p class="text-mauve-600 text-base leading-relaxed">Import from Goodreads to manage your want-to-read books.</p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="relative z-10 px-4 md:border-l border-white/40">
+      <div class="w-16 h-16 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner text-violet-700">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
+      <h3 class="font-display font-semibold text-2xl text-mauve-950 mb-3">2. Auto-Search</h3>
+      <p class="text-mauve-600 text-base leading-relaxed">We instantly check your local libraries and book swap sites.</p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="relative z-10 px-4 md:border-l border-white/40">
+      <div class="w-16 h-16 bg-gradient-to-br from-rose-50 to-rose-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner text-rose-700">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <h3 class="font-display font-semibold text-2xl text-mauve-950 mb-3">3. Read for Free</h3>
+      <p class="text-mauve-600 text-base leading-relaxed">Borrow ebooks immediately or get physical books by mail.</p>
     </div>
   </div>
 </div>
 
-<!-- Stats -->
-<div class="rounded-2xl bg-mauve-200 py-12 px-8">
-  <h2 class="font-display text-3xl sm:text-4xl font-medium tracking-tight text-mauve-950 text-center">Built for bookworms since 2016</h2>
-  <div class="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-    <div>
-      <div class="text-4xl font-display font-medium tracking-tight text-mauve-950">4,800+</div>
-      <div class="mt-1 text-sm font-medium text-mauve-600">Readers served</div>
-    </div>
-    <div>
-      <div class="text-4xl font-display font-medium tracking-tight text-mauve-950">10</div>
-      <div class="mt-1 text-sm font-medium text-mauve-600">Years running</div>
-    </div>
-    <div>
-      <div class="text-4xl font-display font-medium tracking-tight text-mauve-950">1,000+</div>
-      <div class="mt-1 text-sm font-medium text-mauve-600">Libraries searchable</div>
-    </div>
-    <div>
-      <div class="text-4xl font-display font-medium tracking-tight text-mauve-950">$0</div>
-      <div class="mt-1 text-sm font-medium text-mauve-600">Cost to readers</div>
-    </div>
-  </div>
-</div>
-
-<!-- Features Section -->
-<div class="py-16">
-  <div class="mb-12">
-    <h2 class="font-display text-4xl font-medium tracking-tight text-mauve-950 mb-4">
-      Three steps to free books
-    </h2>
+<!-- Social Proof / Stats -->
+<div class="pb-16 pt-8 relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <div class="text-center mb-10">
+    <h2 class="font-display text-3xl font-semibold tracking-tight text-mauve-950">Built for bookworms since 2016</h2>
+    <div class="w-16 h-1 bg-gradient-to-r from-indigo-300 to-violet-400 rounded-full mx-auto mt-4"></div>
   </div>
 
-  <div class="grid md:grid-cols-3 gap-10">
-    <!-- Feature 1 -->
-    <div class="rounded-2xl bg-violet-50 p-8">
-      <div class="w-12 h-12 bg-violet-200 rounded-xl flex items-center justify-center mb-5">
-        <img src="/svg/book.svg" alt="Book" class="w-6 h-6">
-      </div>
-      <h3 class="text-xl font-display font-medium text-mauve-950 mb-3">Connect Your Lists</h3>
-      <p class="text-mauve-700 leading-relaxed">
-        Import from Goodreads to get your entire want-to-read collection in one place.
-      </p>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center max-w-5xl mx-auto">
+    <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-4xl font-display font-semibold text-indigo-900 mb-2">4,800+</div>
+      <div class="text-xs font-medium text-mauve-600 uppercase tracking-wider">Readers served</div>
     </div>
-
-    <!-- Feature 2 -->
-    <div class="rounded-2xl bg-rose-50 p-8">
-      <div class="w-12 h-12 bg-rose-200 rounded-xl flex items-center justify-center mb-5">
-        <svg class="w-6 h-6 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-      </div>
-      <h3 class="text-xl font-display font-medium text-mauve-950 mb-3">Find Free Copies</h3>
-      <p class="text-mauve-700 leading-relaxed">
-        We check your library catalog and book trading sites automatically. Never buy a book that's free again.
-      </p>
+    <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-4xl font-display font-semibold text-violet-900 mb-2">10</div>
+      <div class="text-xs font-medium text-mauve-600 uppercase tracking-wider">Years running</div>
     </div>
-
-    <!-- Feature 3 -->
-    <div class="rounded-2xl bg-amber-50 p-8">
-      <div class="w-12 h-12 bg-amber-200 rounded-xl flex items-center justify-center mb-5">
-        <svg class="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-        </svg>
-      </div>
-      <h3 class="text-xl font-display font-medium text-mauve-950 mb-3">Start Reading</h3>
-      <p class="text-mauve-700 leading-relaxed">
-        Get books by mail through BookMooch, a trading community. You'll get emails when your wanted books become available.
-      </p>
+    <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-4xl font-display font-semibold text-mauve-900 mb-2">1,000+</div>
+      <div class="text-xs font-medium text-mauve-600 uppercase tracking-wider">Libraries searchable</div>
+    </div>
+    <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-4xl font-display font-semibold text-rose-900 mb-2">$0</div>
+      <div class="text-xs font-medium text-mauve-600 uppercase tracking-wider">Cost to readers</div>
     </div>
   </div>
-</div>
-
-<!-- CTA Section -->
-<div class="rounded-2xl bg-gradient-to-br from-mauve-950 to-mauve-800 py-16 px-8 sm:px-12">
-  <h2 class="font-display text-3xl sm:text-4xl font-medium tracking-tight text-white mb-6">
-    Ready to turn your wishlist into free books?
-  </h2>
-  <p class="text-xl text-mauve-300 mb-8 max-w-2xl">
-    Create your account, connect your Goodreads, and start finding your want-to-read books for free.
-  </p>
-  <a href="/sign-up" class="inline-flex items-center px-8 py-4 bg-white text-mauve-950 font-medium text-lg rounded-full hover:bg-mauve-100 transition-colors duration-200">
-    Get Started - Create Account
-  </a>
 </div>
