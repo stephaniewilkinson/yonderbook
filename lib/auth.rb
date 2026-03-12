@@ -3,8 +3,8 @@
 require 'oauth'
 
 module Auth
-  API_KEY = ENV.fetch('GOODREADS_API_KEY', nil)
-  GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET', nil)
+  API_KEY = ENV.fetch('GOODREADS_API_KEY')
+  GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET')
   HOST = 'www.goodreads.com'
   OAUTH_CONSUMER = OAuth::Consumer.new API_KEY, GOODREADS_SECRET, site: "https://#{HOST}"
 

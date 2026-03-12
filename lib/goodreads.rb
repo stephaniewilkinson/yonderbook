@@ -12,11 +12,11 @@ require 'uri'
 
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title
-  API_KEY = ENV.fetch('GOODREADS_API_KEY', nil)
+  API_KEY = ENV.fetch('GOODREADS_API_KEY')
   GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
   BASE_URL = "https://#{HOST}".freeze
-  GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET', nil)
+  GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET')
   BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating date_added].freeze
 
   module_function

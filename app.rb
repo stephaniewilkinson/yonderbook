@@ -10,6 +10,16 @@ require 'sentry-ruby'
 require 'tilt'
 # require 'zbar'
 
+# Ruby 4.0 removed CGI.parse; the oauth gem still uses it
+require 'cgi'
+unless CGI.respond_to?(:parse)
+  def CGI.parse query_string
+    URI.decode_www_form(query_string).each_with_object({}) do |(k, v), hash|
+      (hash[k] ||= []) << v
+    end
+  end
+end
+
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
 require_relative 'lib/cache'
@@ -29,7 +39,7 @@ class App < Roda
   plugin :assets_preloading
   plugin :public, root: 'assets'
   plugin :flash
-  plugin :sessions, secret: ENV.fetch('SESSION_SECRET', nil)
+  plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
   plugin :route_csrf
   plugin :slash_path_empty
   plugin :render
@@ -42,7 +52,7 @@ class App < Roda
   plugin :rodauth do
     db DB
     enable :login, :logout, :create_account, :verify_account, :reset_password
-    hmac_secret ENV.fetch('SESSION_SECRET', nil)
+    hmac_secret ENV.fetch('SESSION_SECRET')
 
     # Base URL for email links
     base_url ENV.fetch('BASE_URL', 'http://localhost:9292')
@@ -112,7 +122,8 @@ class App < Roda
   # Helper methods
   def fetch_and_cache_request_token
     Auth.fetch_request_token.tap { |token| Cache.set(session, request_token: token) if token }
-  rescue StandardError
+  rescue StandardError => e
+    warn "fetch_and_cache_request_token error: #{e.class}: #{e.message}"
     nil
   end
 

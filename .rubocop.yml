@@ -448,6 +448,9 @@ Style/HashSyntax:
   UseHashRocketsWithSymbolValues: false
   PreferHashRocketsForNonAlnumEndingSymbols: false
 
+Style/HashLookupMethod:
+  Enabled: false
+
 Style/ImplicitRuntimeError:
   Enabled: false
 

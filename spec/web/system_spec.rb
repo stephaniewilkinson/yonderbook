@@ -56,8 +56,8 @@ describe App do
         sleep 2
 
         if page.has_field?('email', wait: 2) && page.has_field?('password', wait: 2)
-          fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL', nil)
-          fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD', nil)
+          fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
+          fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
           find('#signInSubmit').click
           sleep 5 # Wait for CVF/redirect
         end
@@ -98,8 +98,8 @@ describe App do
     within('.fixed') do # Within the modal
       find('a', text: 'By Mail').click
     end
-    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME', nil)
-    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD', nil)
+    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
+    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
     click_button 'Authenticate'
     # Should redirect to progress page
     assert_text 'Importing Books to BookMooch'

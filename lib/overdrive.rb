@@ -16,8 +16,8 @@ class Overdrive
   API_URI      = "#{BASE_URL}/v1".freeze
   MAPBOX_URI   = 'https://www.overdrive.com/mapbox/find-libraries-by-query'
   OAUTH_URI    = 'https://oauth.overdrive.com'
-  KEY          = ENV.fetch('OVERDRIVE_KEY', nil)
-  SECRET       = ENV.fetch('OVERDRIVE_SECRET', nil)
+  KEY          = ENV.fetch('OVERDRIVE_KEY')
+  SECRET       = ENV.fetch('OVERDRIVE_SECRET')
 
   Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, :no_isbn, :date_added)
 

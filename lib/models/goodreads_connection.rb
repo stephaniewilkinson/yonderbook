@@ -20,7 +20,7 @@ class GoodreadsConnection < Sequel::Model
 
   # Generate an OAuth access token object for making Goodreads API requests
   def oauth_access_token
-    consumer = OAuth::Consumer.new(ENV.fetch('GOODREADS_API_KEY', nil), ENV.fetch('GOODREADS_SECRET', nil), site: 'https://www.goodreads.com')
+    consumer = OAuth::Consumer.new(ENV.fetch('GOODREADS_API_KEY'), ENV.fetch('GOODREADS_SECRET'), site: 'https://www.goodreads.com')
     OAuth::AccessToken.new(consumer, access_token, access_token_secret)
   end
 end
