@@ -39,7 +39,7 @@ describe App do
     click_button 'Log In'
 
     # Should be redirected to home page
-    assert_text 'Welcome to Yonderbook!'
+    assert_text 'Welcome back,'
 
     # Try to connect with Goodreads - OAuth flow requires 3 attempts to bypass Amazon CVF
     3.times do
@@ -162,7 +162,7 @@ describe App do
     click_button 'Log In'
 
     # Should be redirected to home page after successful login
-    assert_text 'Welcome to Yonderbook!'
+    assert_text 'Welcome back,'
     assert_text 'Connect with Goodreads'
 
     # Wait for flash notification to auto-dismiss before testing logout
@@ -185,7 +185,7 @@ describe App do
     click_button 'Log In'
 
     # Should be redirected to home page after successful login
-    assert_text 'Welcome to Yonderbook!'
+    assert_text 'Welcome back,'
     assert_text 'Connect with Goodreads'
 
     # Verify we're logged in by checking navbar links
