@@ -117,7 +117,7 @@ describe App do
   describe 'page titles' do
     it 'has correct title format for root page' do
       get '/'
-      assert_includes last_response.body, '<title>Yonderbook | Find Your Goodreads Books Free at Libraries & Book Swaps</title>'
+      assert_includes last_response.body, '<title>Yonderbook | Goodreads Libby Integration — Find Your Books Free at the Library</title>'
     end
 
     it 'appends Yonderbook suffix to page titles' do
