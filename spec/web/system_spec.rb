@@ -43,7 +43,7 @@ describe App do
 
     # Try to connect with Goodreads - OAuth flow requires 3 attempts to bypass Amazon CVF
     3.times do
-      click_link 'Connect with Goodreads'
+      click_link 'Connect Goodreads'
       click_link 'Connect with Goodreads'
       sleep 2
 
@@ -163,7 +163,7 @@ describe App do
 
     # Should be redirected to home page after successful login
     assert_text 'Welcome back,'
-    assert_text 'Connect with Goodreads'
+    assert_text 'Connect Goodreads'
 
     # Wait for flash notification to auto-dismiss before testing logout
     sleep 5
@@ -186,7 +186,7 @@ describe App do
 
     # Should be redirected to home page after successful login
     assert_text 'Welcome back,'
-    assert_text 'Connect with Goodreads'
+    assert_text 'Connect Goodreads'
 
     # Verify we're logged in by checking navbar links
     assert_link 'Account'
