@@ -2,97 +2,95 @@
 <% content_for :description, "Connect your Goodreads account to import your shelves and find your books at libraries and through book trading." %>
 
 <!-- Connect Goodreads Section -->
-<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg max-w-4xl mx-auto">
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-    <div class="text-center">
-      <!-- Header -->
-      <div class="mb-12">
-        <div class="inline-block mb-6">
-          <img src="/svg/star.svg" alt="Goodreads" class="w-16 h-16 mx-auto opacity-80">
+<div class="max-w-4xl mx-auto">
+  <div class="text-center">
+    <!-- Header -->
+    <div class="mb-12">
+      <div class="inline-block mb-6">
+        <img src="/svg/star.svg" alt="Goodreads" class="w-16 h-16 mx-auto opacity-80">
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl font-medium tracking-tight text-mauve-950 mb-4">
+        Connect Goodreads
+      </h1>
+      <p class="text-xl text-mauve-700 max-w-2xl mx-auto">
+        Import your shelves and find your books at libraries and through book trading
+      </p>
+    </div>
+
+    <!-- What You'll Get -->
+    <div class="rounded-xl bg-mauve-950/[.025] p-8 mb-6 max-w-2xl mx-auto text-left">
+      <h3 class="text-xl font-semibold text-mauve-950 mb-5 text-center">What You'll Get</h3>
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <img src="/svg/checkmark-badge.svg" alt="" class="w-6 h-6 flex-shrink-0 mt-0.5">
+          <div>
+            <p class="font-semibold text-mauve-950">Import all your shelves</p>
+            <p class="text-sm text-mauve-700">Access your complete Goodreads library</p>
+          </div>
         </div>
-        <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 font-coats">
-          Connect Goodreads
-        </h1>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-          Import your shelves and find your books at libraries and through book trading
+        <div class="flex items-start gap-3">
+          <img src="/svg/checkmark-badge.svg" alt="" class="w-6 h-6 flex-shrink-0 mt-0.5">
+          <div>
+            <p class="font-semibold text-mauve-950">Find free books</p>
+            <p class="text-sm text-mauve-700">Check library availability and BookMooch trading</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <img src="/svg/checkmark-badge.svg" alt="" class="w-6 h-6 flex-shrink-0 mt-0.5">
+          <div>
+            <p class="font-semibold text-mauve-950">Reading insights</p>
+            <p class="text-sm text-mauve-700">Analyze patterns, ratings, and author diversity</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connection Steps -->
+    <div class="rounded-xl bg-mauve-950/[.025] p-8 mb-6 max-w-2xl mx-auto">
+      <h3 class="text-xl font-semibold text-mauve-950 mb-5">How to Connect</h3>
+      <div class="space-y-4 text-left">
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-8 h-8 bg-mauve-950 text-white rounded-full flex items-center justify-center font-display font-medium">1</div>
+          <p class="text-mauve-700 pt-1">Click "Connect with Goodreads" below</p>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-8 h-8 bg-mauve-950 text-white rounded-full flex items-center justify-center font-display font-medium">2</div>
+          <p class="text-mauve-700 pt-1">Log into Goodreads (you'll stay on their site)</p>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-8 h-8 bg-mauve-950 text-white rounded-full flex items-center justify-center font-display font-medium">3</div>
+          <p class="text-mauve-700 pt-1">Return here and click "Connect with Goodreads" again</p>
+        </div>
+      </div>
+      <div class="mt-6 pt-6 border-t border-mauve-950/10">
+        <p class="text-sm text-mauve-700 text-left">
+          <strong>Why two clicks?</strong> Goodreads <a href="https://www.goodreads.com/topic/show/21788520-api-deprecation" class="text-mauve-950 hover:underline font-medium" target="_blank">deprecated their API</a> in 2020, breaking automatic redirects. The connection still works, but requires these manual steps.
         </p>
       </div>
+    </div>
 
-      <!-- What You'll Get -->
-      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-2xl p-8 mb-6 max-w-2xl mx-auto text-left">
-        <h3 class="text-xl font-bold text-emerald-900 mb-5 text-center">What You'll Get</h3>
-        <div class="space-y-4">
-          <div class="flex items-start gap-3">
-            <img src="/svg/checkmark-badge.svg" alt="" class="w-6 h-6 flex-shrink-0 mt-0.5">
-            <div>
-              <p class="font-semibold text-emerald-900">Import all your shelves</p>
-              <p class="text-sm text-emerald-700">Access your complete Goodreads library</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <img src="/svg/checkmark-badge.svg" alt="" class="w-6 h-6 flex-shrink-0 mt-0.5">
-            <div>
-              <p class="font-semibold text-emerald-900">Find free books</p>
-              <p class="text-sm text-emerald-700">Check library availability and BookMooch trading</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <img src="/svg/checkmark-badge.svg" alt="" class="w-6 h-6 flex-shrink-0 mt-0.5">
-            <div>
-              <p class="font-semibold text-emerald-900">Reading insights</p>
-              <p class="text-sm text-emerald-700">Analyze patterns, ratings, and author diversity</p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Privacy Notice -->
+    <div class="rounded-xl bg-mauve-950/[.025] p-6 mb-8 max-w-2xl mx-auto text-left">
+      <h3 class="text-lg font-semibold text-mauve-950 mb-3">Your Privacy</h3>
+      <p class="text-sm text-mauve-700 leading-relaxed">
+        We save your Goodreads user ID and secure access credentials to fetch your book data.
+        Disconnect anytime from <a href="/connections" class="text-mauve-950 hover:underline font-medium">Connections</a> to permanently delete all saved data.
+      </p>
+    </div>
 
-      <!-- Connection Steps -->
-      <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-8 mb-6 max-w-2xl mx-auto">
-        <h3 class="text-xl font-bold text-blue-900 mb-5">How to Connect</h3>
-        <div class="space-y-4 text-left">
-          <div class="flex gap-4">
-            <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold">1</div>
-            <p class="text-blue-800 pt-1">Click "Connect with Goodreads" below</p>
-          </div>
-          <div class="flex gap-4">
-            <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold">2</div>
-            <p class="text-blue-800 pt-1">Log into Goodreads (you'll stay on their site)</p>
-          </div>
-          <div class="flex gap-4">
-            <div class="flex-shrink-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center font-bold">3</div>
-            <p class="text-blue-800 pt-1">Return here and click "Connect with Goodreads" again</p>
-          </div>
-        </div>
-        <div class="mt-6 pt-6 border-t border-blue-300">
-          <p class="text-sm text-blue-800 text-left">
-            <strong>Why two clicks?</strong> Goodreads <a href="https://www.goodreads.com/topic/show/21788520-api-deprecation" class="text-brand hover:underline font-semibold" target="_blank">deprecated their API</a> in 2020, breaking automatic redirects. The connection still works, but requires these manual steps.
-          </p>
-        </div>
-      </div>
-
-      <!-- Privacy Notice -->
-      <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 mb-8 max-w-2xl mx-auto text-left">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Your Privacy</h3>
-        <p class="text-sm text-gray-700 leading-relaxed">
-          We save your Goodreads user ID and secure access credentials to fetch your book data.
-          Disconnect anytime from <a href="/connections" class="text-brand hover:underline font-semibold">Connections</a> to permanently delete all saved data.
-        </p>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-        <% if @auth_url %>
-          <a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-brand text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-            <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
-            Connect with Goodreads
-            <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-3 opacity-80 filter brightness-0 invert">
-          </a>
-        <% end %>
-
-        <a href="/connections" class="inline-flex items-center px-6 py-4 bg-transparent border-2 border-gray-400 text-gray-600 font-semibold text-lg rounded-xl hover:border-brand hover:text-brand transition-all duration-200">
-          Cancel
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+      <% if @auth_url %>
+        <a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">
+          <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
+          Connect with Goodreads
+          <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-3 opacity-80 filter brightness-0 invert">
         </a>
-      </div>
+      <% end %>
+
+      <a href="/connections" class="inline-flex items-center px-6 py-4 bg-mauve-950/10 text-mauve-950 font-medium text-lg rounded-full hover:bg-mauve-950/20 transition-colors duration-200">
+        Cancel
+      </a>
     </div>
   </div>
 </div>

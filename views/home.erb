@@ -2,55 +2,79 @@
 <% content_for :description, "Your Yonderbook dashboard. Connect your reading services and start finding free books at your library and through book trading." %>
 
 <!-- Welcome Section -->
-<div class="relative bg-white overflow-hidden rounded-3xl shadow-lg mb-8">
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="text-center">
-      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 font-coats">
-        Welcome to Yonderbook!
+<div class="py-12 relative animate-fade-in-up overflow-hidden mb-8">
+  <!-- Soft background gradients for color -->
+  <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-indigo-200/50 via-violet-200/40 to-transparent rounded-full blur-3xl -z-10 -mt-20 -mr-20"></div>
+  <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-mauve-200/50 to-transparent rounded-full blur-3xl -z-10 -ml-20"></div>
+
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 relative z-10 px-4 sm:px-6">
+    <div class="flex-1">
+      <h1 class="font-display text-4xl sm:text-6xl font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-indigo-950 via-mauve-900 to-violet-900 mb-4 leading-tight">
+        Welcome back, <%= @user.email.split('@').first %>!
       </h1>
-      <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-        You're all set up! Now let's connect your reading services to start finding your books for free.
+      <p class="text-xl sm:text-2xl text-mauve-700 max-w-2xl font-light leading-relaxed">
+        <%= @user.goodreads_connected? ? "Your reading hub is ready. Browse your shelves or find a new free read today." : "You're almost set up. Connect your reading services to start finding your books for free." %>
       </p>
+    </div>
+
+    <div class="flex-1 w-full max-w-sm lg:max-w-md relative hidden md:block">
+      <div class="absolute inset-0 bg-gradient-to-tr from-violet-300/20 to-indigo-300/20 rounded-full blur-2xl transform scale-75"></div>
+      <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop" alt="Dashboard visualization" class="relative z-10 w-full h-auto object-cover rounded-3xl drop-shadow-2xl hover:-translate-y-2 transition-transform duration-700" style="max-height: 400px;">
     </div>
   </div>
 </div>
 
 <!-- Services Section -->
-<div class="grid md:grid-cols-2 gap-6 mb-8">
-  <!-- Goodreads Service -->
-  <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-    <div class="flex items-start space-x-4">
-      <div class="flex-shrink-0">
-        <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
-          <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-8 h-8 filter brightness-0 invert">
-        </div>
-      </div>
-      <div class="flex-1">
-        <h3 class="text-lg font-bold text-gray-900 mb-2">Goodreads</h3>
-        <p class="text-gray-600 mb-4">Import your reading lists, want-to-read books, and analyze your reading patterns.</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 mb-12 animate-fade-in-up" style="animation-delay: 0.1s;">
+  <h2 class="text-2xl font-display font-semibold text-mauve-950 mb-6">Your Connections</h2>
+  <div class="grid lg:grid-cols-2 gap-8">
+    <!-- Goodreads Service -->
+    <div class="glass-panel border-indigo-100/50 rounded-3xl p-8 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-900/10 transition-all duration-500 group relative overflow-hidden bg-white/60">
+      <div class="absolute top-0 right-0 w-40 h-40 bg-indigo-100/60 rounded-full blur-3xl -mr-16 -mt-16 transition-transform group-hover:scale-[2] duration-700"></div>
 
-        <% if @user.goodreads_connected? %>
-          <div class="flex items-center space-x-2 mb-3">
-            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span class="text-sm font-medium text-green-700">Connected</span>
+      <div class="flex flex-col sm:flex-row items-start sm:space-x-6 relative z-10">
+        <div class="flex-shrink-0 mb-4 sm:mb-0">
+          <div class="w-16 h-16 bg-gradient-to-br from-indigo-800 to-violet-900 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-[0_0_25px_rgba(79,70,229,0.4)] transition-shadow duration-300 group-hover:scale-105 transform">
+            <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-8 h-8 filter brightness-0 invert opacity-95 group-hover:opacity-100 transition-opacity">
           </div>
-          <a href="/connections/goodreads/shelves" class="inline-flex items-center px-4 py-2 bg-brand text-white rounded-lg hover:bg-opacity-90 transition-all duration-200 font-medium">
-            <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 filter brightness-0 invert">
-            View Your Shelves
-          </a>
-        <% else %>
-          <div class="flex items-center space-x-2 mb-3">
-            <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
-            <span class="text-sm font-medium text-gray-600">Not connected</span>
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="text-2xl font-display font-semibold text-mauve-950">Goodreads</h3>
+            <% if @user.goodreads_connected? %>
+              <div class="flex items-center space-x-2 px-3 py-1 bg-green-50/80 border border-green-200/60 rounded-full shadow-sm">
+                <div class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </div>
+                <span class="text-xs font-semibold text-green-700 uppercase tracking-wider">Connected</span>
+              </div>
+            <% else %>
+              <div class="flex items-center space-x-2 px-3 py-1 bg-mauve-100/80 border border-mauve-200/60 rounded-full shadow-sm">
+                <div class="w-2 h-2 bg-mauve-400 rounded-full"></div>
+                <span class="text-xs font-semibold text-mauve-600 uppercase tracking-wider">Disconnected</span>
+              </div>
+            <% end %>
           </div>
-          <a href="/connections/goodreads" class="inline-flex items-center px-4 py-2 bg-brand text-white rounded-lg hover:bg-opacity-90 transition-all duration-200 font-medium">
-            <img src="/img/goodreads-icon.png" alt="Connect" class="w-4 h-4 mr-2 filter brightness-0 invert">
-            Connect with Goodreads
-            <img src="/svg/external-link.svg" alt="External link" class="w-4 h-4 ml-2 opacity-80 filter brightness-0 invert">
-          </a>
-        <% end %>
+
+          <p class="text-mauve-600 mb-6 leading-relaxed">Import your reading lists, want-to-read books, and analyze your reading patterns to automatically find free copies.</p>
+
+          <div class="pt-2">
+            <% if @user.goodreads_connected? %>
+              <a href="/connections/goodreads/shelves" class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-indigo-800 to-violet-900 text-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 font-medium text-sm group/btn">
+                <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2.5 filter brightness-0 invert opacity-90 group-hover/btn:opacity-100">
+                View Your Shelves
+              </a>
+            <% else %>
+              <a href="/connections/goodreads" class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-indigo-800 to-violet-900 text-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 font-medium text-sm group/btn focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <img src="/img/goodreads-icon.png" alt="Connect" class="w-4 h-4 mr-2.5 filter brightness-0 invert opacity-90 group-hover/btn:scale-110 transition-transform">
+                Connect Goodreads
+                <svg class="w-4 h-4 ml-2.5 opacity-70 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </a>
+            <% end %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
 </div>
