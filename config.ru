@@ -18,11 +18,14 @@ Sentry.init do |config|
   end
 end
 
+require 'console'
+Console.logger.level = :warn
+
 case ENV.fetch('RACK_ENV', nil)
 when 'production', 'staging'
   require_relative 'app'
   logger = Logger.new $stdout
-  logger.level = Logger::DEBUG
+  logger.level = Logger::WARN
   run App.freeze.app
 when 'test'
   require 'dotenv/load'

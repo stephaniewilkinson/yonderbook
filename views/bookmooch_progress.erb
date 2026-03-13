@@ -60,7 +60,7 @@
       case 'progress':
         statusMessage.textContent = data.message;
         if (data.total && data.current) {
-          progressText.textContent = `${data.current} of ${data.total} processed`;
+          progressText.textContent = `${data.total - data.current + 1} books remaining`;
         }
         break;
 

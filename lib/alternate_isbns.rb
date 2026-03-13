@@ -23,6 +23,9 @@ module AlternateIsbns
     result = {}
     total_isbns = isbns.size
 
+    completed = Mutex.new
+    completed_count = 0
+
     async_result = Async do
       # Create limiter that allows BOOKS_PER_SECOND operations per second
       # Each "operation" is a complete book lookup (2 API calls internally)
@@ -31,16 +34,17 @@ module AlternateIsbns
       limiter = Async::Limiter::Generic.new(timing: timing)
       barrier = Async::Barrier.new
 
-      isbns.each_with_index do |isbn, index|
+      isbns.each do |isbn|
         barrier.async do
           limiter.async do
             alternates = fetch_alternates_for_isbn_with_retry(isbn)
             result[isbn] = alternates unless alternates.empty?
 
+            count = completed.synchronize { completed_count += 1 }
             progress_callback&.call(
               type: 'progress',
-              message: "Fetching alternate ISBNs (#{index + 1}/#{total_isbns})...",
-              current: index + 1,
+              message: "Fetching alternate ISBNs — #{count} of #{total_isbns} complete...",
+              current: count,
               total: total_isbns
             )
           rescue StandardError
