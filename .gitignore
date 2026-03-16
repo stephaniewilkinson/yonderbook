@@ -7,7 +7,10 @@
 .claude
 CLAUDE.md
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
 /docs
 /planning
+.playwright-mcp/

@@ -22,33 +22,57 @@ module AlternateIsbns
   def fetch_alternate_isbns isbns, &progress_callback
     result = {}
     total_isbns = isbns.size
+    completed_count, uncached_isbns = load_cached_isbns(isbns, result)
 
-    completed = Mutex.new
-    completed_count = 0
+    # Report cached progress in one update
+    report_progress(progress_callback, completed_count, total_isbns) if completed_count.positive?
 
+    # Fetch uncached ISBNs from Open Library API
+    return result if uncached_isbns.empty?
+
+    fetch_uncached_isbns(uncached_isbns, result, completed_count, total_isbns, &progress_callback)
+
+    result
+  end
+
+  def load_cached_isbns isbns, result
+    cached_results = IsbnAlternate.bulk_lookup(isbns)
+    uncached = []
+    count = 0
+
+    isbns.each do |isbn|
+      if cached_results.key?(isbn)
+        result[isbn] = cached_results[isbn] unless cached_results[isbn].empty?
+        count += 1
+      else
+        uncached << isbn
+      end
+    end
+
+    [count, uncached]
+  end
+
+  def report_progress callback, current, total
+    callback&.call(type: 'progress', message: "Fetching alternate ISBNs — #{current} of #{total} complete...", current: current, total: total)
+  end
+
+  def fetch_uncached_isbns uncached_isbns, result, completed_count, total_isbns, &progress_callback
     async_result = Async do
-      # Create limiter that allows BOOKS_PER_SECOND operations per second
-      # Each "operation" is a complete book lookup (2 API calls internally)
-      # LeakyBucket: rate per second, capacity (burst allowance)
       timing = Async::Limiter::Timing::LeakyBucket.new(BOOKS_PER_SECOND, BOOKS_PER_SECOND * 2)
       limiter = Async::Limiter::Generic.new(timing: timing)
       barrier = Async::Barrier.new
 
-      isbns.each do |isbn|
+      uncached_isbns.each do |isbn|
         barrier.async do
           limiter.async do
-            alternates = fetch_alternates_for_isbn_with_retry(isbn)
+            alternates, work_key = fetch_alternates_for_isbn_with_retry(isbn)
             result[isbn] = alternates unless alternates.empty?
-
-            count = completed.synchronize { completed_count += 1 }
-            progress_callback&.call(
-              type: 'progress',
-              message: "Fetching alternate ISBNs — #{count} of #{total_isbns} complete...",
-              current: count,
-              total: total_isbns
-            )
+            IsbnAlternate.store(isbn, alternates, work_key: work_key)
           rescue StandardError
             # Silently skip ISBNs that fail
+          ensure
+            completed_count += 1
+            report_progress(progress_callback, completed_count, total_isbns)
           end
         end
       end
@@ -58,8 +82,6 @@ module AlternateIsbns
       barrier&.stop
     end
     async_result.wait
-
-    result
   end
 
   def fetch_alternates_for_isbn_with_retry isbn, attempt = 1
@@ -70,25 +92,26 @@ module AlternateIsbns
       sleep delay
       fetch_alternates_for_isbn_with_retry(isbn, attempt + 1)
     else
-      []
+      [[], nil]
     end
   end
 
+  # Returns [alternates_array, work_key]
   def fetch_alternates_for_isbn isbn
     edition = fetch_edition_by_isbn(isbn)
-    return [] unless edition
+    return [[], nil] unless edition
 
     # Extract ISBNs from the original edition (includes both ISBN-10 and ISBN-13)
     original_isbns = extract_isbns_from_edition(edition)
 
     work_key = extract_work_key(edition)
-    return original_isbns.reject { |i| i == isbn } unless work_key
+    return [original_isbns.reject { |i| i == isbn }, work_key] unless work_key
 
     editions = fetch_work_editions(work_key)
     alternate_isbns = extract_isbns_from_editions(editions)
 
     # Combine original ISBNs with alternates, remove the queried ISBN, and deduplicate
-    (original_isbns + alternate_isbns).uniq.reject { |i| i == isbn }
+    [(original_isbns + alternate_isbns).uniq.reject { |i| i == isbn }, work_key]
   end
 
   def fetch_edition_by_isbn isbn
