@@ -95,7 +95,7 @@ describe App do
     assert_text 'abandoned'
     find('button[onclick="openModal(\'modal-abandoned\')"]').click # Click Get Books for zora shelf
     assert_text 'Choose a format'
-    within('.fixed') do # Within the modal
+    within('#modal-abandoned') do
       find('a', text: 'By Mail').click
     end
     fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')

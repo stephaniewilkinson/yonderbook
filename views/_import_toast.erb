@@ -1,0 +1,74 @@
+<% if session['pending_import_type'] %>
+<%
+  import_type = session['pending_import_type']
+  import_url = session['pending_import_url']
+  progress_url = session['pending_import_progress_url']
+  case import_type
+  when 'bookmooch'
+    message = 'Importing books to BookMooch...'
+    done_message = 'Import complete!'
+    done_label = 'View Results'
+    progress_label = 'View Progress'
+  when 'goodreads'
+    message = 'Loading your Goodreads shelf...'
+    done_message = 'Shelf ready!'
+    done_label = 'View Shelf'
+    progress_label = nil
+  end
+%>
+<div id="import-toast" class="pointer-events-auto fixed bottom-6 left-6 z-50 w-80 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-mauve-950/10 transition-all duration-300 ease-out">
+  <div class="p-4">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div id="toast-spinner" class="w-6 h-6 border-2 border-mauve-200 border-t-mauve-950 rounded-full animate-spin"></div>
+        <img id="toast-check" src="/svg/check-circle.svg" alt="Done" class="size-6 hidden">
+      </div>
+      <div class="ml-3 flex-1">
+        <p id="toast-message" class="text-sm font-medium text-mauve-950"><%= message %></p>
+      </div>
+      <div class="ml-2 flex-shrink-0">
+        <button type="button" onclick="document.getElementById('import-toast').remove()" class="inline-flex rounded-full bg-white text-mauve-400 hover:text-mauve-700 focus:outline-none">
+          <span class="sr-only">Close</span>
+          <img src="/svg/x.svg" alt="Close" class="size-4">
+        </button>
+      </div>
+    </div>
+    <% if progress_url && progress_label %>
+    <a id="toast-progress-link" href="<%= progress_url %>" class="mt-3 block text-center text-sm font-medium text-mauve-700 hover:text-mauve-950 border border-mauve-300 rounded-full px-4 py-2 hover:border-mauve-400 transition-all duration-200">
+      <%= progress_label %>
+    </a>
+    <% end %>
+    <a id="toast-link" href="<%= import_url %>" class="hidden mt-3 block text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-800 to-violet-800 rounded-full px-4 py-2 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+      <%= done_label %>
+    </a>
+  </div>
+</div>
+
+<script>
+(function() {
+  var toast = document.getElementById('import-toast');
+  if (!toast) return;
+
+  <% if import_type == 'bookmooch' %>
+  if (window.location.pathname.includes('/bookmooch/progress')) return;
+  <% end %>
+
+  var polling = setInterval(function() {
+    fetch('/import-status')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ready) {
+          clearInterval(polling);
+          document.getElementById('toast-spinner').classList.add('hidden');
+          document.getElementById('toast-check').classList.remove('hidden');
+          document.getElementById('toast-message').textContent = '<%= done_message %>';
+          var progressLink = document.getElementById('toast-progress-link');
+          if (progressLink) progressLink.classList.add('hidden');
+          document.getElementById('toast-link').classList.remove('hidden');
+        }
+      })
+      .catch(function() {});
+  }, 3000);
+})();
+</script>
+<% end %>

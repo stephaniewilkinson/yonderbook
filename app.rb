@@ -3,6 +3,7 @@
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__
 
 require 'area'
+require 'async'
 require 'rack/host_redirect'
 require 'roda'
 require 'securerandom'
@@ -28,6 +29,7 @@ require_relative 'lib/email'
 require_relative 'lib/goodreads'
 require_relative 'lib/models'
 require_relative 'lib/overdrive'
+require_relative 'lib/route_helpers'
 require_relative 'lib/websockets'
 
 class App < Roda
@@ -118,37 +120,7 @@ class App < Roda
   end
 
   compile_assets
-
-  # Helper methods
-  def fetch_and_cache_request_token
-    Auth.fetch_request_token.tap { |token| Cache.set(session, request_token: token) if token }
-  rescue StandardError => e
-    warn "fetch_and_cache_request_token error: #{e.class}: #{e.message}"
-    nil
-  end
-
-  def load_goodreads_connection
-    @goodreads_connection = @user.goodreads_connection
-    @goodreads_user_id = @goodreads_connection.goodreads_user_id
-  end
-
-  def cached_or_fetch key
-    Cache.get(session, key) || yield.tap { |value| Cache.set(session, key => value) }
-  end
-
-  def sort_by_date_added books
-    books.sort_by { |book| book.date_added || '' }.reverse
-  end
-
-  def enrich_sentry request
-    Sentry.set_user(id: @user.id, email: @user.email) if @user
-    Sentry.set_tags(route: request.path)
-  end
-
-  def enrich_sentry_error request
-    Sentry.set_context('request', {method: request.request_method, path: request.path, params: request.params.keys})
-    Sentry.set_context('goodreads', {user_id: @goodreads_user_id, shelf: @shelf_name}) if @goodreads_user_id
-  end
+  include RouteHelpers
 
   # TODO: figure out how to reroute 404s to /
   route do |r|
@@ -160,7 +132,6 @@ class App < Roda
       flash[:error] = 'Your session has expired. Please try again.'
       r.redirect r.path
     end
-
     @user = Account[rodauth.session_value] if rodauth.logged_in?
     enrich_sentry(r)
     session['session_id'] ||= SecureRandom.uuid
@@ -168,9 +139,8 @@ class App < Roda
     r.on 'ws', 'bookmooch', String do |session_id|
       r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
     end
-
-    # route: GET /
-    r.root do
+    r.get('import-status') { import_status.to_json } # route: GET /import-status
+    r.root do # route: GET /
       request_token = fetch_and_cache_request_token
       @auth_url = request_token&.authorize_url
       view 'welcome'
@@ -178,24 +148,18 @@ class App < Roda
 
     r.is 'login' do
       request_token = Cache.get session, :request_token
-      # TODO: this is blocking people who are already logged in but not a huge deal
       unless request_token
         flash[:error] = "Click 'login' again please"
         r.redirect '/'
       end
-
       # route: GET /login
       r.get do
-        # User must be logged in to save Goodreads connection
         unless @user
           flash[:error] = 'Please log in first before connecting Goodreads'
           r.redirect '/'
         end
-
-        # Save Goodreads connection to database (user_id passed to fetch_user)
         Goodreads.fetch_user request_token, @user.id
-        @user.refresh # Reload from database to get new connection
-
+        @user.refresh
         r.redirect '/connections/goodreads/shelves'
       rescue OAuth::Unauthorized
         flash[:error] = 'Fetched details! Click login'
@@ -204,23 +168,16 @@ class App < Roda
     end
 
     # route: GET /about
-    r.get('about') { view 'about' }
-
-    # route: GET /faq
-    r.get('faq') { view 'faq' }
-
-    # route: GET /how-it-works
-    r.get('how-it-works') { view 'how_it_works' }
+    r.get('about') { view 'about' } # route: GET /about
+    r.get('faq') { view 'faq' } # route: GET /faq
+    r.get('how-it-works') { view 'how_it_works' } # route: GET /how-it-works
 
     r.on 'account' do
       # route: POST /account/disconnect-goodreads
       r.post 'disconnect-goodreads' do
         rodauth.require_login
         check_csrf!
-
-        # Delete Goodreads connection
         GoodreadsConnection.where(user_id: @user.id).delete
-
         flash['notice'] = 'Your Goodreads connection has been removed and your data deleted.'
         r.redirect '/account'
       end
@@ -281,20 +238,21 @@ class App < Roda
             @shelf_name = shelf_name
             Cache.set session, shelf_name: @shelf_name
 
-            @book_info = cached_or_fetch(@shelf_name.to_sym) do
-              Sentry.add_breadcrumb(Sentry::Breadcrumb.new(category: 'goodreads', message: "Fetching shelf '#{shelf_name}'"))
-              access_token = @goodreads_connection.oauth_access_token
-              Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
-            end
+            # Check in-memory cache, then filesystem cache (from background import)
+            @book_info = Cache.get(session, @shelf_name.to_sym) || load_background_shelf_data
 
             # route: GET /connections/goodreads/shelves/:id
             r.get true do
+              @book_info ||= load_or_start_shelf_import(@shelf_name)
+              view('shelves/loading') unless @book_info
               @women, @men, @andy = Goodreads.get_gender @book_info
               @histogram_dataset = Goodreads.plot_books_over_time @book_info
               @ratings = Goodreads.rating_stats @book_info
-
               view 'shelves/show'
             end
+
+            # Blocking fetch for sub-routes that need @book_info
+            @book_info ||= fetch_shelf_blocking(@shelf_name)
 
             r.on 'bookmooch' do
               # route: GET /connections/goodreads/shelves/:id/bookmooch
@@ -304,15 +262,8 @@ class App < Roda
 
               # route: POST /connections/goodreads/shelves/:id/bookmooch?username=foo&password=baz
               r.post do
-                # Store job params in cache for WebSocket to pick up
-                Cache.set_by_id(
-                  session['session_id'],
-                  bookmooch_book_info: @book_info,
-                  bookmooch_username: r.params['username'],
-                  bookmooch_password: r.params['password']
-                )
-
-                # Redirect to progress page which will connect via WebSocket
+                cache_bookmooch_params(r)
+                set_pending_import('bookmooch', "#{r.path}/results", progress_url: "#{r.path}/progress")
                 r.redirect 'bookmooch/progress'
               end
 
@@ -322,29 +273,20 @@ class App < Roda
                 view 'bookmooch_progress'
               end
 
-              # route: GET /connections/goodreads/shelves/:id/bookmooch/results
-              r.get 'results' do
+              r.get 'results' do # route: GET /connections/goodreads/shelves/:id/bookmooch/results
                 sid = session['session_id']
                 @books_added = Cache.get_by_id(sid, :books_added) || []
                 books_failed = Cache.get_by_id(sid, :books_failed) || []
                 Cache.clear_by_id sid
-
-                # Separate books that failed due to missing ISBN vs other reasons
+                clear_pending_import
                 @books_failed_no_isbn, @books_failed = books_failed.partition { |book| book[:isbn].nil? || book[:isbn].empty? }
-
                 view 'bookmooch'
               end
             end
 
             r.is 'overdrive' do
-              # TODO: have browser get their location
-              # route: GET /connections/goodreads/shelves/:id/overdrive
-              r.get true do
-                view 'shelves/overdrive'
-              end
-
-              # route: POST /connections/goodreads/shelves/:id/overdrive?consortium=1047
-              r.post do
+              r.get(true) { view 'shelves/overdrive' } # route: GET /connections/goodreads/shelves/:id/overdrive
+              r.post do # route: POST /connections/goodreads/shelves/:id/overdrive?consortium=1047
                 overdrive = Overdrive.new(@book_info, r.params['consortium'])
                 titles = overdrive.fetch_titles_availability
                 Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
@@ -361,20 +303,15 @@ class App < Roda
           end
 
           load_goodreads_connection
-
-          # route: GET /connections/goodreads/availability
-          r.get do
+          r.get do # route: GET /connections/goodreads/availability
             @titles = Cache.get session, :titles
             @collection_token = Cache.get session, :collection_token
             @website_id = Cache.get session, :website_id
             @library_url = Cache.get session, :library_url
-
             unless @titles
               flash[:error] = 'Please choose a shelf first'
               r.redirect 'shelves'
             end
-
-            # Sort each category by most recently added to Goodreads shelf (descending)
             @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
             @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
             @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
@@ -383,17 +320,13 @@ class App < Roda
           end
         end
 
-        # TODO: add library logos to the cards in the views
         r.is 'library' do
           unless @user&.goodreads_connected?
             flash[:error] = 'Please connect your Goodreads account first'
             r.redirect '/connections/goodreads'
           end
-
           load_goodreads_connection
-
-          # route: POST /connections/goodreads/library?zipcode=90029
-          r.post do
+          r.post do # route: POST /connections/goodreads/library?zipcode=90029
             @shelf_name = Cache.get session, :shelf_name
             zip = r.params['zipcode']
 
@@ -401,12 +334,10 @@ class App < Roda
               flash[:error] = 'You need to enter a zip code'
               r.redirect "shelves/#{@shelf_name}/overdrive"
             end
-
             unless zip.to_latlon
               flash[:error] = 'please try a different zip code'
               r.redirect "shelves/#{@shelf_name}/overdrive"
             end
-
             @local_libraries = Overdrive.local_libraries zip.delete ' '
             Cache.set session, libraries: @local_libraries
             r.redirect '/connections/goodreads/library'

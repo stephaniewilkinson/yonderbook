@@ -35,7 +35,7 @@ class Overdrive
       internet&.close
     end
     libraries = JSON.parse task.wait
-    libraries.first(10).map { |l| [l['consortiumId'], l['consortiumName']] }
+    libraries.first(10).map { |l| [l['consortiumId'], l['consortiumName'], l['consortiumLogo']] }
   end
 
   def initialize book_info, consortium_id
