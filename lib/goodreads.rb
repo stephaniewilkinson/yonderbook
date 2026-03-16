@@ -45,51 +45,57 @@ module Goodreads
     shelf_names.zip shelf_books
   end
 
-  def get_books shelf_name, goodreads_user_id, access_token
+  def get_books shelf_name, goodreads_user_id, access_token = nil
     path = "/review/list/#{goodreads_user_id}.xml?key=#{API_KEY}&v=2&shelf=#{shelf_name}&per_page=100"
-    uri = "#{BASE_URL}#{path}"
-    response = access_token.get(uri)
-    doc = Nokogiri::XML response.body
-    number_of_pages = doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(100).ceil
-    bodies = get_requests path, number_of_pages, access_token
+    bodies = fetch_all_pages(path, access_token)
     get_book_details bodies
   end
 
-  def get_requests path, number_of_pages, access_token
-    get_bodies = Async do
+  def fetch_all_pages path, access_token = nil
+    async_result = Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
+      bodies = []
 
-      if client.head(path).status == 200
-        bodies = []
+      # Fetch page 1 to determine total pages
+      page1_path = "#{path}&page=1"
+      headers = oauth_headers(page1_path, access_token)
+      first_body = client.get(page1_path, headers).read
+      doc = Nokogiri::XML first_body
+      total = doc.xpath('//reviews').first.attributes['total'].value.to_f
+      number_of_pages = total.fdiv(100).ceil
+      bodies << first_body
 
-        1.upto(number_of_pages).each do |page|
-          barrier.async do
-            response = client.get "#{path}&page=#{page}"
-            bodies << response.read
-          ensure
-            response&.close
-          end
-        end
-
-        begin
-          barrier.wait
+      # Fetch remaining pages in parallel
+      2.upto(number_of_pages).each do |page|
+        barrier.async do
+          page_path = "#{path}&page=#{page}"
+          response = client.get page_path, oauth_headers(page_path, access_token)
+          bodies << response.read
         ensure
-          barrier&.stop
-        end
-
-        bodies
-      else
-        1.upto(number_of_pages).map do |page|
-          access_token.get("#{BASE_URL}#{path}&page=#{page}").response.body
+          response&.close
         end
       end
+
+      begin
+        barrier.wait
+      ensure
+        barrier&.stop
+      end
+
+      bodies
     ensure
       client&.close
     end
+    async_result.wait
+  end
 
-    get_bodies.wait
+  def oauth_headers path, access_token
+    return [] unless access_token
+
+    signed_req = access_token.consumer.create_signed_request(:get, path, access_token)
+    [['authorization', signed_req['Authorization']]]
   end
 
   def get_book_details bodies

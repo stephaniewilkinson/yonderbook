@@ -21,6 +21,7 @@
     <p class="text-sm text-mauve-500" id="progress-text"></p>
 
     <div id="error-message" class="hidden mt-4 p-4 rounded-xl bg-mauve-950/[.025] border border-mauve-300 text-mauve-950"></div>
+    <a id="retry-button" href="javascript:history.back()" class="hidden mt-6 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-indigo-800 to-violet-800 text-white font-medium rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">Try Again</a>
   </div>
 </div>
 
@@ -76,6 +77,8 @@
       case 'error':
         errorMessage.textContent = data.message;
         errorMessage.classList.remove('hidden');
+        document.getElementById('retry-button').classList.remove('hidden');
+        document.querySelector('.animate-spin').style.display = 'none';
         statusMessage.textContent = 'An error occurred';
         break;
     }
@@ -85,6 +88,8 @@
     console.error('WebSocket error:', error);
     errorMessage.textContent = 'Connection error. Please try again.';
     errorMessage.classList.remove('hidden');
+    document.getElementById('retry-button').classList.remove('hidden');
+    document.querySelector('.animate-spin').style.display = 'none';
     statusMessage.textContent = 'Connection failed';
   };
 

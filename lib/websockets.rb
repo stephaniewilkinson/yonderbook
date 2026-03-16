@@ -16,40 +16,48 @@ module Websockets
     username = Cache.get_by_id(session_id, :bookmooch_username)
     password = Cache.get_by_id(session_id, :bookmooch_password)
 
-    if book_info && username && password
-      books_added, books_failed = Bookmooch.books_added_and_failed(book_info, username, password) do |progress|
-        connection.write(progress.to_json)
-        connection.flush
-      end
-
-      Cache.set_by_id(session_id, books_added:, books_failed:)
-
-      connection.write(
-        {
-          type: 'complete',
-          message: "Import complete! Added #{books_added.size} books.",
-          books_added_count: books_added.size,
-          books_failed_count: books_failed.size
-        }.to_json
-      )
-    else
+    unless book_info && username && password
       connection.write({type: 'error', message: 'Missing job parameters'}.to_json)
+      connection.flush
+      connection.close
+      return
     end
-    connection.flush
-    connection.close
+
+    run_import(connection, session_id, book_info, username, password)
   rescue Bookmooch::AuthenticationError => e
-    begin
-      connection.write({type: 'error', message: e.message}.to_json)
-    rescue StandardError
-      nil
-    end
+    Sentry.capture_exception(e) if defined?(Sentry)
+    write_error(connection, e.message)
     connection.close
   rescue StandardError => e
-    begin
-      connection.write({type: 'error', message: "An error occurred: #{e.message}"}.to_json)
-    rescue StandardError
-      nil
-    end
+    Sentry.capture_exception(e) if defined?(Sentry)
+    write_error(connection, "An error occurred: #{e.message}")
     connection.close
+  end
+
+  def run_import connection, session_id, book_info, username, password
+    books_added, books_failed = Bookmooch.books_added_and_failed(book_info, username, password) do |progress|
+      connection.write(progress.to_json)
+      connection.flush
+    end
+
+    Cache.set_by_id(session_id, books_added:, books_failed:)
+
+    connection.write(
+      {
+        type: 'complete',
+        message: "Import complete! Added #{books_added.size} books.",
+        books_added_count: books_added.size,
+        books_failed_count: books_failed.size
+      }.to_json
+    )
+    connection.flush
+    connection.close
+  end
+
+  def write_error connection, message
+    connection.write({type: 'error', message:}.to_json)
+    connection.flush
+  rescue StandardError
+    nil
   end
 end

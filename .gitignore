@@ -11,3 +11,4 @@ CLAUDE.md
 *.sqlite3
 /docs
 /planning
+.playwright-mcp/

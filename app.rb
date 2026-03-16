@@ -140,12 +140,20 @@ class App < Roda
     books.sort_by { |book| book.date_added || '' }.reverse
   end
 
+  def enrich_sentry request
+    Sentry.set_user(id: @user.id, email: @user.email) if @user
+    Sentry.set_tags(route: request.path)
+  end
+
+  def enrich_sentry_error request
+    Sentry.set_context('request', {method: request.request_method, path: request.path, params: request.params.keys})
+    Sentry.set_context('goodreads', {user_id: @goodreads_user_id, shelf: @shelf_name}) if @goodreads_user_id
+  end
+
   # TODO: figure out how to reroute 404s to /
   route do |r|
     r.public
     r.assets
-
-    # Rodauth routes (login, create-account, etc.)
     begin
       r.rodauth
     rescue Roda::RodaPlugins::RouteCsrf::InvalidToken
@@ -153,11 +161,9 @@ class App < Roda
       r.redirect r.path
     end
 
-    # Load current user for authenticated routes
     @user = Account[rodauth.session_value] if rodauth.logged_in?
-
+    enrich_sentry(r)
     session['session_id'] ||= SecureRandom.uuid
-
     # route: WebSocket /ws/bookmooch/:session_id
     r.on 'ws', 'bookmooch', String do |session_id|
       r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
@@ -276,6 +282,7 @@ class App < Roda
             Cache.set session, shelf_name: @shelf_name
 
             @book_info = cached_or_fetch(@shelf_name.to_sym) do
+              Sentry.add_breadcrumb(Sentry::Breadcrumb.new(category: 'goodreads', message: "Fetching shelf '#{shelf_name}'"))
               access_token = @goodreads_connection.oauth_access_token
               Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
             end
@@ -317,8 +324,10 @@ class App < Roda
 
               # route: GET /connections/goodreads/shelves/:id/bookmooch/results
               r.get 'results' do
-                @books_added = Cache.get session, :books_added
-                books_failed = Cache.get session, :books_failed
+                sid = session['session_id']
+                @books_added = Cache.get_by_id(sid, :books_added) || []
+                books_failed = Cache.get_by_id(sid, :books_failed) || []
+                Cache.clear_by_id sid
 
                 # Separate books that failed due to missing ISBN vs other reasons
                 @books_failed_no_isbn, @books_failed = books_failed.partition { |book| book[:isbn].nil? || book[:isbn].empty? }
@@ -418,12 +427,13 @@ class App < Roda
       end
     end
   rescue OAuth::Unauthorized, StandardError, ScriptError => e
-    # Always send to Sentry first
+    enrich_sentry_error(r)
     Sentry.capture_exception(e)
 
     # In production, redirect gracefully; in dev/test, raise to see full error
     raise e unless ENV['RACK_ENV'] == 'production'
 
+    flash[:error] = 'That request took too long. Please try again.' if e.is_a?(RequestTimeout::Error)
     r.redirect '/'
   end
 end
