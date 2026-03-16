@@ -35,12 +35,18 @@ module Websockets
   end
 
   def run_import connection, session_id, book_info, username, password
+    closed = false
     books_added, books_failed = Bookmooch.books_added_and_failed(book_info, username, password) do |progress|
+      next if closed
+
       connection.write(progress.to_json)
       connection.flush
+    rescue IOError
+      closed = true
     end
 
     Cache.set_by_id(session_id, books_added:, books_failed:)
+    return if closed
 
     connection.write(
       {
