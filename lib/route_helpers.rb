@@ -5,7 +5,7 @@ module RouteHelpers
   def fetch_and_cache_request_token
     Auth.fetch_request_token.tap { |token| Cache.set(session, request_token: token) if token }
   rescue StandardError => e
-    warn "fetch_and_cache_request_token error: #{e.class}: #{e.message}"
+    Sentry.capture_exception(e) if defined?(Sentry)
     nil
   end
 
@@ -35,6 +35,8 @@ module RouteHelpers
   end
 
   def start_goodreads_import shelf_name
+    return unless Fiber.scheduler
+
     sid = session['session_id']
     access_token = @goodreads_connection.oauth_access_token
     goodreads_user_id = @goodreads_user_id
@@ -47,8 +49,6 @@ module RouteHelpers
       Cache.set_by_id(sid, goodreads_shelf_ready: true, goodreads_shelf_error: e.message)
     end
     true
-  rescue RuntimeError
-    false # No async task available - caller should use blocking fetch
   end
 
   def load_or_start_shelf_import shelf_name
@@ -73,12 +73,38 @@ module RouteHelpers
     set_pending_import('goodreads', "/connections/goodreads/shelves/#{shelf_name}")
   end
 
-  def cache_bookmooch_params request
+  def load_bookmooch_results
+    sid = session['session_id']
+    books_added = Cache.get_by_id(sid, :books_added) || []
+    books_failed = Cache.get_by_id(sid, :books_failed) || []
+    skipped_count = Cache.get_by_id(sid, :bookmooch_skipped) || 0
+    Cache.clear_by_id sid
+    clear_pending_import
+    no_isbn, failed = books_failed.partition { |book| book[:isbn].nil? || book[:isbn].empty? }
+    [books_added, failed, no_isbn, skipped_count]
+  end
+
+  def bookmooch_preview user_id, book_info
+    already_imported = BookmoochImport.already_imported_isbns(user_id)
+    with_isbn = book_info.select { |b| b[:isbn] && !b[:isbn].empty? }
+    new_books = with_isbn.reject { |b| already_imported.include?(b[:isbn]) }
+    [new_books.size, with_isbn.size - new_books.size, book_info.size - with_isbn.size]
+  end
+
+  def filter_already_imported_books user_id, book_info
+    already_imported = BookmoochImport.already_imported_isbns(user_id)
+    book_info.reject { |b| already_imported.include?(b[:isbn]) }
+  end
+
+  def cache_bookmooch_params request, book_info, user_id, skipped_count
     Cache.set_by_id(
       session['session_id'],
-      bookmooch_book_info: @book_info,
+      bookmooch_book_info: book_info,
       bookmooch_username: request.params['username'],
-      bookmooch_password: request.params['password']
+      bookmooch_password: request.params['password'],
+      bookmooch_user_id: user_id,
+      bookmooch_skipped: skipped_count,
+      bookmooch_shelf_name: @shelf_name
     )
   end
 

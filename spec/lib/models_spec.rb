@@ -12,6 +12,8 @@ require 'models/goodreads_connection'
 describe Account do
   before do
     DB[:goodreads_connections].delete
+    DB[:account_lockouts].delete if DB.table_exists?(:account_lockouts)
+    DB[:account_login_failures].delete
     DB[:accounts].delete
     @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
   end
@@ -49,6 +51,8 @@ end
 describe GoodreadsConnection do
   before do
     DB[:goodreads_connections].delete
+    DB[:account_lockouts].delete if DB.table_exists?(:account_lockouts)
+    DB[:account_login_failures].delete
     DB[:accounts].delete
     @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
   end

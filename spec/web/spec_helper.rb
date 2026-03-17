@@ -81,6 +81,40 @@ module TestHelpers
     # Remove verification key if it exists
     DB[:account_verification_keys].where(id: account[:id]).delete
   end
+
+  # Create a verified account with Goodreads connected, then log in via browser.
+  # Returns the account id.
+  def seed_goodreads_user
+    email = "test_gr_#{Time.now.to_i}_#{rand(9999)}@example.com"
+    password = 'SecurePassword123!'
+
+    # Create account through the UI (so the server connection owns the row)
+    visit '/'
+    click_link 'Sign Up'
+    fill_in 'Email', with: email
+    fill_in 'Confirm Email', with: email if page.has_field?('Confirm Email')
+    fill_in 'Password', with: password
+    click_button 'Create Account'
+    verify_account(email)
+
+    # Look up account and add Goodreads connection
+    account = DB[:accounts].where(email: email).first
+    DB[:goodreads_connections].insert(
+      user_id: account[:id],
+      goodreads_user_id: ENV.fetch('GOODREADS_USER_ID'),
+      access_token: ENV.fetch('GOODREADS_ACCESS_TOKEN'),
+      access_token_secret: ENV.fetch('GOODREADS_ACCESS_TOKEN_SECRET')
+    )
+
+    # Log in via the browser
+    visit '/authenticate'
+    fill_in 'Email', with: email
+    fill_in 'Password', with: password
+    click_button 'Log In'
+    assert_text 'Welcome back,'
+
+    account[:id]
+  end
 end
 
 # Include the helper module in Minitest

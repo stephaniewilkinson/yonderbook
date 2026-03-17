@@ -9,6 +9,7 @@
     summary_lines << "Couldn't add #{@books_failed.size} books." if @books_failed.size > 0
     summary_lines << "#{@books_failed_no_isbn.size} books could not be matched (missing ISBN)." if @books_failed_no_isbn.size > 0
   end
+  summary_lines << "Skipped #{@skipped_count} books already on your wishlist." if @skipped_count > 0
 
   header = {
     title: @books_added.empty? ? 'No Books Added' : 'Success!',
@@ -37,12 +38,12 @@
       end
     },
     {
-      label: "Couldn't Add",
-      title: "Couldn't Add #{@books_failed.size} Books",
+      label: 'Not on BookMooch',
+      title: "#{@books_failed.size} Books Not in BookMooch Catalog",
       color: 'mauve',
       count: @books_failed.size,
-      description: "If some books imported but not others, it's possible that BookMooch doesn't have them listed. Try adding them to your wishlist using a different edition, aka a different ISBN.",
-      empty_message: 'All books were successfully added!',
+      description: "BookMooch doesn't have these books listed in its catalog. You can try adding them manually on BookMooch using a different edition or ISBN.",
+      empty_message: 'All books were found on BookMooch!',
       books: @books_failed.map do |book|
         {
           image: book[:image_url],
@@ -52,12 +53,12 @@
       end
     },
     {
-      label: 'Could Not Match',
-      title: "Could Not Match #{@books_failed_no_isbn.size} Books",
+      label: 'Missing ISBN',
+      title: "#{@books_failed_no_isbn.size} Books Missing ISBN",
       color: 'mauve',
       count: @books_failed_no_isbn.size,
-      description: 'These books are missing ISBN information in Goodreads. Without an ISBN, we cannot match them to the BookMooch catalog. Try editing the book details in Goodreads to add ISBN information.',
-      empty_message: 'All books on your shelf have ISBN numbers!',
+      description: "These books don't have ISBN information in Goodreads, so we can't look them up on BookMooch. You can add ISBNs to these books in Goodreads, then re-import.",
+      empty_message: 'All books on your shelf have ISBNs!',
       books: @books_failed_no_isbn.map do |book|
         {
           image: book[:image_url],

@@ -17,97 +17,6 @@ describe App do
     assert_includes last_response.body, 'Yonderbook'
   end
 
-  it 'lets user log in and see Goodreads connection options' do
-    fake_email = "test_goodreads_user_#{Time.now.to_i}@example.com"
-    fake_password = 'SecurePassword123!'
-
-    # First create a Rodauth account
-    visit '/'
-    click_link 'Sign Up'
-    fill_in 'Email', with: fake_email
-    fill_in 'Confirm Email', with: fake_email if page.has_field?('Confirm Email')
-    fill_in 'Password', with: fake_password
-    click_button 'Create Account'
-
-    # Manually verify the account so the user can log in
-    verify_account(fake_email)
-
-    # Log in with the verified account
-    visit '/authenticate'
-    fill_in 'Email', with: fake_email
-    fill_in 'Password', with: fake_password
-    click_button 'Log In'
-
-    # Should be redirected to home page
-    assert_text 'Welcome back,'
-
-    # Try to connect with Goodreads - OAuth flow requires 3 attempts to bypass Amazon CVF
-    3.times do
-      click_link 'Connect Goodreads'
-      click_link 'Connect with Goodreads'
-      sleep 2
-
-      # Check if already authenticated (redirected to /connections/goodreads/shelves)
-      break if page.current_url.include?('/connections/goodreads/shelves')
-
-      # Only try to sign in if we're on Goodreads sign-in page
-      if page.has_button?('Sign in with email', wait: 2)
-        click_button 'Sign in with email'
-        sleep 2
-
-        if page.has_field?('email', wait: 2) && page.has_field?('password', wait: 2)
-          fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
-          fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
-          find('#signInSubmit').click
-          sleep 5 # Wait for CVF/redirect
-        end
-
-        # Check if OAuth completed after sign-in
-        break if page.current_url.include?('/connections/goodreads/shelves')
-      end
-
-      visit '/home' unless page.current_url.include?('/connections/goodreads/shelves')
-    end
-
-    # Final visit to get OAuth tokens
-    visit '/connections/goodreads/shelves'
-    assert_text 'Choose a shelf'
-    all(:link, 'Stats')[2].click
-    sleep 10
-    assert_text 'Publication Years'
-    click_on 'Shelves'
-    assert_text 'to-read'
-    first(:button, 'Get Books').click
-    assert_text 'Choose a format'
-    # Click eBooks link directly by visiting the overdrive path
-    visit '/connections/goodreads/shelves/zora/overdrive'
-    assert_text 'zip code'
-    fill_in 'zipcode', with: '94103'
-    click_on 'Find a library'
-    sleep 10
-    find('button[id="1683"]').click # Click the library selection button by consortium ID
-    sleep 15 # Wait for OverDrive API to respond and page to render
-    assert page.has_text?('Available', wait: 30) # Give extra time for slow API response
-    click_on 'Unavailable'
-    sleep 1 # Wait for the unavailable books section to load
-    assert_text 'Unavailable' # Just verify we can see the unavailable section
-    click_on 'Shelves'
-    assert_text 'abandoned'
-    find('button[onclick="openModal(\'modal-abandoned\')"]').click # Click Get Books for zora shelf
-    assert_text 'Choose a format'
-    within('#modal-abandoned') do
-      find('a', text: 'By Mail').click
-    end
-    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
-    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
-    click_button 'Authenticate'
-    # Should redirect to progress page
-    assert_text 'Importing Books to BookMooch'
-    sleep 120 # Wait for WebSocket connection and BookMooch API to complete (increased for CI)
-    assert_text 'Success!'
-    sleep 2 # Give Selenium time to clean up session before next test
-  end
-
   it 'responds to /about' do
     get '/about'
     assert last_response.ok?
@@ -193,5 +102,111 @@ describe App do
     refute_link 'Login'
     refute_link 'Sign Up'
     sleep 2 # Give Selenium time to clean up session before next test
+  end
+
+  it 'connects Goodreads via OAuth and browses shelves' do
+    fake_email = "test_goodreads_user_#{Time.now.to_i}@example.com"
+    fake_password = 'SecurePassword123!'
+
+    # First create a Rodauth account
+    visit '/'
+    click_link 'Sign Up'
+    fill_in 'Email', with: fake_email
+    fill_in 'Confirm Email', with: fake_email if page.has_field?('Confirm Email')
+    fill_in 'Password', with: fake_password
+    click_button 'Create Account'
+
+    # Manually verify the account so the user can log in
+    verify_account(fake_email)
+
+    # Log in with the verified account
+    visit '/authenticate'
+    fill_in 'Email', with: fake_email
+    fill_in 'Password', with: fake_password
+    click_button 'Log In'
+
+    # Should be redirected to home page
+    assert_text 'Welcome back,'
+
+    # Try to connect with Goodreads - OAuth flow requires 3 attempts to bypass Amazon CVF
+    3.times do
+      click_link 'Connect Goodreads'
+      click_link 'Connect with Goodreads'
+      sleep 2
+
+      # Check if already authenticated (redirected to /connections/goodreads/shelves)
+      break if page.current_url.include?('/connections/goodreads/shelves')
+
+      # Only try to sign in if we're on Goodreads sign-in page
+      if page.has_button?('Sign in with email', wait: 2)
+        click_button 'Sign in with email'
+        sleep 2
+
+        if page.has_field?('email', wait: 2) && page.has_field?('password', wait: 2)
+          fill_in 'email', with: ENV.fetch('GOODREADS_EMAIL')
+          fill_in 'password', with: ENV.fetch('GOODREADS_PASSWORD')
+          find('#signInSubmit').click
+          sleep 5 # Wait for CVF/redirect
+        end
+
+        # Check if OAuth completed after sign-in
+        break if page.current_url.include?('/connections/goodreads/shelves')
+      end
+
+      visit '/home' unless page.current_url.include?('/connections/goodreads/shelves')
+    end
+
+    # Final visit to get OAuth tokens
+    visit '/connections/goodreads/shelves'
+    assert_text 'Choose a shelf'
+    sleep 2
+  end
+
+  it 'shows shelf stats for a seeded Goodreads user' do
+    seed_goodreads_user
+    visit '/connections/goodreads/shelves'
+    assert_text 'Choose a shelf'
+
+    all(:link, 'Stats')[2].click
+    sleep 10
+    assert_text 'Publication Years'
+    sleep 2
+  end
+
+  it 'searches OverDrive libraries for a seeded Goodreads user' do
+    seed_goodreads_user
+    visit '/connections/goodreads/shelves/zora/overdrive'
+    assert_text 'zip code'
+
+    fill_in 'zipcode', with: '94103'
+    click_on 'Find a library'
+    sleep 10
+    find('button[id="1683"]').click
+    sleep 15
+    assert page.has_text?('Available', wait: 30)
+    click_on 'Unavailable'
+    sleep 1
+    assert_text 'Unavailable'
+    sleep 2
+  end
+
+  it 'imports books to BookMooch for a seeded Goodreads user' do
+    seed_goodreads_user
+    visit '/connections/goodreads/shelves'
+    assert_text 'abandoned'
+
+    find('button[onclick="openModal(\'modal-abandoned\')"]').click
+    assert_text 'Choose a format'
+    within('#modal-abandoned') do
+      find('a', text: 'By Mail').click
+    end
+
+    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
+    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
+    click_button 'Authenticate'
+    assert_text 'Importing Books to BookMooch'
+    sleep 120
+    assert_text 'Success!'
+    sleep 2
   end
 end

@@ -25,6 +25,7 @@
       </div>
       <div class="ml-3 flex-1">
         <p id="toast-message" class="text-sm font-medium text-mauve-950"><%= message %></p>
+        <p id="toast-subtitle" class="text-xs text-mauve-500 mt-0.5">Feel free to navigate away — we'll let you know when it's done.</p>
       </div>
       <div class="ml-2 flex-shrink-0">
         <button type="button" onclick="document.getElementById('import-toast').remove()" class="inline-flex rounded-full bg-white text-mauve-400 hover:text-mauve-700 focus:outline-none">
@@ -62,6 +63,7 @@
           document.getElementById('toast-spinner').classList.add('hidden');
           document.getElementById('toast-check').classList.remove('hidden');
           document.getElementById('toast-message').textContent = '<%= done_message %>';
+          document.getElementById('toast-subtitle').classList.add('hidden');
           var progressLink = document.getElementById('toast-progress-link');
           if (progressLink) progressLink.classList.add('hidden');
           document.getElementById('toast-link').classList.remove('hidden');
