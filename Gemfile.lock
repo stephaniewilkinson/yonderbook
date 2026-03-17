@@ -306,6 +306,8 @@ GEM
     sqlite3 (2.9.2-x86_64-darwin)
     sqlite3 (2.9.2-x86_64-linux-gnu)
     string-format (0.2.0)
+    tailwindcss-ruby (4.2.1-x86_64-darwin)
+    tailwindcss-ruby (4.2.1-x86_64-linux-gnu)
     tilt (2.7.0)
     timeout (0.6.1)
     traces (0.18.2)
@@ -367,6 +369,7 @@ DEPENDENCIES
   sentry-ruby
   sequel
   sqlite3
+  tailwindcss-ruby
   tilt
   unicode_utils
 

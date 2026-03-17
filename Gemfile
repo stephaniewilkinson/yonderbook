@@ -32,6 +32,7 @@ gem 'roda-websockets'
 gem 'sentry-ruby'
 gem 'sequel'
 gem 'sqlite3'
+gem 'tailwindcss-ruby'
 gem 'tilt'
 gem 'unicode_utils'
 
