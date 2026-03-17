@@ -1,0 +1,61 @@
+@import "tailwindcss" source("../../views");
+
+@theme {
+  --color-mauve-50: #fbfafb;
+  --color-mauve-100: #f4f2f4;
+  --color-mauve-200: #e8e4e8;
+  --color-mauve-300: #d6d0d6;
+  --color-mauve-400: #afa7af;
+  --color-mauve-500: #857a86;
+  --color-mauve-600: #6a6169;
+  --color-mauve-700: #575057;
+  --color-mauve-800: #3e383e;
+  --color-mauve-900: #312c31;
+  --color-mauve-950: #211d21;
+
+  --font-display: "Mona Sans", sans-serif;
+  --font-sans: Inter, system-ui, sans-serif;
+
+  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-bounce-subtle: bounceSubtle 2s infinite ease-in-out;
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@utility glass-panel {
+  background-color: rgb(255 255 255 / 0.4);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgb(255 255 255 / 0.4);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+@utility bg-gradient-radial {
+  background-image: radial-gradient(circle at 50% 0%, var(--tw-gradient-stops));
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Mona Sans', sans-serif;
+  font-variation-settings: 'wdth' 112.5;
+}
+
+body,
+a,
+span {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
