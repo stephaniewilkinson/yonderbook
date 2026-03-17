@@ -36,59 +36,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mona+Sans:ital,wdth,wght@0,112.5,200..900;1,112.5,200..900&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS with Mauve Theme -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'mauve': {
-                50: '#fbfafb',
-                100: '#f4f2f4',
-                200: '#e8e4e8',
-                300: '#d6d0d6',
-                400: '#afa7af',
-                500: '#857a86',
-                600: '#6a6169',
-                700: '#575057',
-                800: '#3e383e',
-                900: '#312c31',
-                '950': '#211d21'
-              }
-            },
-            fontFamily: {
-              'display': ['"Mona Sans"', 'sans-serif'],
-              'sans': ['Inter', 'system-ui', 'sans-serif']
-            },
-            animation: {
-              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
-              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'bounce-subtle': 'bounceSubtle 2s infinite ease-in-out',
-            },
-            keyframes: {
-              fadeInUp: {
-                '0%': { opacity: '0', transform: 'translateY(20px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              },
-              bounceSubtle: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-2px)' },
-              }
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      .glass-panel {
-        @apply bg-white/40 backdrop-blur-xl border border-white/40 shadow-lg;
-      }
-      .bg-gradient-radial {
-        background-image: radial-gradient(circle at 50% 0%, var(--tw-gradient-stops));
-      }
-    </style>
-
+    <!-- Tailwind CSS (pre-built) -->
     <%= assets(:css) %>
 
     <!-- Structured Data (JSON-LD) -->
