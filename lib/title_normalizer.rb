@@ -10,6 +10,8 @@ module TitleNormalizer
   #   "The New Jim Crow: Mass Incarceration..." => "the new jim crow"
   #   "Caps for Sale: A Tale of a Peddler..." => "caps for sale"
   def normalize str
+    return '' unless str
+
     # Remove series info in parentheses and subtitles after colons
     no_series = str.gsub(/\([^)]*\)/, '').split(':').first
     no_series.downcase.gsub(/[[:punct:]]/, '').gsub(/\s+/, ' ').strip
@@ -21,6 +23,8 @@ module TitleNormalizer
   #   "The New Jim Crow: Mass Incarceration..." => "The New Jim Crow"
   #   "Caps for Sale: A Tale of a Peddler..." => "Caps for Sale"
   def clean_for_search str
+    return '' unless str
+
     # Remove series info in parentheses and subtitles after colons
     str.gsub(/\([^)]*\)/, '').split(':').first.strip
   end

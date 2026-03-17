@@ -126,8 +126,10 @@ module Goodreads
     uri.path = '/api/auth_user'
     response = access_token.get uri.to_s
     xml = Nokogiri::XML response.body
-    user_id = xml.xpath('//user').first.attributes.first[1].value
-    xml.xpath('//user').first.children[1].children.text
+    user_node = xml.xpath('//user').first
+    raise 'Goodreads API returned no user data' unless user_node
+
+    user_id = user_node.attributes.first[1].value
 
     # Save Goodreads connection to database
     save_goodreads_connection(yonderbook_user_id, user_id, goodreads_token, goodreads_secret)
@@ -164,6 +166,7 @@ module Goodreads
     uri.query = URI.encode_www_form(key: API_KEY)
 
     task = Async do
+      internet = Async::HTTP::Internet.new
       response = internet.get uri.to_s
       response_code = response.status
 
@@ -171,7 +174,7 @@ module Goodreads
       when 200
         doc = Nokogiri::XML(response.read)
         title = doc.xpath('//title').text
-        image_url = doc.xpath('//image_url').first.text
+        image_url = doc.xpath('//image_url').first&.text
         book = Book.new(title:, image_url:, isbn:)
 
         [:ok, book]
