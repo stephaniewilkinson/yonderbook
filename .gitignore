@@ -6,3 +6,7 @@
 .bundle/
 .claude
 CLAUDE.md
+docs/
+planning/
+.playwright-mcp/
+db/*.db

@@ -10,6 +10,7 @@ require 'sentry-ruby'
 require 'tilt'
 # require 'zbar'
 
+require_relative 'lib/analytics'
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
 require_relative 'lib/cache'
@@ -45,6 +46,7 @@ class App < Roda
       Cache.set(session, request_token:)
 
       @auth_url = request_token.authorize_url
+      Analytics.track session['session_id'], 'page_viewed', page: 'welcome'
       view 'welcome'
     end
 
@@ -63,6 +65,8 @@ class App < Roda
         session['access_token_secret'] = access_token_secret
 
         session['goodreads_user_id'] = goodreads_user_id
+        Analytics.identify session['session_id'], goodreads_user_id: goodreads_user_id
+        Analytics.track session['session_id'], 'goodreads_connected', goodreads_user_id: goodreads_user_id
 
         r.redirect '/auth/shelves'
       rescue OAuth::Unauthorized
@@ -74,6 +78,7 @@ class App < Roda
     r.is 'about' do
       # route: GET /about
       r.get do
+        Analytics.track session['session_id'], 'page_viewed', page: 'about'
         view 'about'
       end
     end
@@ -87,6 +92,7 @@ class App < Roda
         # route: GET /auth/shelves
         r.get true do
           @shelves = Goodreads.fetch_shelves @goodreads_user_id
+          Analytics.track session['session_id'], 'shelves_viewed', shelf_count: @shelves.size
           view 'shelves/index'
         end
 
@@ -106,6 +112,7 @@ class App < Roda
             @women, @men, @andy = Goodreads.get_gender @book_info
             @histogram_dataset = Goodreads.plot_books_over_time @book_info
             @ratings = Goodreads.rating_stats @book_info
+            Analytics.track session['session_id'], 'shelf_stats_viewed', shelf: @shelf_name, book_count: @book_info.size
 
             view 'shelves/show'
           end
@@ -120,6 +127,8 @@ class App < Roda
             r.post do
               @books_added, @books_failed = Bookmooch.books_added_and_failed @book_info, r.params['username'], r.params['password']
               Cache.set session, books_added: @books_added, books_failed: @books_failed
+              Analytics.track session['session_id'], 'bookmooch_import_completed',
+                              shelf: @shelf_name, books_added: @books_added.size, books_failed: @books_failed.size
 
               r.redirect 'bookmooch/results'
             end
@@ -143,6 +152,8 @@ class App < Roda
             r.post do
               titles = Overdrive.new(@book_info, r.params['consortium']).fetch_titles_availability
               Cache.set(session, titles:)
+              Analytics.track session['session_id'], 'overdrive_search',
+                              shelf: @shelf_name, consortium: r.params['consortium'], titles_found: titles.size
               r.redirect '/auth/availability'
             end
           end
@@ -163,6 +174,8 @@ class App < Roda
           @available_books = @titles.select { |a| a.copies_available.positive? }
           @waitlist_books = @titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? }
           @unavailable_books = @titles.select { |a| a.copies_owned.zero? }
+          Analytics.track session['session_id'], 'availability_viewed',
+                          available: @available_books.size, waitlist: @waitlist_books.size, unavailable: @unavailable_books.size
           view 'availability'
         end
       end
@@ -186,6 +199,7 @@ class App < Roda
 
           @local_libraries = Overdrive.local_libraries zip.delete ' '
           Cache.set session, libraries: @local_libraries
+          Analytics.track session['session_id'], 'library_search', zipcode: zip, libraries_found: @local_libraries.size
           r.redirect '/auth/library'
         end
 
@@ -203,6 +217,7 @@ class App < Roda
       end
     end
   rescue OAuth::Unauthorized, StandardError, ScriptError => e
+    Analytics.track session['session_id'], 'error_occurred', error: e.class.name, message: e.message, path: r.path
     raise e unless ENV['RACK_ENV'] == 'production'
 
     r.redirect '/'
