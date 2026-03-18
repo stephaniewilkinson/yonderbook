@@ -68,8 +68,8 @@ module AlternateIsbns
             alternates, work_key = fetch_alternates_for_isbn_with_retry(isbn)
             result[isbn] = alternates unless alternates.empty?
             IsbnAlternate.store(isbn, alternates, work_key: work_key)
-          rescue StandardError
-            # Silently skip ISBNs that fail
+          rescue StandardError => e
+            Sentry.capture_exception(e, extra: {isbn: isbn}) if defined?(Sentry)
           ensure
             completed_count += 1
             report_progress(progress_callback, completed_count, total_isbns)

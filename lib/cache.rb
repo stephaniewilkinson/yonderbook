@@ -9,6 +9,7 @@ require_relative 'tuple_space'
 module Cache
   CACHE = TupleSpace.new
   SHARED_DIR = File.join(Dir.tmpdir, 'yonderbook_jobs')
+  @request_count = 0
 
   module_function
 
@@ -25,7 +26,8 @@ module Cache
   # Set cache values by session ID using shared filesystem (cross-process)
   def set_by_id session_id, **pairs
     FileUtils.mkdir_p(SHARED_DIR)
-    cleanup_stale_async if rand(10).zero?
+    @request_count = (@request_count + 1) % 100
+    cleanup_stale_async if @request_count.zero?
     pairs.each do |key, value|
       path = File.join(SHARED_DIR, "#{session_id}_#{key}.json")
       tmp = "#{path}.#{Process.pid}.tmp"

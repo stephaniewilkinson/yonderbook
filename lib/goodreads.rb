@@ -131,7 +131,8 @@ module Goodreads
     user_node = xml.xpath('//user').first
     raise 'Goodreads API returned no user data' unless user_node
 
-    user_id = user_node.attributes.first[1].value
+    user_id = user_node['id']
+    raise 'Goodreads API response missing user id attribute' unless user_id
 
     # Save Goodreads connection to database
     save_goodreads_connection(yonderbook_user_id, user_id, goodreads_token, goodreads_secret)
@@ -155,7 +156,7 @@ module Goodreads
   end
 
   def plot_books_over_time books
-    books.filter_map { |book| [book[:title], Integer(book[:published_year])] unless book[:published_year].empty? }
+    books.filter_map { |book| [book[:title], Integer(book[:published_year])] unless book[:published_year].to_s.empty? }
   end
 
   def rating_stats books

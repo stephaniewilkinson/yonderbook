@@ -36,6 +36,8 @@ require_relative 'lib/route_helpers'
 require_relative 'lib/websockets'
 
 SESSION_SECRET = ENV.fetch('SESSION_SECRET').then do |s|
+  raise 'SESSION_SECRET must be at least 64 bytes for security' if s.bytesize < 64 && ENV.fetch('RACK_ENV', 'development') == 'production'
+
   warn 'WARNING: SESSION_SECRET should be at least 64 bytes for security' if s.bytesize < 64
   s
 end
@@ -193,6 +195,7 @@ class App < Roda
   route do |r|
     r.public
     r.assets
+    r.get('health') { 'ok' } # route: GET /health
     rodauth.check_session_expiration
     rodauth.check_active_session
     begin

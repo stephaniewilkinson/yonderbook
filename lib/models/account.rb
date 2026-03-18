@@ -5,9 +5,11 @@ class Account < Sequel::Model
   one_to_many :goodreads_connections, key: :user_id
 
   # Get the primary (most recent) Goodreads connection for this account
-  # Always reload from database to avoid stale cached associations
+  # Memoized per-instance (safe: Account is recreated each request)
   def goodreads_connection
-    goodreads_connections_dataset.order(Sequel.desc(:connected_at)).first
+    return @goodreads_connection if defined?(@goodreads_connection)
+
+    @goodreads_connection = goodreads_connections_dataset.order(Sequel.desc(:connected_at)).first
   end
 
   # Check if user has a connected Goodreads account
