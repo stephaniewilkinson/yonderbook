@@ -46,6 +46,7 @@ module Websockets
     end
 
     Cache.set_by_id(session_id, books_added:, books_failed:)
+    record_bookmooch_imports(session_id, books_added)
     return if closed
 
     connection.write(
@@ -58,6 +59,14 @@ module Websockets
     )
     connection.flush
     connection.close
+  end
+
+  def record_bookmooch_imports session_id, books_added
+    user_id = Cache.get_by_id(session_id, :bookmooch_user_id)
+    return unless user_id
+
+    shelf_name = Cache.get_by_id(session_id, :bookmooch_shelf_name)
+    BookmoochImport.record_imports(user_id, books_added, shelf_name: shelf_name)
   end
 
   def write_error connection, message

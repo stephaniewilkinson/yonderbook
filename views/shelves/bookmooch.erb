@@ -21,7 +21,17 @@
       </div>
       <div class="p-6">
         <h5 class="text-xl font-display font-medium text-white mb-4">Mooch these books</h5>
-        <p class="text-mauve-300 mb-6">Enter your credentials to log into Bookmooch.com.</p>
+        <p class="text-mauve-300 mb-4">Enter your credentials to log into Bookmooch.com.</p>
+
+        <div class="text-sm text-mauve-300 mb-6 space-y-1">
+          <p><span class="text-white font-medium"><%= @new_count %></span> new books to add</p>
+          <% if @skip_count.positive? %>
+            <p><span class="text-white font-medium"><%= @skip_count %></span> already on your wishlist (will be skipped)</p>
+          <% end %>
+          <% if @no_isbn_count.positive? %>
+            <p><span class="text-white font-medium"><%= @no_isbn_count %></span> missing ISBN (can't match on BookMooch)</p>
+          <% end %>
+        </div>
 
         <form action="bookmooch" method="post">
           <div class="space-y-4 mb-6">
@@ -45,6 +55,16 @@
                      class="w-full px-3 py-2 bg-mauve-900 border border-mauve-700 rounded-xl text-white placeholder-mauve-500 focus:ring-mauve-400 focus:border-mauve-400">
             </div>
           </div>
+
+          <% if @skip_count.positive? %>
+          <div class="flex items-center mb-4">
+            <input type="checkbox" id="reimport" name="reimport" value="1"
+                   class="w-4 h-4 rounded border-mauve-600 bg-mauve-800 text-mauve-400 focus:ring-mauve-500">
+            <label for="reimport" class="ml-2 text-sm text-mauve-400">
+              Re-import all books (send all <%= @skip_count + @new_count %> instead of just <%= @new_count %> new)
+            </label>
+          </div>
+          <% end %>
 
           <button class="authenticate-btn w-full inline-flex items-center justify-center px-6 py-3 bg-white text-mauve-950 font-medium rounded-full hover:bg-mauve-100 transition-colors duration-200"
                   type="submit"

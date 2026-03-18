@@ -40,6 +40,9 @@ module Cache
     return unless File.exist?(path)
 
     JSON.parse(File.read(path), symbolize_names: true)
+  rescue JSON::ParserError
+    File.delete(path)
+    nil
   end
 
   # Remove cache files for a session after use
@@ -51,9 +54,9 @@ module Cache
 
   # Run cleanup in a background fiber so it doesn't block the current request
   def cleanup_stale_async
+    return cleanup_stale unless Fiber.scheduler
+
     Async::Task.current.async { cleanup_stale }
-  rescue RuntimeError
-    cleanup_stale
   end
 
   # Remove cache files older than 1 hour

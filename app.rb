@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-system 'roda-parse_routes', '-f', 'routes.json', __FILE__
+system 'roda-parse_routes', '-f', 'routes.json', __FILE__ if ENV.fetch('RACK_ENV', 'development') == 'development'
 
 require 'area'
 require 'async'
@@ -32,6 +32,11 @@ require_relative 'lib/overdrive'
 require_relative 'lib/route_helpers'
 require_relative 'lib/websockets'
 
+SESSION_SECRET = ENV.fetch('SESSION_SECRET').then do |s|
+  warn 'WARNING: SESSION_SECRET should be at least 64 bytes for security' if s.bytesize < 64
+  s
+end
+
 class App < Roda
   use Sentry::Rack::CaptureExceptions
   use Rack::HostRedirect, 'www.yonderbook.com' => 'yonderbook.com'
@@ -41,7 +46,7 @@ class App < Roda
   plugin :assets_preloading
   plugin :public, root: 'assets'
   plugin :flash
-  plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
+  plugin :sessions, secret: SESSION_SECRET
   plugin :route_csrf
   plugin :slash_path_empty
   plugin :render
@@ -53,8 +58,8 @@ class App < Roda
   # Rodauth configuration with email verification and password reset
   plugin :rodauth do
     db DB
-    enable :login, :logout, :create_account, :verify_account, :reset_password
-    hmac_secret ENV.fetch('SESSION_SECRET')
+    enable :login, :logout, :create_account, :verify_account, :reset_password, :lockout
+    hmac_secret SESSION_SECRET
 
     # Base URL for email links
     base_url ENV.fetch('BASE_URL', 'http://localhost:9292')
@@ -113,6 +118,10 @@ class App < Roda
     create_account_notice_flash 'Account created! Check your email to verify your account before logging in.'
     reset_password_email_sent_notice_flash 'We sent you a password reset link to your email. Click the link in the email to finish resetting your password.'
     reset_password_email_sent_redirect '/authenticate'
+
+    # Rate limiting - lock account after 10 failed login attempts
+    max_invalid_logins 10
+    unlock_account_email_subject 'Unlock Your Yonderbook Account'
 
     # Email subjects
     verify_account_email_subject 'Verify Your Yonderbook Account'
@@ -257,12 +266,15 @@ class App < Roda
             r.on 'bookmooch' do
               # route: GET /connections/goodreads/shelves/:id/bookmooch
               r.get true do
+                @new_count, @skip_count, @no_isbn_count = bookmooch_preview(@user.id, @book_info)
                 view 'shelves/bookmooch'
               end
 
               # route: POST /connections/goodreads/shelves/:id/bookmooch?username=foo&password=baz
               r.post do
-                cache_bookmooch_params(r)
+                BookmoochImport.clear_imports(@user.id) if r.params['reimport'] == '1'
+                filtered = filter_already_imported_books(@user.id, @book_info)
+                cache_bookmooch_params(r, filtered, @user.id, @book_info.size - filtered.size)
                 set_pending_import('bookmooch', "#{r.path}/results", progress_url: "#{r.path}/progress")
                 r.redirect 'bookmooch/progress'
               end
@@ -274,12 +286,7 @@ class App < Roda
               end
 
               r.get 'results' do # route: GET /connections/goodreads/shelves/:id/bookmooch/results
-                sid = session['session_id']
-                @books_added = Cache.get_by_id(sid, :books_added) || []
-                books_failed = Cache.get_by_id(sid, :books_failed) || []
-                Cache.clear_by_id sid
-                clear_pending_import
-                @books_failed_no_isbn, @books_failed = books_failed.partition { |book| book[:isbn].nil? || book[:isbn].empty? }
+                @books_added, @books_failed, @books_failed_no_isbn, @skipped_count = load_bookmooch_results
                 view 'bookmooch'
               end
             end
@@ -287,7 +294,12 @@ class App < Roda
             r.is 'overdrive' do
               r.get(true) { view 'shelves/overdrive' } # route: GET /connections/goodreads/shelves/:id/overdrive
               r.post do # route: POST /connections/goodreads/shelves/:id/overdrive?consortium=1047
-                overdrive = Overdrive.new(@book_info, r.params['consortium'])
+                consortium = r.params['consortium']
+                unless consortium&.match?(/\A\d+\z/)
+                  flash[:error] = 'Invalid library selection'
+                  r.redirect "shelves/#{@shelf_name}/overdrive"
+                end
+                overdrive = Overdrive.new(@book_info, consortium)
                 titles = overdrive.fetch_titles_availability
                 Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
                 r.redirect '/connections/goodreads/availability'
@@ -328,7 +340,7 @@ class App < Roda
           load_goodreads_connection
           r.post do # route: POST /connections/goodreads/library?zipcode=90029
             @shelf_name = Cache.get session, :shelf_name
-            zip = r.params['zipcode']
+            zip = r.params['zipcode'].to_s
 
             if zip.empty?
               flash[:error] = 'You need to enter a zip code'
@@ -357,7 +369,7 @@ class App < Roda
         end
       end
     end
-  rescue OAuth::Unauthorized, StandardError, ScriptError => e
+  rescue OAuth::Unauthorized, StandardError => e
     enrich_sentry_error(r)
     Sentry.capture_exception(e)
 
