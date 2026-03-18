@@ -6,7 +6,7 @@ GEM
     area (0.10.0)
       fastercsv (~> 1.5)
     ast (2.4.3)
-    async (2.38.0)
+    async (2.38.1)
       console (~> 1.29)
       fiber-annotation
       io-event (~> 1.11)
@@ -40,7 +40,7 @@ GEM
       async
       async-container (~> 0.34)
       string-format (~> 0.2)
-    async-service-supervisor (0.13.0)
+    async-service-supervisor (0.13.1)
       async-bus
       async-service (~> 0.15)
       async-utilization (~> 0.3)
@@ -59,7 +59,7 @@ GEM
       bigdecimal
       samovar (~> 2.1)
     base64 (0.3.0)
-    bcrypt (3.1.21)
+    bcrypt (3.1.22)
     bigdecimal (4.0.1)
     capybara (3.40.0)
       addressable
@@ -126,7 +126,7 @@ GEM
     io-event (1.14.4)
     io-stream (0.11.1)
     ipaddr (1.2.8)
-    json (2.19.1)
+    json (2.19.2)
     json-schema (6.2.0)
       addressable (~> 2.8)
       bigdecimal (>= 3.1, < 5)
@@ -374,7 +374,7 @@ DEPENDENCIES
   unicode_utils
 
 RUBY VERSION
-   ruby 4.0.1p0
+  ruby 4.0.2p0
 
 BUNDLED WITH
-   2.6.9
+  4.0.6
