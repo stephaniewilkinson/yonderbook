@@ -61,14 +61,15 @@ describe App do
     fill_in 'Password', with: fake_password
     click_button 'Create Account'
 
+    # Should redirect to check-email interstitial
+    assert_text 'Check Your Email'
+    assert_text fake_email
+
     # Manually verify the account so the user can log in
     verify_account(fake_email)
 
-    # Log in with the verified account
-    visit '/authenticate'
-    fill_in 'Email', with: fake_email
-    fill_in 'Password', with: fake_password
-    click_button 'Log In'
+    # Log in with password (fallback method)
+    password_login(fake_email, fake_password)
 
     # Should be redirected to home page after successful login
     assert_text 'Welcome back,'
@@ -88,10 +89,12 @@ describe App do
     # Test login with the same credentials
     click_link 'Log in'
 
-    # Fill in login form
-    fill_in 'Email', with: fake_email
-    fill_in 'Password', with: fake_password
-    click_button 'Log In'
+    # Fill in password login form
+    within('#password-login-form') do
+      fill_in 'Email', with: fake_email
+      fill_in 'Password', with: fake_password
+      click_button 'Log In with Password'
+    end
 
     # Should be redirected to home page after successful login
     assert_text 'Welcome back,'
@@ -120,10 +123,7 @@ describe App do
     verify_account(fake_email)
 
     # Log in with the verified account
-    visit '/authenticate'
-    fill_in 'Email', with: fake_email
-    fill_in 'Password', with: fake_password
-    click_button 'Log In'
+    password_login(fake_email, fake_password)
 
     # Should be redirected to home page
     assert_text 'Welcome back,'

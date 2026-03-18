@@ -5,6 +5,9 @@ GEM
       public_suffix (>= 2.0.2, < 8.0)
     area (0.10.0)
       fastercsv (~> 1.5)
+    argon2 (2.3.3)
+      ffi (~> 1.15)
+      ffi-compiler (~> 1.0)
     ast (2.4.3)
     async (2.38.0)
       console (~> 1.29)
@@ -107,6 +110,11 @@ GEM
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
     fastercsv (1.5.5)
+    ffi (1.17.3-x86_64-darwin)
+    ffi (1.17.3-x86_64-linux-gnu)
+    ffi-compiler (1.3.2)
+      ffi (>= 1.15.5)
+      rake
     fiber-annotation (0.2.0)
     fiber-local (1.1.0)
       fiber-storage
@@ -330,6 +338,7 @@ PLATFORMS
 
 DEPENDENCIES
   area
+  argon2
   async-http
   async-limiter
   async-service-supervisor

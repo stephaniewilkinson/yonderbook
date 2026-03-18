@@ -5,6 +5,7 @@ require 'async/barrier'
 require 'async/http/client'
 require 'async/http/endpoint'
 require 'async/http/internet'
+require 'async/semaphore'
 require 'gender_detector'
 require 'nokogiri'
 require 'oauth'
@@ -56,6 +57,7 @@ module Goodreads
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
+      semaphore = Async::Semaphore.new(16, parent: barrier)
       bodies = []
 
       # Fetch page 1 to determine total pages
@@ -69,7 +71,7 @@ module Goodreads
 
       # Fetch remaining pages in parallel
       2.upto(number_of_pages).each do |page|
-        barrier.async do
+        semaphore.async do
           page_path = "#{path}&page=#{page}"
           response = client.get page_path, oauth_headers(page_path, access_token)
           bodies << response.read

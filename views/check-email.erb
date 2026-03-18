@@ -1,0 +1,40 @@
+<% content_for :title, "Check Your Email" %>
+<% content_for :description, "We sent you a verification email. Check your inbox to complete your Yonderbook account setup." %>
+
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="font-display text-3xl sm:text-4xl font-medium tracking-tight text-mauve-950 mb-3">
+      Check Your Email
+    </h1>
+    <p class="text-lg text-mauve-700">
+      We sent a verification link to
+    </p>
+    <p class="text-lg font-medium text-mauve-950 mt-1">
+      <%= h @pending_email %>
+    </p>
+  </div>
+
+  <div class="bg-mauve-950/[.025] border border-mauve-300 px-6 py-5 rounded-xl mb-6">
+    <p class="text-sm text-mauve-700">
+      Click the link in the email to verify your account and log in. Check your spam or promotions folder if you don't see it.
+    </p>
+  </div>
+
+  <div class="text-center">
+    <p class="text-sm text-mauve-700">
+      Didn't get the email?
+      <a href="<%= rodauth.verify_account_resend_path %>" class="text-mauve-950 font-medium hover:underline">
+        Resend verification email
+      </a>
+    </p>
+  </div>
+
+  <div class="mt-4 text-center">
+    <p class="text-sm text-mauve-700">
+      Already verified?
+      <a href="<%= rodauth.login_path %>" class="text-mauve-950 font-medium hover:underline">
+        Log in
+      </a>
+    </p>
+  </div>
+</div>

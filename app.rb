@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+RubyVM::YJIT.enable if defined?(RubyVM::YJIT)
+
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__ if ENV.fetch('RACK_ENV', 'development') == 'development'
 
 require 'area'
@@ -26,6 +28,7 @@ require_relative 'lib/bookmooch'
 require_relative 'lib/cache'
 require_relative 'lib/database'
 require_relative 'lib/email'
+require_relative 'lib/email_templates'
 require_relative 'lib/goodreads'
 require_relative 'lib/models'
 require_relative 'lib/overdrive'
@@ -52,13 +55,28 @@ class App < Roda
   plugin :render
   plugin :partials
   plugin :content_for
+  plugin :typecast_params
+  plugin :caching
   plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
   plugin :websockets
+  plugin :content_security_policy do |csp|
+    csp.default_src :self
+    csp.script_src :self, :unsafe_inline, 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com', 'https://embed.tawk.to'
+    csp.style_src :self, :unsafe_inline
+    csp.img_src :self, :data, 'https:'
+    csp.font_src :self
+    csp.connect_src :self, 'wss:', 'https://www.google-analytics.com', 'https://va.tawk.to'
+    csp.frame_src 'https://tawk.to'
+    csp.frame_ancestors :none
+    csp.form_action :self, 'https://www.goodreads.com'
+  end
 
   # Rodauth configuration with email verification and password reset
   plugin :rodauth do
     db DB
     enable :login, :logout, :create_account, :verify_account, :reset_password, :lockout
+    enable :email_auth, :argon2, :update_password_hash, :active_sessions
+    enable :session_expiration, :disallow_common_passwords
     hmac_secret SESSION_SECRET
 
     # Base URL for email links
@@ -79,9 +97,24 @@ class App < Roda
 
     # Email verification configuration
     verify_account_set_password? false
+    verify_account_autologin? true
     account_status_column :status_id
     account_open_status_value 2 # Verified status
     account_unverified_status_value 1 # Unverified status
+
+    # Magic link (email auth) configuration
+    use_multi_phase_login? false
+    email_auth_email_subject 'Your Yonderbook Login Link'
+    email_auth_email_sent_notice_flash 'Check your email for a login link!'
+    email_auth_email_sent_redirect '/authenticate'
+    email_auth_request_route 'email-auth-request'
+    email_auth_route 'email-auth'
+
+    # Allow direct magic link requests without multi-phase login session
+    before_email_auth_request_route do
+      login = param(login_param)
+      account_from_login(login) if login && !login.empty? && !account
+    end
 
     # Enable deadline values for password reset and email verification
     set_deadline_values? true
@@ -95,19 +128,41 @@ class App < Roda
 
     # Redirect to home page after successful auth actions
     login_redirect '/home'
+    login_return_to_requested_location? true
     logout_redirect '/'
     verify_account_redirect '/home'
 
-    # Redirect to login after account creation (user needs to verify email first)
-    create_account_redirect '/authenticate'
+    # Session expiration: 30 min inactivity, 24 hour max lifetime
+    session_inactivity_timeout 1800
+    max_session_lifetime 86_400
+
+    # Redirect to check-email interstitial after account creation
+    create_account_redirect '/check-email'
+
+    # Store email in session after account creation for the interstitial page
+    after_create_account do
+      session['pending_email'] = account[login_column]
+    end
 
     # Email configuration
     email_from 'app@yonderbook.com'
     email_subject_prefix '[Yonderbook] '
 
-    # Send emails using Resend
+    # Send emails using Resend with category tags
     send_email do |email|
-      EmailService.send_email(to: email.to.first, subject: email.subject, html: email.html_part&.body&.to_s || email.body.to_s)
+      tag = case email.subject
+      when /Verify/ then 'verify_account'
+      when /Reset/ then 'reset_password'
+      when /Login Link/ then 'email_auth'
+      when /Unlock/ then 'unlock_account'
+      else 'other'
+      end
+      EmailService.send_email(
+        to: email.to.first,
+        subject: email.subject,
+        html: email.html_part&.body&.to_s || email.body.to_s,
+        tags: [{name: 'category', value: tag}]
+      )
     end
 
     # Custom error messages for better UX
@@ -123,9 +178,12 @@ class App < Roda
     max_invalid_logins 10
     unlock_account_email_subject 'Unlock Your Yonderbook Account'
 
-    # Email subjects
+    # Email subjects and branded HTML bodies
     verify_account_email_subject 'Verify Your Yonderbook Account'
+    verify_account_email_body { EmailTemplates.verify_account_body(verify_account_email_link) }
     reset_password_email_subject 'Reset Your Yonderbook Password'
+    reset_password_email_body { EmailTemplates.reset_password_body(reset_password_email_link) }
+    email_auth_email_body { EmailTemplates.email_auth_body(email_auth_email_link) }
   end
 
   compile_assets
@@ -135,6 +193,8 @@ class App < Roda
   route do |r|
     r.public
     r.assets
+    rodauth.check_session_expiration
+    rodauth.check_active_session
     begin
       r.rodauth
     rescue Roda::RodaPlugins::RouteCsrf::InvalidToken
@@ -149,6 +209,11 @@ class App < Roda
       r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
     end
     r.get('import-status') { import_status.to_json } # route: GET /import-status
+    r.get('check-email') do # route: GET /check-email
+      @pending_email = session.delete('pending_email') || 'your email'
+      view 'check-email'
+    end
+
     r.root do # route: GET /
       request_token = fetch_and_cache_request_token
       @auth_url = request_token&.authorize_url
@@ -176,7 +241,6 @@ class App < Roda
       end
     end
 
-    # route: GET /about
     r.get('about') { view 'about' } # route: GET /about
     r.get('faq') { view 'faq' } # route: GET /faq
     r.get('how-it-works') { view 'how_it_works' } # route: GET /how-it-works
@@ -198,16 +262,13 @@ class App < Roda
       end
     end
 
-    r.is 'home' do
-      # route: GET /home
-      r.get do
-        rodauth.require_login
-        unless @user&.goodreads_connected?
-          request_token = fetch_and_cache_request_token
-          @auth_url = request_token&.authorize_url
-        end
-        view 'home'
+    r.get 'home' do # route: GET /home
+      rodauth.require_login
+      unless @user&.goodreads_connected?
+        request_token = fetch_and_cache_request_token
+        @auth_url = request_token&.authorize_url
       end
+      view 'home'
     end
 
     r.on 'connections' do
@@ -229,12 +290,7 @@ class App < Roda
 
         # Require Goodreads connection for shelves
         r.on 'shelves' do
-          unless @user&.goodreads_connected?
-            flash[:error] = 'Please connect your Goodreads account first'
-            r.redirect '/connections/goodreads'
-          end
-
-          load_goodreads_connection
+          require_goodreads r
 
           # route: GET /connections/goodreads/shelves
           r.get true do
@@ -294,8 +350,8 @@ class App < Roda
             r.is 'overdrive' do
               r.get(true) { view 'shelves/overdrive' } # route: GET /connections/goodreads/shelves/:id/overdrive
               r.post do # route: POST /connections/goodreads/shelves/:id/overdrive?consortium=1047
-                consortium = r.params['consortium']
-                unless consortium&.match?(/\A\d+\z/)
+                consortium = typecast_params.pos_int('consortium')
+                unless consortium
                   flash[:error] = 'Invalid library selection'
                   r.redirect "shelves/#{@shelf_name}/overdrive"
                 end
@@ -309,12 +365,7 @@ class App < Roda
         end
 
         r.is 'availability' do
-          unless @user&.goodreads_connected?
-            flash[:error] = 'Please connect your Goodreads account first'
-            r.redirect '/connections/goodreads'
-          end
-
-          load_goodreads_connection
+          require_goodreads r
           r.get do # route: GET /connections/goodreads/availability
             @titles = Cache.get session, :titles
             @collection_token = Cache.get session, :collection_token
@@ -333,11 +384,7 @@ class App < Roda
         end
 
         r.is 'library' do
-          unless @user&.goodreads_connected?
-            flash[:error] = 'Please connect your Goodreads account first'
-            r.redirect '/connections/goodreads'
-          end
-          load_goodreads_connection
+          require_goodreads r
           r.post do # route: POST /connections/goodreads/library?zipcode=90029
             @shelf_name = Cache.get session, :shelf_name
             zip = r.params['zipcode'].to_s

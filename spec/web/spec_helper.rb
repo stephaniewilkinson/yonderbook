@@ -63,6 +63,16 @@ end
 
 # Helper module for test utilities
 module TestHelpers
+  # Helper to log in with password via the login page
+  def password_login email, password
+    visit '/authenticate'
+    within('#password-login-form') do
+      fill_in 'Email', with: email
+      fill_in 'Password', with: password
+      click_button 'Log In with Password'
+    end
+  end
+
   # Helper method to manually verify an account in tests
   def verify_account email
     # Wait for account to be created (async operation)
@@ -107,10 +117,7 @@ module TestHelpers
     )
 
     # Log in via the browser
-    visit '/authenticate'
-    fill_in 'Email', with: email
-    fill_in 'Password', with: password
-    click_button 'Log In'
+    password_login(email, password)
     assert_text 'Welcome back,'
 
     account[:id]

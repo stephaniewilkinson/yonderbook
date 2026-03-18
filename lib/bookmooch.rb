@@ -4,6 +4,7 @@ require 'async'
 require 'async/barrier'
 require 'async/http/client'
 require 'async/http/endpoint'
+require 'async/semaphore'
 require 'base64'
 require 'uri'
 require_relative 'alternate_isbns'
@@ -98,12 +99,13 @@ module Bookmooch
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
+      semaphore = Async::Semaphore.new(16, parent: barrier)
       headers = auth_headers(username, password)
       added_isbns = []
       total_batches = isbn_batches.size
 
       isbn_batches.each.with_index do |isbn_batch, batch_idx|
-        barrier.async do
+        semaphore.async do
           process_batch(client, isbn_batch, batch_idx, headers, added_isbns)
           progress_callback&.call(
             type: 'progress',

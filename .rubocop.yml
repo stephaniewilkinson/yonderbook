@@ -356,6 +356,8 @@ Naming/VariableName:
 
 Naming/VariableNumber:
   EnforcedStyle: snake_case
+  AllowedIdentifiers:
+    - argon2
 
 #################### Styles ################################
 
