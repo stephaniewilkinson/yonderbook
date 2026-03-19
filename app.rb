@@ -309,8 +309,7 @@ class App < Roda
                 overdrive = Overdrive.new(@book_info, consortium)
                 titles = overdrive.fetch_titles_availability
                 Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
-                Analytics.track session['session_id'], 'overdrive_search',
-                                shelf: @shelf_name, consortium: consortium, titles_found: titles.size
+                Analytics.track session['session_id'], 'overdrive_search', shelf: @shelf_name, consortium: consortium, titles_found: titles.size
                 r.redirect '/connections/goodreads/availability'
               end
             end
@@ -337,8 +336,11 @@ class App < Roda
             @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
             @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
             @unavailable_books = sort_by_date_added(@titles.select { |a| a.copies_owned.zero? && !a.no_isbn })
-            Analytics.track session['session_id'], 'availability_viewed',
-                            available: @available_books.size, waitlist: @waitlist_books.size, unavailable: @unavailable_books.size
+            Analytics.track session['session_id'],
+                            'availability_viewed',
+                            available: @available_books.size,
+                            waitlist: @waitlist_books.size,
+                            unavailable: @unavailable_books.size
             view 'availability'
           end
         end

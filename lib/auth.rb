@@ -17,7 +17,7 @@ module Auth
     # connection becomes invalid. Create a fresh consumer to get a clean socket.
     tries ||= 0
     tries += 1
-    consumer = OAuth::Consumer.new(API_KEY, GOODREADS_SECRET, site: "https://#{HOST}")
+    OAuth::Consumer.new(API_KEY, GOODREADS_SECRET, site: "https://#{HOST}")
     retry if tries < 4
   end
 

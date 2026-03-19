@@ -14,23 +14,13 @@ module Analytics
   module_function
 
   def track session_id, event, properties = {}
-    POSTHOG.capture(
-      distinct_id: session_id,
-      event: event,
-      properties: properties
-    )
+    POSTHOG.capture(distinct_id: session_id, event: event, properties: properties)
   rescue StandardError => e
     warn "PostHog tracking error: #{e.message}"
   end
 
   def identify session_id, properties = {}
-    POSTHOG.capture(
-      distinct_id: session_id,
-      event: '$identify',
-      properties: {
-        '$set': properties
-      }
-    )
+    POSTHOG.capture(distinct_id: session_id, event: '$identify', properties: {'$set': properties})
   rescue StandardError => e
     warn "PostHog tracking error: #{e.message}"
   end
