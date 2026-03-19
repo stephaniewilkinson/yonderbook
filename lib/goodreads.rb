@@ -11,13 +11,13 @@ require 'oauth'
 require 'uri'
 
 module Goodreads
-  Book = Struct.new :image_url, :isbn, :title, keyword_init: true
-  API_KEY = ENV.fetch 'GOODREADS_API_KEY'
+  Book = Struct.new :image_url, :isbn, :title
+  API_KEY = ENV.fetch('GOODREADS_API_KEY')
   GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
   BASE_URL = "https://#{HOST}".freeze
-  GOODREADS_SECRET = ENV.fetch 'GOODREADS_SECRET'
-  BOOK_DETAILS = %w[isbn book/image_url title authors/author/name published rating].freeze
+  GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET')
+  BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating date_added].freeze
 
   module_function
 
@@ -45,51 +45,57 @@ module Goodreads
     shelf_names.zip shelf_books
   end
 
-  def get_books shelf_name, goodreads_user_id, access_token
+  def get_books shelf_name, goodreads_user_id, access_token = nil
     path = "/review/list/#{goodreads_user_id}.xml?key=#{API_KEY}&v=2&shelf=#{shelf_name}&per_page=100"
-    uri = "#{BASE_URL}#{path}"
-    response = access_token.get(uri)
-    doc = Nokogiri::XML response.body
-    number_of_pages = doc.xpath('//reviews').first.attributes['total'].value.to_f.fdiv(100).ceil
-    bodies = get_requests path, number_of_pages, access_token
+    bodies = fetch_all_pages(path, access_token)
     get_book_details bodies
   end
 
-  def get_requests path, number_of_pages, access_token
-    get_bodies = Async do
+  def fetch_all_pages path, access_token = nil
+    async_result = Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
+      bodies = []
 
-      if client.head(path).status == 200
-        bodies = []
+      # Fetch page 1 to determine total pages
+      page1_path = "#{path}&page=1"
+      headers = oauth_headers(page1_path, access_token)
+      first_body = client.get(page1_path, headers).read
+      doc = Nokogiri::XML first_body
+      total = doc.xpath('//reviews').first.attributes['total'].value.to_f
+      number_of_pages = total.fdiv(100).ceil
+      bodies << first_body
 
-        1.upto(number_of_pages).each do |page|
-          barrier.async do
-            response = client.get "#{path}&page=#{page}"
-            bodies << response.read
-          ensure
-            response&.close
-          end
-        end
-
-        begin
-          barrier.wait
+      # Fetch remaining pages in parallel
+      2.upto(number_of_pages).each do |page|
+        barrier.async do
+          page_path = "#{path}&page=#{page}"
+          response = client.get page_path, oauth_headers(page_path, access_token)
+          bodies << response.read
         ensure
-          barrier&.stop
-        end
-
-        bodies
-      else
-        1.upto(number_of_pages).map do |page|
-          access_token.get("#{BASE_URL}#{path}&page=#{page}").response.body
+          response&.close
         end
       end
+
+      begin
+        barrier.wait
+      ensure
+        barrier&.stop
+      end
+
+      bodies
     ensure
       client&.close
     end
+    async_result.wait
+  end
 
-    get_bodies.wait
+  def oauth_headers path, access_token
+    return [] unless access_token
+
+    signed_req = access_token.consumer.create_signed_request(:get, path, access_token)
+    [['authorization', signed_req['Authorization']]]
   end
 
   def get_book_details bodies
@@ -97,20 +103,22 @@ module Goodreads
       doc = Nokogiri::XML body
       data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text).grep_v(/\A\n\z/) }.transpose
 
-      data.map do |isbn, image_url, title, author, published_year, rating|
+      data.map do |book_data|
+        isbn, image_url, title, author, published_year, rating, date_added = book_data
         {
           isbn:,
           image_url:,
           title:,
           author:,
           published_year:,
-          ratings: rating
+          ratings: rating,
+          date_added:
         }
       end
     end
   end
 
-  def fetch_user request_token
+  def fetch_user request_token, yonderbook_user_id
     access_token = request_token.get_access_token
     goodreads_token = access_token.token
     goodreads_secret = access_token.secret
@@ -118,22 +126,30 @@ module Goodreads
     uri.path = '/api/auth_user'
     response = access_token.get uri.to_s
     xml = Nokogiri::XML response.body
-    user_id = xml.xpath('//user').first.attributes.first[1].value
-    xml.xpath('//user').first.children[1].children.text
+    user_node = xml.xpath('//user').first
+    raise 'Goodreads API returned no user data' unless user_node
+
+    user_id = user_node.attributes.first[1].value
+
+    # Save Goodreads connection to database
+    save_goodreads_connection(yonderbook_user_id, user_id, goodreads_token, goodreads_secret)
 
     [user_id, goodreads_token, goodreads_secret]
   end
 
-  def get_gender books
-    grouped = books.group_by do |book|
-      GENDER_DETECTOR.get_gender book.fetch(:title).split.first
-    end
-    count = grouped.transform_values(&:size)
-    mostly_female = count.values_at(:female, :mostly_female).compact.sum
-    mostly_male = count.values_at(:male, :mostly_male).compact.sum
-    androgynous = count.fetch :andy, 0
+  def save_goodreads_connection yonderbook_user_id, user_id, token, secret
+    connection = GoodreadsConnection[user_id: yonderbook_user_id, goodreads_user_id: user_id]
+    attrs = {access_token: token, access_token_secret: secret, connected_at: Time.now}
+    connection ? connection.update(attrs) : GoodreadsConnection.create(attrs.merge(user_id: yonderbook_user_id, goodreads_user_id: user_id))
+  end
 
-    [mostly_female, mostly_male, androgynous]
+  def get_gender books
+    count = books.group_by { |book| GENDER_DETECTOR.get_gender book[:title].split.first }.transform_values(&:size)
+    [
+      count.values_at(:female, :mostly_female).compact.sum,
+      count.values_at(:male, :mostly_male).compact.sum,
+      count.fetch(:andy, 0)
+    ]
   end
 
   def plot_books_over_time books
@@ -141,11 +157,7 @@ module Goodreads
   end
 
   def rating_stats books
-    grouped = books.group_by do |book|
-      rating_value = book[:ratings] || book[:rating]
-      rating_value.to_i
-    end
-    grouped.transform_values(&:size)
+    books.group_by { |book| (book[:ratings] || book[:rating]).to_i }.transform_values(&:size)
   end
 
   def fetch_book_data isbn
@@ -154,6 +166,7 @@ module Goodreads
     uri.query = URI.encode_www_form(key: API_KEY)
 
     task = Async do
+      internet = Async::HTTP::Internet.new
       response = internet.get uri.to_s
       response_code = response.status
 
@@ -161,7 +174,7 @@ module Goodreads
       when 200
         doc = Nokogiri::XML(response.read)
         title = doc.xpath('//title').text
-        image_url = doc.xpath('//image_url').first.text
+        image_url = doc.xpath('//image_url').first&.text
         book = Book.new(title:, image_url:, isbn:)
 
         [:ok, book]

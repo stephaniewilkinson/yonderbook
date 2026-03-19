@@ -1,0 +1,134 @@
+<% content_for :title, "Connections" %>
+<% content_for :description, "Manage your connected reading services. Connect Goodreads to import your shelves and find free books." %>
+
+<div class="max-w-6xl mx-auto">
+  <!-- Header -->
+  <div class="text-center mb-12">
+    <h1 class="font-display text-5xl font-medium tracking-tight text-mauve-950 mb-4">Your Connections</h1>
+    <p class="text-xl text-mauve-700">
+      Manage your connected reading services and book platforms
+    </p>
+  </div>
+
+  <!-- Connected Services Section -->
+  <% if @goodreads_connection %>
+  <div class="mb-16">
+    <h2 class="font-display text-2xl font-medium text-mauve-950 mb-6 flex items-center">
+      <img src="/svg/checkmark-badge.svg" alt="" class="w-6 h-6 mr-3">
+      Connected Services
+    </h2>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Goodreads Connection Card -->
+      <div class="rounded-xl bg-mauve-950/[.025] p-6">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center space-x-4">
+            <div class="w-14 h-14 bg-mauve-950/10 rounded-xl flex items-center justify-center">
+              <img src="/svg/star.svg" alt="Goodreads" class="w-7 h-7">
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-mauve-950 mb-1">Goodreads</h3>
+              <p class="text-sm text-mauve-700 font-medium flex items-center">
+                <img src="/svg/checkmark-badge.svg" alt="Connected" class="w-4 h-4 mr-1">
+                Connected
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-sm text-mauve-700">
+          <div class="flex items-center justify-between py-2 px-3 bg-mauve-950/[.025] rounded-lg">
+            <span class="font-medium">User ID:</span>
+            <span class="text-mauve-950 font-mono"><%= @goodreads_connection.goodreads_user_id %></span>
+          </div>
+          <div class="flex items-center justify-between py-2 px-3 bg-mauve-950/[.025] rounded-lg">
+            <span class="font-medium">Connected:</span>
+            <span class="text-mauve-950"><%= @goodreads_connection.connected_at.strftime('%B %d, %Y') %></span>
+          </div>
+          <% if @goodreads_connection.last_synced_at %>
+            <div class="flex items-center justify-between py-2 px-3 bg-mauve-950/[.025] rounded-lg">
+              <span class="font-medium">Last synced:</span>
+              <span class="text-mauve-950"><%= @goodreads_connection.last_synced_at.strftime('%B %d, %Y') %></span>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-mauve-950/10 flex items-center justify-between">
+          <a href="/connections/goodreads/shelves" class="inline-flex items-center text-mauve-950 hover:text-mauve-700 font-medium transition-colors duration-200">
+            <img src="/svg/book.svg" alt="" class="w-5 h-5 mr-2">
+            View Your Shelves
+          </a>
+          <form method="post" action="/account/disconnect-goodreads" class="inline-block">
+            <%= csrf_tag('/account/disconnect-goodreads') %>
+            <button type="submit"
+                    onclick="return confirm('Are you sure you want to disconnect your Goodreads account? This will remove your connection and delete your synced data.')"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-mauve-700 hover:text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-all duration-200 border border-mauve-300 hover:border-mauve-950">
+              <img src="/svg/x.svg" alt="" class="w-4 h-4 mr-2">
+              Disconnect
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% end %>
+
+  <!-- Available Services Section -->
+  <% unless @goodreads_connection %>
+  <div class="mb-16">
+    <h2 class="font-display text-2xl font-medium text-mauve-950 mb-6 flex items-center">
+      <img src="/svg/plus-circle.svg" alt="" class="w-6 h-6 mr-3">
+      Available Connections
+    </h2>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Goodreads Available Card -->
+      <div class="rounded-xl bg-mauve-950/[.025] p-6">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center space-x-4">
+            <div class="w-14 h-14 bg-mauve-950/10 rounded-xl flex items-center justify-center">
+              <img src="/svg/star.svg" alt="Goodreads" class="w-7 h-7">
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-mauve-950 mb-1">Goodreads</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-sm text-mauve-700 mb-6">
+          <p class="leading-relaxed">
+            Connect your Goodreads account to import your shelves, analyze your reading patterns, and find your books at libraries and through book trading.
+          </p>
+        </div>
+
+        <div class="pt-4 border-t border-mauve-950/10">
+          <a href="/connections/goodreads" class="inline-flex items-center px-6 py-3 bg-mauve-950 text-white font-medium rounded-full hover:bg-mauve-900 transition-colors duration-200">
+            <img src="/svg/star.svg" alt="" class="w-5 h-5 mr-2 brightness-0 invert">
+            Connect Goodreads
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% end %>
+
+  <!-- Info Box -->
+  <div class="rounded-xl bg-mauve-950/[.025] p-6">
+    <h3 class="text-lg font-semibold text-mauve-950 mb-3 flex items-center">
+      <img src="/svg/info-circle.svg" alt="" class="w-5 h-5 mr-2">
+      Own Your Book Data
+    </h3>
+    <p class="text-mauve-700 leading-relaxed">
+      We're building tools to help you own and centralize all your reading data.
+      Connect multiple platforms and get a complete picture of your reading life across all services.
+    </p>
+  </div>
+
+  <!-- Back to Home Link -->
+  <div class="mt-8 text-center">
+    <a href="/home" class="inline-flex items-center text-mauve-700 hover:text-mauve-950 transition-colors duration-200 font-medium">
+      <img src="/svg/arrow-left.svg" alt="" class="w-5 h-5 mr-2">
+      Back to Home
+    </a>
+  </div>
+</div>

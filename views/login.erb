@@ -1,0 +1,73 @@
+<% content_for :title, "Log In" %>
+<% content_for :description, "Log in to your Yonderbook account to access your reading tools and find free books." %>
+
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="font-display text-3xl sm:text-4xl font-medium tracking-tight text-mauve-950 mb-3">
+      Welcome Back
+    </h1>
+    <p class="text-lg text-mauve-700">
+      Log in to access your reading tools
+    </p>
+  </div>
+
+  <% if rodauth.field_error('email') || rodauth.field_error('password') %>
+    <div class="bg-mauve-950/[.025] border border-mauve-300 text-mauve-950 px-4 py-3 rounded-xl mb-4">
+      <% if rodauth.field_error('email') %>
+        <p class="text-sm"><%= rodauth.field_error('email') %></p>
+      <% end %>
+      <% if rodauth.field_error('password') %>
+        <p class="text-sm"><%= rodauth.field_error('password') %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <form method="post" action="<%= rodauth.login_path %>" class="space-y-4">
+    <%= csrf_tag(rodauth.login_path) %>
+
+    <div>
+      <label for="email" class="block text-sm font-medium text-mauve-950 mb-1">
+        Email
+      </label>
+      <input type="email"
+             name="email"
+             id="email"
+             value="<%= rodauth.param('email') %>"
+             autocomplete="email"
+             class="w-full px-4 py-2 border border-mauve-300 rounded-xl bg-white focus:ring-2 focus:ring-mauve-500 focus:border-mauve-500 transition-all duration-200"
+             required>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-1">
+        <label for="password" class="block text-sm font-medium text-mauve-950">
+          Password
+        </label>
+        <a href="<%= rodauth.reset_password_request_path %>" class="text-sm text-mauve-700 hover:text-mauve-950">
+          Forgot password?
+        </a>
+      </div>
+      <input type="password"
+             name="password"
+             id="password"
+             autocomplete="current-password"
+             class="w-full px-4 py-2 border border-mauve-300 rounded-xl bg-white focus:ring-2 focus:ring-mauve-500 focus:border-mauve-500 transition-all duration-200"
+             required>
+    </div>
+
+    <div class="pt-2">
+      <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">
+        Log In
+      </button>
+    </div>
+  </form>
+
+  <div class="mt-6 text-center">
+    <p class="text-sm text-mauve-700">
+      Don't have an account?
+      <a href="/sign-up" class="text-mauve-950 font-medium hover:underline">
+        Sign up
+      </a>
+    </p>
+  </div>
+</div>

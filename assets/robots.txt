@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /home
+Disallow: /connections
+Disallow: /logout
+Disallow: /verify-account
+Disallow: /reset-password
+
+Sitemap: https://yonderbook.com/sitemap.xml

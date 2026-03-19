@@ -6,7 +6,11 @@
 .bundle/
 .claude
 CLAUDE.md
-docs/
-planning/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+/docs
+/planning
 .playwright-mcp/
-db/*.db

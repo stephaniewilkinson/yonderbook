@@ -12,6 +12,17 @@ rake db:migrate
 ## Start the Server
 `falcon`
 
+## Database Access
+
+**Production (Render):**
+```bash
+sqlite3 /var/data/production.db
+```
+
+**Development:**
+```bash
+sqlite3 db/development.db
+```
 
 ## Testing
 

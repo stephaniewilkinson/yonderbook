@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-source 'https://rubygems.org'
+source 'https://gem.coop'
 
 ruby File.read(File.join(__dir__, '.ruby-version')).chomp.delete_prefix('ruby-')
 
 gem 'area'
 gem 'async-http'
+gem 'async-limiter'
+gem 'async-service-supervisor'
+gem 'bcrypt'
 gem 'csv'
 gem 'dotenv'
 gem 'drb'
@@ -22,7 +25,15 @@ gem 'posthog-ruby'
 gem 'rack-host-redirect'
 gem 'rackup'
 gem 'rake'
+gem 'resend'
+gem 'rinda'
 gem 'roda'
+gem 'rodauth'
+gem 'roda-websockets'
+gem 'sentry-ruby'
+gem 'sequel'
+gem 'sqlite3'
+gem 'tailwindcss-ruby'
 gem 'tilt'
 gem 'unicode_utils'
 
@@ -34,7 +45,10 @@ end
 group :development, :test do
   gem 'pry'
   gem 'rubocop'
+  gem 'rubocop-minitest'
   gem 'rubocop-performance'
+  gem 'rubocop-rake'
+  gem 'rubocop-sequel'
 end
 
 group :test do
@@ -42,9 +56,4 @@ group :test do
   gem 'minitest'
   gem 'minitest-capybara'
   gem 'rack-test'
-  gem 'webdrivers'
-end
-
-group :production do
-  gem 'sentry-ruby'
 end

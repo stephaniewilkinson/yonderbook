@@ -1,32 +1,32 @@
+<% content_for :title, "Your Shelves" %>
+<% content_for :description, "Browse your Goodreads shelves. Select a shelf to analyze your reading or find free books at your library." %>
+
 <div class="max-w-4xl mx-auto mb-8">
-  <div class="text-center relative">
-    <div class="absolute -top-4 left-8 opacity-25">
-      <img src="/img/objects/20.png" alt="" class="w-10 h-10 object-contain transform rotate-12">
+  <div class="text-center">
+    <h3 class="font-display text-2xl font-medium text-mauve-950 mb-4">Step 1</h3>
+    <div class="w-full bg-mauve-200 rounded-full h-2 mb-4">
+      <div class="bg-mauve-950 h-2 rounded-full w-1/4"></div>
     </div>
-    <h3 class="text-2xl font-bold text-gray-900 mb-4">Step 1</h3>
-    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
-      <div class="bg-secondary h-2 rounded-full w-1/4"></div>
-    </div>
-    <h5 class="text-xl font-semibold text-gray-700">Choose a shelf</h5>
+    <h5 class="text-xl font-medium text-mauve-700">Choose a shelf</h5>
   </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
   <% @shelves.sort_by { |_, count| -count }.each do |name, count| %>
-    <div class="bg-green-50 border border-green-200 rounded-lg shadow-md overflow-hidden">
+    <div class="rounded-xl bg-mauve-950/[.025] overflow-hidden">
       <div class="p-6">
-        <h6 class="text-lg font-semibold text-gray-900 mb-2"><%= name %></h6>
-        <p class="text-gray-600"><%= count %> book<%= 's' if count != 1 %></p>
+        <h6 class="text-lg font-semibold text-mauve-950 mb-2"><%= name %></h6>
+        <p class="text-mauve-700"><%= count %> book<%= 's' if count != 1 %></p>
       </div>
-      <div class="px-6 py-4 bg-gray-50 border-t border-green-200 flex justify-between items-center gap-2">
+      <div class="px-6 py-4 border-t border-mauve-950/10 flex justify-between items-center gap-2">
         <% if count.positive? %>
-          <a class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200" href="shelves/<%= name %>">
+          <a class="inline-flex items-center px-4 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full transition-colors duration-200" href="shelves/<%= name %>">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
             Stats
           </a>
-          <button class="inline-flex items-center px-4 py-2 bg-secondary hover:bg-secondary/80 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200 modal-trigger" onclick="openModal('modal-<%= name %>')">
+          <button class="inline-flex items-center px-4 py-2 bg-mauve-950/10 hover:bg-mauve-950/20 text-mauve-950 text-sm font-medium rounded-full transition-colors duration-200 modal-trigger" onclick="openModal('modal-<%= name %>')">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
             </svg>
@@ -37,12 +37,12 @@
     </div>
 
     <!-- Modal -->
-    <div id="modal-<%= name %>" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div id="modal-<%= name %>" class="hidden fixed inset-0 bg-mauve-950/50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border border-mauve-200 w-96 shadow-lg rounded-xl bg-mauve-100">
         <div class="mt-3 text-center">
-          <h4 class="text-lg font-semibold text-gray-900 mb-6">Choose a format</h4>
+          <h4 class="text-lg font-semibold text-mauve-950 mb-6">Choose a format</h4>
           <div class="space-y-4">
-            <a href="shelves/<%= name %>/overdrive" class="block w-full bg-secondary hover:bg-secondary/80 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+            <a href="shelves/<%= name %>/overdrive" class="block w-full bg-mauve-950 hover:bg-mauve-900 text-white font-medium py-3 px-4 rounded-full transition-colors duration-200">
               <div class="flex items-center justify-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
@@ -50,7 +50,7 @@
                 eBooks
               </div>
             </a>
-            <a href="shelves/<%= name %>/bookmooch" class="block w-full bg-secondary hover:bg-secondary/80 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+            <a href="shelves/<%= name %>/bookmooch" class="block w-full bg-mauve-950 hover:bg-mauve-900 text-white font-medium py-3 px-4 rounded-full transition-colors duration-200">
               <div class="flex items-center justify-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -58,7 +58,7 @@
                 By Mail
               </div>
             </a>
-            <button onclick="closeModal('modal-<%= name %>')" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+            <button onclick="closeModal('modal-<%= name %>')" class="w-full bg-mauve-950/10 hover:bg-mauve-950/20 text-mauve-950 font-medium py-2 px-4 rounded-full transition-colors duration-200">
               Cancel
             </button>
           </div>
@@ -79,10 +79,8 @@ function closeModal(modalId) {
 
 // Close modal when clicking outside
 document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('bg-opacity-50')) {
+  if (event.target.classList.contains('fixed') && event.target.id.startsWith('modal-')) {
     event.target.classList.add('hidden');
   }
 });
 </script>
-
-<!-- Modal initialization moved to layout.erb for better performance -->

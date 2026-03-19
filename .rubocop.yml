@@ -1,8 +1,11 @@
 plugins:
   - rubocop-performance
+  - rubocop-minitest
+  - rubocop-sequel
+  - rubocop-rake
 
 AllCops:
-  TargetRubyVersion: 3.2.3
+  TargetRubyVersion: 3.4.7
   EnabledByDefault: true
 
 #################### Bundler ##############################
@@ -393,11 +396,11 @@ Style/BlockDelimiters:
 
 Style/CollectionMethods:
   PreferredMethods:
-    collect: 'map'
-    collect!: 'map!'
-    inject: 'reduce'
-    detect: 'find'
-    find_all: 'select'
+    collect: "map"
+    collect!: "map!"
+    inject: "reduce"
+    detect: "find"
+    find_all: "select"
 
 Style/ConditionalAssignment:
   EnforcedStyle: assign_to_condition
@@ -444,6 +447,9 @@ Style/HashSyntax:
     - ruby19_no_mixed_keys
   UseHashRocketsWithSymbolValues: false
   PreferHashRocketsForNonAlnumEndingSymbols: false
+
+Style/HashLookupMethod:
+  Enabled: false
 
 Style/ImplicitRuntimeError:
   Enabled: false

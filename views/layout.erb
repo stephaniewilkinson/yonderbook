@@ -1,40 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Yonderbook | Tools for the Tech-savvy & Bookish</title>
+    <title><%= content_for(:title) ? "#{content_for(:title)} | Yonderbook" : "Yonderbook | Goodreads Libby Integration — Find Your Books Free at the Library" %></title>
     <meta charset="UTF-8">
-    <!--Let browser know website is optimized for mobile-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="<%= content_for(:description) || "Goodreads Libby integration made easy. Automatically check which books on your Goodreads want-to-read shelf are available free at your library through Libby and OverDrive." %>">
+    <meta name="keywords" content="Goodreads, Libby, OverDrive, BookMooch, free books, library ebooks, book trading, want to read, reading list, free audiobooks, library catalog search">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
+    <meta property="og:title" content="<%= content_for(:og_title) || content_for(:title) || "Yonderbook | Goodreads Libby Integration — Find Your Books Free at the Library" %>">
+    <meta property="og:description" content="<%= content_for(:og_description) || content_for(:description) || "Goodreads Libby integration made easy. Automatically find which books on your want-to-read shelf are available free at your library." %>">
+    <meta property="og:image" content="<%= @og_image || "https://yonderbook.com/img/yonderbook.png" %>">
+    <meta property="og:site_name" content="Yonderbook">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
+    <meta property="twitter:title" content="<%= content_for(:twitter_title) || content_for(:og_title) || content_for(:title) || "Yonderbook | Goodreads Libby Integration" %>">
+    <meta property="twitter:description" content="<%= content_for(:twitter_description) || content_for(:og_description) || content_for(:description) || "Goodreads Libby integration made easy. Find your want-to-read books free at your library." %>">
+    <meta property="twitter:image" content="<%= @twitter_image || @og_image || "https://yonderbook.com/img/yonderbook.png" %>">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/svg/favicon.svg?v=2">
 
     <!-- Preload critical resources for faster loading -->
     <%= preload_assets_link_tags(:css) %>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" as="style">
 
-    <!-- Load fonts with display=swap for better performance -->
-    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter + Mona Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mona+Sans:ital,wdth,wght@0,112.5,200..900;1,112.5,200..900&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS with Custom Colors -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'brand': '#501229',
-              'secondary': '#369b9a'
-            }
-          }
-        }
-      }
+    <!-- Tailwind CSS (pre-built) -->
+    <%= assets(:css) %>
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Yonderbook",
+      "url": "https://yonderbook.com",
+      "description": "Turn your Goodreads want-to-read list into free books. Find your books at libraries via Libby/OverDrive and through BookMooch book trading.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      },
+      "featureList": [
+        "Import Goodreads shelves",
+        "Find books at local libraries",
+        "Check Libby/OverDrive availability",
+        "BookMooch integration",
+        "Reading analytics",
+        "Author diversity tracking"
+      ]
+    }
     </script>
 
-    <%= assets(:css) %>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Yonderbook",
+      "url": "https://yonderbook.com",
+      "logo": "https://yonderbook.com/svg/book-nav.svg",
+      "sameAs": []
+    }
+    </script>
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96996170-1"></script>
     <script>
@@ -46,44 +92,55 @@
     </script>
   </head>
 
-  <body class="flex flex-col min-h-screen bg-gradient-to-t from-[#CAf7eb] to-[#138586]">
+  <body class="flex flex-col min-h-screen bg-mauve-200 font-sans antialiased text-mauve-950/90 selection:bg-mauve-200 selection:text-mauve-950">
     <main class="flex-1">
-      <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50 rounded-b-lg">
-        <div class="max-w-7xl mx-auto">
+      <nav class="sticky top-0 z-50 bg-[#fbfafb] border-b border-mauve-200 shadow-sm group">
+        <div class="max-w-2xl md:max-w-3xl lg:max-w-7xl mx-auto px-6 lg:px-10">
           <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex-shrink-0">
-              <a href="/" class="flex items-center space-x-2 text-2xl font-bold text-brand transition-colors duration-200">
-                <img src="/svg/book-nav.svg" alt="Book" class="w-8 h-8 text-brand">
-                <span class="brand-logo bg-gradient-to-r from-maroon-600 to-maroon-800 bg-clip-text text-transparent font-black font-coats">
-                  Yonderbook
-                </span>
+              <a href="/" class="flex items-center space-x-2 text-2xl font-display font-medium text-mauve-950 tracking-tight group-hover:text-mauve-800 transition-colors duration-300">
+                <img src="/svg/book-nav.svg" alt="Book" class="w-8 h-8 group-hover:scale-105 transition-transform duration-300">
+                <span>Yonderbook</span>
               </a>
             </div>
 
             <!-- Desktop Navigation -->
             <div class="hidden md:block">
-              <div class="ml-10 flex items-center space-x-1">
+              <div class="flex items-center space-x-1">
                 <a href="/about"
-                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
-                  <img src="/svg/info-circle.svg" alt="About" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
+                   class="px-4 py-2 text-sm font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
                   About
                 </a>
 
-                <% if session.key? 'goodreads_user_id' %>
-                <a href="/auth/shelves"
-                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
-                  <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
-                  Shelves
-                </a>
-                <% end %>
-
-                <% if @user %>
-                <a href='/auth/users/<%= @user[:id] %>'
-                   class="group inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand hover:bg-gray-50 rounded-lg transition-all duration-200">
-                  <img src="/svg/user.svg" alt="Account" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon-500">
-                  Account
-                </a>
+                <% if rodauth.logged_in? %>
+                  <a href="/home"
+                     class="px-4 py-2 text-sm font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                    Home
+                  </a>
+                  <% if @user&.goodreads_connected? %>
+                  <a href="/connections/goodreads/shelves"
+                     class="px-4 py-2 text-sm font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                    Shelves
+                  </a>
+                  <% end %>
+                  <a href="/connections"
+                     class="px-4 py-2 text-sm font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                    Connections
+                  </a>
+                  <a href="/account"
+                     class="px-4 py-2 text-sm font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                    Account
+                  </a>
+                <% else %>
+                  <a href="/authenticate"
+                     class="px-4 py-2 text-sm font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                    Login
+                  </a>
+                  <a href="/sign-up"
+                     class="px-5 py-2.5 ml-3 text-sm font-medium text-white bg-gradient-to-r from-mauve-800 to-mauve-950 hover:from-mauve-700 hover:to-mauve-900 rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 animate-bounce-subtle inline-block">
+                    Sign Up
+                  </a>
                 <% end %>
               </div>
             </div>
@@ -91,7 +148,7 @@
             <!-- Mobile menu button -->
             <div class="md:hidden">
               <button type="button"
-                      class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                      class="mobile-menu-button p-2 text-mauve-950 hover:bg-mauve-950/10 rounded-full focus:outline-none"
                       onclick="toggleMobileMenu()">
                 <img src="/svg/menu.svg" alt="Menu" class="block h-6 w-6">
               </button>
@@ -100,34 +157,71 @@
 
           <!-- Mobile Navigation -->
           <div class="mobile-menu hidden md:hidden">
-            <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">
+            <div class="px-2 pt-2 pb-3 space-y-1">
               <a href="/about"
-                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                 class="block px-4 py-2 text-base font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
                 About
               </a>
 
-              <% if session.key? 'goodreads_user_id' %>
-              <a href="/auth/shelves"
-                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
-                Shelves
-              </a>
-              <% end %>
-
-              <% if @user %>
-              <a href='/auth/users/<%= @user[:id] %>'
-                 class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200">
-                Account
-              </a>
+              <% if rodauth.logged_in? %>
+                <a href="/home"
+                   class="block px-4 py-2 text-base font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                  Home
+                </a>
+                <% if @user&.goodreads_connected? %>
+                <a href="/connections/goodreads/shelves"
+                   class="block px-4 py-2 text-base font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                  Shelves
+                </a>
+                <% end %>
+                <a href="/connections"
+                   class="block px-4 py-2 text-base font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                  Connections
+                </a>
+                <a href="/account"
+                   class="block px-4 py-2 text-base font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                  Account
+                </a>
+              <% else %>
+                <a href="/authenticate"
+                   class="block px-4 py-2 text-base font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                  Login
+                </a>
+                <a href="/sign-up"
+                   class="block px-4 py-2 text-base font-medium text-white bg-mauve-950 rounded-full transition-colors duration-200">
+                  Sign Up
+                </a>
               <% end %>
             </div>
           </div>
         </div>
       </nav>
 
-      <div class="max-w-7xl mx-auto px-4 md:px-8 pt-8">
+      <%= partial 'flash_notifications' %>
+      <%= partial 'import_toast' %>
+
+      <div class="max-w-2xl md:max-w-3xl lg:max-w-7xl mx-auto px-6 lg:px-10 py-16">
         <%= yield %>
       </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-mauve-950/5 bg-gradient-to-b from-transparent to-mauve-100/50 mt-12">
+      <div class="max-w-2xl md:max-w-3xl lg:max-w-7xl mx-auto px-6 lg:px-10 py-16">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+          <a href="/" class="flex items-center space-x-2 text-lg font-display font-medium text-mauve-950 tracking-tight hover:opacity-80 transition-opacity">
+            <img src="/svg/book-nav.svg" alt="Book" class="w-6 h-6">
+            <span>Yonderbook</span>
+          </a>
+          <nav class="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-medium text-mauve-600">
+            <a href="/about" class="hover:text-mauve-950 transition-colors duration-200">About</a>
+            <a href="/how-it-works" class="hover:text-mauve-950 transition-colors duration-200">How It Works</a>
+            <a href="/faq" class="hover:text-mauve-950 transition-colors duration-200">FAQ</a>
+          </nav>
+          <p class="text-sm text-mauve-500">&copy; <%= Time.now.year %> Yonderbook</p>
+        </div>
+      </div>
+    </footer>
 
     <!-- Custom JavaScript -->
     <script>
@@ -137,54 +231,30 @@
         mobileMenu.classList.toggle('hidden');
       }
 
+      // Auto-dismiss flash messages with fade out
       document.addEventListener('DOMContentLoaded', function() {
-        // Progressive enhancement: Load background images after critical content
-        setTimeout(function() {
-          document.querySelector('main').classList.add('loaded');
-        }, 100);
-
-        // Show flash messages (converted from Materialize toast)
-        <% if flash['error'] %>
-          // Simple toast notification without Materialize
-          var toast = document.createElement('div');
-          toast.textContent = "<%= flash['error'] %>";
-          toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-          document.body.appendChild(toast);
-          setTimeout(function() {
-            toast.remove();
-          }, 4000);
-        <% end %>
-
+        ['flash-error', 'flash-notice'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) {
+            setTimeout(function() { el.style.opacity = '0'; }, 3500);
+            setTimeout(function() { el.remove(); }, 4000);
+          }
+        });
       });
     </script>
 
-    <!-- Start of Async Drift Code -->
-    <script>
-      "use strict";
-
-      !function() {
-        var t = window.driftt = window.drift = window.driftt || [];
-        if (!t.init) {
-          if (t.invoked) return void (window.console && console.error && console.error("Drift snippet included twice."));
-          t.invoked = !0, t.methods = [ "identify", "config", "track", "reset", "debug", "show", "ping", "page", "hide", "off", "on" ],
-          t.factory = function(e) {
-            return function() {
-              var n = Array.prototype.slice.call(arguments);
-              return n.unshift(e), t.push(n), t;
-            };
-          }, t.methods.forEach(function(e) {
-            t[e] = t.factory(e);
-          }), t.load = function(t) {
-            var e = 3e5, n = Math.ceil(new Date() / e) * e, o = document.createElement("script");
-            o.type = "text/javascript", o.async = !0, o.crossorigin = "anonymous", o.src = "https://js.driftt.com/include/" + n + "/" + t + ".js";
-            var i = document.getElementsByTagName("script")[0];
-            i.parentNode.insertBefore(o, i);
-          };
-        }
-      }();
-      drift.SNIPPET_VERSION = '0.3.1';
-      drift.load('cvbkkuu6xsfn');
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/68d6960634eabc19222ddc76/1j633k22v';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
     </script>
-    <!-- End of Async Drift Code -->
+    <!--End of Tawk.to Script-->
   </body>
 </html>

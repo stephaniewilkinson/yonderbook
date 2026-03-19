@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-system 'roda-parse_routes', '-f', 'routes.json', __FILE__
+system 'roda-parse_routes', '-f', 'routes.json', __FILE__ if ENV.fetch('RACK_ENV', 'development') == 'development'
 
 require 'area'
+require 'async'
 require 'rack/host_redirect'
 require 'roda'
 require 'securerandom'
@@ -11,215 +12,384 @@ require 'tilt'
 # require 'zbar'
 
 require_relative 'lib/analytics'
+
+# Ruby 4.0 removed CGI.parse; the oauth gem still uses it
+require 'cgi'
+unless CGI.respond_to?(:parse)
+  def CGI.parse query_string
+    URI.decode_www_form(query_string).each_with_object({}) do |(k, v), hash|
+      (hash[k] ||= []) << v
+    end
+  end
+end
+
 require_relative 'lib/auth'
 require_relative 'lib/bookmooch'
 require_relative 'lib/cache'
+require_relative 'lib/database'
 require_relative 'lib/email'
 require_relative 'lib/goodreads'
+require_relative 'lib/models'
 require_relative 'lib/overdrive'
+require_relative 'lib/route_helpers'
+require_relative 'lib/websockets'
+
+SESSION_SECRET = ENV.fetch('SESSION_SECRET').then do |s|
+  warn 'WARNING: SESSION_SECRET should be at least 64 bytes for security' if s.bytesize < 64
+  s
+end
 
 class App < Roda
   use Sentry::Rack::CaptureExceptions
-  use Rack::HostRedirect, 'bookmooch.herokuapp.com' => 'yonderbook.com'
+  use Rack::HostRedirect, 'www.yonderbook.com' => 'yonderbook.com'
 
   plugin :head
   plugin :assets, css: 'styles.css'
   plugin :assets_preloading
   plugin :public, root: 'assets'
   plugin :flash
-  plugin :sessions, secret: ENV.fetch('SESSION_SECRET')
+  plugin :sessions, secret: SESSION_SECRET
+  plugin :route_csrf
   plugin :slash_path_empty
   plugin :render
+  plugin :partials
+  plugin :content_for
   plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
+  plugin :websockets
+
+  # Rodauth configuration with email verification and password reset
+  plugin :rodauth do
+    db DB
+    enable :login, :logout, :create_account, :verify_account, :reset_password, :lockout
+    hmac_secret SESSION_SECRET
+
+    # Base URL for email links
+    base_url ENV.fetch('BASE_URL', 'http://localhost:9292')
+
+    # Use password_hash column in accounts table instead of separate table
+    password_hash_table :accounts
+    password_hash_id_column :id
+    password_hash_column :password_hash
+
+    # Customize field labels and requirements
+    login_label 'Email'
+    login_param 'email'
+    login_column :email
+    login_input_type 'email'
+    require_password_confirmation? false
+    require_login_confirmation? false
+
+    # Email verification configuration
+    verify_account_set_password? false
+    account_status_column :status_id
+    account_open_status_value 2 # Verified status
+    account_unverified_status_value 1 # Unverified status
+
+    # Enable deadline values for password reset and email verification
+    set_deadline_values? true
+
+    # Change routes to avoid conflict with Goodreads OAuth callback
+    login_route 'authenticate'
+    create_account_route 'sign-up'
+    verify_account_route 'verify-account'
+    reset_password_request_route 'reset-password-request'
+    reset_password_route 'reset-password'
+
+    # Redirect to home page after successful auth actions
+    login_redirect '/home'
+    logout_redirect '/'
+    verify_account_redirect '/home'
+
+    # Redirect to login after account creation (user needs to verify email first)
+    create_account_redirect '/authenticate'
+
+    # Email configuration
+    email_from 'app@yonderbook.com'
+    email_subject_prefix '[Yonderbook] '
+
+    # Send emails using Resend
+    send_email do |email|
+      EmailService.send_email(to: email.to.first, subject: email.subject, html: email.html_part&.body&.to_s || email.body.to_s)
+    end
+
+    # Custom error messages for better UX
+    no_matching_login_message 'No account exists with that email. Please create an account.'
+    reset_password_request_error_flash 'There was an error requesting a password reset. Please make sure the email is correct and that you have an account.'
+
+    # Success notifications
+    create_account_notice_flash 'Account created! Check your email to verify your account before logging in.'
+    reset_password_email_sent_notice_flash 'We sent you a password reset link to your email. Click the link in the email to finish resetting your password.'
+    reset_password_email_sent_redirect '/authenticate'
+
+    # Rate limiting - lock account after 10 failed login attempts
+    max_invalid_logins 10
+    unlock_account_email_subject 'Unlock Your Yonderbook Account'
+
+    # Email subjects
+    verify_account_email_subject 'Verify Your Yonderbook Account'
+    reset_password_email_subject 'Reset Your Yonderbook Password'
+  end
 
   compile_assets
+  include RouteHelpers
+
   # TODO: figure out how to reroute 404s to /
   route do |r|
     r.public
     r.assets
-
+    begin
+      r.rodauth
+    rescue Roda::RodaPlugins::RouteCsrf::InvalidToken
+      flash[:error] = 'Your session has expired. Please try again.'
+      r.redirect r.path
+    end
+    @user = Account[rodauth.session_value] if rodauth.logged_in?
+    enrich_sentry(r)
     session['session_id'] ||= SecureRandom.uuid
-
-    # route: GET /
-    r.root do
-      request_token = Auth.fetch_request_token
-      Cache.set(session, request_token:)
-
-      @auth_url = request_token.authorize_url
+    # route: WebSocket /ws/bookmooch/:session_id
+    r.on 'ws', 'bookmooch', String do |session_id|
+      r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
+    end
+    r.get('import-status') { import_status.to_json } # route: GET /import-status
+    r.root do # route: GET /
+      request_token = fetch_and_cache_request_token
+      @auth_url = request_token&.authorize_url
       Analytics.track session['session_id'], 'page_viewed', page: 'welcome'
       view 'welcome'
     end
 
     r.is 'login' do
       request_token = Cache.get session, :request_token
-      # TODO: this is blocking people who are already logged in but not a huge deal
       unless request_token
         flash[:error] = "Click 'login' again please"
         r.redirect '/'
       end
-
       # route: GET /login
       r.get do
-        goodreads_user_id, access_token, access_token_secret = Goodreads.fetch_user request_token
-        session['access_token'] = access_token
-        session['access_token_secret'] = access_token_secret
-
-        session['goodreads_user_id'] = goodreads_user_id
-        Analytics.identify session['session_id'], goodreads_user_id: goodreads_user_id
-        Analytics.track session['session_id'], 'goodreads_connected', goodreads_user_id: goodreads_user_id
-
-        r.redirect '/auth/shelves'
+        unless @user
+          flash[:error] = 'Please log in first before connecting Goodreads'
+          r.redirect '/'
+        end
+        Goodreads.fetch_user request_token, @user.id
+        @user.refresh
+        Analytics.identify session['session_id'], goodreads_user_id: @user.goodreads_user_id
+        Analytics.track session['session_id'], 'goodreads_connected', goodreads_user_id: @user.goodreads_user_id
+        r.redirect '/connections/goodreads/shelves'
       rescue OAuth::Unauthorized
         flash[:error] = 'Fetched details! Click login'
         r.redirect '/'
       end
     end
 
-    r.is 'about' do
-      # route: GET /about
+    # route: GET /about
+    r.get('about') { view 'about' } # route: GET /about
+    r.get('faq') { view 'faq' } # route: GET /faq
+    r.get('how-it-works') { view 'how_it_works' } # route: GET /how-it-works
+
+    r.on 'account' do
+      # route: POST /account/disconnect-goodreads
+      r.post 'disconnect-goodreads' do
+        rodauth.require_login
+        check_csrf!
+        GoodreadsConnection.where(user_id: @user.id).delete
+        flash['notice'] = 'Your Goodreads connection has been removed and your data deleted.'
+        r.redirect '/account'
+      end
+
+      # route: GET /account
       r.get do
-        Analytics.track session['session_id'], 'page_viewed', page: 'about'
-        view 'about'
+        rodauth.require_login
+        view 'account'
       end
     end
 
-    r.on 'auth' do
-      @goodreads_user_id = session['goodreads_user_id']
-      r.redirect '/' unless @goodreads_user_id
+    r.is 'home' do
+      # route: GET /home
+      r.get do
+        rodauth.require_login
+        unless @user&.goodreads_connected?
+          request_token = fetch_and_cache_request_token
+          @auth_url = request_token&.authorize_url
+        end
+        view 'home'
+      end
+    end
 
-      # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
-      r.on 'shelves' do
-        # route: GET /auth/shelves
+    r.on 'connections' do
+      # route: GET /connections
+      r.get true do
+        @goodreads_connection = @user&.goodreads_connection
+        view 'connections'
+      end
+
+      r.on 'goodreads' do
+        # route: GET /connections/goodreads
         r.get true do
-          @shelves = Goodreads.fetch_shelves @goodreads_user_id
-          Analytics.track session['session_id'], 'shelves_viewed', shelf_count: @shelves.size
-          view 'shelves/index'
+          r.redirect '/home' if @user&.goodreads_connected?
+          # Always fetch a fresh request token (they expire and can only be used once)
+          request_token = fetch_and_cache_request_token
+          @auth_url = request_token&.authorize_url
+          view 'connect_goodreads'
         end
 
-        r.on String do |shelf_name|
-          @shelf_name = shelf_name
-          Cache.set session, shelf_name: @shelf_name
-
-          @book_info = Cache.get session, @shelf_name.to_sym
-          unless @book_info
-            access_token = Auth.rebuild_access_token(session['access_token'], session['access_token_secret'])
-            @book_info = Goodreads.get_books @shelf_name, @goodreads_user_id, access_token
-            Cache.set session, @shelf_name.to_sym => @book_info
+        # Require Goodreads connection for shelves
+        r.on 'shelves' do
+          unless @user&.goodreads_connected?
+            flash[:error] = 'Please connect your Goodreads account first'
+            r.redirect '/connections/goodreads'
           end
 
-          # route: GET /auth/shelves/:id
+          load_goodreads_connection
+
+          # route: GET /connections/goodreads/shelves
           r.get true do
-            @women, @men, @andy = Goodreads.get_gender @book_info
-            @histogram_dataset = Goodreads.plot_books_over_time @book_info
-            @ratings = Goodreads.rating_stats @book_info
-            Analytics.track session['session_id'], 'shelf_stats_viewed', shelf: @shelf_name, book_count: @book_info.size
-
-            view 'shelves/show'
+            @shelves = Goodreads.fetch_shelves @goodreads_user_id
+            Analytics.track session['session_id'], 'shelves_viewed', shelf_count: @shelves.size
+            view 'shelves/index'
           end
 
-          r.on 'bookmooch' do
-            # route: GET /auth/shelves/:id/bookmooch
+          # TODO: change this so I'm not passing stuff back and forth from cache unnecessarily
+          r.on String do |shelf_name|
+            @shelf_name = shelf_name
+            Cache.set session, shelf_name: @shelf_name
+
+            # Check in-memory cache, then filesystem cache (from background import)
+            @book_info = Cache.get(session, @shelf_name.to_sym) || load_background_shelf_data
+
+            # route: GET /connections/goodreads/shelves/:id
             r.get true do
-              view 'shelves/bookmooch'
+              @book_info ||= load_or_start_shelf_import(@shelf_name)
+              view('shelves/loading') unless @book_info
+              @women, @men, @andy = Goodreads.get_gender @book_info
+              @histogram_dataset = Goodreads.plot_books_over_time @book_info
+              @ratings = Goodreads.rating_stats @book_info
+              Analytics.track session['session_id'], 'shelf_stats_viewed', shelf: @shelf_name, book_count: @book_info.size
+              view 'shelves/show'
             end
 
-            # route: POST /auth/shelves/:id/bookmooch?username=foo&password=baz
-            r.post do
-              @books_added, @books_failed = Bookmooch.books_added_and_failed @book_info, r.params['username'], r.params['password']
-              Cache.set session, books_added: @books_added, books_failed: @books_failed
-              Analytics.track session['session_id'], 'bookmooch_import_completed',
-                              shelf: @shelf_name, books_added: @books_added.size, books_failed: @books_failed.size
+            # Blocking fetch for sub-routes that need @book_info
+            @book_info ||= fetch_shelf_blocking(@shelf_name)
 
-              r.redirect 'bookmooch/results'
+            r.on 'bookmooch' do
+              # route: GET /connections/goodreads/shelves/:id/bookmooch
+              r.get true do
+                @new_count, @skip_count, @no_isbn_count = bookmooch_preview(@user.id, @book_info)
+                view 'shelves/bookmooch'
+              end
+
+              # route: POST /connections/goodreads/shelves/:id/bookmooch?username=foo&password=baz
+              r.post do
+                BookmoochImport.clear_imports(@user.id) if r.params['reimport'] == '1'
+                filtered = filter_already_imported_books(@user.id, @book_info)
+                cache_bookmooch_params(r, filtered, @user.id, @book_info.size - filtered.size)
+                set_pending_import('bookmooch', "#{r.path}/results", progress_url: "#{r.path}/progress")
+                r.redirect 'bookmooch/progress'
+              end
+
+              # route: GET /connections/goodreads/shelves/:id/bookmooch/progress
+              r.get 'progress' do
+                @session_id = session['session_id']
+                view 'bookmooch_progress'
+              end
+
+              r.get 'results' do # route: GET /connections/goodreads/shelves/:id/bookmooch/results
+                @books_added, @books_failed, @books_failed_no_isbn, @skipped_count = load_bookmooch_results
+                view 'bookmooch'
+              end
             end
 
-            # route: GET /auth/shelves/:id/bookmooch/results
-            r.get 'results' do
-              @books_added = Cache.get session, :books_added
-              @books_failed = Cache.get session, :books_failed
-              view 'bookmooch'
-            end
-          end
-
-          r.is 'overdrive' do
-            # TODO: have browser get their location
-            # route: GET /auth/shelves/:id/overdrive
-            r.get true do
-              view 'shelves/overdrive'
-            end
-
-            # route: POST /auth/shelves/:id/overdrive?consortium=1047
-            r.post do
-              titles = Overdrive.new(@book_info, r.params['consortium']).fetch_titles_availability
-              Cache.set(session, titles:)
-              Analytics.track session['session_id'], 'overdrive_search',
-                              shelf: @shelf_name, consortium: r.params['consortium'], titles_found: titles.size
-              r.redirect '/auth/availability'
+            r.is 'overdrive' do
+              r.get(true) { view 'shelves/overdrive' } # route: GET /connections/goodreads/shelves/:id/overdrive
+              r.post do # route: POST /connections/goodreads/shelves/:id/overdrive?consortium=1047
+                consortium = r.params['consortium']
+                unless consortium&.match?(/\A\d+\z/)
+                  flash[:error] = 'Invalid library selection'
+                  r.redirect "shelves/#{@shelf_name}/overdrive"
+                end
+                overdrive = Overdrive.new(@book_info, consortium)
+                titles = overdrive.fetch_titles_availability
+                Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
+                Analytics.track session['session_id'], 'overdrive_search',
+                                shelf: @shelf_name, consortium: consortium, titles_found: titles.size
+                r.redirect '/connections/goodreads/availability'
+              end
             end
           end
         end
-      end
 
-      r.is 'availability' do
-        # route: GET /auth/availability
-        r.get do
-          # TODO: Sort titles by recently added to goodreads list
-          @titles = Cache.get session, :titles
-
-          unless @titles
-            flash[:error] = 'Please choose a shelf first'
-            r.redirect 'shelves'
+        r.is 'availability' do
+          unless @user&.goodreads_connected?
+            flash[:error] = 'Please connect your Goodreads account first'
+            r.redirect '/connections/goodreads'
           end
 
-          @available_books = @titles.select { |a| a.copies_available.positive? }
-          @waitlist_books = @titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? }
-          @unavailable_books = @titles.select { |a| a.copies_owned.zero? }
-          Analytics.track session['session_id'], 'availability_viewed',
-                          available: @available_books.size, waitlist: @waitlist_books.size, unavailable: @unavailable_books.size
-          view 'availability'
-        end
-      end
-
-      # TODO: add library logos to the cards in the views
-      r.is 'library' do
-        # route: POST /auth/library?zipcode=90029
-        r.post do
-          @shelf_name = Cache.get session, :shelf_name
-          zip = r.params['zipcode']
-
-          if zip.empty?
-            flash[:error] = 'You need to enter a zip code'
-            r.redirect "shelves/#{@shelf_name}/overdrive"
+          load_goodreads_connection
+          r.get do # route: GET /connections/goodreads/availability
+            @titles = Cache.get session, :titles
+            @collection_token = Cache.get session, :collection_token
+            @website_id = Cache.get session, :website_id
+            @library_url = Cache.get session, :library_url
+            unless @titles
+              flash[:error] = 'Please choose a shelf first'
+              r.redirect 'shelves'
+            end
+            @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
+            @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
+            @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
+            @unavailable_books = sort_by_date_added(@titles.select { |a| a.copies_owned.zero? && !a.no_isbn })
+            Analytics.track session['session_id'], 'availability_viewed',
+                            available: @available_books.size, waitlist: @waitlist_books.size, unavailable: @unavailable_books.size
+            view 'availability'
           end
-
-          unless zip.to_latlon
-            flash[:error] = 'please try a different zip code'
-            r.redirect "shelves/#{@shelf_name}/overdrive"
-          end
-
-          @local_libraries = Overdrive.local_libraries zip.delete ' '
-          Cache.set session, libraries: @local_libraries
-          Analytics.track session['session_id'], 'library_search', zipcode: zip, libraries_found: @local_libraries.size
-          r.redirect '/auth/library'
         end
 
-        # route: GET /auth/library
-        r.get do
-          @shelf_name = Cache.get session, :shelf_name
-          @local_libraries = Cache.get session, :libraries
-          # TODO: see if we can bring the person back to the choose a library stage rather than all the way back to choose a shelf
-          unless @local_libraries
-            flash[:error] = 'Please choose a shelf first'
-            r.redirect 'shelves'
+        r.is 'library' do
+          unless @user&.goodreads_connected?
+            flash[:error] = 'Please connect your Goodreads account first'
+            r.redirect '/connections/goodreads'
           end
-          view 'library'
+          load_goodreads_connection
+          r.post do # route: POST /connections/goodreads/library?zipcode=90029
+            @shelf_name = Cache.get session, :shelf_name
+            zip = r.params['zipcode'].to_s
+
+            if zip.empty?
+              flash[:error] = 'You need to enter a zip code'
+              r.redirect "shelves/#{@shelf_name}/overdrive"
+            end
+            unless zip.to_latlon
+              flash[:error] = 'please try a different zip code'
+              r.redirect "shelves/#{@shelf_name}/overdrive"
+            end
+            @local_libraries = Overdrive.local_libraries zip.delete ' '
+            Cache.set session, libraries: @local_libraries
+            Analytics.track session['session_id'], 'library_search', zipcode: zip, libraries_found: @local_libraries.size
+            r.redirect '/connections/goodreads/library'
+          end
+
+          # route: GET /connections/goodreads/library
+          r.get do
+            @shelf_name = Cache.get session, :shelf_name
+            @local_libraries = Cache.get session, :libraries
+            # TODO: see if we can bring the person back to the choose a library stage rather than all the way back to choose a shelf
+            unless @local_libraries
+              flash[:error] = 'Please choose a shelf first'
+              r.redirect 'shelves'
+            end
+            view 'library'
+          end
         end
       end
     end
-  rescue OAuth::Unauthorized, StandardError, ScriptError => e
+  rescue OAuth::Unauthorized, StandardError => e
     Analytics.track session['session_id'], 'error_occurred', error: e.class.name, message: e.message, path: r.path
+    enrich_sentry_error(r)
+    Sentry.capture_exception(e)
+
+    # In production, redirect gracefully; in dev/test, raise to see full error
     raise e unless ENV['RACK_ENV'] == 'production'
 
+    flash[:error] = 'That request took too long. Please try again.' if e.is_a?(RequestTimeout::Error)
     r.redirect '/'
   end
 end

@@ -1,0 +1,59 @@
+<% content_for :title, "Account Settings" %>
+<% content_for :description, "Manage your Yonderbook account settings, connected services, and preferences." %>
+
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="font-display text-3xl sm:text-4xl font-medium tracking-tight text-mauve-950 mb-3">
+      Account Settings
+    </h1>
+    <p class="text-lg text-mauve-700">
+      Manage your Yonderbook account
+    </p>
+  </div>
+
+  <div class="space-y-4">
+    <div class="rounded-xl bg-mauve-950/[.025] p-4">
+      <p class="text-sm text-mauve-700 mb-1">Email</p>
+      <p class="text-lg font-medium text-mauve-950"><%= rodauth.logged_in? ? DB[:accounts].where(id: rodauth.session_value).get(:email) : '' %></p>
+    </div>
+
+    <!-- Goodreads Connection Status -->
+    <% if @user.goodreads_connected? %>
+      <div class="rounded-xl bg-mauve-950/[.025] p-4">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center mb-2">
+              <div class="w-2 h-2 bg-mauve-500 rounded-full mr-2"></div>
+              <p class="text-sm font-semibold text-mauve-950">Goodreads Connected</p>
+            </div>
+            <p class="text-sm text-mauve-700 mb-3">
+              Your Goodreads account is connected. We store your Goodreads user ID and access tokens to provide you with ongoing service.
+            </p>
+            <form method="post" action="/account/disconnect-goodreads" onsubmit="return confirm('This will permanently delete your Goodreads connection and all associated data. You will need to reconnect to use Goodreads features. Continue?')">
+              <%= csrf_tag('/account/disconnect-goodreads') %>
+              <button type="submit"
+                      class="inline-flex items-center px-4 py-2 bg-mauve-950/10 text-mauve-950 font-medium text-sm rounded-full hover:bg-mauve-950/20 transition-colors duration-200">
+                Disconnect Goodreads
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="pt-4 space-y-3">
+      <a href="<%= rodauth.reset_password_request_path %>"
+         class="w-full inline-flex items-center justify-center px-6 py-3 bg-mauve-950/10 text-mauve-950 font-medium text-lg rounded-full hover:bg-mauve-950/20 transition-colors duration-200">
+        Change Password
+      </a>
+
+      <form method="post" action="<%= rodauth.logout_path %>">
+        <%= csrf_tag(rodauth.logout_path) %>
+        <button type="submit"
+                class="w-full inline-flex items-center justify-center px-6 py-3 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">
+          Log Out
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

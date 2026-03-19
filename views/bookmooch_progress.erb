@@ -1,0 +1,100 @@
+<% content_for :title, "Importing to BookMooch" %>
+<% content_for :description, "Adding your books to your BookMooch wishlist. Please wait while we import your books." %>
+
+<div class="max-w-4xl mx-auto mb-8 mt-16">
+  <div class="text-center">
+    <h3 class="font-display text-2xl font-medium text-mauve-950 mb-4">Importing Books to BookMooch</h3>
+
+    <!-- Animated spinner -->
+    <div class="flex justify-center mb-6">
+      <div class="relative">
+        <div class="w-20 h-20 border-4 border-mauve-200 border-t-mauve-950 rounded-full animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <svg class="w-8 h-8 text-mauve-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-mauve-700 mb-2" id="status-message">Connecting...</p>
+    <p class="text-sm text-mauve-500" id="progress-text"></p>
+
+    <div id="error-message" class="hidden mt-4 p-4 rounded-xl bg-mauve-950/[.025] border border-mauve-300 text-mauve-950"></div>
+    <a id="retry-button" href="javascript:history.back()" class="hidden mt-6 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-indigo-800 to-violet-800 text-white font-medium rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">Try Again</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  const sessionId = '<%= @session_id %>';
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${protocol}//${window.location.host}/ws/bookmooch/${sessionId}`;
+
+  const statusMessage = document.getElementById('status-message');
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const errorMessage = document.getElementById('error-message');
+
+  console.log('Connecting to WebSocket:', wsUrl);
+  const ws = new WebSocket(wsUrl);
+
+  ws.onopen = function() {
+    console.log('WebSocket connected');
+    statusMessage.textContent = 'Starting import...';
+  };
+
+  ws.onmessage = function(event) {
+    console.log('WebSocket message:', event.data);
+    const data = JSON.parse(event.data);
+
+    switch(data.type) {
+      case 'connected':
+        statusMessage.textContent = 'Connected! Starting import...';
+        break;
+
+      case 'status':
+        statusMessage.textContent = data.message;
+        progressText.textContent = '';
+        break;
+
+      case 'progress':
+        statusMessage.textContent = data.message;
+        if (data.total && data.current) {
+          progressText.textContent = `${data.total - data.current + 1} books remaining`;
+        }
+        break;
+
+      case 'complete':
+        statusMessage.textContent = data.message;
+        progressText.textContent = 'Import complete!';
+        // Redirect to results page after a brief delay
+        setTimeout(function() {
+          window.location.href = 'results';
+        }, 1500);
+        break;
+
+      case 'error':
+        errorMessage.textContent = data.message;
+        errorMessage.classList.remove('hidden');
+        document.getElementById('retry-button').classList.remove('hidden');
+        document.querySelector('.animate-spin').style.display = 'none';
+        statusMessage.textContent = 'An error occurred';
+        break;
+    }
+  };
+
+  ws.onerror = function(error) {
+    console.error('WebSocket error:', error);
+    errorMessage.textContent = 'Connection error. Please try again.';
+    errorMessage.classList.remove('hidden');
+    document.getElementById('retry-button').classList.remove('hidden');
+    document.querySelector('.animate-spin').style.display = 'none';
+    statusMessage.textContent = 'Connection failed';
+  };
+
+  ws.onclose = function() {
+    console.log('WebSocket closed');
+  };
+})();
+</script>

@@ -1,0 +1,94 @@
+<% if defined?(header) && header %>
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="text-center">
+    <h3 class="font-display text-2xl font-medium text-mauve-950 mb-4"><%= header[:title] %></h3>
+    <% if header[:summary_lines] %>
+      <% header[:summary_lines].each do |line| %>
+        <p class="text-mauve-700 mb-2"><%= line %></p>
+      <% end %>
+    <% end %>
+    <div class="w-full bg-mauve-200 rounded-full h-2 mt-4">
+      <div class="bg-mauve-950 h-2 rounded-full w-full"></div>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<div class="max-w-6xl mx-auto">
+  <el-tab-group>
+    <el-tab-list class="flex space-x-2 mb-6">
+      <% tabs.each do |tab| %>
+        <button type="button" class="rounded-full bg-mauve-950/[.025] px-4 py-2 text-sm font-medium text-mauve-700 hover:text-mauve-950 hover:bg-mauve-950/10 aria-selected:bg-mauve-950 aria-selected:text-white transition-colors duration-200">
+          <%= tab[:label] %>
+          <span class="inline-flex items-center px-2 py-0.5 ml-2 text-xs font-medium bg-mauve-950/10 text-mauve-950 rounded-full aria-selected:bg-white/20 aria-selected:text-white"><%= tab[:count] %></span>
+        </button>
+      <% end %>
+    </el-tab-list>
+
+    <el-tab-panels>
+      <% tabs.each do |tab| %>
+        <div class="rounded-xl bg-mauve-950/[.025] p-6">
+          <h5 class="text-xl font-display font-medium text-mauve-950 mb-6"><%= tab[:title] %></h5>
+          <% if tab[:description] %>
+            <p class="text-mauve-700 mb-6"><%= tab[:description] %></p>
+          <% end %>
+          <% if tab[:action_button] %>
+            <a href="<%= tab[:action_button][:url] %>" class="inline-flex items-center px-4 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full mb-6 transition-colors duration-200">
+              <img src="<%= tab[:action_button][:icon] %>" alt="<%= tab[:action_button][:label] %>" class="w-4 h-4 mr-2">
+              <%= tab[:action_button][:label] %>
+            </a>
+          <% end %>
+          <% if tab[:books].empty? %>
+            <p class="text-mauve-700 text-center"><%= tab[:empty_message] %></p>
+          <% else %>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              <% tab[:books].each do |book| %>
+                <div class="bg-white rounded-xl border border-mauve-950/10 hover:border-mauve-950/20 transition-all duration-200 overflow-hidden <%= book[:opacity] ? 'opacity-75' : '' %> flex flex-col">
+                  <div class="aspect-w-2 aspect-h-3">
+                    <img src="<%= book[:image] %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
+                  </div>
+                  <div class="p-4 flex flex-col flex-1">
+                    <h3 class="text-base font-semibold text-mauve-950 mb-2 line-clamp-2"><%= book[:title] %></h3>
+                    <p class="text-sm text-mauve-700 mb-1"><%= book[:author] %></p>
+                    <% if book[:isbn] %>
+                      <p class="text-xs text-mauve-500 mb-3 font-mono">ISBN: <%= book[:isbn] %></p>
+                    <% end %>
+                    <div class="mt-auto">
+                      <% if book[:status_label] %>
+                        <div class="flex items-center justify-between mb-3">
+                          <span class="text-xs font-medium text-mauve-700"><%= book[:status_label] %></span>
+                          <% if book[:status_value] %>
+                            <span class="text-sm font-semibold text-mauve-950"><%= book[:status_value] %></span>
+                          <% end %>
+                        </div>
+                      <% end %>
+                      <% if book[:button] %>
+                        <a href="<%= book[:button][:url] %>"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="w-full inline-flex items-center justify-center px-3 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full transition-colors duration-200"
+                           <% if book[:button][:title] %>
+                           title="<%= book[:button][:title] %>"
+                           <% end %>>
+                          <% if book[:button][:icon_svg] %>
+                            <%= book[:button][:icon_svg] %>
+                          <% elsif book[:button][:icon] %>
+                            <img src="<%= book[:button][:icon] %>" alt="<%= book[:button][:label] %>" class="w-4 h-4 mr-1">
+                          <% end %>
+                          <%= book[:button][:label] %>
+                        </a>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </el-tab-panels>
+  </el-tab-group>
+</div>
+
+<!-- Tailwind Plus Elements for interactive tab components -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1"></script>
