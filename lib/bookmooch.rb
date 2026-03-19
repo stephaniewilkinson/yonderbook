@@ -13,7 +13,7 @@ require_relative 'alternate_isbns'
 module Bookmooch
   BASE_URL = 'https://api.bookmooch.com'
   PATH = '/api/userbook'
-  REQUESTS_PER_SECOND = 10
+  REQUESTS_PER_SECOND = 3
 
   class AuthenticationError < StandardError; end
 
@@ -143,7 +143,7 @@ module Bookmooch
     {'Authorization' => "Basic #{basic_auth_credentials}"}
   end
 
-  MAX_RETRIES = 3
+  MAX_RETRIES = 5
 
   def process_batch client, isbn_batch, batch_idx, headers, added_isbns, attempt: 1
     params = URI.encode_www_form(asins: isbn_batch, target: 'wishlist', action: 'add')
