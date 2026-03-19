@@ -56,8 +56,10 @@ describe 'Magic link and email auth' do
 
     # Request a magic link
     visit '/authenticate'
-    fill_in 'Email', with: fake_email
-    click_button 'Send Me a Login Link'
+    within('#magic-link-form') do
+      fill_in 'Email', with: fake_email
+      click_button 'Send Me a Login Link'
+    end
 
     # Should show confirmation flash
     assert_text 'Check your email for a login link'
@@ -83,15 +85,23 @@ describe 'Magic link and email auth' do
 
     # Request a magic link
     visit '/authenticate'
-    fill_in 'Email', with: fake_email
-    click_button 'Send Me a Login Link'
+    within('#magic-link-form') do
+      fill_in 'Email', with: fake_email
+      click_button 'Send Me a Login Link'
+    end
 
-    # Get the magic link key from the database
+    # Build the magic link URL from the database key (wait for async creation)
     account = DB[:accounts].where(email: fake_email).first
-    key_row = DB[:account_email_auth_keys].where(id: account[:id]).first
+    key_row = nil
+    10.times do
+      key_row = DB[:account_email_auth_keys].where(id: account[:id]).first
+      break if key_row
 
-    # Visit the magic link URL directly
-    visit "/email-auth?key=#{key_row[:key]}"
+      sleep 0.2
+    end
+    assert key_row, 'Expected email_auth_key to be created'
+
+    visit "/email-auth?key=#{rodauth_token_url_key(account[:id], key_row[:key])}"
     click_button 'Log In'
 
     # Should be logged in and redirected to home
@@ -109,12 +119,19 @@ describe 'Magic link and email auth' do
     fill_in 'Password', with: fake_password
     click_button 'Create Account'
 
-    # Get the verification key from the database
-    account = DB[:accounts].where(email: fake_email).first
-    key_row = DB[:account_verification_keys].where(id: account[:id]).first
+    # Build the verification URL from the database key
+    account = nil
+    key_row = nil
+    10.times do
+      account = DB[:accounts].where(email: fake_email).first
+      key_row = DB[:account_verification_keys].where(id: account[:id]).first if account
+      break if key_row
 
-    # Visit the verification link directly (simulates clicking email link)
-    visit "/verify-account?key=#{key_row[:key]}"
+      sleep 0.1
+    end
+    assert key_row, 'Expected verification key to be created'
+
+    visit "/verify-account?key=#{rodauth_token_url_key(account[:id], key_row[:key])}"
     click_button 'Verify Account'
 
     # Should be auto-logged in and redirected to home (verify_account_autologin? true)

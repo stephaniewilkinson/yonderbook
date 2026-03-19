@@ -92,6 +92,15 @@ module TestHelpers
     DB[:account_verification_keys].where(id: account[:id]).delete
   end
 
+  # Compute a Rodauth token URL key (account_id + HMAC'd key)
+  def rodauth_token_url_key account_id, raw_key
+    hmac = Base64.urlsafe_encode64(
+      OpenSSL::HMAC.digest('SHA256', SESSION_SECRET, raw_key),
+      padding: false
+    )
+    "#{account_id}_#{hmac}"
+  end
+
   # Create a verified account with Goodreads connected, then log in via browser.
   # Returns the account id.
   def seed_goodreads_user
