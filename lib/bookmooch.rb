@@ -111,7 +111,7 @@ module Bookmooch
 
       isbn_batches.each.with_index do |isbn_batch, batch_idx|
         barrier.async do
-          limiter.async do
+          task = limiter.async do
             process_batch(client, isbn_batch, batch_idx, headers, added_isbns)
             progress_callback&.call(
               type: 'progress',
@@ -120,6 +120,7 @@ module Bookmooch
               total: total_batches
             )
           end
+          task.wait
         end
       end
 
