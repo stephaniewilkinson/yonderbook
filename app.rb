@@ -105,8 +105,9 @@ class App < Roda
         end
         Goodreads.fetch_user request_token, @user.id
         @user.refresh
-        Analytics.identify session['session_id'], goodreads_user_id: @user.goodreads_user_id
-        Analytics.track session['session_id'], 'goodreads_connected', goodreads_user_id: @user.goodreads_user_id
+        gr_user_id = @user.goodreads_connection&.goodreads_user_id
+        Analytics.identify session['session_id'], goodreads_user_id: gr_user_id
+        Analytics.track session['session_id'], 'goodreads_connected', goodreads_user_id: gr_user_id
         r.redirect '/connections/goodreads/shelves'
       rescue OAuth::Unauthorized
         flash[:error] = 'Fetched details! Click login'
