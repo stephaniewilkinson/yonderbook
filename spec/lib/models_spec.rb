@@ -10,15 +10,11 @@ require 'models/account'
 require 'models/goodreads_connection'
 
 describe Account do
-  before do
-    DB[:goodreads_connections].delete
-    DB[:bookmooch_imports].delete if DB.table_exists?(:bookmooch_imports)
-    DB[:account_active_session_keys].delete if DB.table_exists?(:account_active_session_keys)
-    DB[:account_email_auth_keys].delete if DB.table_exists?(:account_email_auth_keys)
-    DB[:account_lockouts].delete if DB.table_exists?(:account_lockouts)
-    DB[:account_login_failures].delete
-    DB[:accounts].delete
-    @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
+  around do |&block|
+    DB.transaction(rollback: :always, savepoint: true, auto_savepoint: true) do
+      @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
+      block.call
+    end
   end
 
   describe '#goodreads_connected?' do
@@ -52,15 +48,11 @@ describe Account do
 end
 
 describe GoodreadsConnection do
-  before do
-    DB[:goodreads_connections].delete
-    DB[:bookmooch_imports].delete if DB.table_exists?(:bookmooch_imports)
-    DB[:account_active_session_keys].delete if DB.table_exists?(:account_active_session_keys)
-    DB[:account_email_auth_keys].delete if DB.table_exists?(:account_email_auth_keys)
-    DB[:account_lockouts].delete if DB.table_exists?(:account_lockouts)
-    DB[:account_login_failures].delete
-    DB[:accounts].delete
-    @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
+  around do |&block|
+    DB.transaction(rollback: :always, savepoint: true, auto_savepoint: true) do
+      @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
+      block.call
+    end
   end
 
   describe 'validations' do
