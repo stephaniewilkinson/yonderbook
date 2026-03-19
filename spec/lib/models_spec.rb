@@ -12,6 +12,9 @@ require 'models/goodreads_connection'
 describe Account do
   before do
     DB[:goodreads_connections].delete
+    DB[:bookmooch_imports].delete if DB.table_exists?(:bookmooch_imports)
+    DB[:account_active_session_keys].delete if DB.table_exists?(:account_active_session_keys)
+    DB[:account_email_auth_keys].delete if DB.table_exists?(:account_email_auth_keys)
     DB[:account_lockouts].delete if DB.table_exists?(:account_lockouts)
     DB[:account_login_failures].delete
     DB[:accounts].delete
@@ -51,6 +54,9 @@ end
 describe GoodreadsConnection do
   before do
     DB[:goodreads_connections].delete
+    DB[:bookmooch_imports].delete if DB.table_exists?(:bookmooch_imports)
+    DB[:account_active_session_keys].delete if DB.table_exists?(:account_active_session_keys)
+    DB[:account_email_auth_keys].delete if DB.table_exists?(:account_email_auth_keys)
     DB[:account_lockouts].delete if DB.table_exists?(:account_lockouts)
     DB[:account_login_failures].delete
     DB[:accounts].delete
