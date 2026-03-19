@@ -83,6 +83,7 @@ class App < Roda
     enable :email_auth, :argon2, :update_password_hash, :active_sessions
     enable :session_expiration, :disallow_common_passwords
     hmac_secret SESSION_SECRET
+    allow_raw_email_token? true if ENV['RACK_ENV'] == 'test'
 
     # Base URL for email links
     base_url ENV.fetch('BASE_URL', 'http://localhost:9292')

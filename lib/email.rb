@@ -46,5 +46,6 @@ class EmailService
       puts "Body: #{email_html}"
       puts "==================================\n"
     end
+
   end
 end

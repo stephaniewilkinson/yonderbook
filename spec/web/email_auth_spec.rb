@@ -101,7 +101,7 @@ describe 'Magic link and email auth' do
     end
     assert key_row, 'Expected email_auth_key to be created'
 
-    visit "/email-auth?key=#{rodauth_token_url_key(account[:id], key_row[:key])}"
+    visit "/email-auth?key=#{account[:id]}_#{key_row[:key]}"
     click_button 'Log In'
 
     # Should be logged in and redirected to home
@@ -131,7 +131,7 @@ describe 'Magic link and email auth' do
     end
     assert key_row, 'Expected verification key to be created'
 
-    visit "/verify-account?key=#{rodauth_token_url_key(account[:id], key_row[:key])}"
+    visit "/verify-account?key=#{account[:id]}_#{key_row[:key]}"
     click_button 'Verify Account'
 
     # Should be auto-logged in and redirected to home (verify_account_autologin? true)
