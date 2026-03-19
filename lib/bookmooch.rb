@@ -4,6 +4,8 @@ require 'async'
 require 'async/barrier'
 require 'async/http/client'
 require 'async/http/endpoint'
+require 'async/limiter/generic'
+require 'async/limiter/timing/leaky_bucket'
 require 'base64'
 require 'uri'
 require_relative 'alternate_isbns'
@@ -11,6 +13,7 @@ require_relative 'alternate_isbns'
 module Bookmooch
   BASE_URL = 'https://api.bookmooch.com'
   PATH = '/api/userbook'
+  REQUESTS_PER_SECOND = 10
 
   class AuthenticationError < StandardError; end
 
@@ -98,7 +101,9 @@ module Bookmooch
   def send_isbn_batches isbn_batches, username, password, &progress_callback
     async_isbns = Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, limit: 64
+      client = Async::HTTP::Client.new endpoint
+      timing = Async::Limiter::Timing::LeakyBucket.new(REQUESTS_PER_SECOND, REQUESTS_PER_SECOND * 2)
+      limiter = Async::Limiter::Generic.new(timing: timing)
       barrier = Async::Barrier.new
       headers = auth_headers(username, password)
       added_isbns = []
@@ -106,13 +111,16 @@ module Bookmooch
 
       isbn_batches.each.with_index do |isbn_batch, batch_idx|
         barrier.async do
-          process_batch(client, isbn_batch, batch_idx, headers, added_isbns)
-          progress_callback&.call(
-            type: 'progress',
-            message: "Processing batch #{batch_idx + 1} of #{total_batches}...",
-            current: batch_idx + 1,
-            total: total_batches
-          )
+          task = limiter.async do
+            process_batch(client, isbn_batch, batch_idx, headers, added_isbns)
+            progress_callback&.call(
+              type: 'progress',
+              message: "Processing batch #{batch_idx + 1} of #{total_batches}...",
+              current: batch_idx + 1,
+              total: total_batches
+            )
+          end
+          task.wait
         end
       end
 
@@ -135,7 +143,9 @@ module Bookmooch
     {'Authorization' => "Basic #{basic_auth_credentials}"}
   end
 
-  def process_batch client, isbn_batch, _batch_idx, headers, added_isbns
+  MAX_RETRIES = 3
+
+  def process_batch client, isbn_batch, batch_idx, headers, added_isbns, attempt: 1
     params = URI.encode_www_form(asins: isbn_batch, target: 'wishlist', action: 'add')
     path = "#{PATH}?#{params}"
 
@@ -146,7 +156,11 @@ module Bookmooch
     when 200
       collect_added_isbns(response.read, added_isbns)
     when 302
-      raise RateLimitError, 'BookMooch rate limit reached. Please wait a few minutes and try again.'
+      response.close
+      raise RateLimitError, 'BookMooch rate limit reached. Please wait a few minutes and try again.' if attempt >= MAX_RETRIES
+
+      sleep 2**attempt
+      process_batch(client, isbn_batch, batch_idx, headers, added_isbns, attempt: attempt + 1)
     when 401
       raise AuthenticationError, 'Invalid BookMooch credentials. Try using your username, not your email address.'
     else

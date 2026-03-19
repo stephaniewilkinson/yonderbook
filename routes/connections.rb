@@ -19,17 +19,11 @@ class App
 
       # Require Goodreads connection for shelves
       r.on 'shelves' do
-        unless @user&.goodreads_connected?
-          flash[:error] = 'Please connect your Goodreads account first'
-          r.redirect '/connections/goodreads'
-        end
-
-        load_goodreads_connection
+        require_goodreads r
 
         # route: GET /connections/goodreads/shelves
         r.get true do
           @shelves = Goodreads.fetch_shelves @goodreads_user_id
-          Analytics.track session['session_id'], 'shelves_viewed', shelf_count: @shelves.size
           view 'shelves/index'
         end
 
@@ -46,7 +40,6 @@ class App
             @women, @men, @andy = Goodreads.get_gender @book_info
             @histogram_dataset = Goodreads.plot_books_over_time @book_info
             @ratings = Goodreads.rating_stats @book_info
-            Analytics.track session['session_id'], 'shelf_stats_viewed', shelf: @shelf_name, book_count: @book_info.size
             view 'shelves/show'
           end
 
@@ -84,15 +77,14 @@ class App
           r.is 'overdrive' do
             r.get(true) { view 'shelves/overdrive' } # route: GET /connections/goodreads/shelves/:id/overdrive
             r.post do # route: POST /connections/goodreads/shelves/:id/overdrive?consortium=1047
-              consortium = r.params['consortium']
-              unless consortium&.match?(/\A\d+\z/)
+              consortium = typecast_params.pos_int('consortium')
+              unless consortium
                 flash[:error] = 'Invalid library selection'
                 r.redirect "shelves/#{@shelf_name}/overdrive"
               end
               overdrive = Overdrive.new(@book_info, consortium)
               titles = overdrive.fetch_titles_availability
               Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
-              Analytics.track session['session_id'], 'overdrive_search', shelf: @shelf_name, consortium: consortium, titles_found: titles.size
               r.redirect '/connections/goodreads/availability'
             end
           end
@@ -100,12 +92,7 @@ class App
       end
 
       r.is 'availability' do
-        unless @user&.goodreads_connected?
-          flash[:error] = 'Please connect your Goodreads account first'
-          r.redirect '/connections/goodreads'
-        end
-
-        load_goodreads_connection
+        require_goodreads r
         r.get do # route: GET /connections/goodreads/availability
           @titles = Cache.get session, :titles
           @collection_token = Cache.get session, :collection_token
@@ -116,28 +103,15 @@ class App
             r.redirect 'shelves'
           end
           @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
-          @waitlist_books = sort_by_date_added(
-            @titles.select do |a|
-              a.copies_available.zero? && a.copies_owned.positive?
-            end
-          )
+          @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
           @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
           @unavailable_books = sort_by_date_added(@titles.select { |a| a.copies_owned.zero? && !a.no_isbn })
-          Analytics.track session['session_id'],
-                          'availability_viewed',
-                          available: @available_books.size,
-                          waitlist: @waitlist_books.size,
-                          unavailable: @unavailable_books.size
           view 'availability'
         end
       end
 
       r.is 'library' do
-        unless @user&.goodreads_connected?
-          flash[:error] = 'Please connect your Goodreads account first'
-          r.redirect '/connections/goodreads'
-        end
-        load_goodreads_connection
+        require_goodreads r
         r.post do # route: POST /connections/goodreads/library?zipcode=90029
           @shelf_name = Cache.get session, :shelf_name
           zip = r.params['zipcode'].to_s
@@ -152,7 +126,6 @@ class App
           end
           @local_libraries = Overdrive.local_libraries zip.delete ' '
           Cache.set session, libraries: @local_libraries
-          Analytics.track session['session_id'], 'library_search', zipcode: zip, libraries_found: @local_libraries.size
           r.redirect '/connections/goodreads/library'
         end
 

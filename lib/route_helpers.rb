@@ -9,6 +9,14 @@ module RouteHelpers
     nil
   end
 
+  def require_goodreads request
+    unless @user&.goodreads_connected?
+      flash[:error] = 'Please connect your Goodreads account first'
+      request.redirect '/connections/goodreads'
+    end
+    load_goodreads_connection
+  end
+
   def load_goodreads_connection
     @goodreads_connection = @user.goodreads_connection
     @goodreads_user_id = @goodreads_connection.goodreads_user_id

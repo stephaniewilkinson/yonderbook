@@ -1,0 +1,30 @@
+<% content_for :title, "Log In via Email" %>
+<% content_for :description, "Complete your login to Yonderbook." %>
+
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="font-display text-3xl sm:text-4xl font-medium tracking-tight text-mauve-950 mb-3">
+      Log In to Yonderbook
+    </h1>
+    <p class="text-lg text-mauve-700">
+      Click below to complete your login
+    </p>
+  </div>
+
+  <% if rodauth.field_error('key') %>
+    <div class="bg-mauve-950/[.025] border border-mauve-300 text-mauve-950 px-4 py-3 rounded-xl mb-4">
+      <p class="text-sm"><%= rodauth.field_error('key') %></p>
+    </div>
+  <% end %>
+
+  <form method="post" action="<%= rodauth.email_auth_path %>" class="space-y-4">
+    <%= csrf_tag(rodauth.email_auth_path) %>
+    <input type="hidden" name="<%= rodauth.email_auth_key_param %>" value="<%= rodauth.param(rodauth.email_auth_key_param) %>">
+
+    <div class="pt-2">
+      <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">
+        Log In
+      </button>
+    </div>
+  </form>
+</div>

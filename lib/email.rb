@@ -7,7 +7,7 @@ class EmailService
   FROM_EMAIL = 'Yonderbook <app@yonderbook.com>'
 
   class << self
-    def send_email to:, subject:, html:, text: nil
+    def send_email to:, subject:, html:, text: nil, tags: nil
       # Only use console output in test environment, send real emails in development
       return console_output(to, subject, html) if test_environment?
 
@@ -17,6 +17,7 @@ class EmailService
 
         params = {from: FROM_EMAIL, to: [to], subject: subject, html: html}
         params[:text] = text if text
+        params[:tags] = tags if tags
 
         result = Resend::Emails.send(params)
         puts "✓ Email sent successfully to #{to}: #{subject}"

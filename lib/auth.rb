@@ -11,13 +11,14 @@ module Auth
   module_function
 
   def fetch_request_token
-    OAUTH_CONSUMER.get_request_token
+    consumer = OAUTH_CONSUMER
+    consumer.get_request_token
   rescue Net::HTTPBadResponse, Net::OpenTimeout, Net::HTTPFatalError, Errno::EBADF
     # Errno::EBADF happens when Falcon forks workers and the parent's SSL
     # connection becomes invalid. Create a fresh consumer to get a clean socket.
     tries ||= 0
     tries += 1
-    OAuth::Consumer.new(API_KEY, GOODREADS_SECRET, site: "https://#{HOST}")
+    consumer = OAuth::Consumer.new(API_KEY, GOODREADS_SECRET, site: "https://#{HOST}")
     retry if tries < 4
   end
 

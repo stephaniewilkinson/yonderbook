@@ -194,9 +194,10 @@ class Overdrive
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
+      semaphore = Async::Semaphore.new(16, parent: barrier)
       books = []
       @book_info.each.with_index 1 do |book, _book_number|
-        barrier.async { books << fetch_book_data(client, book) }
+        semaphore.async { books << fetch_book_data(client, book) }
       end
       begin
         barrier.wait
@@ -310,11 +311,12 @@ class Overdrive
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
+      semaphore = Async::Semaphore.new(16, parent: barrier)
       responses = []
       batches.each.with_index 1 do |batch, _batch_number|
         params = URI.encode_www_form products: batch.join(',')
         path = "/v2/collections/#{@collection_token}/availability?#{params}"
-        barrier.async do
+        semaphore.async do
           response = client.get path, {'Authorization' => "Bearer #{@token}"}
           responses << [response.read, response.status]
         ensure
