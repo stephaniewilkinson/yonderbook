@@ -144,7 +144,7 @@ module Bookmooch
 
   MAX_RETRIES = 3
 
-  def process_batch client, isbn_batch, _batch_idx, headers, added_isbns, attempt: 1
+  def process_batch client, isbn_batch, batch_idx, headers, added_isbns, attempt: 1
     params = URI.encode_www_form(asins: isbn_batch, target: 'wishlist', action: 'add')
     path = "#{PATH}?#{params}"
 
@@ -156,12 +156,10 @@ module Bookmooch
       collect_added_isbns(response.read, added_isbns)
     when 302
       response.close
-      if attempt >= MAX_RETRIES
-        raise RateLimitError, 'BookMooch rate limit reached. Please wait a few minutes and try again.'
-      end
+      raise RateLimitError, 'BookMooch rate limit reached. Please wait a few minutes and try again.' if attempt >= MAX_RETRIES
 
       sleep 2**attempt
-      return process_batch(client, isbn_batch, _batch_idx, headers, added_isbns, attempt: attempt + 1)
+      process_batch(client, isbn_batch, batch_idx, headers, added_isbns, attempt: attempt + 1)
     when 401
       raise AuthenticationError, 'Invalid BookMooch credentials. Try using your username, not your email address.'
     else
