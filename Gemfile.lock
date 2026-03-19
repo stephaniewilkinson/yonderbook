@@ -199,6 +199,8 @@ GEM
     parser (3.3.10.2)
       ast (~> 2.4.1)
       racc
+    posthog-ruby (3.6.0)
+      concurrent-ruby (~> 1)
     prism (1.9.0)
     process-metrics (0.11.0)
       console (~> 1.8)
@@ -349,6 +351,7 @@ DEPENDENCIES
   oauth
   oauth2
   ostruct
+  posthog-ruby
   pry
   rack-host-redirect
   rack-test
