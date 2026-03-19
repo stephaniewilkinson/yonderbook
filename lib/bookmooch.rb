@@ -17,6 +17,8 @@ module Bookmooch
 
   class AuthenticationError < StandardError; end
 
+  class RateLimitError < StandardError; end
+
   module_function
 
   def books_added_and_failed isbns_and_image_urls, username, password, &progress_callback
@@ -145,19 +147,23 @@ module Bookmooch
     path = "#{PATH}?#{params}"
 
     response = client.get path, headers
-    response_body = response.read
+    status = response.status
 
-    collect_added_isbns(response_body, added_isbns)
+    case status
+    when 200
+      collect_added_isbns(response.read, added_isbns)
+    when 302
+      raise RateLimitError, 'BookMooch rate limit reached. Please wait a few minutes and try again.'
+    when 401
+      raise AuthenticationError, 'Invalid BookMooch credentials. Try using your username, not your email address.'
+    else
+      raise AuthenticationError, "BookMooch API returned unexpected status #{status}."
+    end
   ensure
     response&.close
   end
 
   def collect_added_isbns response_body, added_isbns
-    # Check if response is HTML error page
-    if response_body&.match?(/\A\s*<(!DOCTYPE|html)/i)
-      raise AuthenticationError, 'Invalid BookMooch credentials. Try using your username, not your email address.'
-    end
-
     response_body&.lines(chomp: true)&.each do |isbn|
       added_isbns << isbn
     end

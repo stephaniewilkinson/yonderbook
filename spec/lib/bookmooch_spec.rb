@@ -76,12 +76,6 @@ describe Bookmooch do
       assert_equal %w[111 222 333], added
     end
 
-    it 'raises AuthenticationError for HTML responses' do
-      assert_raises(Bookmooch::AuthenticationError) do
-        Bookmooch.collect_added_isbns('<!DOCTYPE html><html>Error</html>', [])
-      end
-    end
-
     it 'handles nil response body' do
       added = []
       Bookmooch.collect_added_isbns(nil, added)
