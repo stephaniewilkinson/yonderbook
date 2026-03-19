@@ -10,11 +10,11 @@ require 'models/account'
 require 'models/goodreads_connection'
 
 describe Account do
-  around do |&block|
-    DB.transaction(rollback: :always, savepoint: true, auto_savepoint: true) do
-      @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
-      block.call
-    end
+  before do
+    DB.run('PRAGMA foreign_keys = OFF')
+    DB.tables.each { |t| DB[t].delete }
+    DB.run('PRAGMA foreign_keys = ON')
+    @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
   end
 
   describe '#goodreads_connected?' do
@@ -48,11 +48,11 @@ describe Account do
 end
 
 describe GoodreadsConnection do
-  around do |&block|
-    DB.transaction(rollback: :always, savepoint: true, auto_savepoint: true) do
-      @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
-      block.call
-    end
+  before do
+    DB.run('PRAGMA foreign_keys = OFF')
+    DB.tables.each { |t| DB[t].delete }
+    DB.run('PRAGMA foreign_keys = ON')
+    @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
   end
 
   describe 'validations' do
