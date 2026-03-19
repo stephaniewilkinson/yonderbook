@@ -25,7 +25,7 @@ module BookmoochJob
             message: "Import complete! Added #{books_added.size} books.",
             books_added_count: books_added.size,
             books_failed_count: books_failed.size)
-    rescue Bookmooch::AuthenticationError => e
+    rescue Bookmooch::AuthenticationError, Bookmooch::RateLimitError => e
       yield(type: 'error', message: e.message)
     rescue StandardError => e
       yield(type: 'error', message: "An error occurred: #{e.message}")

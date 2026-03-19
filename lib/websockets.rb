@@ -24,7 +24,7 @@ module Websockets
     end
 
     run_import(connection, session_id, book_info, username, password)
-  rescue Bookmooch::AuthenticationError => e
+  rescue Bookmooch::AuthenticationError, Bookmooch::RateLimitError => e
     Sentry.capture_exception(e) if defined?(Sentry)
     write_error(connection, e.message)
     connection.close
