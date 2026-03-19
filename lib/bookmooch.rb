@@ -4,6 +4,8 @@ require 'async'
 require 'async/barrier'
 require 'async/http/client'
 require 'async/http/endpoint'
+require 'async/limiter/generic'
+require 'async/limiter/timing/leaky_bucket'
 require 'base64'
 require 'uri'
 require_relative 'alternate_isbns'
@@ -11,6 +13,7 @@ require_relative 'alternate_isbns'
 module Bookmooch
   BASE_URL = 'https://api.bookmooch.com'
   PATH = '/api/userbook'
+  REQUESTS_PER_SECOND = 10
 
   class AuthenticationError < StandardError; end
 
@@ -97,6 +100,8 @@ module Bookmooch
     async_isbns = Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint
+      timing = Async::Limiter::Timing::LeakyBucket.new(REQUESTS_PER_SECOND, REQUESTS_PER_SECOND * 2)
+      limiter = Async::Limiter::Generic.new(timing: timing)
       barrier = Async::Barrier.new
       headers = auth_headers(username, password)
       added_isbns = []
@@ -104,13 +109,15 @@ module Bookmooch
 
       isbn_batches.each.with_index do |isbn_batch, batch_idx|
         barrier.async do
-          process_batch(client, isbn_batch, batch_idx, headers, added_isbns)
-          progress_callback&.call(
-            type: 'progress',
-            message: "Processing batch #{batch_idx + 1} of #{total_batches}...",
-            current: batch_idx + 1,
-            total: total_batches
-          )
+          limiter.async do
+            process_batch(client, isbn_batch, batch_idx, headers, added_isbns)
+            progress_callback&.call(
+              type: 'progress',
+              message: "Processing batch #{batch_idx + 1} of #{total_batches}...",
+              current: batch_idx + 1,
+              total: total_batches
+            )
+          end
         end
       end
 
