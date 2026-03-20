@@ -6,7 +6,7 @@ RODAUTH_CONFIG = proc do
   hmac_secret SESSION_SECRET
 
   # Base URL for email links
-  base_url ENV.fetch('BASE_URL', 'http://localhost:9292')
+  base_url ENV.fetch('BASE_URL', 'https://localhost:9292')
 
   # Use password_hash column in accounts table instead of separate table
   password_hash_table :accounts

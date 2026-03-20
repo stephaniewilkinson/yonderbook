@@ -86,7 +86,7 @@ class App < Roda
     allow_raw_email_token? true if ENV['RACK_ENV'] == 'test'
 
     # Base URL for email links
-    base_url ENV.fetch('BASE_URL', 'http://localhost:9292')
+    base_url ENV.fetch('BASE_URL', 'https://localhost:9292')
 
     # Use password_hash column in accounts table instead of separate table
     password_hash_table :accounts

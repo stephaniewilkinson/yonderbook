@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 ENV['RACK_ENV'] = 'test'
+ENV['BASE_URL'] = 'https://localhost:9292'
 
 require 'dotenv/load'
 require 'falcon/capybara'
@@ -23,7 +24,10 @@ require_relative '../../app'
 
 Capybara.app = App
 Capybara.register_driver :chrome do |app|
-  Capybara::Selenium::Driver.new app, browser: :chrome
+  options = Selenium::WebDriver::Chrome::Options.new
+  options.add_argument('--allow-insecure-localhost')
+  options.add_argument('--ignore-certificate-errors')
+  Capybara::Selenium::Driver.new app, browser: :chrome, options: options
 end
 
 Capybara.register_driver :headless_chrome do |app|
@@ -32,6 +36,8 @@ Capybara.register_driver :headless_chrome do |app|
   options.add_argument('--disable-blink-features=AutomationControlled')
   options.add_argument('--disable-dev-shm-usage')
   options.add_argument('--no-sandbox')
+  options.add_argument('--allow-insecure-localhost')
+  options.add_argument('--ignore-certificate-errors')
   Capybara::Selenium::Driver.new app, browser: :chrome, options: options
 end
 
@@ -54,11 +60,11 @@ driver = ENV['CI'] ? :headless_firefox : :chrome
 Capybara.javascript_driver = driver
 
 Capybara.configure do |config|
-  config.server = :falcon
+  config.server = :falcon_https
   config.run_server = true
   config.server_port = 9292
   config.default_driver = driver
-  config.app_host = 'http://localhost:9292'
+  config.app_host = 'https://localhost:9292'
 end
 
 # Helper module for test utilities
@@ -69,7 +75,7 @@ module TestHelpers
     within('#password-login-form') do
       fill_in 'Email', with: email
       fill_in 'Password', with: password
-      click_button 'Log In with Password'
+      click_button 'Sign in'
     end
   end
 
