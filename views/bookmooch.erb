@@ -29,6 +29,7 @@
           title: book[:title],
           author: book[:author] || 'Unknown Author',
           isbn: book[:bookmooch_isbn],
+          goodreads_id: book[:goodreads_id],
           button: book[:bookmooch_isbn] ? {
             url: "https://bookmooch.com/m/detail/#{book[:bookmooch_isbn]}",
             label: 'View on BookMooch',
@@ -48,7 +49,8 @@
         {
           image: book[:image_url],
           title: book[:title],
-          author: book[:author] || 'Unknown Author'
+          author: book[:author] || 'Unknown Author',
+          goodreads_id: book[:goodreads_id]
         }
       end
     },
@@ -63,7 +65,8 @@
         {
           image: book[:image_url],
           title: book[:title],
-          author: book[:author] || 'Unknown Author'
+          author: book[:author] || 'Unknown Author',
+          goodreads_id: book[:goodreads_id]
         }
       end
     }

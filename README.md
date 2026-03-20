@@ -28,9 +28,9 @@ sqlite3 db/development.db
 
 `rake`
 
-TODO: Clearly display the Goodreads name or logo on any location where Goodreads data appears. For instance if you are displaying Goodreads reviews, they should either be in a section clearly titled "Goodreads Reviews", or each review should say "Goodreads review from John: 4 of 5 stars..."
+## Goodreads Attribution
 
-TODO: Link back to the page on Goodreads where the data data appears. For instance, if displaying a review, the name of the reviewer and a "more..." link at the end of the review must link back to the review detail page. You may not nofollow this link.
+Book titles link to their Goodreads page. Pages displaying Goodreads data include a "Book data from Goodreads" attribution. Links to Goodreads do not use `nofollow`.
 
 ## Routing
 

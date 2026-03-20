@@ -48,7 +48,11 @@
                     <img src="<%= book[:image] %>" alt="Book Cover Photo" class="w-full h-48 object-cover">
                   </div>
                   <div class="p-4 flex flex-col flex-1">
-                    <h3 class="text-base font-semibold text-mauve-950 mb-2 line-clamp-2"><%= book[:title] %></h3>
+                    <% if book[:goodreads_id] %>
+                      <a href="https://www.goodreads.com/book/show/<%= book[:goodreads_id] %>" target="_blank" class="text-base font-semibold text-mauve-950 mb-2 line-clamp-2 hover:underline block"><%= book[:title] %></a>
+                    <% else %>
+                      <h3 class="text-base font-semibold text-mauve-950 mb-2 line-clamp-2"><%= book[:title] %></h3>
+                    <% end %>
                     <p class="text-sm text-mauve-700 mb-1"><%= book[:author] %></p>
                     <% if book[:isbn] %>
                       <p class="text-xs text-mauve-500 mb-3 font-mono">ISBN: <%= book[:isbn] %></p>
@@ -89,6 +93,8 @@
     </el-tab-panels>
   </el-tab-group>
 </div>
+
+<p class="text-xs text-mauve-500 text-center mt-6">Book data from <a href="https://www.goodreads.com" target="_blank" class="underline hover:text-mauve-700">Goodreads</a></p>
 
 <!-- Tailwind Plus Elements for interactive tab components -->
 <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1"></script>

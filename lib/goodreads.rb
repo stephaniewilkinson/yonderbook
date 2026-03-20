@@ -18,7 +18,7 @@ module Goodreads
   HOST = 'www.goodreads.com'
   BASE_URL = "https://#{HOST}".freeze
   GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET')
-  BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating date_added].freeze
+  BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating date_added book/id].freeze
 
   module_function
 
@@ -106,7 +106,7 @@ module Goodreads
       data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text).grep_v(/\A\n\z/) }.transpose
 
       data.map do |book_data|
-        isbn, image_url, title, author, published_year, rating, date_added = book_data
+        isbn, image_url, title, author, published_year, rating, date_added, goodreads_id = book_data
         {
           isbn:,
           image_url:,
@@ -114,7 +114,8 @@ module Goodreads
           author:,
           published_year:,
           ratings: rating,
-          date_added:
+          date_added:,
+          goodreads_id:
         }
       end
     end

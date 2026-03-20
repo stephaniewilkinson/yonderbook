@@ -19,7 +19,7 @@ class Overdrive
   KEY          = ENV.fetch('OVERDRIVE_KEY')
   SECRET       = ENV.fetch('OVERDRIVE_SECRET')
 
-  Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, :no_isbn, :date_added)
+  Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, :no_isbn, :date_added, :goodreads_id)
 
   def self.local_libraries zip_code
     task = Async do
@@ -110,7 +110,8 @@ class Overdrive
           id: edition['id'],
           availability_url: nil,
           no_isbn: book.no_isbn,
-          date_added: book.date_added
+          date_added: book.date_added,
+          goodreads_id: book.goodreads_id
         )
         expanded_books << [book_copy, body]
       end
@@ -175,7 +176,8 @@ class Overdrive
       id: nil,
       availability_url: nil,
       no_isbn: no_isbn,
-      date_added: book[:date_added]
+      date_added: book[:date_added],
+      goodreads_id: book[:goodreads_id]
     )
   end
 

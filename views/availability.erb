@@ -30,6 +30,7 @@
           title: title.title,
           author: title.author,
           isbn: title.isbn,
+          goodreads_id: title.goodreads_id,
           status_label: 'Available:',
           status_value: title.copies_owned == 999999 ? 'Unlimited' : "#{title.copies_available}/#{title.copies_owned}",
           button: {url: title.url, icon: '/svg/book.svg', label: 'Read', class: 'bg-mauve-950 hover:bg-mauve-900'}
@@ -48,6 +49,7 @@
           title: title.title,
           author: title.author,
           isbn: title.isbn,
+          goodreads_id: title.goodreads_id,
           status_label: 'Waitlist:',
           status_value: title.copies_owned == 999999 ? 'Unlimited' : "#{title.copies_available}/#{title.copies_owned}",
           button: {url: title.url, icon: '/svg/book.svg', label: 'Reserve', class: 'bg-mauve-950 hover:bg-mauve-900'}
@@ -67,6 +69,7 @@
           title: title.title,
           author: title.author,
           isbn: title.isbn,
+          goodreads_id: title.goodreads_id,
           opacity: true,
           status_label: 'Not owned by library',
           button: {
@@ -91,6 +94,7 @@
           image: title.image,
           title: title.title,
           author: title.author,
+          goodreads_id: title.goodreads_id,
           opacity: true,
           status_label: 'Missing ISBN',
           button: {

@@ -65,6 +65,7 @@ describe Goodreads do
               <isbn13>9780140328721</isbn13>
               <book>
                 <image_url>http://example.com/cover.jpg</image_url>
+                <id>77203</id>
               </book>
               <title>The Outsiders</title>
               <authors><author><name>S.E. Hinton</name></author></authors>
@@ -84,6 +85,7 @@ describe Goodreads do
       assert_equal 'S.E. Hinton', book[:author]
       assert_equal '1967', book[:published_year]
       assert_equal '5', book[:ratings]
+      assert_equal '77203', book[:goodreads_id]
     end
   end
 end
