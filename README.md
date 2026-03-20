@@ -30,7 +30,13 @@ sqlite3 db/development.db
 
 ## Goodreads Attribution
 
-Book titles link to their Goodreads page. Pages displaying Goodreads data include a "Book data from Goodreads" attribution. Links to Goodreads do not use `nofollow`.
+Per the [Goodreads API Terms](https://www.goodreads.com/api/terms), any page displaying Goodreads data must:
+
+1. Clearly display the Goodreads name or logo where their data appears
+2. Link back to the Goodreads page for each piece of data (book, review, author)
+3. Not use `nofollow` on those links
+
+How we comply: book titles link to their Goodreads page, and all pages showing Goodreads data include a "Book data from Goodreads" attribution.
 
 ## Routing
 
