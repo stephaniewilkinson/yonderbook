@@ -15,11 +15,6 @@ GEM
       io-event (~> 1.11)
       metrics (~> 0.12)
       traces (~> 0.18)
-    async-bus (0.3.2)
-      async
-      io-endpoint
-      io-stream
-      msgpack
     async-container (0.34.3)
       async (~> 2.22)
     async-http (0.94.2)
@@ -43,14 +38,6 @@ GEM
       async
       async-container (~> 0.34)
       string-format (~> 0.2)
-    async-service-supervisor (0.13.1)
-      async-bus
-      async-service (~> 0.15)
-      async-utilization (~> 0.3)
-      io-endpoint
-      memory (~> 0.7)
-      memory-leak (~> 0.10)
-      process-metrics
     async-utilization (0.3.2)
       console (~> 1.0)
     async-websocket (0.30.0)
@@ -58,11 +45,7 @@ GEM
       protocol-http (~> 0.34)
       protocol-rack (~> 0.7)
       protocol-websocket (~> 0.17)
-    bake (0.24.1)
-      bigdecimal
-      samovar (~> 2.1)
     base64 (0.3.0)
-    bcrypt (3.1.22)
     bigdecimal (4.0.1)
     capybara (3.40.0)
       addressable
@@ -155,12 +138,6 @@ GEM
     matrix (0.4.3)
     mcp (0.8.0)
       json-schema (>= 4.1)
-    memory (0.12.0)
-      bake (~> 0.15)
-      console
-      msgpack
-    memory-leak (0.10.3)
-      process-metrics (>= 0.10.1)
     method_source (1.1.0)
     metrics (0.15.0)
     mini_mime (1.1.5)
@@ -169,7 +146,6 @@ GEM
       capybara
       minitest (~> 5.0)
       rake
-    msgpack (1.8.0)
     multi_xml (0.8.1)
       bigdecimal (>= 3.1, < 5)
     net-http (0.9.1)
@@ -205,7 +181,6 @@ GEM
       snaky_hash (~> 2.0, >= 2.0.3)
       version_gem (~> 1.1, >= 1.1.9)
     openssl (4.0.1)
-    ostruct (0.6.3)
     parallel (1.27.0)
     parser (3.3.10.2)
       ast (~> 2.4.1)
@@ -213,9 +188,6 @@ GEM
     posthog-ruby (3.6.0)
       concurrent-ruby (~> 1)
     prism (1.9.0)
-    process-metrics (0.11.0)
-      console (~> 1.8)
-      json (~> 2)
     protocol-hpack (1.5.1)
     protocol-http (0.60.0)
     protocol-http1 (0.37.0)
@@ -349,10 +321,7 @@ DEPENDENCIES
   argon2
   async-http
   async-limiter
-  async-service-supervisor
-  bcrypt
   capybara-selenium
-  csv
   dotenv
   drb
   falcon
@@ -365,7 +334,6 @@ DEPENDENCIES
   nokogiri
   oauth
   oauth2
-  ostruct
   posthog-ruby
   pry
   rack-host-redirect
