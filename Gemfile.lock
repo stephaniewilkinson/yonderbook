@@ -46,6 +46,7 @@ GEM
       protocol-rack (~> 0.7)
       protocol-websocket (~> 0.17)
     base64 (0.3.0)
+    bcrypt (3.1.22)
     bigdecimal (4.0.1)
     capybara (3.40.0)
       addressable
@@ -321,6 +322,7 @@ DEPENDENCIES
   argon2
   async-http
   async-limiter
+  bcrypt
   capybara-selenium
   dotenv
   drb
