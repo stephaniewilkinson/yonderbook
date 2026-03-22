@@ -15,6 +15,10 @@ module Auth
 
   def fetch_request_token
     new_consumer.get_request_token
+  rescue Net::HTTPFatalError, Net::HTTPBadResponse, Net::OpenTimeout, Errno::EBADF, EOFError
+    retries ||= 0
+    retries += 1
+    retry if retries < 4
   end
 
   def rebuild_access_token access_token, access_token_secret
