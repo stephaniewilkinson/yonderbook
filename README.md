@@ -1,11 +1,21 @@
 # Yonderbook | Tools for Bookworms 📒
+
+## Stack
+
+- **Framework:** Roda (routing tree web toolkit) with Sequel ORM and SQLite
+- **Auth:** Rodauth (login, email auth/magic links, password reset, lockout)
+- **Server:** Falcon (async Ruby web server), using `falcon serve` with `--threaded`
+- **CSS:** Tailwind CSS, compiled via `tailwindcss-ruby` gem
+- **Assets:** Roda assets plugin with precompilation (`assets/compiled_assets.json`)
+- **Ruby version:** Defined in `.ruby-version`
+
 ## Installation
 
 ```
 git clone git@github.com:stephaniewilkinson/yonderbook.git
 cd yonderbook
 cp .env-example .env # if you msg me I can share my api keys
-rake db:create
+bundle install
 rake db:migrate
 ```
 
@@ -26,7 +36,19 @@ sqlite3 db/development.db
 
 ## Testing
 
-`rake`
+```
+bundle exec rake test
+```
+
+Tests require environment variables — copy `.env-example` to `.env` and fill in values.
+
+## Key Files
+
+- `app.rb` — Main Roda application class with routing, plugins, and Rodauth config
+- `config.ru` — Rack config; loads Sentry, sets up env-specific middleware
+- `Rakefile` — Defines `precompile`, `tailwind:build`, `tailwind:watch`, and loads `lib/tasks/*.rake`
+- `lib/database.rb` — Sequel/SQLite setup; creates DB constant, path depends on `RACK_ENV`
+- `lib/tasks/db.rake` — Database rake tasks (migrate, reset, create_migration)
 
 TODO: Clearly display the Goodreads name or logo on any location where Goodreads data appears. For instance if you are displaying Goodreads reviews, they should either be in a section clearly titled "Goodreads Reviews", or each review should say "Goodreads review from John: 4 of 5 stars..."
 
@@ -79,7 +101,12 @@ bundle install && bundle exec rake precompile
 bundle exec rake db:migrate && bundle exec falcon --verbose serve --threaded -n 2 -b http://0.0.0.0:${PORT}
 ```
 
-Migrations run in the start command because Render's persistent disk is only mounted at runtime, not during the build step.
+### Important notes
+
+- Render's persistent disk (`/var/data`) is only mounted at **runtime**, not during builds. Migrations must run in the start command.
+- Rake tasks in `lib/tasks/` must not `require` `database.rb` at the top level — it calls `FileUtils.mkdir_p('/var/data')` which fails during builds. Require it lazily inside task bodies that need it.
+- The `precompile` task uses a bare Roda class (not the full App) to avoid loading all app dependencies during the build. `app.rb` also calls `compile_assets` at startup.
+- `tailwindcss-ruby` must stay in the top-level Gemfile group (not `:development`) because it's needed by the build step.
 
 ## Routing
 
