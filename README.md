@@ -63,6 +63,24 @@ Errors are indicated by a negative `result_code` field in the XML response, with
 
 The `/api/userbook` endpoint uses HTTP Basic Auth. A 302 response means rate limiting; a 401 or HTML error page means invalid credentials (users should use their BookMooch username, not email).
 
+## Deployment (Render)
+
+Deployed on [Render](https://render.com) with a persistent disk for SQLite at `/var/data/production.db`.
+
+Render does not use the Procfile — commands are set in the dashboard under Settings:
+
+**Build command:**
+```
+bundle install && bundle exec rake precompile
+```
+
+**Start command:**
+```
+bundle exec rake db:migrate && bundle exec falcon --verbose serve --threaded -n 2 -b http://0.0.0.0:${PORT}
+```
+
+Migrations run in the start command because Render's persistent disk is only mounted at runtime, not during the build step.
+
 ## Routing
 
 This app uses the [roda-route-list plugin.](https://github.com/jeremyevans/roda-route_list) This makes all the routes available in a /routes.json file.

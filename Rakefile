@@ -23,6 +23,12 @@ namespace :routes do
   end
 end
 
+desc 'Build Tailwind CSS and precompile Roda assets metadata'
+task :precompile => 'tailwind:build' do
+  require_relative 'app'
+  App.compile_assets
+end
+
 namespace :tailwind do
   desc 'Build Tailwind CSS for production'
   task :build do

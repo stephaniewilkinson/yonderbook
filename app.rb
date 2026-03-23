@@ -49,7 +49,7 @@ class App < Roda
   use Rack::HostRedirect, 'www.yonderbook.com' => 'yonderbook.com'
 
   plugin :head
-  plugin :assets, css: 'styles.css'
+  plugin :assets, css: 'styles.css', precompiled: 'assets/compiled_assets.json'
   plugin :assets_preloading
   plugin :public, root: 'assets', headers: {'Cache-Control' => 'public, max-age=604800'}
   plugin :flash
