@@ -237,7 +237,7 @@ GEM
       async-websocket (~> 0.12)
       falcon (~> 0.33)
       roda (~> 3.0)
-    rodauth (2.42.0)
+    rodauth (2.43.0)
       roda (>= 2.6.0)
       sequel (>= 4)
     rubocop (1.85.1)
