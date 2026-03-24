@@ -116,7 +116,7 @@ GEM
       concurrent-ruby (~> 1.0)
     io-console (0.8.2)
     io-endpoint (0.17.2)
-    io-event (1.14.4)
+    io-event (1.14.5)
     io-stream (0.11.1)
     ipaddr (1.2.8)
     json (2.19.2)
