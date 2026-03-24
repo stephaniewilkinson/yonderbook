@@ -32,12 +32,12 @@ describe 'Magic link and email auth' do
   it 'shows the login page with magic link as primary and password as fallback' do
     visit '/authenticate'
 
-    # Magic link form is primary
-    assert_button 'Send Me a Login Link'
-    assert_text 'or use your password'
+    # Password form is primary
+    assert_button 'Sign in'
 
-    # Password form is fallback
-    assert_button 'Log In with Password'
+    # Magic link is alternative
+    assert_button 'Email me a login link'
+    assert_text 'Or'
     assert_link 'Forgot password?'
     assert_link 'Sign up'
     sleep 2
@@ -54,12 +54,10 @@ describe 'Magic link and email auth' do
     click_button 'Create Account'
     verify_account(fake_email)
 
-    # Request a magic link
+    # Request a magic link (fill email in password form, JS copies to hidden field)
     visit '/authenticate'
-    within('#magic-link-form') do
-      fill_in 'Email', with: fake_email
-      click_button 'Send Me a Login Link'
-    end
+    fill_in 'Email', with: fake_email
+    click_button 'Email me a login link'
 
     # Should show confirmation flash
     assert_text 'Check your email for a login link'
@@ -83,12 +81,10 @@ describe 'Magic link and email auth' do
     click_button 'Create Account'
     verify_account(fake_email)
 
-    # Request a magic link
+    # Request a magic link (fill email in password form, JS copies to hidden field)
     visit '/authenticate'
-    within('#magic-link-form') do
-      fill_in 'Email', with: fake_email
-      click_button 'Send Me a Login Link'
-    end
+    fill_in 'Email', with: fake_email
+    click_button 'Email me a login link'
 
     # Build the magic link URL from the database key (wait for async creation)
     account = DB[:accounts].where(email: fake_email).first

@@ -93,7 +93,7 @@ describe App do
     within('#password-login-form') do
       fill_in 'Email', with: fake_email
       fill_in 'Password', with: fake_password
-      click_button 'Log In with Password'
+      click_button 'Sign in'
     end
 
     # Should be redirected to home page after successful login

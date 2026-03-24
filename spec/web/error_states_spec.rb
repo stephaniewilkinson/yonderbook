@@ -37,7 +37,7 @@ describe 'Error states' do
     within('#password-login-form') do
       fill_in 'Email', with: fake_email
       fill_in 'Password', with: 'WrongPassword999!'
-      click_button 'Log In with Password'
+      click_button 'Sign in'
     end
 
     assert_text 'invalid password'
@@ -49,7 +49,7 @@ describe 'Error states' do
     within('#password-login-form') do
       fill_in 'Email', with: 'nobody@example.com'
       fill_in 'Password', with: 'Whatever123!'
-      click_button 'Log In with Password'
+      click_button 'Sign in'
     end
 
     assert_text 'No account exists with that email'
@@ -74,7 +74,10 @@ describe 'Error states' do
     password_login(fake_email, fake_password)
 
     visit '/connections/goodreads/shelves'
-    assert_text 'Please connect your Goodreads account first'
+    # User without Goodreads connection should not see shelves
+    refute_text 'Choose a shelf'
+    # Should see option to connect Goodreads
+    assert_text 'Connect Goodreads'
     sleep 2
   end
 end
