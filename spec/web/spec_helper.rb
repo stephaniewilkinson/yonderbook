@@ -42,7 +42,9 @@ Capybara.register_driver :headless_chrome do |app|
 end
 
 Capybara.register_driver :firefox do |app|
-  Capybara::Selenium::Driver.new app, browser: :firefox
+  options = Selenium::WebDriver::Firefox::Options.new
+  options.accept_insecure_certs = true
+  Capybara::Selenium::Driver.new app, browser: :firefox, options: options
 end
 
 Capybara.register_driver :headless_firefox do |app|
@@ -51,6 +53,7 @@ Capybara.register_driver :headless_firefox do |app|
   options.add_argument('--disable-blink-features=AutomationControlled')
   options.add_preference('dom.webdriver.enabled', false)
   options.add_preference('useAutomationExtension', false)
+  options.accept_insecure_certs = true
   Capybara::Selenium::Driver.new app, browser: :firefox, options: options
 end
 
