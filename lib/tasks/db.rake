@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../database'
-
 namespace :db do
   desc 'Run database migrations'
   task :migrate do
+    require_relative '../database'
     puts 'Running database migrations...'
     Sequel.extension :migration
     Sequel::Migrator.run(DB, 'db/migrations')
@@ -38,6 +37,7 @@ namespace :db do
 
   desc 'Reset database (drop and recreate)'
   task :reset do
+    require_relative '../database'
     puts 'Resetting database...'
     DB.drop_table?(:schema_migrations)
     Dir.glob('db/*.db').each { |file| File.delete(file) }

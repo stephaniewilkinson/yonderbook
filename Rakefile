@@ -23,6 +23,14 @@ namespace :routes do
   end
 end
 
+desc 'Build Tailwind CSS and precompile Roda assets metadata'
+task precompile: 'tailwind:build' do
+  require 'roda'
+  app = Class.new(Roda)
+  app.plugin :assets, css: 'styles.css', precompiled: 'assets/compiled_assets.json'
+  app.compile_assets
+end
+
 namespace :tailwind do
   desc 'Build Tailwind CSS for production'
   task :build do

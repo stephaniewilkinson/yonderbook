@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-RubyVM::YJIT.enable if defined?(RubyVM::YJIT)
-
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__ if ENV.fetch('RACK_ENV', 'development') == 'development'
 
 require 'area'
@@ -49,9 +47,9 @@ class App < Roda
   use Rack::HostRedirect, 'www.yonderbook.com' => 'yonderbook.com'
 
   plugin :head
-  plugin :assets, css: 'styles.css'
+  plugin :assets, css: 'styles.css', precompiled: 'assets/compiled_assets.json'
   plugin :assets_preloading
-  plugin :public, root: 'assets'
+  plugin :public, root: 'assets', headers: {'Cache-Control' => 'public, max-age=604800'}
   plugin :flash
   plugin :sessions, secret: SESSION_SECRET
   plugin :route_csrf
@@ -66,11 +64,11 @@ class App < Roda
   plugin :hash_branches
   plugin :content_security_policy do |csp|
     csp.default_src :self
-    csp.script_src :self, :unsafe_inline, 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com', 'https://embed.tawk.to'
-    csp.style_src :self, :unsafe_inline
+    csp.script_src :self, :unsafe_inline, 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://embed.tawk.to'
+    csp.style_src :self, :unsafe_inline, 'https://fonts.googleapis.com'
     csp.img_src :self, :data, 'https:'
-    csp.font_src :self
-    csp.connect_src :self, 'wss:', 'https://www.google-analytics.com', 'https://va.tawk.to'
+    csp.font_src :self, 'https://fonts.gstatic.com'
+    csp.connect_src :self, 'wss:', 'https://www.google-analytics.com', 'https://va.tawk.to', 'https://embed.tawk.to'
     csp.frame_src 'https://tawk.to'
     csp.frame_ancestors :none
     csp.form_action :self, 'https://www.goodreads.com'

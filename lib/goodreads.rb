@@ -6,7 +6,6 @@ require 'async/http/client'
 require 'async/http/endpoint'
 require 'async/http/internet'
 require 'async/semaphore'
-require 'gender_detector'
 require 'nokogiri'
 require 'oauth'
 require 'uri'
@@ -14,11 +13,15 @@ require 'uri'
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title
   API_KEY = ENV.fetch('GOODREADS_API_KEY')
-  GENDER_DETECTOR = GenderDetector.new
   HOST = 'www.goodreads.com'
   BASE_URL = "https://#{HOST}".freeze
   GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET')
   BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating date_added].freeze
+
+  def self.gender_detector
+    require 'gender_detector' unless defined?(GenderDetector)
+    @gender_detector ||= GenderDetector.new
+  end
 
   module_function
 
@@ -147,7 +150,7 @@ module Goodreads
   end
 
   def get_gender books
-    count = books.group_by { |book| GENDER_DETECTOR.get_gender book[:title].split.first }.transform_values(&:size)
+    count = books.group_by { |book| Goodreads.gender_detector.get_gender book[:title].split.first }.transform_values(&:size)
     [
       count.values_at(:female, :mostly_female).compact.sum,
       count.values_at(:male, :mostly_male).compact.sum,
