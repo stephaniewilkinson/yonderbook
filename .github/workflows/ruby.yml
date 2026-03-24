@@ -30,6 +30,12 @@ jobs:
       with:
         ruby-version: ${{ steps.ruby-version.outputs.version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: Setup Firefox
+      uses: browser-actions/setup-firefox@v1
+    - name: Setup geckodriver
+      uses: browser-actions/setup-geckodriver@latest
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Run RuboCop
       run: bundle exec rubocop
     - name: Run tests

@@ -56,8 +56,8 @@ Capybara.register_driver :headless_firefox do |app|
   Capybara::Selenium::Driver.new app, browser: :firefox, options: options
 end
 
-# Use headless Chrome everywhere (Firefox can't handle Falcon's self-signed localhost certs)
-driver = ENV['CI'] ? :headless_chrome : :chrome
+# Use headless Firefox in CI (Amazon bot detection blocks headless Chrome during OAuth)
+driver = ENV['CI'] ? :headless_firefox : :chrome
 
 Capybara.javascript_driver = driver
 
