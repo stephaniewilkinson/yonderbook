@@ -50,15 +50,14 @@ end
 Capybara.register_driver :headless_firefox do |app|
   options = Selenium::WebDriver::Firefox::Options.new
   options.add_argument('--headless')
-  options.add_argument('--disable-blink-features=AutomationControlled')
   options.add_preference('dom.webdriver.enabled', false)
   options.add_preference('useAutomationExtension', false)
   options.accept_insecure_certs = true
   Capybara::Selenium::Driver.new app, browser: :firefox, options: options
 end
 
-# Use Firefox in CI (GitHub Actions), Chrome locally (Firefox 144.0 broken on macOS)
-driver = ENV['CI'] ? :headless_firefox : :chrome
+# Use headless Chrome everywhere (Firefox can't handle Falcon's self-signed localhost certs)
+driver = ENV['CI'] ? :headless_chrome : :chrome
 
 Capybara.javascript_driver = driver
 
