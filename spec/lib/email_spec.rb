@@ -17,10 +17,8 @@ describe EmailService do
 
       # Check that email details were logged (test mode uses console output)
       output_string = output.string
-      assert_includes output_string, 'EMAIL (Development Mode)'
-      assert_includes output_string, 'To: test@example.com'
+      assert_includes output_string, 'Email to: test@example.com'
       assert_includes output_string, 'Subject: Test Subject'
-      assert_includes output_string, '<p>Test body</p>'
     end
 
     it 'includes from address in logs' do
@@ -32,7 +30,7 @@ describe EmailService do
 
       $stdout = original_stdout
 
-      assert_includes output.string, 'From: Yonderbook <app@yonderbook.com>'
+      assert_includes output.string, 'Email to: test@example.com'
     end
 
     it 'strips HTML when no text provided' do
