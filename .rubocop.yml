@@ -453,6 +453,10 @@ Style/HashSyntax:
 Style/HashLookupMethod:
   Enabled: false
 
+Style/IpAddresses:
+  Exclude:
+    - spec/**/*
+
 Style/ImplicitRuntimeError:
   Enabled: false
 

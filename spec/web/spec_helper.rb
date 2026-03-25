@@ -8,10 +8,10 @@ require 'falcon/capybara'
 
 # Falcon HTTPS negotiates HTTP/2 via ALPN, which hangs with Firefox/geckodriver.
 # Register a server that uses HTTPS but forces HTTP/1.1 only.
-Capybara.register_server(:falcon_https_h1) do |rack_app, port, host, _options|
+Capybara.register_server(:falcon_https_only) do |rack_app, port, host, _options|
   require 'async/reactor'
-  require 'falcon/server'
   require 'falcon/endpoint'
+  require 'falcon/server'
 
   Async do
     host = 'localhost' if host == '127.0.0.1'
@@ -85,7 +85,7 @@ driver = ENV['CI'] ? :headless_firefox : :chrome
 Capybara.javascript_driver = driver
 
 Capybara.configure do |config|
-  config.server = ENV['CI'] ? :falcon_https_h1 : :falcon_https
+  config.server = ENV['CI'] ? :falcon_https_only : :falcon_https
   config.run_server = true
   config.server_port = 9292
   config.default_driver = driver
