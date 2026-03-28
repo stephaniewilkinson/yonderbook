@@ -66,7 +66,9 @@ class Overdrive
   end
 
   def self.rss_mb
-    `ps -o rss= -p #{Process.pid}`.to_i / 1024.0
+    status_path = "/proc/#{Process.pid}/status"
+    kb = File.exist?(status_path) ? File.read(status_path)[/VmRSS:\s+(\d+)/, 1].to_i : `ps -o rss= -p #{Process.pid}`.to_i
+    kb / 1024.0
   rescue StandardError
     0.0
   end
@@ -175,13 +177,9 @@ class Overdrive
   end
 
   def availability_path book
-    if book[:isbn] && !book[:isbn].empty?
-      params = URI.encode_www_form minimum: false, limit: 5, q: book[:isbn]
-    else
-      clean_title = TitleNormalizer.clean_for_search(book[:title])
-      params = URI.encode_www_form minimum: false, limit: 5, q: "\"#{clean_title}\""
-    end
-    "/v1/collections/#{@collection_token}/products?#{params}"
+    isbn = book[:isbn]
+    query = isbn && !isbn.empty? ? isbn : "\"#{TitleNormalizer.clean_for_search(book[:title])}\""
+    "/v1/collections/#{@collection_token}/products?#{URI.encode_www_form(minimum: false, limit: 5, q: query)}"
   end
 
   # Search Overdrive catalog for a chunk of books. Returns [[Title, body_string], ...]
