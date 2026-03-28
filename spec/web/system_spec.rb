@@ -202,7 +202,7 @@ describe App do
     end
 
     if page.has_text?('BookMooch appears to be down', wait: 5)
-      # BookMooch is currently unreachable — verify the user sees the warning
+      # BookMooch is currently unreachable - verify the user sees the warning
       assert_text 'BookMooch appears to be down'
       assert_text 'Choose a shelf'
     else
