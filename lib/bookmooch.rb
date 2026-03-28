@@ -140,8 +140,15 @@ module Bookmooch
     path = "#{PATH}?#{params}"
 
     response = client.get path, headers
-    response_body = response.read
 
+    # BookMooch returns 302 when rate-limited - retry after a delay
+    if response.status == 302
+      response.close
+      sleep 2
+      response = client.get path, headers
+    end
+
+    response_body = response.read
     collect_added_isbns(response_body, added_isbns)
   ensure
     response&.close
