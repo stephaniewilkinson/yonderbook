@@ -5,18 +5,32 @@ require 'async/barrier'
 require 'async/http/client'
 require 'async/http/endpoint'
 require 'base64'
+require 'net/http'
 require 'uri'
 require_relative 'alternate_isbns'
 
 module Bookmooch
   BASE_URL = 'https://api.bookmooch.com'
   PATH = '/api/userbook'
+  HEALTH_CHECK_TIMEOUT = 5
 
   class AuthenticationError < StandardError; end
 
   class RateLimitError < StandardError; end
 
   module_function
+
+  def available?
+    uri = URI(BASE_URL)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.open_timeout = HEALTH_CHECK_TIMEOUT
+    http.read_timeout = HEALTH_CHECK_TIMEOUT
+    response = http.request_head(uri.path.empty? ? '/' : uri.path)
+    response.code.to_i < 500
+  rescue StandardError
+    false
+  end
 
   def books_added_and_failed isbns_and_image_urls, username, password, &progress_callback
     original_isbns = isbns_and_image_urls.map { |h| h[:isbn] }.reject(&:empty?)
