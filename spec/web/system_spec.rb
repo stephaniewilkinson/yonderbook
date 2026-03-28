@@ -201,12 +201,18 @@ describe App do
       find('a', text: 'By Mail').click
     end
 
-    fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
-    fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
-    click_button 'Authenticate'
-    assert_text 'Importing Books to BookMooch'
-    sleep 120
-    assert_text 'Success!'
+    if page.has_text?('BookMooch appears to be down', wait: 5)
+      # BookMooch is currently unreachable - verify the user sees the warning
+      assert_text 'BookMooch appears to be down'
+      assert_text 'Choose a shelf'
+    else
+      fill_in 'username', with: ENV.fetch('BOOKMOOCH_USERNAME')
+      fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
+      click_button 'Authenticate'
+      assert_text 'Importing Books to BookMooch'
+      sleep 120
+      assert_text 'Success!'
+    end
     sleep 2
   end
 end

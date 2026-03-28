@@ -47,6 +47,11 @@ class App
           @book_info ||= fetch_shelf_blocking(@shelf_name)
 
           r.on 'bookmooch' do
+            unless Bookmooch.available?
+              flash[:error] = 'BookMooch appears to be down right now. Please try again later.'
+              r.redirect "/connections/goodreads/shelves/#{@shelf_name}"
+            end
+
             # route: GET /connections/goodreads/shelves/:id/bookmooch
             r.get true do
               @new_count, @skip_count, @no_isbn_count = bookmooch_preview(@user.id, @book_info)
