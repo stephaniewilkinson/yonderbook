@@ -26,12 +26,10 @@ module Bookmooch
     alternate_isbn_map = AlternateIsbns.fetch_alternate_isbns(original_isbns, &progress_callback)
     expanded_isbns, isbn_to_original = expand_isbns_with_alternates(original_isbns, alternate_isbn_map)
 
-    warn "[bookmooch] #{original_isbns.size} original ISBNs expanded to #{expanded_isbns.size} with alternates"
     progress_callback&.call(type: 'status', message: "Sending #{expanded_isbns.size} ISBNs to BookMooch...")
 
     # Send all ISBNs to BookMooch
     added_isbns = send_expanded_isbns(expanded_isbns, username, password, &progress_callback)
-    warn "[bookmooch] #{added_isbns.size} ISBNs added by BookMooch API"
 
     progress_callback&.call(type: 'status', message: 'Processing results...')
 
@@ -143,7 +141,6 @@ module Bookmooch
 
     response = retry_on_failure(client, path, headers)
     response_body = response.read
-    warn "[bookmooch] Batch response status=#{response.status} body_length=#{response_body&.length}"
     collect_added_isbns(response_body, added_isbns)
   ensure
     response&.close
@@ -158,7 +155,6 @@ module Bookmooch
       response = client.get path, headers
       return response if response.status < 500 && response.status != 302
 
-      warn "[bookmooch] Retryable response (#{response.status}), attempt #{attempt + 1}/#{retries}"
       response.close
       sleep (attempt + 1) * 2
     end
