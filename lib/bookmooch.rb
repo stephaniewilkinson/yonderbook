@@ -26,10 +26,12 @@ module Bookmooch
     alternate_isbn_map = AlternateIsbns.fetch_alternate_isbns(original_isbns, &progress_callback)
     expanded_isbns, isbn_to_original = expand_isbns_with_alternates(original_isbns, alternate_isbn_map)
 
+    warn "[bookmooch] #{original_isbns.size} original ISBNs expanded to #{expanded_isbns.size} with alternates"
     progress_callback&.call(type: 'status', message: "Sending #{expanded_isbns.size} ISBNs to BookMooch...")
 
     # Send all ISBNs to BookMooch
     added_isbns = send_expanded_isbns(expanded_isbns, username, password, &progress_callback)
+    warn "[bookmooch] #{added_isbns.size} ISBNs added by BookMooch API"
 
     progress_callback&.call(type: 'status', message: 'Processing results...')
 
@@ -143,12 +145,14 @@ module Bookmooch
 
     # BookMooch returns 302 when rate-limited - retry after a delay
     if response.status == 302
+      warn '[bookmooch] Rate limited (302), retrying after 2s...'
       response.close
       sleep 2
       response = client.get path, headers
     end
 
     response_body = response.read
+    warn "[bookmooch] Batch response status=#{response.status} body_length=#{response_body&.length}"
     collect_added_isbns(response_body, added_isbns)
   ensure
     response&.close
