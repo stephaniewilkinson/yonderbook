@@ -83,50 +83,48 @@ describe Overdrive do
   end
 
   describe '#title_matches_exactly?' do
-    def check_match overdrive_title, goodreads_title
+    def match? overdrive_title, goodreads_title
       product = {'title' => overdrive_title}
-      od = Overdrive.allocate
-      od.send(:title_matches_exactly?, product, goodreads_title)
+      Overdrive::Matching.title_matches_exactly?(product, goodreads_title)
     end
 
     it 'matches identical titles after normalization' do
-      assert check_match('The Outsiders', 'The Outsiders')
+      assert match?('The Outsiders', 'The Outsiders')
     end
 
     it 'matches when Goodreads title starts with OverDrive title' do
-      assert check_match('Beloved', 'Beloved (Pulitzer Prize Winner)')
+      assert match?('Beloved', 'Beloved (Pulitzer Prize Winner)')
     end
 
     it 'matches when OverDrive title starts with Goodreads title' do
-      assert check_match('The Great Gatsby: The Authorized Edition', 'The Great Gatsby')
+      assert match?('The Great Gatsby: The Authorized Edition', 'The Great Gatsby')
     end
 
     it 'does not match unrelated titles' do
-      refute check_match('Dune', 'Foundation')
+      refute match?('Dune', 'Foundation')
     end
   end
 
   describe '#author_matches?' do
-    def check_author product_author, target_author
+    def author_match? product_author, target_author
       product = {'primaryCreator' => {'name' => product_author}}
-      od = Overdrive.allocate
-      od.send(:author_matches?, product, target_author)
+      Overdrive::Matching.author_matches?(product, target_author)
     end
 
     it 'matches by last name' do
-      assert check_author('S.E. Hinton', 'Susan Eloise Hinton')
+      assert author_match?('S.E. Hinton', 'Susan Eloise Hinton')
     end
 
     it 'does not match different authors' do
-      refute check_author('Stephen King', 'J.K. Rowling')
+      refute author_match?('Stephen King', 'J.K. Rowling')
     end
 
     it 'returns false for nil target author' do
-      refute check_author('Someone', nil)
+      refute author_match?('Someone', nil)
     end
 
     it 'returns false for empty target author' do
-      refute check_author('Someone', '')
+      refute author_match?('Someone', '')
     end
   end
 end

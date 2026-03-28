@@ -84,7 +84,10 @@ class App
               end
               overdrive = Overdrive.new(@book_info, consortium)
               titles = overdrive.fetch_titles_availability
-              Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
+              sid = session['session_id']
+              Cache.set_by_id(sid, overdrive_titles: titles.map(&:to_h))
+              Cache.set(session, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
+              warn "[overdrive] Timings: #{overdrive.timings.inspect}"
               r.redirect '/connections/goodreads/availability'
             end
           end
@@ -94,7 +97,9 @@ class App
       r.is 'availability' do
         require_goodreads r
         r.get do # route: GET /connections/goodreads/availability
-          @titles = Cache.get session, :titles
+          sid = session['session_id']
+          raw_titles = Cache.get_by_id(sid, :overdrive_titles)
+          @titles = raw_titles&.map { |h| Overdrive::Title.new(**h) }
           @collection_token = Cache.get session, :collection_token
           @website_id = Cache.get session, :website_id
           @library_url = Cache.get session, :library_url
