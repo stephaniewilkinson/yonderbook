@@ -47,7 +47,7 @@ GEM
       protocol-websocket (~> 0.17)
     base64 (0.3.0)
     bcrypt (3.1.22)
-    bigdecimal (4.0.1)
+    bigdecimal (4.1.0)
     capybara (3.40.0)
       addressable
       matrix
