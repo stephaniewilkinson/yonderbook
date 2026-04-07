@@ -5,7 +5,7 @@ require 'rake/testtask'
 task default: :test
 
 Rake::TestTask.new do |test|
-  test.pattern = 'spec/**/*_spec.rb'
+  test.test_files = FileList['spec/web/system_spec.rb', 'spec/**/*_spec.rb'].uniq
   test.warning = false
 end
 
