@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'async'
+require 'async/barrier'
 require 'async/http/internet/instance'
 require 'async/limiter/generic'
 require 'async/limiter/timing/leaky_bucket'
-require 'async/barrier'
 require 'async/semaphore'
 require 'json'
 

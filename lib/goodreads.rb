@@ -73,7 +73,7 @@ module Goodreads
       total = doc.xpath('//reviews').first.attributes['total'].value.to_f
       number_of_pages = total.fdiv(100).ceil
       books.concat(extract_books_from_body(first_body))
-      first_body = nil # release for GC
+      nil # release for GC
 
       # Fetch remaining pages in parallel (capped at 4 concurrent)
       2.upto(number_of_pages).each do |page|
