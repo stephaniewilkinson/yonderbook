@@ -211,7 +211,7 @@ describe App do
       click_button 'Authenticate'
       assert_text 'Importing Books to BookMooch'
       sleep 120
-      assert_text 'Import complete!'
+      assert_text 'Success!'
     end
     sleep 2
   end
