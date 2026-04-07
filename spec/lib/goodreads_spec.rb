@@ -56,8 +56,8 @@ describe Goodreads do
     end
   end
 
-  describe '.get_book_details' do
-    it 'parses XML bodies into book hashes' do
+  describe '.extract_books_from_body' do
+    it 'parses an XML body into book hashes' do
       xml = <<~XML
         <response>
           <reviews>
@@ -76,7 +76,7 @@ describe Goodreads do
         </response>
       XML
 
-      result = Goodreads.get_book_details([xml])
+      result = Goodreads.extract_books_from_body(xml)
       assert_equal 1, result.size
       book = result.first
       assert_equal '9780140328721', book[:isbn]

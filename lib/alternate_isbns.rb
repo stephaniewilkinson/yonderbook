@@ -4,6 +4,8 @@ require 'async'
 require 'async/http/internet/instance'
 require 'async/limiter/generic'
 require 'async/limiter/timing/leaky_bucket'
+require 'async/barrier'
+require 'async/semaphore'
 require 'json'
 
 module AlternateIsbns
@@ -57,13 +59,14 @@ module AlternateIsbns
   end
 
   def fetch_uncached_isbns uncached_isbns, result, completed_count, total_isbns, &progress_callback
-    async_result = Async do
+    Sync do
       timing = Async::Limiter::Timing::LeakyBucket.new(BOOKS_PER_SECOND, BOOKS_PER_SECOND * 2)
       limiter = Async::Limiter::Generic.new(timing: timing)
       barrier = Async::Barrier.new
+      semaphore = Async::Semaphore.new(4, parent: barrier)
 
       uncached_isbns.each do |isbn|
-        barrier.async do
+        semaphore.async do
           limiter.async do
             alternates, work_key = fetch_alternates_for_isbn_with_retry(isbn)
             result[isbn] = alternates unless alternates.empty?
@@ -81,7 +84,6 @@ module AlternateIsbns
     ensure
       barrier&.stop
     end
-    async_result.wait
   end
 
   def fetch_alternates_for_isbn_with_retry isbn, attempt = 1
