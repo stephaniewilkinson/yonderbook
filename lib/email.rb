@@ -38,13 +38,8 @@ class EmailService
       ENV.fetch('RACK_ENV', nil) == 'test'
     end
 
-    def console_output recipient, email_subject, email_html
-      puts "\n=== EMAIL (Development Mode) ==="
-      puts "From: #{FROM_EMAIL}"
-      puts "To: #{recipient}"
-      puts "Subject: #{email_subject}"
-      puts "Body: #{email_html}"
-      puts "==================================\n"
+    def console_output recipient, email_subject, _email_html
+      puts "\n=== EMAIL (Test) → To: #{recipient} | Subject: #{email_subject} ===\n"
     end
   end
 end
