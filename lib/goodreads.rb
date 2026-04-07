@@ -34,66 +34,60 @@ module Goodreads
     uri.path = '/shelf/list.xml'
     uri.query = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
 
-    task = Async do
-      internet = Async::HTTP::Internet.new
-      response = internet.get uri.to_s
-      response.read
-    ensure
-      internet&.close
+    Sync do
+      response = Async::HTTP::Internet.get uri.to_s
+      body = response.read
+      response.close
+
+      doc = Nokogiri::XML body
+      shelf_names = doc.xpath('//shelves//name').children.to_a
+      shelf_books = doc.xpath('//shelves//book_count').children.map { |x| x.to_s.to_i }
+
+      shelf_names.zip shelf_books
     end
-
-    doc = Nokogiri::XML task.wait
-    shelf_names = doc.xpath('//shelves//name').children.to_a
-    shelf_books = doc.xpath('//shelves//book_count').children.map { |x| x.to_s.to_i }
-
-    shelf_names.zip shelf_books
   end
 
   def get_books shelf_name, goodreads_user_id, access_token = nil
     path = "/review/list/#{goodreads_user_id}.xml?key=#{API_KEY}&v=2&shelf=#{shelf_name}&per_page=100"
-    bodies = fetch_all_pages(path, access_token)
-    get_book_details bodies
+    fetch_all_pages(path, access_token)
   end
 
   def fetch_all_pages path, access_token = nil
-    async_result = Async do
+    Sync do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, limit: 64
+      client = Async::HTTP::Client.new endpoint, limit: 4
       barrier = Async::Barrier.new
-      semaphore = Async::Semaphore.new(16, parent: barrier)
-      bodies = []
+      semaphore = Async::Semaphore.new(4, parent: barrier)
+      books = []
 
       # Fetch page 1 to determine total pages
       page1_path = "#{path}&page=1"
       headers = oauth_headers(page1_path, access_token)
-      first_body = client.get(page1_path, headers).read
+      first_response = client.get(page1_path, headers)
+      first_body = first_response.read
+      first_response.close
       doc = Nokogiri::XML first_body
       total = doc.xpath('//reviews').first.attributes['total'].value.to_f
       number_of_pages = total.fdiv(100).ceil
-      bodies << first_body
+      books.concat(extract_books_from_body(first_body))
 
-      # Fetch remaining pages in parallel
+      # Fetch remaining pages in parallel (capped at 4 concurrent)
       2.upto(number_of_pages).each do |page|
         semaphore.async do
           page_path = "#{path}&page=#{page}"
           response = client.get page_path, oauth_headers(page_path, access_token)
-          bodies << response.read
-        ensure
-          response&.close
+          body = response.read
+          response.close
+          books.concat(extract_books_from_body(body))
         end
       end
 
-      begin
-        barrier.wait
-      ensure
-        barrier&.stop
-      end
-
-      bodies
+      barrier.wait
+      books
     ensure
+      barrier&.stop
       client&.close
     end
-    async_result.wait
   end
 
   def oauth_headers path, access_token
@@ -103,23 +97,21 @@ module Goodreads
     [['authorization', signed_req['Authorization']]]
   end
 
-  def get_book_details bodies
-    bodies.flat_map do |body|
-      doc = Nokogiri::XML body
-      data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text).grep_v(/\A\n\z/) }.transpose
+  def extract_books_from_body body
+    doc = Nokogiri::XML body
+    data = BOOK_DETAILS.map { |path| doc.xpath("//#{path}").map(&:text).grep_v(/\A\n\z/) }.transpose
 
-      data.map do |book_data|
-        isbn, image_url, title, author, published_year, rating, date_added = book_data
-        {
-          isbn:,
-          image_url:,
-          title:,
-          author:,
-          published_year:,
-          ratings: rating,
-          date_added:
-        }
-      end
+    data.map do |book_data|
+      isbn, image_url, title, author, published_year, rating, date_added = book_data
+      {
+        isbn:,
+        image_url:,
+        title:,
+        author:,
+        published_year:,
+        ratings: rating,
+        date_added:
+      }
     end
   end
 
@@ -171,26 +163,21 @@ module Goodreads
     uri.path = "/book/isbn/#{isbn}"
     uri.query = URI.encode_www_form(key: API_KEY)
 
-    task = Async do
-      internet = Async::HTTP::Internet.new
-      response = internet.get uri.to_s
-      response_code = response.status
+    Sync do
+      response = Async::HTTP::Internet.get uri.to_s
 
-      case response_code
+      case response.status
       when 200
         doc = Nokogiri::XML(response.read)
         title = doc.xpath('//title').text
         image_url = doc.xpath('//image_url').first&.text
         book = Book.new(title:, image_url:, isbn:)
-
         [:ok, book]
       else
-        [:error, response_code]
+        [:error, response.status]
       end
     ensure
-      internet&.close
+      response&.close
     end
-
-    task.wait
   end
 end

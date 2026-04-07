@@ -4,8 +4,9 @@ require 'async'
 require 'async/barrier'
 require 'async/http/client'
 require 'async/http/endpoint'
+require 'async/http/internet'
+require 'async/semaphore'
 require 'base64'
-require 'net/http'
 require 'uri'
 require_relative 'alternate_isbns'
 
@@ -21,13 +22,14 @@ module Bookmooch
   module_function
 
   def available?
-    uri = URI(BASE_URL)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.open_timeout = HEALTH_CHECK_TIMEOUT
-    http.read_timeout = HEALTH_CHECK_TIMEOUT
-    response = http.request_head(uri.path.empty? ? '/' : uri.path)
-    response.code.to_i < 500
+    Sync do
+      internet = Async::HTTP::Internet.new
+      response = internet.head(BASE_URL)
+      response.status < 500
+    ensure
+      response&.close
+      internet&.close
+    end
   rescue StandardError
     false
   end
@@ -110,16 +112,17 @@ module Bookmooch
   end
 
   def send_isbn_batches isbn_batches, username, password, &progress_callback
-    async_isbns = Async do
+    Sync do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
-      client = Async::HTTP::Client.new endpoint, limit: 64
+      client = Async::HTTP::Client.new endpoint, limit: 4
       barrier = Async::Barrier.new
+      semaphore = Async::Semaphore.new(4, parent: barrier)
       headers = auth_headers(username, password)
       added_isbns = []
       total_batches = isbn_batches.size
 
       isbn_batches.each.with_index do |isbn_batch, batch_idx|
-        barrier.async do
+        semaphore.async do
           process_batch(client, isbn_batch, batch_idx, headers, added_isbns)
           progress_callback&.call(
             type: 'progress',
@@ -130,18 +133,12 @@ module Bookmooch
         end
       end
 
-      begin
-        barrier.wait
-      ensure
-        barrier&.stop
-      end
-
+      barrier.wait
       added_isbns
     ensure
+      barrier&.stop
       client&.close
     end
-
-    async_isbns.wait
   end
 
   def auth_headers username, password
