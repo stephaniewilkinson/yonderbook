@@ -48,10 +48,12 @@ module RouteHelpers
     sid = session['session_id']
     access_token = @goodreads_connection.oauth_access_token
     goodreads_user_id = @goodreads_user_id
-    Async::Task.current.async(transient: true) do
-      Sentry.add_breadcrumb(Sentry::Breadcrumb.new(category: 'goodreads', message: "Background fetch '#{shelf_name}'"))
-      book_info = Goodreads.get_books(shelf_name, goodreads_user_id, access_token)
-      Cache.set_by_id(sid, goodreads_shelf_data: book_info, goodreads_shelf_ready: true)
+    Async::Task.current.async(transient: true) do |task|
+      task.with_timeout(20) do
+        Sentry.add_breadcrumb(Sentry::Breadcrumb.new(category: 'goodreads', message: "Background fetch '#{shelf_name}'"))
+        book_info = Goodreads.get_books(shelf_name, goodreads_user_id, access_token)
+        Cache.set_by_id(sid, goodreads_shelf_data: book_info, goodreads_shelf_ready: true)
+      end
     rescue StandardError => e
       Sentry.capture_exception(e) if defined?(Sentry)
       Cache.set_by_id(sid, goodreads_shelf_ready: true, goodreads_shelf_error: e.message)

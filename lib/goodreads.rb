@@ -35,8 +35,7 @@ module Goodreads
     uri.query = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
 
     Sync do
-      internet = Async::HTTP::Internet.new
-      response = internet.get uri.to_s
+      response = Async::HTTP::Internet.get uri.to_s
       body = response.read
       response.close
 
@@ -45,8 +44,6 @@ module Goodreads
       shelf_books = doc.xpath('//shelves//book_count').children.map { |x| x.to_s.to_i }
 
       shelf_names.zip shelf_books
-    ensure
-      internet&.close
     end
   end
 
@@ -73,7 +70,6 @@ module Goodreads
       total = doc.xpath('//reviews').first.attributes['total'].value.to_f
       number_of_pages = total.fdiv(100).ceil
       books.concat(extract_books_from_body(first_body))
-      nil # release for GC
 
       # Fetch remaining pages in parallel (capped at 4 concurrent)
       2.upto(number_of_pages).each do |page|
@@ -168,8 +164,7 @@ module Goodreads
     uri.query = URI.encode_www_form(key: API_KEY)
 
     Sync do
-      internet = Async::HTTP::Internet.new
-      response = internet.get uri.to_s
+      response = Async::HTTP::Internet.get uri.to_s
 
       case response.status
       when 200
@@ -183,7 +178,6 @@ module Goodreads
       end
     ensure
       response&.close
-      internet&.close
     end
   end
 end
