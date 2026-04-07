@@ -85,6 +85,42 @@ Errors are indicated by a negative `result_code` field in the XML response, with
 
 The `/api/userbook` endpoint uses HTTP Basic Auth. A 302 response means rate limiting; a 401 or HTML error page means invalid credentials (users should use their BookMooch username, not email).
 
+## OverDrive API
+
+[OverDrive](https://developer.overdrive.com/) provides APIs for searching library digital collections and checking availability.
+
+### Authentication
+
+Uses OAuth2 client credentials flow via `https://oauth.overdrive.com/token`. The returned bearer token is used for all subsequent API calls. Tokens are short-lived and should be fetched per-session.
+
+### Endpoints Used
+
+**Library info** — `GET /v1/libraries/{consortiumId}`
+Returns collection token, website ID, and homepage URL. The `collectionToken` is required for all product/availability queries.
+
+**Product search** — `GET /v1/collections/{collectionToken}/products?q={query}`
+Searches the library's digital catalog. Accepts a single query string (ISBN, title, or author). **Does not support batch/bulk queries** — there is no way to search multiple ISBNs in one call. Pagination via `limit` (default 25) and `offset`.
+
+**Availability (v2)** — `GET /v2/collections/{collectionToken}/availability?products={id1},{id2},...`
+Accepts up to **25 comma-separated product IDs** per request. Returns `copiesAvailable`, `copiesOwned`, and hold counts. Product IDs (`reserveId`) come from search results. **Cannot accept ISBNs directly** — must resolve ISBN to product ID via search first.
+
+### Key Limitations
+
+- **No bulk search**: Each book requires its own search API call. For a shelf of 500 books, that's 500+ search calls. This is the main bottleneck.
+- **Print ISBNs are not searchable**: Goodreads shelves contain print ISBNs, but only digital ISBNs (ebook/audiobook format) are searchable via the `identifiers` parameter. Print ISBNs appear in `otherFormatIdentifiers` in responses but cannot be used as search input. This is why the code falls back to title+author matching when ISBN search returns no results.
+- **Rate limits are undocumented**: The [API Usage Requirements](https://developer.overdrive.com/docs/api-usage-requirements) say "honor any limitations we set" but don't publish specific numbers. The code uses `Async::Semaphore.new(16)` for concurrent requests.
+- **Availability is product-ID-only**: The v2 availability endpoint requires OverDrive product IDs, not ISBNs. A two-phase lookup (search then availability) is unavoidable without a local index.
+
+### Optimization Opportunities
+
+**Cache ISBN-to-product-ID mappings in the database.** After the first lookup, store the mapping so repeat shelf checks skip the expensive search phase and go straight to availability batches. This would reduce repeat visits from O(n) search calls to O(new_books) searches + O(n/25) availability calls.
+
+**Local collection index (future).** The products endpoint supports `?lastUpdateTime={timestamp}` for incremental sync. Could paginate the entire library collection into a local table, then match ISBNs locally. Initial sync: 400-3,200 calls for a typical library (10k-80k titles at 25/page), then incremental updates. Eliminates per-book search calls entirely.
+
+### Current Implementation
+
+Books are processed in chunks of 100 to bound memory. Each chunk completes the full pipeline (search -> expand editions -> fetch availability) before the next starts. Raw JSON response bodies are discarded after parsing. Timing and RSS memory usage are logged per-chunk for monitoring.
+
 ## Deployment (Render)
 
 Deployed on [Render](https://render.com) with a persistent disk for SQLite at `/var/data/production.db`.

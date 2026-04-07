@@ -150,9 +150,8 @@ module Bookmooch
     params = URI.encode_www_form(asins: isbn_batch, target: 'wishlist', action: 'add')
     path = "#{PATH}?#{params}"
 
-    response = client.get path, headers
+    response = retry_on_failure(client, path, headers)
     response_body = response.read
-
     collect_added_isbns(response_body, added_isbns)
   ensure
     response&.close
@@ -160,6 +159,17 @@ module Bookmooch
     if response_body&.match?(/\A\s*<(!DOCTYPE|html)/i)
       raise AuthenticationError, 'Invalid BookMooch credentials. Try using your username, not your email address.'
     end
+  end
+
+  def retry_on_failure client, path, headers, retries: 3
+    retries.times do |attempt|
+      response = client.get path, headers
+      return response if response.status < 500 && response.status != 302
+
+      response.close
+      sleep (attempt + 1) * 2
+    end
+    client.get path, headers
   end
 
   def collect_added_isbns response_body, added_isbns
