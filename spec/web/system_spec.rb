@@ -134,8 +134,8 @@ describe App do
       click_link 'Connect with Goodreads'
       sleep 2
 
-      # Check if already authenticated (redirected to /connections/goodreads/shelves)
-      break if page.current_url.include?('/connections/goodreads/shelves')
+      # Check if already authenticated (redirected to /goodreads/shelves)
+      break if page.current_url.include?('/goodreads/shelves')
 
       # Only try to sign in if we're on Goodreads sign-in page
       if page.has_button?('Sign in with email', wait: 2)
@@ -150,21 +150,21 @@ describe App do
         end
 
         # Check if OAuth completed after sign-in
-        break if page.current_url.include?('/connections/goodreads/shelves')
+        break if page.current_url.include?('/goodreads/shelves')
       end
 
-      visit '/home' unless page.current_url.include?('/connections/goodreads/shelves')
+      visit '/home' unless page.current_url.include?('/goodreads/shelves')
     end
 
     # Final visit to get OAuth tokens
-    visit '/connections/goodreads/shelves'
+    visit '/goodreads/shelves'
     assert_text 'Choose a shelf'
     sleep 2
   end
 
   it 'shows shelf stats for a seeded Goodreads user' do
     seed_goodreads_user
-    visit '/connections/goodreads/shelves'
+    visit '/goodreads/shelves'
     assert_text 'Choose a shelf'
 
     all(:link, 'Stats')[2].click
@@ -175,7 +175,7 @@ describe App do
 
   it 'searches OverDrive libraries for a seeded Goodreads user' do
     seed_goodreads_user
-    visit '/connections/goodreads/shelves/zora/overdrive'
+    visit '/goodreads/shelves/zora/overdrive'
     assert_text 'zip code'
 
     fill_in 'zipcode', with: '94103'
@@ -192,7 +192,7 @@ describe App do
 
   it 'imports books to BookMooch for a seeded Goodreads user' do
     seed_goodreads_user
-    visit '/connections/goodreads/shelves'
+    visit '/goodreads/shelves'
     assert_text 'abandoned'
 
     find('button[onclick="openModal(\'modal-abandoned\')"]').click

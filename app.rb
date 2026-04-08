@@ -42,6 +42,8 @@ SESSION_SECRET = ENV.fetch('SESSION_SECRET').then do |s|
   s
 end
 
+require_relative 'lib/rodauth_config'
+
 class App < Roda
   use Sentry::Rack::CaptureExceptions
   use Rack::HostRedirect, 'www.yonderbook.com' => 'yonderbook.com'
@@ -61,7 +63,6 @@ class App < Roda
   plugin :caching
   plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
   plugin :websockets
-  plugin :hash_branches
   plugin :content_security_policy do |csp|
     csp.default_src :self
     csp.script_src :self, :unsafe_inline, 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://embed.tawk.to'
@@ -74,126 +75,10 @@ class App < Roda
     csp.form_action :self, 'https://www.goodreads.com'
   end
 
-  # Rodauth configuration with email verification and password reset
-  plugin :rodauth do
-    db DB
-    enable :login, :logout, :create_account, :verify_account, :reset_password, :lockout
-    enable :email_auth, :argon2, :update_password_hash, :active_sessions
-    enable :session_expiration, :disallow_common_passwords
-    hmac_secret SESSION_SECRET
-    allow_raw_email_token? true if ENV['RACK_ENV'] == 'test'
-
-    # Base URL for email links
-    base_url ENV.fetch('BASE_URL', 'http://localhost:9292')
-
-    # Use password_hash column in accounts table instead of separate table
-    password_hash_table :accounts
-    password_hash_id_column :id
-    password_hash_column :password_hash
-
-    # Customize field labels and requirements
-    login_label 'Email'
-    login_param 'email'
-    login_column :email
-    login_input_type 'email'
-    require_password_confirmation? false
-    require_login_confirmation? false
-
-    # Email verification configuration
-    verify_account_set_password? false
-    verify_account_autologin? true
-    account_status_column :status_id
-    account_open_status_value 2 # Verified status
-    account_unverified_status_value 1 # Unverified status
-
-    # Magic link (email auth) configuration
-    use_multi_phase_login? false
-    email_auth_email_subject 'Your Yonderbook Login Link'
-    email_auth_email_sent_notice_flash 'Check your email for a login link!'
-    email_auth_email_sent_redirect '/authenticate'
-    email_auth_request_route 'email-auth-request'
-    email_auth_route 'email-auth'
-
-    # Allow direct magic link requests without multi-phase login session
-    before_email_auth_request_route do
-      login = param(login_param)
-      account_from_login(login) if login && !login.empty? && !account
-    end
-
-    # Enable deadline values for password reset and email verification
-    set_deadline_values? true
-
-    # Change routes to avoid conflict with Goodreads OAuth callback
-    login_route 'authenticate'
-    create_account_route 'sign-up'
-    verify_account_route 'verify-account'
-    reset_password_request_route 'reset-password-request'
-    reset_password_route 'reset-password'
-
-    # Redirect to home page after successful auth actions
-    login_redirect '/home'
-    login_return_to_requested_location? true
-    logout_redirect '/'
-    verify_account_redirect '/home'
-
-    # Session expiration: 30 min inactivity, 24 hour max lifetime
-    session_inactivity_timeout 1800
-    max_session_lifetime 86_400
-
-    # Redirect to check-email interstitial after account creation
-    create_account_redirect '/check-email'
-
-    # Store email in session after account creation for the interstitial page
-    after_create_account do
-      session['pending_email'] = account[login_column]
-    end
-
-    # Email configuration
-    email_from 'app@yonderbook.com'
-    email_subject_prefix '[Yonderbook] '
-
-    # Send emails using Resend with category tags
-    send_email do |email|
-      tag = case email.subject
-      when /Verify/ then 'verify_account'
-      when /Reset/ then 'reset_password'
-      when /Login Link/ then 'email_auth'
-      when /Unlock/ then 'unlock_account'
-      else 'other'
-      end
-      EmailService.send_email(
-        to: email.to.first,
-        subject: email.subject,
-        html: email.html_part&.body&.to_s || email.body.to_s,
-        tags: [{name: 'category', value: tag}]
-      )
-    end
-
-    # Custom error messages for better UX
-    no_matching_login_message 'No account exists with that email. Please create an account.'
-    reset_password_request_error_flash 'There was an error requesting a password reset. Please make sure the email is correct and that you have an account.'
-
-    # Success notifications
-    create_account_notice_flash 'Account created! Check your email to verify your account before logging in.'
-    reset_password_email_sent_notice_flash 'We sent you a password reset link to your email. Click the link in the email to finish resetting your password.'
-    reset_password_email_sent_redirect '/authenticate'
-
-    # Rate limiting - lock account after 10 failed login attempts
-    max_invalid_logins 10
-    unlock_account_email_subject 'Unlock Your Yonderbook Account'
-
-    # Email subjects and branded HTML bodies
-    verify_account_email_subject 'Verify Your Yonderbook Account'
-    verify_account_email_body { EmailTemplates.verify_account_body(verify_account_email_link) }
-    reset_password_email_subject 'Reset Your Yonderbook Password'
-    reset_password_email_body { EmailTemplates.reset_password_body(reset_password_email_link) }
-    email_auth_email_body { EmailTemplates.email_auth_body(email_auth_email_link) }
-  end
+  plugin :rodauth, auth_class: RodauthConfig
 
   compile_assets
   include RouteHelpers
-
-  require_relative 'routes/connections'
 
   # TODO: figure out how to reroute 404s to /
   route do |r|
@@ -245,7 +130,7 @@ class App < Roda
         gr_user_id = @user.goodreads_connection&.goodreads_user_id
         Analytics.identify session['session_id'], goodreads_user_id: gr_user_id
         Analytics.track session['session_id'], 'goodreads_connected', goodreads_user_id: gr_user_id
-        r.redirect '/connections/goodreads/shelves'
+        r.redirect '/goodreads/shelves'
       rescue OAuth::Unauthorized
         flash[:error] = 'Fetched details! Click login'
         r.redirect '/'
@@ -282,7 +167,151 @@ class App < Roda
       view 'home'
     end
 
-    r.hash_branches
+    r.on 'connections' do
+      # route: GET /connections
+      r.get true do
+        @goodreads_connection = @user&.goodreads_connection
+        view 'connections'
+      end
+    end
+
+    r.on 'goodreads' do
+      # route: GET /goodreads
+      r.get true do
+        r.redirect '/home' if @user&.goodreads_connected?
+        request_token = fetch_and_cache_request_token
+        @auth_url = request_token&.authorize_url
+        view 'connect_goodreads'
+      end
+
+      r.on 'shelves' do
+        require_goodreads r
+
+        # route: GET /goodreads/shelves
+        r.get true do
+          @shelves = Goodreads.fetch_shelves @goodreads_user_id
+          view 'shelves/index'
+        end
+
+        r.on String do |shelf_name|
+          @shelf_name = shelf_name
+          Cache.set session, shelf_name: @shelf_name
+          @book_info = Cache.get(session, @shelf_name.to_sym) || load_background_shelf_data
+
+          # route: GET /goodreads/shelves/:id
+          r.get true do
+            @book_info ||= load_or_start_shelf_import(@shelf_name)
+            view('shelves/loading') unless @book_info
+            @women, @men, @andy = Goodreads.get_gender @book_info
+            @histogram_dataset = Goodreads.plot_books_over_time @book_info
+            @ratings = Goodreads.rating_stats @book_info
+            view 'shelves/show'
+          end
+
+          # Blocking fetch for sub-routes that need @book_info
+          @book_info ||= fetch_shelf_blocking(@shelf_name)
+
+          r.on 'bookmooch' do
+            unless Bookmooch.available?
+              flash[:error] = 'BookMooch appears to be down right now. Please try again later.'
+              r.redirect "/goodreads/shelves/#{@shelf_name}"
+            end
+
+            # route: GET /goodreads/shelves/:id/bookmooch
+            r.get true do
+              @new_count, @skip_count, @no_isbn_count = bookmooch_preview(@user.id, @book_info)
+              view 'shelves/bookmooch'
+            end
+
+            # route: POST /goodreads/shelves/:id/bookmooch?username=foo&password=baz
+            r.post do
+              BookmoochImport.clear_imports(@user.id) if r.params['reimport'] == '1'
+              filtered = filter_already_imported_books(@user.id, @book_info)
+              cache_bookmooch_params(r, filtered, @user.id, @book_info.size - filtered.size)
+              set_pending_import('bookmooch', "#{r.path}/results", progress_url: "#{r.path}/progress")
+              r.redirect 'bookmooch/progress'
+            end
+
+            # route: GET /goodreads/shelves/:id/bookmooch/progress
+            r.get 'progress' do
+              @session_id = session['session_id']
+              view 'bookmooch_progress'
+            end
+
+            r.get 'results' do # route: GET /goodreads/shelves/:id/bookmooch/results
+              @books_added, @books_failed, @books_failed_no_isbn, @skipped_count = load_bookmooch_results
+              view 'bookmooch'
+            end
+          end
+
+          r.is 'overdrive' do
+            r.get(true) { view 'shelves/overdrive' } # route: GET /goodreads/shelves/:id/overdrive
+            r.post do # route: POST /goodreads/shelves/:id/overdrive?consortium=1047
+              consortium = typecast_params.pos_int('consortium')
+              unless consortium
+                flash[:error] = 'Invalid library selection'
+                r.redirect "/goodreads/shelves/#{@shelf_name}/overdrive"
+              end
+              overdrive = Overdrive.new(@book_info, consortium)
+              titles = overdrive.fetch_titles_availability
+              Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
+              r.redirect '/goodreads/availability'
+            end
+          end
+        end
+      end
+
+      r.is 'availability' do
+        require_goodreads r
+        r.get do # route: GET /goodreads/availability
+          @titles = Cache.get session, :titles
+          @collection_token = Cache.get session, :collection_token
+          @website_id = Cache.get session, :website_id
+          @library_url = Cache.get session, :library_url
+          unless @titles
+            flash[:error] = 'Please choose a shelf first'
+            r.redirect 'shelves'
+          end
+          @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
+          @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
+          @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
+          @unavailable_books = sort_by_date_added(@titles.select { |a| a.copies_owned.zero? && !a.no_isbn })
+          view 'availability'
+        end
+      end
+    end
+
+    r.on 'libraries' do
+      require_goodreads r
+
+      r.post true do # route: POST /libraries?zipcode=90029
+        @shelf_name = Cache.get session, :shelf_name
+        zip = r.params['zipcode'].to_s
+
+        if zip.empty?
+          flash[:error] = 'You need to enter a zip code'
+          r.redirect '/libraries'
+        end
+        unless zip.to_latlon
+          flash[:error] = 'please try a different zip code'
+          r.redirect '/libraries'
+        end
+        @local_libraries = Overdrive.local_libraries zip.delete ' '
+        Cache.set session, libraries: @local_libraries
+        r.redirect '/libraries'
+      end
+
+      # route: GET /libraries
+      r.get true do
+        @shelf_name = Cache.get session, :shelf_name
+        @local_libraries = Cache.get session, :libraries
+        unless @local_libraries
+          flash[:error] = 'Please choose a shelf first'
+          r.redirect '/goodreads/shelves'
+        end
+        view 'library'
+      end
+    end
   rescue OAuth::Unauthorized, StandardError => e
     Analytics.track session['session_id'], 'error_occurred', error: e.class.name, message: e.message, path: r.path
     enrich_sentry_error(r)
