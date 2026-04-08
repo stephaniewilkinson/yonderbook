@@ -18,6 +18,33 @@ class Overdrive
   OAUTH_URI    = 'https://oauth.overdrive.com'
   KEY          = ENV.fetch('OVERDRIVE_KEY')
   SECRET       = ENV.fetch('OVERDRIVE_SECRET')
+  CHUNK_SIZE   = 100
+
+  module Matching
+    module_function
+
+    def title_matches_exactly? product, target_title
+      product_title = product['title']
+      return false unless product_title
+
+      normalized_overdrive = TitleNormalizer.normalize(product_title)
+      normalized_goodreads = TitleNormalizer.normalize(target_title)
+      return true if normalized_overdrive == normalized_goodreads
+      return true if normalized_goodreads.start_with?(normalized_overdrive)
+      return true if normalized_overdrive.start_with?(normalized_goodreads)
+
+      false
+    end
+
+    def author_matches? product, target_author
+      product_author = product.dig('primaryCreator', 'name')
+      return false unless product_author
+      return false if target_author.nil? || target_author.empty?
+
+      author_last_name = target_author.split.last.downcase
+      product_author.downcase.include?(author_last_name)
+    end
+  end
 
   Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, :no_isbn, :date_added)
 
@@ -38,16 +65,23 @@ class Overdrive
     libraries.first(10).map { |l| [l['consortiumId'], l['consortiumName'], l['consortiumLogo']] }
   end
 
+  def self.rss_mb
+    status_path = "/proc/#{Process.pid}/status"
+    kb = File.exist?(status_path) ? File.read(status_path)[/VmRSS:\s+(\d+)/, 1].to_i : `ps -o rss= -p #{Process.pid}`.to_i
+    kb / 1024.0
+  rescue StandardError
+    0.0
+  end
+
   def initialize book_info, consortium_id
     @book_info = book_info
     @token = token
     @consortium_id = consortium_id
-
     @collection_token = fetch_collection_token consortium_id, @token
-    @books = async_books_with_overdrive_info.wait
+    @timings = {}
   end
 
-  attr_reader :collection_token, :website_id, :library_url
+  attr_reader :collection_token, :website_id, :library_url, :timings
 
   def token
     client = OAuth2::Client.new KEY, SECRET, token_url: '/token', site: OAUTH_URI
@@ -78,81 +112,44 @@ class Overdrive
   end
 
   def fetch_titles_availability
-    add_id_and_url_to_books
-    add_library_availability_to_books
-    consolidate_duplicate_editions
+    total_start = monotonic_now
+    rss_before = self.class.rss_mb
+    chunks = @book_info.each_slice(CHUNK_SIZE).to_a
+    warn "[overdrive] Starting: #{@book_info.size} books in #{chunks.size} chunks, RSS=#{rss_before.round(1)}MB"
 
-    @books.map(&:first).sort_by { |book| [book.copies_available, book.copies_owned] }.reverse
-  end
-
-  def add_id_and_url_to_books
-    expanded_books = []
-    @books.each do |book, body|
-      unless body
-        expanded_books << [book, body]
-        next
-      end
-
-      overdrive_editions = JSON.parse(body)['products']
-      unless overdrive_editions && !overdrive_editions.empty?
-        expanded_books << [book, body]
-        next
-      end
-      overdrive_editions.each do |edition|
-        book_copy = Title.new(
-          title: book.title,
-          author: book.author,
-          image: edition.dig('images', 'cover300Wide', 'href') || book.image,
-          copies_available: 0,
-          copies_owned: 0,
-          isbn: book.isbn,
-          url: edition.dig('contentDetails', 0, 'href'),
-          id: edition['id'],
-          availability_url: nil,
-          no_isbn: book.no_isbn,
-          date_added: book.date_added
-        )
-        expanded_books << [book_copy, body]
-      end
-    end
-
-    @books = expanded_books
-  end
-
-  def add_library_availability_to_books
-    books_with_ids = @books.map(&:first).select(&:id)
-    batches = books_with_ids.map(&:id).each_slice(25)
-
-    responses = async_responses(batches).wait
-    responses.each.with_index 1 do |(raw_body, status), _batch_number|
-      body = JSON.parse raw_body
-      next if status >= 400
-
-      body['availability'].each do |result|
-        book_index = @books.find_index { |title, _| title.id&.downcase == result['reserveId']&.downcase }
-        next unless book_index
-
-        book, book_body = @books[book_index]
-        updated_book = book.with(copies_available: result['copiesAvailable'], copies_owned: result['copiesOwned'])
-        @books[book_index] = [updated_book, book_body]
-      end
-    end
-  end
-
-  def consolidate_duplicate_editions
-    books_by_key = {}
-    @books.each do |book, body|
-      key = book.isbn&.then { |isbn| isbn.empty? ? nil : isbn } || TitleNormalizer.normalize(book.title)
-      if books_by_key[key]
-        books_by_key[key] = [book, body] if should_replace?(book, books_by_key[key].first)
-      else
-        books_by_key[key] = [book, body]
-      end
-    end
-    @books = books_by_key.values
+    all_titles = chunks.each.with_index(1).flat_map { |chunk, i| process_chunk(chunk, i, chunks.size) }
+    consolidated = consolidate_duplicate_titles(all_titles)
+    record_timings(rss_before, total_start, chunks.size, consolidated.size)
+    consolidated.sort_by { |t| [t.copies_available, t.copies_owned] }.reverse
   end
 
   private
+
+  def monotonic_now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+  def process_chunk chunk, chunk_num, chunk_count
+    start = monotonic_now
+    result = fetch_availability(expand_editions(search_chunk(chunk)))
+    elapsed = (monotonic_now - start).round(2)
+    warn "[overdrive] Chunk #{chunk_num}/#{chunk_count}: #{chunk.size} books, #{elapsed}s, RSS=#{self.class.rss_mb.round(1)}MB"
+    result
+  end
+
+  def record_timings rss_before, total_start, chunk_count, titles_count
+    elapsed = (monotonic_now - total_start).round(2)
+    rss_after = self.class.rss_mb.round(1)
+    delta = (rss_after - rss_before).round(1)
+    @timings = {
+      total_books: @book_info.size,
+      chunk_count:,
+      total_elapsed: elapsed,
+      rss_before: rss_before.round(1),
+      rss_after:,
+      rss_delta: delta,
+      titles_returned: titles_count
+    }
+    warn "[overdrive] Done: #{elapsed}s, #{titles_count} titles, RSS #{rss_before.round(1)}->#{rss_after}MB (delta #{delta}MB)"
+  end
 
   def should_replace? candidate_edition, current_best_edition
     candidate_has_availability = candidate_edition.copies_available.to_i.positive?
@@ -180,23 +177,20 @@ class Overdrive
   end
 
   def availability_path book
-    if book[:isbn] && !book[:isbn].empty?
-      params = URI.encode_www_form minimum: false, limit: 5, q: book[:isbn]
-    else
-      clean_title = TitleNormalizer.clean_for_search(book[:title])
-      params = URI.encode_www_form minimum: false, limit: 5, q: "\"#{clean_title}\""
-    end
-    "/v1/collections/#{@collection_token}/products?#{params}"
+    isbn = book[:isbn]
+    query = isbn && !isbn.empty? ? isbn : "\"#{TitleNormalizer.clean_for_search(book[:title])}\""
+    "/v1/collections/#{@collection_token}/products?#{URI.encode_www_form(minimum: false, limit: 5, q: query)}"
   end
 
-  def async_books_with_overdrive_info
-    Async do |_task|
+  # Search Overdrive catalog for a chunk of books. Returns [[Title, body_string], ...]
+  def search_chunk chunk
+    async_result = Async do |_task|
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint, limit: 64
       barrier = Async::Barrier.new
       semaphore = Async::Semaphore.new(16, parent: barrier)
       books = []
-      @book_info.each.with_index 1 do |book, _book_number|
+      chunk.each do |book|
         semaphore.async { books << fetch_book_data(client, book) }
       end
       begin
@@ -208,6 +202,83 @@ class Overdrive
     ensure
       client&.close
     end
+    async_result.wait
+  end
+
+  # Parse raw bodies into expanded Title objects, discarding raw JSON strings
+  def expand_editions books_with_bodies
+    expanded = []
+    books_with_bodies.each do |book, body|
+      unless body
+        expanded << book
+        next
+      end
+
+      overdrive_editions = JSON.parse(body)['products']
+      unless overdrive_editions && !overdrive_editions.empty?
+        expanded << book
+        next
+      end
+      overdrive_editions.each do |edition|
+        expanded << Title.new(
+          title: book.title,
+          author: book.author,
+          image: edition.dig('images', 'cover300Wide', 'href') || book.image,
+          copies_available: 0,
+          copies_owned: 0,
+          isbn: book.isbn,
+          url: edition.dig('contentDetails', 0, 'href'),
+          id: edition['id'],
+          availability_url: nil,
+          no_isbn: book.no_isbn,
+          date_added: book.date_added
+        )
+      end
+    end
+    expanded
+  end
+
+  # Fetch availability for a list of Title objects, returns updated Title array
+  def fetch_availability titles
+    titles_with_ids = titles.select(&:id)
+    return titles if titles_with_ids.empty?
+
+    id_batches = titles_with_ids.map(&:id).each_slice(25)
+    responses = async_availability_responses(id_batches).wait
+
+    # Build a lookup from reserveId -> availability data
+    availability_map = {}
+    responses.each do |raw_body, status|
+      next if status >= 400
+
+      body = JSON.parse raw_body
+      body['availability']&.each do |result|
+        reserve_id = result['reserveId']&.downcase
+        availability_map[reserve_id] = result if reserve_id
+      end
+    end
+
+    titles.map do |t|
+      if t.id && (avail = availability_map[t.id.downcase])
+        t.with(copies_available: avail['copiesAvailable'], copies_owned: avail['copiesOwned'])
+      else
+        t
+      end
+    end
+  end
+
+  # Consolidate duplicate editions across all titles
+  def consolidate_duplicate_titles titles
+    books_by_key = {}
+    titles.each do |book|
+      key = book.isbn&.then { |isbn| isbn.empty? ? nil : isbn } || TitleNormalizer.normalize(book.title)
+      if books_by_key[key]
+        books_by_key[key] = book if should_replace?(book, books_by_key[key])
+      else
+        books_by_key[key] = book
+      end
+    end
+    books_by_key.values
   end
 
   def fetch_book_data client, book
@@ -271,33 +342,11 @@ class Overdrive
     return unless overdrive_results && !overdrive_results.empty?
 
     overdrive_results.each do |overdrive_book|
-      next unless author_matches?(overdrive_book, target_author)
+      next unless Matching.author_matches?(overdrive_book, target_author)
       return overdrive_book if target_isbn && !target_isbn.empty? && isbn_matches_in_metadata?(client, overdrive_book, target_isbn)
-      return overdrive_book if title_matches_exactly?(overdrive_book, target_title)
+      return overdrive_book if Matching.title_matches_exactly?(overdrive_book, target_title)
     end
     nil
-  end
-
-  def title_matches_exactly? product, target_title
-    product_title = product['title']
-    return false unless product_title
-
-    normalized_overdrive = TitleNormalizer.normalize(product_title)
-    normalized_goodreads = TitleNormalizer.normalize(target_title)
-    return true if normalized_overdrive == normalized_goodreads
-    return true if normalized_goodreads.start_with?(normalized_overdrive)
-    return true if normalized_overdrive.start_with?(normalized_goodreads)
-
-    false
-  end
-
-  def author_matches? product, target_author
-    product_author = product.dig('primaryCreator', 'name')
-    return false unless product_author
-    return false if target_author.nil? || target_author.empty?
-
-    author_last_name = target_author.split.last.downcase
-    product_author.downcase.include?(author_last_name)
   end
 
   def isbn_matches_in_metadata? _client, _product, target_isbn
@@ -306,7 +355,7 @@ class Overdrive
     all_isbns.include?(target_isbn)
   end
 
-  def async_responses batches
+  def async_availability_responses batches
     Async do
       endpoint = Async::HTTP::Endpoint.parse BASE_URL
       client = Async::HTTP::Client.new endpoint, limit: 64

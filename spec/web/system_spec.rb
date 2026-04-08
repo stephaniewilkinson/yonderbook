@@ -181,7 +181,7 @@ describe App do
     fill_in 'zipcode', with: '94103'
     click_on 'Find a library'
     sleep 10
-    find('button[id="1683"]').click
+    first('button[type="submit"][name="action"]').click
     sleep 15
     assert page.has_text?('Available', wait: 30)
     click_on 'Unavailable'
