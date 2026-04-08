@@ -12,7 +12,7 @@ module RouteHelpers
   def require_goodreads request
     unless @user&.goodreads_connected?
       flash[:error] = 'Please connect your Goodreads account first'
-      request.redirect '/connections/goodreads'
+      request.redirect '/goodreads'
     end
     load_goodreads_connection
   end
@@ -80,7 +80,7 @@ module RouteHelpers
   def start_shelf_import shelf_name
     return unless start_goodreads_import(shelf_name)
 
-    set_pending_import('goodreads', "/connections/goodreads/shelves/#{shelf_name}")
+    set_pending_import('goodreads', "/goodreads/shelves/#{shelf_name}")
   end
 
   def load_bookmooch_results

@@ -31,7 +31,7 @@
             <h4 class="text-lg font-medium text-mauve-950"><%= library[1] %></h4>
           </div>
           <div class="ml-4">
-            <form action="shelves/<%= @shelf_name %>/overdrive" method="post">
+            <form action="/goodreads/shelves/<%= @shelf_name %>/overdrive" method="post">
               <input type="hidden" name="consortium" value="<%= library[0] %>">
               <button class="inline-flex items-center justify-center w-10 h-10 bg-mauve-950 hover:bg-mauve-900 text-white rounded-full transition-colors duration-200" type="submit" id="<%= library[0] %>" name="action">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -73,7 +73,7 @@ describe 'Error states' do
     verify_account(fake_email)
     password_login(fake_email, fake_password)
 
-    visit '/connections/goodreads/shelves'
+    visit '/goodreads/shelves'
     assert_text 'Please connect your Goodreads account first'
     sleep 2
   end

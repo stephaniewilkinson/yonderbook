@@ -61,12 +61,12 @@
 
           <div class="pt-2">
             <% if @user.goodreads_connected? %>
-              <a href="/connections/goodreads/shelves" class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-indigo-800 to-violet-900 text-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 font-medium text-sm group/btn">
+              <a href="/goodreads/shelves" class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-indigo-800 to-violet-900 text-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 font-medium text-sm group/btn">
                 <img src="/svg/book.svg" alt="Shelves" class="w-4 h-4 mr-2.5 filter brightness-0 invert opacity-90 group-hover/btn:opacity-100">
                 View Your Shelves
               </a>
             <% else %>
-              <a href="/connections/goodreads" class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-indigo-800 to-violet-900 text-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 font-medium text-sm group/btn focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+              <a href="/goodreads" class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-indigo-800 to-violet-900 text-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 font-medium text-sm group/btn focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <img src="/img/goodreads-icon.png" alt="Connect" class="w-4 h-4 mr-2.5 filter brightness-0 invert opacity-90 group-hover/btn:scale-110 transition-transform">
                 Connect Goodreads
                 <svg class="w-4 h-4 ml-2.5 opacity-70 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
