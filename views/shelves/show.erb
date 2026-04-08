@@ -43,7 +43,12 @@
     <div class="text-center">
       <div class="text-sm font-medium opacity-90">Shelf Average</div>
       <div class="text-2xl font-display font-medium">
-        <%= @ratings.reject { |k, v| k == 0 }.sum { |k, v| k * v }.fdiv(@ratings.reject { |k, v| k == 0 }.values.sum).round(2) %> ⭐
+        <% rated = @ratings.reject { |k, _v| k == 0 } %>
+        <% if rated.values.sum.positive? %>
+          <%= rated.sum { |k, v| k * v }.fdiv(rated.values.sum).round(2) %> ⭐
+        <% else %>
+          No rated books
+        <% end %>
       </div>
     </div>
   </div>
