@@ -190,16 +190,55 @@ describe App do
     sleep 2
   end
 
-  it 'imports books to BookMooch for a seeded Goodreads user' do
+  it 'shows BookMooch on the connections page with education and Goodreads requirement' do
     seed_goodreads_user
-    visit '/goodreads/shelves'
-    assert_text 'abandoned'
+    visit '/connections'
 
-    find('button[onclick="openModal(\'modal-abandoned\')"]').click
-    assert_text 'Choose a format'
-    within('#modal-abandoned') do
-      find('a', text: 'By Mail').click
-    end
+    # BookMooch card should be visible with educational content
+    assert_text 'BookMooch'
+    assert_text 'book trading'
+    assert_text 'BookMooch account'
+
+    # Should explain it requires Goodreads
+    # Since Goodreads IS connected, the sync button should be active
+    click_link 'Sync to BookMooch'
+
+    # Should land on shelves page in bookmooch mode
+    assert_text 'Choose a shelf'
+    sleep 2
+  end
+
+  it 'shows BookMooch requires Goodreads when not connected' do
+    fake_email = "test_bm_#{Time.now.to_i}@example.com"
+    fake_password = 'SecurePassword123!'
+
+    visit '/'
+    click_link 'Sign Up'
+    fill_in 'Email', with: fake_email
+    fill_in 'Confirm Email', with: fake_email if page.has_field?('Confirm Email')
+    fill_in 'Password', with: fake_password
+    click_button 'Create Account'
+    verify_account(fake_email)
+    password_login(fake_email, fake_password)
+
+    visit '/connections'
+
+    # BookMooch card should be visible but indicate Goodreads is needed
+    assert_text 'BookMooch'
+    assert_text 'Connect Goodreads first'
+    sleep 2
+  end
+
+  it 'imports books to BookMooch via connections page' do
+    seed_goodreads_user
+    visit '/connections'
+
+    # Navigate to BookMooch through connections page
+    click_link 'Sync to BookMooch'
+    assert_text 'Choose a shelf'
+
+    # Click the BookMooch button for the abandoned shelf (small shelf, faster import)
+    find('a[href="shelves/abandoned/bookmooch"]').click
 
     if page.has_text?('BookMooch appears to be down', wait: 5)
       # BookMooch is currently unreachable - verify the user sees the warning

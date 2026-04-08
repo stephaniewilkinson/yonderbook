@@ -81,6 +81,7 @@
     }
     </script>
 
+    <% if ENV['RACK_ENV'] == 'production' %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96996170-1"></script>
     <script>
@@ -90,6 +91,7 @@
 
       gtag('config', 'UA-96996170-1');
     </script>
+    <% end %>
   </head>
 
   <body class="flex flex-col min-h-screen bg-mauve-200 font-sans antialiased text-mauve-950/90 selection:bg-mauve-200 selection:text-mauve-950">

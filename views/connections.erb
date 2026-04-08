@@ -112,6 +112,63 @@
   </div>
   <% end %>
 
+  <!-- BookMooch Section -->
+  <div class="mb-16">
+    <h2 class="font-display text-2xl font-medium text-mauve-950 mb-6 flex items-center">
+      <img src="/svg/mail.svg" alt="" class="w-6 h-6 mr-3">
+      Book Trading
+    </h2>
+
+    <div class="rounded-xl bg-mauve-950/[.025] p-6">
+      <div class="flex items-start space-x-4 mb-4">
+        <div class="w-14 h-14 bg-mauve-950/10 rounded-xl flex items-center justify-center flex-shrink-0">
+          <img src="/svg/book.svg" alt="BookMooch" class="w-7 h-7">
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-mauve-950 mb-1">BookMooch</h3>
+          <p class="text-sm text-mauve-700">Free books by mail through book trading</p>
+        </div>
+      </div>
+
+      <div class="text-sm text-mauve-700 mb-6 space-y-3 leading-relaxed">
+        <p>
+          <a href="https://bookmooch.com" class="underline font-medium text-mauve-950 hover:text-mauve-700">BookMooch</a>
+          is a community where readers trade physical books by mail. Add books from your want-to-read
+          list to your BookMooch wishlist, and you'll get an email when someone has a copy to send you.
+        </p>
+        <p>
+          You earn points by giving away books you've finished reading, then spend those points to
+          request books from other readers. One point gets you a book within your country.
+        </p>
+        <p>
+          Yonderbook can sync books from your Goodreads shelves straight to your BookMooch wishlist,
+          so you don't have to add them one by one.
+        </p>
+      </div>
+
+      <% if @goodreads_connection %>
+        <div class="pt-4 border-t border-mauve-950/10 space-y-3">
+          <p class="text-sm text-mauve-700">
+            You'll need a
+            <a href="https://bookmooch.com/about/register" class="underline font-medium text-mauve-950 hover:text-mauve-700">BookMooch account</a>
+            to sync your books. Choose a shelf below and enter your BookMooch credentials to get started.
+          </p>
+          <a href="/goodreads/shelves?mode=bookmooch" class="inline-flex items-center px-6 py-3 bg-mauve-950 text-white font-medium rounded-full hover:bg-mauve-900 transition-colors duration-200">
+            <img src="/svg/refresh.svg" alt="" class="w-5 h-5 mr-2">
+            Sync to BookMooch
+          </a>
+        </div>
+      <% else %>
+        <div class="pt-4 border-t border-mauve-950/10">
+          <p class="text-sm text-mauve-600 flex items-center">
+            <img src="/svg/info-circle.svg" alt="" class="w-4 h-4 mr-2">
+            Connect Goodreads first to sync your shelves to BookMooch.
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
   <!-- Info Box -->
   <div class="rounded-xl bg-mauve-950/[.025] p-6">
     <h3 class="text-lg font-semibold text-mauve-950 mb-3 flex items-center">
