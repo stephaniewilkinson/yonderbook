@@ -70,7 +70,7 @@ GEM
     date (3.5.1)
     dotenv (3.2.0)
     drb (2.2.3)
-    falcon (0.55.2)
+    falcon (0.55.3)
       async
       async-container (~> 0.20)
       async-http (~> 0.75)
