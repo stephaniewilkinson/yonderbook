@@ -196,7 +196,7 @@ describe App do
 
     # BookMooch card should be visible with educational content
     assert_text 'BookMooch'
-    assert_text 'book trading'
+    assert_text 'readers trade physical books'
     assert_text 'BookMooch account'
 
     # Should explain it requires Goodreads
