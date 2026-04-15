@@ -117,7 +117,17 @@ class Overdrive
     chunks = @book_info.each_slice(CHUNK_SIZE).to_a
     warn "[overdrive] Starting: #{@book_info.size} books in #{chunks.size} chunks, RSS=#{rss_before.round(1)}MB"
 
-    all_titles = chunks.each.with_index(1).flat_map { |chunk, i| process_chunk(chunk, i, chunks.size) }
+    results = Array.new(chunks.size)
+    Async do
+      barrier = Async::Barrier.new
+      chunks.each_with_index do |chunk, i|
+        barrier.async { results[i] = process_chunk(chunk, i + 1, chunks.size) }
+      end
+      barrier.wait
+    ensure
+      barrier&.stop
+    end.wait
+    all_titles = results.flatten
     consolidated = consolidate_duplicate_titles(all_titles)
     record_timings(rss_before, total_start, chunks.size, consolidated.size)
     consolidated.sort_by { |t| [t.copies_available, t.copies_owned] }.reverse
