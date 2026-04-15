@@ -118,7 +118,7 @@ class Overdrive
     warn "[overdrive] Starting: #{@book_info.size} books in #{chunks.size} chunks, RSS=#{rss_before.round(1)}MB"
 
     results = Array.new(chunks.size)
-    Async do
+    task = Async do
       barrier = Async::Barrier.new
       chunks.each_with_index do |chunk, i|
         barrier.async { results[i] = process_chunk(chunk, i + 1, chunks.size) }
@@ -126,7 +126,8 @@ class Overdrive
       barrier.wait
     ensure
       barrier&.stop
-    end.wait
+    end
+    task.wait
     all_titles = results.flatten
     consolidated = consolidate_duplicate_titles(all_titles)
     record_timings(rss_before, total_start, chunks.size, consolidated.size)
@@ -161,13 +162,8 @@ class Overdrive
     warn "[overdrive] Done: #{elapsed}s, #{titles_count} titles, RSS #{rss_before.round(1)}->#{rss_after}MB (delta #{delta}MB)"
   end
 
-  def should_replace? candidate_edition, current_best_edition
-    candidate_has_availability = candidate_edition.copies_available.to_i.positive?
-    current_has_availability = current_best_edition.copies_available.to_i.positive?
-    return true if candidate_has_availability && !current_has_availability
-    return false if !candidate_has_availability && current_has_availability
-
-    candidate_edition.copies_available.to_i > current_best_edition.copies_available.to_i
+  def should_replace? candidate, current
+    candidate.copies_available.to_i > current.copies_available.to_i
   end
 
   def title book, no_isbn: false
@@ -295,19 +291,15 @@ class Overdrive
     response = client.get(availability_path(book), {'Authorization' => "Bearer #{@token}"})
     body = response.read
     response.close
-    if missing_isbn?(book)
-      body = validate_title_search_results(client, body, book[:author], book[:title])
-      [title(book, no_isbn: true), body]
+    no_isbn = missing_isbn?(book)
+    body = if no_isbn
+      validate_title_search_results(client, body, book[:author], book[:title])
     else
-      body = try_title_search_with_metadata(client, book, body)
-      [title(book), body]
+      try_title_search_with_metadata(client, book, body)
     end
+    [title(book, no_isbn: no_isbn), body]
   rescue StandardError
-    if missing_isbn?(book)
-      [title(book, no_isbn: true), nil]
-    else
-      [title(book), nil]
-    end
+    [title(book, no_isbn: missing_isbn?(book)), nil]
   ensure
     response&.close
   end
@@ -360,9 +352,7 @@ class Overdrive
   end
 
   def isbn_matches_in_metadata? _client, _product, target_isbn
-    alternate_isbns = AlternateIsbns.fetch_alternate_isbns([target_isbn])
-    all_isbns = alternate_isbns[target_isbn] || []
-    all_isbns.include?(target_isbn)
+    (AlternateIsbns.fetch_alternate_isbns([target_isbn])[target_isbn] || []).include?(target_isbn)
   end
 
   def async_availability_responses batches
