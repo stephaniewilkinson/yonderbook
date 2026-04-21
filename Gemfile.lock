@@ -181,7 +181,7 @@ GEM
     parser (3.3.11.1)
       ast (~> 2.4.1)
       racc
-    posthog-ruby (3.6.1)
+    posthog-ruby (3.6.5)
       concurrent-ruby (~> 1)
     prism (1.9.0)
     protocol-hpack (1.5.1)
