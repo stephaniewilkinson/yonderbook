@@ -77,6 +77,14 @@ class RodauthConfig < Rodauth::Auth
     # Store email in session after account creation for the interstitial page
     after_create_account do
       session['pending_email'] = account[login_column]
+
+      # Purge unverified accounts older than 24 hours to keep the table clean
+      cutoff = Time.now - 86_400
+      stale_ids = db[:accounts].where(status_id: account_unverified_status_value).where(Sequel.lit('created_at < ?', cutoff)).select_map(:id)
+      unless stale_ids.empty?
+        db[:account_verification_keys].where(id: stale_ids).delete
+        db[:accounts].where(id: stale_ids).delete
+      end
     end
 
     # Email configuration
