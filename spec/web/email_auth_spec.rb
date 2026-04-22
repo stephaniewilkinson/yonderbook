@@ -105,7 +105,7 @@ describe 'Magic link and email auth' do
     click_button 'Log In'
 
     # Should be logged in and redirected to home
-    assert_text 'Welcome back,'
+    assert_current_path '/home'
     sleep 2
   end
 
@@ -135,7 +135,7 @@ describe 'Magic link and email auth' do
     click_button 'Verify Account'
 
     # Should be auto-logged in and redirected to home (verify_account_autologin? true)
-    assert_text 'Welcome back,'
+    assert_current_path '/home'
     sleep 2
   end
 end

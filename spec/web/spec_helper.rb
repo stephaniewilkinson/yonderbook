@@ -14,9 +14,12 @@ require 'selenium-webdriver'
 # Load database connection first
 require_relative '../../lib/database'
 
-# Run migrations for test database (in-memory SQLite) BEFORE loading app/models
+# Run migrations for test database BEFORE loading app/models
 Sequel.extension :migration
 Sequel::Migrator.run(DB, 'db/migrations')
+
+# Clean up stale data from previous test runs (PostgreSQL persists between runs)
+DB.tables.reject { |t| t == :schema_info }.each { |t| DB[t].truncate(cascade: true) }
 
 # Now load the app (which loads models) - tables exist now
 require_relative '../../app'
@@ -118,7 +121,7 @@ module TestHelpers
 
     # Log in via the browser
     password_login(email, password)
-    assert_text 'Welcome back,'
+    assert_current_path '/home'
 
     account[:id]
   end

@@ -39,8 +39,7 @@ namespace :db do
   task :reset do
     require_relative '../database'
     puts 'Resetting database...'
-    DB.drop_table?(:schema_migrations)
-    Dir.glob('db/*.db').each { |file| File.delete(file) }
+    DB.tables.each { |t| DB.drop_table(t, cascade: true) }
     Rake::Task['db:migrate'].invoke
     puts 'Database reset complete!'
   end

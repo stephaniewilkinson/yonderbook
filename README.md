@@ -2,7 +2,7 @@
 
 ## Stack
 
-- **Framework:** Roda (routing tree web toolkit) with Sequel ORM and SQLite
+- **Framework:** Roda (routing tree web toolkit) with Sequel ORM and PostgreSQL
 - **Auth:** Rodauth (login, email auth/magic links, password reset, lockout)
 - **Server:** Falcon (async Ruby web server), using `falcon serve` with `--threaded`
 - **CSS:** Tailwind CSS, compiled via `tailwindcss-ruby` gem
@@ -26,12 +26,12 @@ rake db:migrate
 
 **Production (Render):**
 ```bash
-sqlite3 /var/data/production.db
+psql $DATABASE_URL
 ```
 
 **Development:**
 ```bash
-sqlite3 db/development.db
+psql postgres://localhost/yonderbook_dev
 ```
 
 ## Testing
@@ -47,7 +47,7 @@ Tests require environment variables — copy `.env-example` to `.env` and fill i
 - `app.rb` — Main Roda application class with routing, plugins, and Rodauth config
 - `config.ru` — Rack config; loads Sentry, sets up env-specific middleware
 - `Rakefile` — Defines `precompile`, `tailwind:build`, `tailwind:watch`, and loads `lib/tasks/*.rake`
-- `lib/database.rb` — Sequel/SQLite setup; creates DB constant, path depends on `RACK_ENV`
+- `lib/database.rb` — Sequel/PostgreSQL setup; creates DB constant via `DATABASE_URL`
 - `lib/tasks/db.rake` — Database rake tasks (migrate, reset, create_migration)
 
 TODO: Clearly display the Goodreads name or logo on any location where Goodreads data appears. For instance if you are displaying Goodreads reviews, they should either be in a section clearly titled "Goodreads Reviews", or each review should say "Goodreads review from John: 4 of 5 stars..."
@@ -123,7 +123,7 @@ Books are processed in chunks of 100 to bound memory. Each chunk completes the f
 
 ## Deployment (Render)
 
-Deployed on [Render](https://render.com) with a persistent disk for SQLite at `/var/data/production.db`.
+Deployed on [Render](https://render.com) with Render Managed PostgreSQL.
 
 Render does not use the Procfile — commands are set in the dashboard under Settings:
 
@@ -132,15 +132,19 @@ Render does not use the Procfile — commands are set in the dashboard under Set
 bundle install && bundle exec rake precompile
 ```
 
+**Pre-deploy command:**
+```
+bundle exec rake db:migrate
+```
+
 **Start command:**
 ```
-bundle exec rake db:migrate && bundle exec falcon --verbose serve --threaded -n 2 -b http://0.0.0.0:${PORT}
+bundle exec falcon --verbose serve --threaded -n 2 -b http://0.0.0.0:${PORT}
 ```
 
 ### Important notes
 
-- Render's persistent disk (`/var/data`) is only mounted at **runtime**, not during builds. Migrations must run in the start command.
-- Rake tasks in `lib/tasks/` must not `require` `database.rb` at the top level — it calls `FileUtils.mkdir_p('/var/data')` which fails during builds. Require it lazily inside task bodies that need it.
+- Migrations run in the pre-deploy command on separate compute, not the web service's 512MB.
 - The `precompile` task uses a bare Roda class (not the full App) to avoid loading all app dependencies during the build. `app.rb` also calls `compile_assets` at startup.
 - `tailwindcss-ruby` must stay in the top-level Gemfile group (not `:development`) because it's needed by the build step.
 
