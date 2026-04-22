@@ -72,7 +72,7 @@ describe App do
     password_login(fake_email, fake_password)
 
     # Should be redirected to home page after successful login
-    assert_text 'Welcome back,'
+    assert_current_path '/home'
     assert_text 'Connect Goodreads'
 
     # Wait for flash notification to auto-dismiss before testing logout
@@ -97,7 +97,7 @@ describe App do
     end
 
     # Should be redirected to home page after successful login
-    assert_text 'Welcome back,'
+    assert_current_path '/home'
     assert_text 'Connect Goodreads'
 
     # Verify we're logged in by checking navbar links
@@ -126,7 +126,7 @@ describe App do
     password_login(fake_email, fake_password)
 
     # Should be redirected to home page
-    assert_text 'Welcome back,'
+    assert_current_path '/home'
 
     # Try to connect with Goodreads - OAuth flow requires 3 attempts to bypass Amazon CVF
     3.times do

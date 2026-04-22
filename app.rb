@@ -90,7 +90,7 @@ class App < Roda
     begin
       r.rodauth
     rescue Roda::RodaPlugins::RouteCsrf::InvalidToken
-      flash[:error] = 'Your session has expired. Please try again.'
+      flash['error'] = 'Your session has expired. Please try again.'
       r.redirect r.path
     end
     @user = Account[rodauth.session_value] if rodauth.logged_in?
@@ -116,13 +116,13 @@ class App < Roda
     r.is 'login' do
       request_token = Cache.get session, :request_token
       unless request_token
-        flash[:error] = "Click 'login' again please"
+        flash['error'] = "Click 'login' again please"
         r.redirect '/'
       end
       # route: GET /login
       r.get do
         unless @user
-          flash[:error] = 'Please log in first before connecting Goodreads'
+          flash['error'] = 'Please log in first before connecting Goodreads'
           r.redirect '/'
         end
         Goodreads.fetch_user request_token, @user.id
@@ -132,7 +132,7 @@ class App < Roda
         Analytics.track session['session_id'], 'goodreads_connected', goodreads_user_id: gr_user_id
         r.redirect '/goodreads/shelves'
       rescue OAuth::Unauthorized
-        flash[:error] = 'Fetched details! Click login'
+        flash['error'] = 'Fetched details! Click login'
         r.redirect '/'
       end
     end
@@ -213,7 +213,7 @@ class App < Roda
 
           r.on 'bookmooch' do
             unless Bookmooch.available?
-              flash[:error] = 'BookMooch appears to be down right now. Please try again later.'
+              flash['error'] = 'BookMooch appears to be down right now. Please try again later.'
               r.redirect "/goodreads/shelves/#{@shelf_name}"
             end
 
@@ -249,7 +249,7 @@ class App < Roda
             r.post do # route: POST /goodreads/shelves/:id/overdrive?consortium=1047
               consortium = typecast_params.pos_int('consortium')
               unless consortium
-                flash[:error] = 'Invalid library selection'
+                flash['error'] = 'Invalid library selection'
                 r.redirect "/goodreads/shelves/#{@shelf_name}/overdrive"
               end
               overdrive = Overdrive.new(@book_info, consortium)
@@ -269,7 +269,7 @@ class App < Roda
           @website_id = Cache.get session, :website_id
           @library_url = Cache.get session, :library_url
           unless @titles
-            flash[:error] = 'Please choose a shelf first'
+            flash['error'] = 'Please choose a shelf first'
             r.redirect 'shelves'
           end
           @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
@@ -289,11 +289,11 @@ class App < Roda
         zip = r.params['zipcode'].to_s
 
         if zip.empty?
-          flash[:error] = 'You need to enter a zip code'
+          flash['error'] = 'You need to enter a zip code'
           r.redirect '/libraries'
         end
         unless zip.to_latlon
-          flash[:error] = 'please try a different zip code'
+          flash['error'] = 'please try a different zip code'
           r.redirect '/libraries'
         end
         @local_libraries = Overdrive.local_libraries zip.delete ' '
@@ -306,7 +306,7 @@ class App < Roda
         @shelf_name = Cache.get session, :shelf_name
         @local_libraries = Cache.get session, :libraries
         unless @local_libraries
-          flash[:error] = 'Please choose a shelf first'
+          flash['error'] = 'Please choose a shelf first'
           r.redirect '/goodreads/shelves'
         end
         view 'library'
@@ -320,7 +320,7 @@ class App < Roda
     # In production, redirect gracefully; in dev/test, raise to see full error
     raise e unless ENV['RACK_ENV'] == 'production'
 
-    flash[:error] = 'That request took too long. Please try again.' if e.is_a?(RequestTimeout::Error)
+    flash['error'] = 'That request took too long. Please try again.' if e.is_a?(RequestTimeout::Error)
     r.redirect '/'
   end
 end

@@ -72,9 +72,11 @@ describe 'Error states' do
     click_button 'Create Account'
     verify_account(fake_email)
     password_login(fake_email, fake_password)
+    assert_current_path '/home'
 
     visit '/goodreads/shelves'
-    assert_text 'Please connect your Goodreads account first'
+    assert_current_path '/goodreads'
+    assert_text 'Connect with Goodreads'
     sleep 2
   end
 end

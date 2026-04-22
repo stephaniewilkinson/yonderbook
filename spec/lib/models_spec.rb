@@ -11,9 +11,7 @@ require 'models/goodreads_connection'
 
 describe Account do
   before do
-    DB.run('PRAGMA foreign_keys = OFF')
-    DB.tables.each { |t| DB[t].delete }
-    DB.run('PRAGMA foreign_keys = ON')
+    DB.tables.reject { |t| t == :schema_info }.each { |t| DB[t].truncate(cascade: true) }
     @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
   end
 
@@ -49,9 +47,7 @@ end
 
 describe GoodreadsConnection do
   before do
-    DB.run('PRAGMA foreign_keys = OFF')
-    DB.tables.each { |t| DB[t].delete }
-    DB.run('PRAGMA foreign_keys = ON')
+    DB.tables.reject { |t| t == :schema_info }.each { |t| DB[t].truncate(cascade: true) }
     @account = Account.create(email: "test_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
   end
 

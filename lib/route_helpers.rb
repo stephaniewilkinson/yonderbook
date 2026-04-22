@@ -11,7 +11,7 @@ module RouteHelpers
 
   def require_goodreads request
     unless @user&.goodreads_connected?
-      flash[:error] = 'Please connect your Goodreads account first'
+      flash['error'] = 'Please connect your Goodreads account first'
       request.redirect '/goodreads'
     end
     load_goodreads_connection

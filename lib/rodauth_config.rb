@@ -15,6 +15,9 @@ class RodauthConfig < Rodauth::Auth
     base_url ENV.fetch('BASE_URL', 'http://localhost:9292')
 
     # Use password_hash column in accounts table instead of separate table
+    # Disable database authentication functions (PostgreSQL stored procs)
+    # since we store the hash directly in the accounts table
+    use_database_authentication_functions? false
     password_hash_table :accounts
     password_hash_id_column :id
     password_hash_column :password_hash
