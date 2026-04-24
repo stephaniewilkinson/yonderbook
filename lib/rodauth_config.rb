@@ -71,6 +71,11 @@ class RodauthConfig < Rodauth::Auth
     # Redirect to check-email interstitial after account creation
     create_account_redirect '/check-email'
 
+    # Strip whitespace from email before account creation
+    before_create_account do
+      account[login_column] = account[login_column].strip
+    end
+
     # Store email in session after account creation for the interstitial page
     after_create_account do
       session['pending_email'] = account[login_column]

@@ -15,7 +15,7 @@ class EmailService
         # Set API key globally for Resend
         Resend.api_key = ENV.fetch('RESEND_API_KEY')
 
-        params = {from: FROM_EMAIL, to: [to], subject: subject, html: html}
+        params = {from: FROM_EMAIL, to: [to.strip], subject: subject, html: html}
         params[:text] = text if text
         params[:tags] = tags if tags
 
