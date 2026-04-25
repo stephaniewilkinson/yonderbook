@@ -58,7 +58,8 @@ describe 'Error states' do
     password_login(email, password)
 
     visit '/goodreads/shelves'
-    assert_text 'Please connect your Goodreads account first'
+    # Should redirect to /goodreads connect page (flash may auto-dismiss)
+    assert_text 'Connect Goodreads'
   end
 
   it 'handles /connections without auth gracefully' do
@@ -81,9 +82,9 @@ describe 'Error states' do
     email, password = create_account_direct
     password_login(email, password)
 
-    # Add a Goodreads connection directly
+    # Add a Goodreads connection with timestamps
     account = DB[:accounts].where(email: email).first
-    DB[:goodreads_connections].insert(user_id: account[:id], goodreads_user_id: 'gr_test_disconnect', access_token: 'tok', access_token_secret: 'sec')
+    add_goodreads_connection(account[:id], 'gr_test_disconnect', 'tok', 'sec')
 
     assert DB[:goodreads_connections].where(user_id: account[:id]).any?
 

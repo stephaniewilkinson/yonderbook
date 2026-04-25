@@ -103,6 +103,20 @@ module TestHelpers
     [email, password]
   end
 
+  # Insert a Goodreads connection with required timestamps (raw insert skips model hooks)
+  def add_goodreads_connection user_id, goodreads_user_id, token, secret
+    now = Time.now
+    DB[:goodreads_connections].insert(
+      user_id: user_id,
+      goodreads_user_id: goodreads_user_id,
+      access_token: token,
+      access_token_secret: secret,
+      connected_at: now,
+      created_at: now,
+      updated_at: now
+    )
+  end
+
   # Create a verified account with Goodreads connected, then log in via browser.
   # Returns the account id.
   def seed_goodreads_user
@@ -110,12 +124,7 @@ module TestHelpers
 
     # Look up account and add Goodreads connection
     account = DB[:accounts].where(email: email).first
-    DB[:goodreads_connections].insert(
-      user_id: account[:id],
-      goodreads_user_id: ENV.fetch('GOODREADS_USER_ID'),
-      access_token: ENV.fetch('GOODREADS_ACCESS_TOKEN'),
-      access_token_secret: ENV.fetch('GOODREADS_ACCESS_TOKEN_SECRET')
-    )
+    add_goodreads_connection(account[:id], ENV.fetch('GOODREADS_USER_ID'), ENV.fetch('GOODREADS_ACCESS_TOKEN'), ENV.fetch('GOODREADS_ACCESS_TOKEN_SECRET'))
 
     # Log in via the browser
     password_login(email, password)
