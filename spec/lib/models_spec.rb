@@ -7,6 +7,7 @@ Sequel.extension :migration
 Sequel::Migrator.run(DB, 'db/migrations')
 
 require 'models/account'
+require 'models/bookmooch_import'
 require 'models/goodreads_connection'
 
 describe Account do
@@ -104,6 +105,78 @@ describe GoodreadsConnection do
       assert_instance_of OAuth::AccessToken, token
       assert_equal 'my_token', token.token
       assert_equal 'my_secret', token.secret
+    end
+  end
+end
+
+describe BookmoochImport do
+  before do
+    DB.run('PRAGMA foreign_keys = OFF')
+    DB.tables.each { |t| DB[t].delete }
+    DB.run('PRAGMA foreign_keys = ON')
+    @account = Account.create(email: "test_bm_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
+  end
+
+  describe '.already_imported_isbns' do
+    it 'returns a set of imported ISBNs for the user' do
+      BookmoochImport.create(user_id: @account.id, isbn: '111')
+      BookmoochImport.create(user_id: @account.id, isbn: '222')
+      result = BookmoochImport.already_imported_isbns(@account.id)
+      assert_instance_of Set, result
+      assert_includes result, '111'
+      assert_includes result, '222'
+    end
+
+    it 'returns empty set when no imports exist' do
+      result = BookmoochImport.already_imported_isbns(@account.id)
+      assert_empty result
+    end
+
+    it 'does not include ISBNs from other users' do
+      other = Account.create(email: "other_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
+      BookmoochImport.create(user_id: other.id, isbn: '999')
+      result = BookmoochImport.already_imported_isbns(@account.id)
+      refute_includes result, '999'
+    end
+  end
+
+  describe '.record_imports' do
+    it 'inserts new import records' do
+      books = [{isbn: '111', bookmooch_isbn: '111'}, {isbn: '222', bookmooch_isbn: '333'}]
+      BookmoochImport.record_imports(@account.id, books, shelf_name: 'read')
+      assert_equal 2, BookmoochImport.where(user_id: @account.id).count
+    end
+
+    it 'skips books with nil or empty ISBN' do
+      books = [{isbn: nil}, {isbn: ''}, {isbn: '111', bookmooch_isbn: '111'}]
+      BookmoochImport.record_imports(@account.id, books, shelf_name: 'read')
+      assert_equal 1, BookmoochImport.where(user_id: @account.id).count
+    end
+
+    it 'updates existing records on conflict instead of duplicating' do
+      BookmoochImport.create(user_id: @account.id, isbn: '111', shelf_name: 'to-read')
+      books = [{isbn: '111', bookmooch_isbn: '111'}]
+      BookmoochImport.record_imports(@account.id, books, shelf_name: 'read')
+      assert_equal 1, BookmoochImport.where(user_id: @account.id).count
+      assert_equal 'read', BookmoochImport.where(user_id: @account.id, isbn: '111').first[:shelf_name]
+    end
+  end
+
+  describe '.clear_imports' do
+    it 'deletes all imports for the user' do
+      BookmoochImport.create(user_id: @account.id, isbn: '111')
+      BookmoochImport.create(user_id: @account.id, isbn: '222')
+      BookmoochImport.clear_imports(@account.id)
+      assert_equal 0, BookmoochImport.where(user_id: @account.id).count
+    end
+
+    it 'does not delete imports for other users' do
+      other = Account.create(email: "other2_#{rand(1_000_000)}@example.com", password_hash: 'hash', status_id: 2)
+      BookmoochImport.create(user_id: @account.id, isbn: '111')
+      BookmoochImport.create(user_id: other.id, isbn: '222')
+      BookmoochImport.clear_imports(@account.id)
+      assert_equal 0, BookmoochImport.where(user_id: @account.id).count
+      assert_equal 1, BookmoochImport.where(user_id: other.id).count
     end
   end
 end

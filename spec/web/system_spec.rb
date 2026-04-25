@@ -104,28 +104,11 @@ describe App do
     assert_link 'Account'
     refute_link 'Login'
     refute_link 'Sign Up'
-    sleep 2 # Give Selenium time to clean up session before next test
   end
 
   it 'connects Goodreads via OAuth and browses shelves' do
-    fake_email = "test_goodreads_user_#{Time.now.to_i}@example.com"
-    fake_password = 'SecurePassword123!'
-
-    # First create a Rodauth account
-    visit '/'
-    click_link 'Sign Up'
-    fill_in 'Email', with: fake_email
-    fill_in 'Confirm Email', with: fake_email if page.has_field?('Confirm Email')
-    fill_in 'Password', with: fake_password
-    click_button 'Create Account'
-
-    # Manually verify the account so the user can log in
-    verify_account(fake_email)
-
-    # Log in with the verified account
+    fake_email, fake_password = create_account_direct
     password_login(fake_email, fake_password)
-
-    # Should be redirected to home page
     assert_text 'Welcome back,'
 
     # Try to connect with Goodreads - OAuth flow requires 3 attempts to bypass Amazon CVF
@@ -159,7 +142,6 @@ describe App do
     # Final visit to get OAuth tokens
     visit '/goodreads/shelves'
     assert_text 'Choose a shelf'
-    sleep 2
   end
 
   it 'shows shelf stats for a seeded Goodreads user' do
@@ -170,7 +152,6 @@ describe App do
     all(:link, 'Stats')[2].click
     sleep 10
     assert_text 'Publication Years'
-    sleep 2
   end
 
   it 'searches OverDrive libraries for a seeded Goodreads user' do
@@ -187,7 +168,6 @@ describe App do
     click_on 'Unavailable'
     sleep 1
     assert_text 'Unavailable'
-    sleep 2
   end
 
   it 'shows BookMooch on the connections page with education and Goodreads requirement' do
@@ -205,28 +185,17 @@ describe App do
 
     # Should land on shelves page in bookmooch mode
     assert_text 'Choose a shelf'
-    sleep 2
   end
 
   it 'shows BookMooch requires Goodreads when not connected' do
-    fake_email = "test_bm_#{Time.now.to_i}@example.com"
-    fake_password = 'SecurePassword123!'
-
-    visit '/'
-    click_link 'Sign Up'
-    fill_in 'Email', with: fake_email
-    fill_in 'Confirm Email', with: fake_email if page.has_field?('Confirm Email')
-    fill_in 'Password', with: fake_password
-    click_button 'Create Account'
-    verify_account(fake_email)
-    password_login(fake_email, fake_password)
+    email, password = create_account_direct
+    password_login(email, password)
 
     visit '/connections'
 
     # BookMooch card should be visible but indicate Goodreads is needed
     assert_text 'BookMooch'
     assert_text 'Connect Goodreads first'
-    sleep 2
   end
 
   it 'imports books to BookMooch via connections page' do
@@ -252,6 +221,5 @@ describe App do
       sleep 120
       assert_text 'Success!'
     end
-    sleep 2
   end
 end

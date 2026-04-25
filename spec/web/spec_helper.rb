@@ -92,20 +92,21 @@ module TestHelpers
     DB[:account_verification_keys].where(id: account[:id]).delete
   end
 
+  # Create a verified account directly in the DB (fast, no browser round-trip).
+  # Returns [email, password].
+  def create_account_direct
+    require 'argon2'
+    email = "test_#{Time.now.to_i}_#{rand(9999)}@example.com"
+    password = 'SecurePassword123!'
+    hash = Argon2::Password.new(t_cost: 1, m_cost: 5).create(password)
+    DB[:accounts].insert(email: email, password_hash: hash, status_id: 2)
+    [email, password]
+  end
+
   # Create a verified account with Goodreads connected, then log in via browser.
   # Returns the account id.
   def seed_goodreads_user
-    email = "test_gr_#{Time.now.to_i}_#{rand(9999)}@example.com"
-    password = 'SecurePassword123!'
-
-    # Create account through the UI (so the server connection owns the row)
-    visit '/'
-    click_link 'Sign Up'
-    fill_in 'Email', with: email
-    fill_in 'Confirm Email', with: email if page.has_field?('Confirm Email')
-    fill_in 'Password', with: password
-    click_button 'Create Account'
-    verify_account(email)
+    email, password = create_account_direct
 
     # Look up account and add Goodreads connection
     account = DB[:accounts].where(email: email).first

@@ -41,6 +41,18 @@ describe Cache do
     end
   end
 
+  describe '.get_by_id with corrupt file' do
+    it 'returns nil and deletes the corrupt file' do
+      Cache.set_by_id(@session_id, bad: 'data')
+      path = File.join(Cache::SHARED_DIR, "#{@session_id}_bad.json")
+      File.write(path, 'not valid json{{{')
+
+      result = Cache.get_by_id(@session_id, :bad)
+      assert_nil result
+      refute File.exist?(path), 'Expected corrupt cache file to be deleted'
+    end
+  end
+
   describe '.cleanup_stale' do
     it 'removes files older than 1 hour' do
       Cache.set_by_id(@session_id, old: 'data')
