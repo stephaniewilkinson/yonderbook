@@ -56,6 +56,16 @@ describe 'Error states' do
     sleep 2
   end
 
+  it 'rejects signup when honeypot field is filled in' do
+    bot_email = "bot_#{Time.now.to_i}@example.com"
+    account_count = DB[:accounts].count
+
+    post '/sign-up', email: bot_email, password: 'BotPassword123!', name: 'Bot McBotface'
+    assert last_response.redirect?
+    assert_includes last_response.headers['Location'], '/check-email'
+    assert_equal account_count, DB[:accounts].count
+  end
+
   it 'returns ok from health endpoint' do
     get '/health'
     assert last_response.ok?

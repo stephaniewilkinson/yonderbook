@@ -74,6 +74,9 @@ class RodauthConfig < Rodauth::Auth
     # Strip whitespace from email before account creation
     before_create_account do
       account[login_column] = account[login_column].strip
+
+      # Honeypot: bots fill in the hidden "name" field, humans don't see it
+      redirect '/check-email' unless param('name').empty?
     end
 
     # Store email in session after account creation for the interstitial page

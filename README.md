@@ -54,6 +54,10 @@ TODO: Clearly display the Goodreads name or logo on any location where Goodreads
 
 TODO: Link back to the page on Goodreads where the data data appears. For instance, if displaying a review, the name of the reviewer and a "more..." link at the end of the review must link back to the review detail page. You may not nofollow this link.
 
+## Spam Prevention
+
+The signup form uses a honeypot field to block bot registrations. A hidden `name` field is rendered off-screen — humans never see it, but bots parsing the form will fill it in. If the field has a value on POST, the request is silently redirected to the `/check-email` page without any database interaction. The bot thinks the signup succeeded.
+
 ## BookMooch API
 
 [BookMooch](https://bookmooch.com) is a book trading community where users can give away books they no longer need and receive books they want.
