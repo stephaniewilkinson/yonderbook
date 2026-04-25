@@ -62,25 +62,20 @@ describe 'Authentication flows' do
       DB[:account_login_failures].insert(id: account[:id], number: 9)
 
       # One more failed attempt triggers lockout creation
-      visit '/authenticate'
-      within('#password-login-form') do
-        fill_in 'Email', with: email
-        fill_in 'Password', with: 'WrongPassword!'
-        click_button 'Log In with Password'
-      end
+      password_login(email, 'WrongPassword!')
+      assert_text 'invalid password'
 
-      # Verify lockout record exists in database
+      # Wait for DB write to complete, then verify lockout
+      sleep 0.5
+      failures = DB[:account_login_failures].where(id: account[:id]).first
+      assert failures, 'Expected login failures record'
+      assert failures[:number] >= 10, "Expected number >= 10, got #{failures[:number]}"
+
       lockout = DB[:account_lockouts].where(id: account[:id]).first
       assert lockout, 'Expected account lockout record to exist'
 
       # Now try with correct password - should still be locked
-      visit '/authenticate'
-      within('#password-login-form') do
-        fill_in 'Email', with: email
-        fill_in 'Password', with: password
-        click_button 'Log In with Password'
-      end
-
+      password_login(email, password)
       assert_text(/locked|unlock/i)
     end
   end
