@@ -25,6 +25,12 @@
   <form method="post" action="<%= rodauth.create_account_path %>" class="space-y-4">
     <%= csrf_tag(rodauth.create_account_path) %>
 
+    <!-- Honeypot field - hidden from humans, catches bots -->
+    <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;">
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" tabindex="-1" autocomplete="off">
+    </div>
+
     <div>
       <label for="email" class="block text-sm font-medium text-mauve-950 mb-1">
         Email
