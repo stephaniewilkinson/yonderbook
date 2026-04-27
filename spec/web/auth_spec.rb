@@ -39,6 +39,9 @@ describe 'Authentication flows' do
       fill_in 'Password', with: new_password
       click_button 'Reset Password'
 
+      # Should redirect to login page after successful reset
+      assert_text 'has been reset'
+
       # Log in with the new password
       password_login(email, new_password)
       assert_text 'Welcome back,'
