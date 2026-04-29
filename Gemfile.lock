@@ -117,7 +117,7 @@ GEM
     io-console (0.8.2)
     io-endpoint (0.17.2)
     io-event (1.15.1)
-    io-stream (0.11.1)
+    io-stream (0.12.0)
     ipaddr (1.2.9)
     json (2.19.4)
     jwt (3.1.2)
