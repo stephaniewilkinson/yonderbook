@@ -26,7 +26,6 @@ describe 'Magic link and email auth' do
     assert_text 'spam or promotions'
     assert_link 'Resend verification email'
     assert_link 'Log in'
-    sleep 2
   end
 
   it 'shows the login page with magic link as primary and password as fallback' do
@@ -40,24 +39,15 @@ describe 'Magic link and email auth' do
     assert_button 'Log In with Password'
     assert_link 'Forgot password?'
     assert_link 'Sign up'
-    sleep 2
   end
 
   it 'sends a magic link email when requesting email auth' do
-    fake_email = "test_magiclink_#{Time.now.to_i}@example.com"
-    fake_password = 'SecurePassword123!'
-
-    # Create and verify an account first
-    visit '/sign-up'
-    fill_in 'Email', with: fake_email
-    fill_in 'Password', with: fake_password
-    click_button 'Create Account'
-    verify_account(fake_email)
+    email, = create_account_direct
 
     # Request a magic link
     visit '/authenticate'
     within('#magic-link-form') do
-      fill_in 'Email', with: fake_email
+      fill_in 'Email', with: email
       click_button 'Send Me a Login Link'
     end
 
@@ -65,33 +55,24 @@ describe 'Magic link and email auth' do
     assert_text 'Check your email for a login link'
 
     # Verify the email auth key was created in the database
-    account = DB[:accounts].where(email: fake_email).first
+    account = DB[:accounts].where(email: email).first
     key_row = DB[:account_email_auth_keys].where(id: account[:id]).first
     assert key_row, 'Expected email_auth_key to be created'
     assert key_row[:key], 'Expected key to have a value'
-    sleep 2
   end
 
   it 'logs in via magic link token' do
-    fake_email = "test_magictoken_#{Time.now.to_i}@example.com"
-    fake_password = 'SecurePassword123!'
-
-    # Create and verify an account
-    visit '/sign-up'
-    fill_in 'Email', with: fake_email
-    fill_in 'Password', with: fake_password
-    click_button 'Create Account'
-    verify_account(fake_email)
+    email, = create_account_direct
 
     # Request a magic link
     visit '/authenticate'
     within('#magic-link-form') do
-      fill_in 'Email', with: fake_email
+      fill_in 'Email', with: email
       click_button 'Send Me a Login Link'
     end
 
     # Build the magic link URL from the database key (wait for async creation)
-    account = DB[:accounts].where(email: fake_email).first
+    account = DB[:accounts].where(email: email).first
     key_row = nil
     10.times do
       key_row = DB[:account_email_auth_keys].where(id: account[:id]).first
@@ -106,14 +87,13 @@ describe 'Magic link and email auth' do
 
     # Should be logged in and redirected to home
     assert_text 'Welcome back,'
-    sleep 2
   end
 
   it 'verifies account and auto-logs in when clicking verification link' do
     fake_email = "test_autologin_#{Time.now.to_i}@example.com"
     fake_password = 'SecurePassword123!'
 
-    # Create account (unverified)
+    # Create account (unverified) - must use UI to generate verification key
     visit '/sign-up'
     fill_in 'Email', with: fake_email
     fill_in 'Password', with: fake_password
@@ -136,6 +116,5 @@ describe 'Magic link and email auth' do
 
     # Should be auto-logged in and redirected to home (verify_account_autologin? true)
     assert_text 'Welcome back,'
-    sleep 2
   end
 end
