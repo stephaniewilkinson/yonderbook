@@ -76,6 +76,11 @@ class App < Roda
   end
 
   plugin :rodauth, auth_class: RodauthConfig
+  plugin :error_handler do |e|
+    warn "#{e.class}: #{e.message}\n#{e.backtrace.first(20).join("\n")}"
+    response.status = 500
+    'Internal Server Error'
+  end
 
   compile_assets
   include RouteHelpers
