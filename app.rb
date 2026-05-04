@@ -30,6 +30,11 @@ class App < Roda
   plugin :slash_path_empty
   plugin :render
   plugin :default_headers, 'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains'
+  plugin :error_handler do |e|
+    warn "#{e.class}: #{e.message}\n#{e.backtrace.first(20).join("\n")}"
+    response.status = 500
+    'Internal Server Error'
+  end
 
   compile_assets
   # TODO: figure out how to reroute 404s to /
