@@ -45,6 +45,9 @@ GEM
       protocol-http (~> 0.34)
       protocol-rack (~> 0.7)
       protocol-websocket (~> 0.17)
+    bake (0.24.1)
+      bigdecimal
+      samovar (~> 2.1)
     base64 (0.3.0)
     bcrypt (3.1.22)
     bigdecimal (4.1.2)
@@ -124,7 +127,8 @@ GEM
       base64
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
-    localhost (1.7.0)
+    localhost (1.8.0)
+      bake
     logger (1.7.0)
     mail (2.9.0)
       logger
