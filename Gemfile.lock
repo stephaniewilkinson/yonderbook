@@ -279,7 +279,7 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
       logger
-    sequel (5.103.0)
+    sequel (5.104.0)
       bigdecimal
     snaky_hash (2.0.3)
       hashie (>= 0.1.0, < 6)
