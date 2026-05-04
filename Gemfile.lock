@@ -119,7 +119,7 @@ GEM
     io-event (1.15.1)
     io-stream (0.11.1)
     ipaddr (1.2.9)
-    json (2.19.4)
+    json (2.19.5)
     jwt (3.1.2)
       base64
     language_server-protocol (3.17.0.5)
