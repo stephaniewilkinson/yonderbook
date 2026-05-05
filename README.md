@@ -125,6 +125,31 @@ Accepts up to **25 comma-separated product IDs** per request. Returns `copiesAva
 
 Books are processed in chunks of 100 to bound memory. Each chunk completes the full pipeline (search -> expand editions -> fetch availability) before the next starts. Raw JSON response bodies are discarded after parsing. Timing and RSS memory usage are logged per-chunk for monitoring.
 
+## OOM / Memory Management
+
+The app runs on Render's Starter plan (512MB RAM). Login and Goodreads API calls can intermittently OOM the process.
+
+### Root cause
+
+Memory fragmentation from glibc's arena allocator. glibc allocates multiple arenas per thread, each holding fragmented memory that is never returned to the OS. Over time RSS grows until a request that allocates more than usual (like the OAuth login flow) pushes the process past 512MB, triggering a SIGKILL from the kernel.
+
+SIGKILL cannot be caught — no Ruby error handler, no Sentry, nothing runs. The process dies instantly. Render logs it as an OOM event.
+
+### Mitigations
+
+**`MALLOC_ARENA_MAX=2`** (Render env var) — Limits glibc to 2 memory arenas instead of 8 per thread. Heroku made this the default for all Ruby apps after benchmarks showed 15-50% reduction in fragmentation-driven bloat. ~3% performance cost.
+
+**`Process.warmup`** (config.ru, production only) — Ruby 3.3+ API that compacts the heap and optimizes GC after boot, before serving requests.
+
+**`RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=1.3`** (optional Render env var) — Triggers major GC more frequently. Sam Saffron measured ~22% RSS reduction. Causes more GC pauses, acceptable at low traffic.
+
+### What doesn't help
+
+- **Sentry / error_handler plugin** — SIGKILL terminates the process before any Ruby code can execute. These only catch Ruby exceptions.
+- **Reducing TupleSpace TTL** — Cached entries are ~1-2KB each, negligible at this scale.
+- **Wrapping OAuth calls in `Sync do`** — Inside Falcon, `Sync do` is a no-op (already in an async task). Net::HTTP calls are automatically non-blocking via Ruby's fiber scheduler.
+- **Removing `--verbose` from Falcon** — Falcon's verbose middleware writes to stdout and doesn't buffer in memory.
+
 ## Deployment (Render)
 
 Deployed on [Render](https://render.com) with a persistent disk for SQLite at `/var/data/production.db`.

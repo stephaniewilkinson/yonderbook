@@ -28,6 +28,7 @@ when 'production', 'staging'
   logger = Logger.new $stdout
   logger.level = Logger::WARN
   use RequestTimeout
+  Process.warmup
   run App.freeze.app
 when 'test'
   require 'dotenv/load'
