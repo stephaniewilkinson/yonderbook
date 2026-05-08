@@ -24,9 +24,11 @@ Console.logger.level = :warn
 case ENV.fetch('RACK_ENV', nil)
 when 'production', 'staging'
   require_relative 'app'
+  require_relative 'lib/memory_logger'
   require_relative 'lib/request_timeout'
   logger = Logger.new $stdout
   logger.level = Logger::WARN
+  use MemoryLogger
   use RequestTimeout
   Process.warmup
   run App.freeze.app
