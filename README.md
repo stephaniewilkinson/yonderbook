@@ -143,6 +143,19 @@ SIGKILL cannot be caught — no Ruby error handler, no Sentry, nothing runs. The
 
 **`RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=1.3`** (optional Render env var) — Triggers major GC more frequently. Sam Saffron measured ~22% RSS reduction. Causes more GC pauses, acceptable at low traffic.
 
+### Diagnostic logging
+
+`MemoryLogger` middleware (`lib/memory_logger.rb`) logs RSS and GC stats on every request. Runs in production only, skips `/health` and static assets. Logs twice per request -- START and END -- so the killing request is identifiable even after SIGKILL.
+
+```
+[mem] #42 START GET /goodreads/shelves rss=294.2MB
+[mem] #42 END GET /goodreads/shelves status=200 duration=1234.5ms rss=312.4MB delta=+18.2MB heap_live=1823456 old_objects=982341 major_gc=1 minor_gc=3
+[mem] #43 START GET /login rss=312.4MB
+                                        <-- process killed here, no END line
+```
+
+**How to read the logs:** A START with no matching END is the request that caused OOM. Large positive `delta` values on END lines show which requests grow memory. The `WARNING` line fires when RSS exceeds 400MB.
+
 ### What doesn't help
 
 - **Sentry / error_handler plugin** — SIGKILL terminates the process before any Ruby code can execute. These only catch Ruby exceptions.
