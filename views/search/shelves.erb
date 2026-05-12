@@ -1,0 +1,36 @@
+<% content_for :title, "Your Shelves" %>
+<% content_for :description, "Browse your Goodreads shelves. Select a shelf to analyze your reading or find free books at your library." %>
+
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="text-center">
+    <h3 class="font-display text-2xl font-medium text-mauve-950 mb-4">Step 1</h3>
+    <div class="w-full bg-mauve-200 rounded-full h-2 mb-4">
+      <div class="bg-mauve-950 h-2 rounded-full w-1/4"></div>
+    </div>
+    <h5 class="text-xl font-medium text-mauve-700">Choose a shelf</h5>
+    <p class="text-sm text-mauve-500 mt-2">Pick a shelf to check library availability. "to-read" is usually what you want.</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <% @shelves.sort_by { |_, count| -count }.each do |name, count| %>
+    <div class="rounded-xl bg-mauve-950/[.025] overflow-hidden">
+      <div class="p-6">
+        <h6 class="text-lg font-semibold text-mauve-950 mb-2"><%= name %></h6>
+        <p class="text-mauve-700"><%= count %> book<%= 's' if count != 1 %></p>
+      </div>
+      <div class="px-6 py-4 border-t border-mauve-950/10 flex justify-between items-center gap-2">
+        <% if count.positive? %>
+          <a class="inline-flex items-center px-4 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full transition-colors duration-200" href="/search/shelves/<%= name %>">
+            <img src="/svg/chart-bar.svg" alt="" class="w-4 h-4 mr-2">
+            Stats
+          </a>
+          <a class="inline-flex items-center px-4 py-2 bg-mauve-950/10 hover:bg-mauve-950/20 text-mauve-950 text-sm font-medium rounded-full transition-colors duration-200" href="/search/shelves/<%= name %>/overdrive">
+            <img src="/svg/book.svg" alt="" class="w-4 h-4 mr-2">
+            Get Books
+          </a>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
