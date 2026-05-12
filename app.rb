@@ -142,6 +142,24 @@ class App < Roda
       end
     end
 
+    r.is 'search-callback' do # route: GET /search-callback
+      request_token = Cache.get session, :request_token
+      unless request_token
+        flash[:error] = "Please click 'Connect with Goodreads' again"
+        r.redirect '/'
+      end
+
+      r.get do
+        credentials = Goodreads.exchange_token(request_token)
+        store_goodreads_in_session(credentials)
+        Analytics.track session['session_id'], 'goodreads_connected_anonymous', goodreads_user_id: credentials[:user_id]
+        r.redirect '/search/shelves'
+      rescue OAuth::Unauthorized
+        flash[:error] = "Almost there — click 'Connect with Goodreads' one more time"
+        r.redirect '/'
+      end
+    end
+
     r.get('about') { view 'about' } # route: GET /about
     r.get('faq') { view 'faq' } # route: GET /faq
     r.get('how-it-works') { view 'how_it_works' } # route: GET /how-it-works
