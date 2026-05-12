@@ -17,6 +17,27 @@ module RouteHelpers
     load_goodreads_connection
   end
 
+  def store_goodreads_in_session credentials
+    Cache.set(session, anon_goodreads_user_id: credentials[:user_id], anon_goodreads_token: credentials[:token], anon_goodreads_secret: credentials[:secret])
+  end
+
+  def goodreads_session_present?
+    @goodreads_user_id = Cache.get(session, :anon_goodreads_user_id)
+    token = Cache.get(session, :anon_goodreads_token)
+    secret = Cache.get(session, :anon_goodreads_secret)
+    return false unless @goodreads_user_id && token && secret
+
+    @anon_access_token = Auth.rebuild_access_token(token, secret)
+    true
+  end
+
+  def require_goodreads_session request
+    return if goodreads_session_present?
+
+    flash[:error] = 'Please connect your Goodreads account first'
+    request.redirect '/'
+  end
+
   def load_goodreads_connection
     @goodreads_connection = @user.goodreads_connection
     @goodreads_user_id = @goodreads_connection.goodreads_user_id
