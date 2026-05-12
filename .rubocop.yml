@@ -309,7 +309,7 @@ Metrics/AbcSize:
   Max: 37
 
 Metrics/BlockLength:
-  Max: 250
+  Max: 200
 
 Metrics/ClassLength:
   Max: 300
