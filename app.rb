@@ -32,6 +32,7 @@ require_relative 'lib/email'
 require_relative 'lib/email_templates'
 require_relative 'lib/goodreads'
 require_relative 'lib/models'
+require_relative 'lib/oauth_helpers'
 require_relative 'lib/overdrive'
 require_relative 'lib/route_helpers'
 require_relative 'lib/websockets'
@@ -85,6 +86,7 @@ class App < Roda
 
   compile_assets
   include AnalyticsHelpers
+  include OauthHelpers
   include RouteHelpers
 
   # TODO: figure out how to reroute 404s to /
@@ -120,28 +122,14 @@ class App < Roda
       view 'welcome'
     end
 
-    r.is 'login' do
-      request_token = Cache.get session, :request_token
-      unless request_token
-        flash[:error] = "Click 'login' again please"
-        r.redirect '/'
-      end
-      # route: GET /login
-      r.get do
-        unless @user
-          flash[:error] = 'Please log in first before connecting Goodreads'
-          r.redirect '/'
-        end
-        Goodreads.fetch_user request_token, @user.id
-        @user.refresh
-        gr_user_id = @user.goodreads_connection&.goodreads_user_id
-        Analytics.identify analytics_id, goodreads_user_id: gr_user_id
-        Analytics.track analytics_id, 'goodreads_connected', goodreads_user_id: gr_user_id
-        r.redirect '/goodreads/shelves'
-      rescue OAuth::Unauthorized
-        flash[:error] = 'Fetched details! Click login'
-        r.redirect '/'
-      end
+    r.is 'login' do # route: GET /login
+      request_token = require_cached_request_token(r)
+      r.get { handle_authenticated_oauth_callback(r, request_token) }
+    end
+
+    r.is 'search-callback' do # route: GET /search-callback
+      request_token = require_cached_request_token(r)
+      r.get { handle_anonymous_oauth_callback(r, request_token) }
     end
 
     r.get('about') { view 'about' } # route: GET /about
