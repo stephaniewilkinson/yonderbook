@@ -115,10 +115,7 @@ module Goodreads
     end
   end
 
-  def fetch_user request_token, yonderbook_user_id
-    access_token = request_token.get_access_token
-    goodreads_token = access_token.token
-    goodreads_secret = access_token.secret
+  def fetch_goodreads_user_id access_token
     uri = new_uri
     uri.path = '/api/auth_user'
     response = access_token.get uri.to_s
@@ -129,10 +126,19 @@ module Goodreads
     user_id = user_node['id']
     raise 'Goodreads API response missing user id attribute' unless user_id
 
-    # Save Goodreads connection to database
-    save_goodreads_connection(yonderbook_user_id, user_id, goodreads_token, goodreads_secret)
+    user_id
+  end
 
-    [user_id, goodreads_token, goodreads_secret]
+  def exchange_token request_token
+    access_token = request_token.get_access_token
+    user_id = fetch_goodreads_user_id(access_token)
+    {user_id: user_id, token: access_token.token, secret: access_token.secret}
+  end
+
+  def fetch_user request_token, yonderbook_user_id
+    credentials = exchange_token(request_token)
+    save_goodreads_connection(yonderbook_user_id, credentials[:user_id], credentials[:token], credentials[:secret])
+    [credentials[:user_id], credentials[:token], credentials[:secret]]
   end
 
   def save_goodreads_connection yonderbook_user_id, user_id, token, secret

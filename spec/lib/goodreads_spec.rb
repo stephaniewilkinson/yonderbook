@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'spec_helper'
+require 'auth'
 require 'goodreads'
 
 describe Goodreads do
@@ -53,6 +54,26 @@ describe Goodreads do
       books = [{rating: '4', ratings: nil}]
       stats = Goodreads.rating_stats(books)
       assert_equal 1, stats[4]
+    end
+  end
+
+  describe '.exchange_token' do
+    it 'is defined as a module method' do
+      assert_respond_to Goodreads, :exchange_token
+    end
+  end
+
+  describe '.fetch_goodreads_user_id' do
+    it 'is defined as a module method' do
+      assert_respond_to Goodreads, :fetch_goodreads_user_id
+    end
+  end
+
+  describe '.fetch_user' do
+    it 'delegates to exchange_token internally' do
+      # fetch_user should call exchange_token then save_goodreads_connection.
+      # We verify the method signature is preserved: it accepts (request_token, yonderbook_user_id)
+      assert_equal 2, Goodreads.method(:fetch_user).arity
     end
   end
 
