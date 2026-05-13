@@ -3,6 +3,9 @@
 # Route helper methods: import tracking, caching, Goodreads/BookMooch integration, Sentry
 module RouteHelpers
   def fetch_and_cache_request_token
+    cached = Cache.get(session, :request_token)
+    return cached if cached
+
     Auth.fetch_request_token.tap { |token| Cache.set(session, request_token: token) if token }
   rescue StandardError => e
     Sentry.capture_exception(e) if defined?(Sentry)
