@@ -15,4 +15,11 @@ describe 'Anonymous search flow' do
       assert_current_path '/'
     end
   end
+
+  describe 'GET /search/shelves' do
+    it 'redirects to / when no session credentials exist' do
+      visit '/search/shelves'
+      assert_current_path '/'
+    end
+  end
 end
