@@ -35,6 +35,7 @@ require_relative 'lib/models'
 require_relative 'lib/oauth_helpers'
 require_relative 'lib/overdrive'
 require_relative 'lib/route_helpers'
+require_relative 'lib/search_routes'
 require_relative 'lib/websockets'
 
 SESSION_SECRET = ENV.fetch('SESSION_SECRET').then do |s|
@@ -88,6 +89,7 @@ class App < Roda
   include AnalyticsHelpers
   include OauthHelpers
   include RouteHelpers
+  include SearchRoutes
 
   # TODO: figure out how to reroute 404s to /
   route do |r|
@@ -131,6 +133,8 @@ class App < Roda
       request_token = require_cached_request_token(r)
       r.get { handle_anonymous_oauth_callback(r, request_token) }
     end
+
+    r.on('search') { handle_search_routes(r) }
 
     r.get('about') { view 'about' } # route: GET /about
     r.get('faq') { view 'faq' } # route: GET /faq
