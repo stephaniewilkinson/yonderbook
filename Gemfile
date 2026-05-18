@@ -31,7 +31,6 @@ gem 'sequel'
 gem 'sqlite3'
 gem 'tailwindcss-ruby'
 gem 'tilt'
-gem 'unicode_utils'
 
 group :development do
   gem 'rack-unreloader'

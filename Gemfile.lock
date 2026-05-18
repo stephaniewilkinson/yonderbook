@@ -309,7 +309,6 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
-    unicode_utils (1.4.0)
     uri (1.1.1)
     version_gem (1.1.9)
     websocket (1.2.11)
@@ -366,7 +365,6 @@ DEPENDENCIES
   sqlite3
   tailwindcss-ruby
   tilt
-  unicode_utils
 
 RUBY VERSION
   ruby 4.0.2p0
