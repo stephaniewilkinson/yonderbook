@@ -90,7 +90,7 @@ GEM
       capybara (~> 3.37)
       falcon
       selenium-webdriver
-    faraday (2.14.1)
+    faraday (2.14.2)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
