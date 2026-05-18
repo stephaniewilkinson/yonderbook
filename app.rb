@@ -12,6 +12,7 @@ require 'tilt'
 # require 'zbar'
 
 require_relative 'lib/analytics'
+require_relative 'lib/analytics_helpers'
 
 # Ruby 4.0 removed CGI.parse; the oauth gem still uses it
 require 'cgi'
@@ -85,6 +86,7 @@ class App < Roda
   end
 
   compile_assets
+  include AnalyticsHelpers
   include OauthHelpers
   include RouteHelpers
   include SearchRoutes
@@ -104,7 +106,7 @@ class App < Roda
     end
     @user = Account[rodauth.session_value] if rodauth.logged_in?
     enrich_sentry(r)
-    session['session_id'] ||= SecureRandom.uuid
+    (session['session_id'] ||= SecureRandom.uuid) && identify_user
     # route: WebSocket /ws/bookmooch/:session_id
     r.on 'ws', 'bookmooch', String do |session_id|
       r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
@@ -118,7 +120,7 @@ class App < Roda
     r.root do # route: GET /
       request_token = fetch_and_cache_request_token
       @auth_url = request_token&.authorize_url
-      Analytics.track session['session_id'], 'page_viewed', page: 'welcome'
+      Analytics.track analytics_id, 'page_viewed', page: 'welcome'
       view 'welcome'
     end
 
@@ -310,7 +312,7 @@ class App < Roda
       end
     end
   rescue OAuth::Unauthorized, StandardError => e
-    Analytics.track session['session_id'], 'error_occurred', error: e.class.name, message: e.message, path: r.path
+    Analytics.track analytics_id, 'error_occurred', error: e.class.name, message: e.message, path: r.path
     enrich_sentry_error(r)
     Sentry.capture_exception(e)
 
