@@ -118,8 +118,6 @@ class App < Roda
     end
 
     r.root do # route: GET /
-      request_token = fetch_and_cache_request_token
-      @auth_url = request_token&.authorize_url
       Analytics.track analytics_id, 'page_viewed', page: 'welcome'
       view 'welcome'
     end

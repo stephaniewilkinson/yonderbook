@@ -3,8 +3,8 @@
 require 'rinda/tuplespace'
 
 class TupleSpace < Rinda::TupleSpace
-  # 600 seconds is ten minutes and 3,600 seconds is one hour
-  def initialize reaper_period_in_secs: 600, expires_in_secs: 3_600
+  # Reaper runs every 10 minutes, tuples expire after 30 minutes
+  def initialize reaper_period_in_secs: 600, expires_in_secs: 1_800
     @expires_in_secs = expires_in_secs
     super(reaper_period_in_secs)
   end
