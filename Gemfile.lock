@@ -34,7 +34,7 @@ GEM
       async (>= 2.31)
     async-pool (0.11.2)
       async (>= 2.0)
-    async-service (0.22.0)
+    async-service (0.23.0)
       async
       async-container (~> 0.34)
       string-format (~> 0.2)
@@ -68,7 +68,7 @@ GEM
     cgi (0.5.1)
     coderay (1.1.3)
     concurrent-ruby (1.3.6)
-    console (1.34.3)
+    console (1.35.1)
       fiber-annotation
       fiber-local (~> 1.1)
       json
