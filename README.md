@@ -176,6 +176,27 @@ Server starts at ~100MB. At 0.3MB/request with bot traffic every minute:
 
 **How to read the logs:** A START with no matching END is the request that caused OOM. Large positive `delta` values on END lines show which requests grow memory. The `WARNING` line fires when RSS exceeds 400MB. After the fix, look for `[mem] GC.compact` lines showing compaction results.
 
+### Why memory still grows (post-fix)
+
+The mitigations above eliminated the biggest leak (bot traffic on `/`), but RSS still creeps up on non-homepage requests. Every authenticated request runs through this pipeline (app.rb lines 103-121):
+
+1. **Session decryption/encryption** -- Rodauth decrypts the incoming session cookie and re-encrypts the outgoing one via OpenSSL. Cipher contexts are C-level `malloc` allocations.
+2. **Sentry scope calls** -- `enrich_sentry` calls `Sentry.set_user` and `Sentry.set_tags` on every request, creating scope objects on the Sentry hub even without the middleware.
+3. **PostHog identify on every request** -- `identify_user` calls `Analytics.alias_user` and `Analytics.identify` for every logged-in request, pushing events onto PostHog's internal queue.
+4. **DB query** -- `Account[rodauth.session_value]` runs a database query on every authenticated request.
+
+The problem isn't Ruby objects -- GC collects those fine (old_objects drops from 549k to 50k). The problem is **glibc malloc fragmentation from C-level allocations**. OpenSSL cipher contexts, Sentry internals, and database buffers are allocated via `malloc()`. When freed, they leave holes in the heap that glibc can't return to the OS. Falcon's fiber concurrency makes this worse -- fibers interleave allocations across memory pages, so no page is ever fully free.
+
+`GC.compact` only helps Ruby heap pages. `MALLOC_ARENA_MAX=2` limits arenas but doesn't prevent fragmentation within them.
+
+### Next steps for memory
+
+**`malloc_trim` gem** -- Calls `malloc_trim()` after each major GC cycle to return freed glibc pages to the OS. ~1% CPU overhead, Linux only (which Render uses). This is the lowest-effort next step. Typical RSS reduction: 10-30%.
+
+**jemalloc** -- A drop-in malloc replacement that returns memory to the OS far more aggressively. Used by GitLab, Discourse, and Mastodon. However, it requires a Docker deploy on Render (`apt-get install libjemalloc2` + `LD_PRELOAD`), which is overkill unless `malloc_trim` proves insufficient. Typical RSS reduction: 25-40%.
+
+**Health-check-based restart** -- Write a custom `/health` that returns 500 when RSS > 450MB. Render restarts after 60s of failed checks. This is a fallback, not a fix.
+
 ### What doesn't help
 
 - **Sentry / error_handler plugin** -- SIGKILL terminates the process before any Ruby code can execute. These only catch Ruby exceptions.
