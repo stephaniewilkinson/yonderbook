@@ -9,8 +9,9 @@ Sentry.init do |config|
   config.enabled_environments = %w[development test production staging]
   config.send_default_pii = true
 
-  # Send errors from all environments to ensure tracking works
-  config.traces_sample_rate = ENV['RACK_ENV'] == 'production' ? 0.1 : 1.0
+  # Disable performance tracing - transaction objects hold Rack env references
+  # and contribute to RSS growth on our 512MB Render instance
+  config.traces_sample_rate = 0
 
   # Don't send errors if DSN is not configured
   config.before_send = ->(event, _hint) do

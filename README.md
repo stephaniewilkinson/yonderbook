@@ -127,21 +127,41 @@ Books are processed in chunks of 100 to bound memory. Each chunk completes the f
 
 ## OOM / Memory Management
 
-The app runs on Render's Starter plan (512MB RAM). Login and Goodreads API calls can intermittently OOM the process.
+The app runs on Render's Starter plan (512MB RAM). The process starts at ~100MB and grows steadily until OOM kill at 512MB.
 
 ### Root cause
 
-Memory fragmentation from glibc's arena allocator. glibc allocates multiple arenas per thread, each holding fragmented memory that is never returned to the OS. Over time RSS grows until a request that allocates more than usual (like the OAuth login flow) pushes the process past 512MB, triggering a SIGKILL from the kernel.
+There are two layers to the problem:
 
-SIGKILL cannot be caught — no Ruby error handler, no Sentry, nothing runs. The process dies instantly. Render logs it as an OOM event.
+**Layer 1: Per-request memory allocations that are never returned to the OS.** Every `GET /` request leaked ~0.2-0.4MB of RSS, even though the homepage is a static marketing page with no DB queries or API calls. The leak came from middleware and analytics running on every request, including bot/monitor traffic hitting `/` every minute:
 
-### Mitigations
+- **Sentry transaction tracing** (`traces_sample_rate = 0.1`): The `CaptureExceptions` middleware clones the Sentry hub, creates a scope, stores the full Rack `env` hash in the scope, and creates transaction/span objects for 10% of requests. Under Falcon's fiber-based concurrency, hub clones stored in `Thread.current` may not clean up properly between fibers.
+- **PostHog analytics on homepage**: `Analytics.track` queued a PostHog event with a unique distinct_id (new session UUID) for every bot request. Useless analytics noise that allocated objects into PostHog's internal queue.
+- **Session writes for bots**: `session['session_id'] ||= SecureRandom.uuid` forced the Roda sessions plugin to encrypt and set a cookie on every request, even for bots that never send cookies back.
 
-**`MALLOC_ARENA_MAX=2`** (Render env var) — Limits glibc to 2 memory arenas instead of 8 per thread. Heroku made this the default for all Ruby apps after benchmarks showed 15-50% reduction in fragmentation-driven bloat. ~3% performance cost.
+**Layer 2: Memory that GC cannot reclaim.** Even after Ruby's major GC collects objects (old_objects drops from 549k to 50k), RSS doesn't decrease -- it stays at 506MB and keeps climbing. This happens even with `MALLOC_ARENA_MAX=2` set, ruling out simple glibc arena fragmentation. The retained memory likely comes from C-level allocations in OpenSSL (used by Sentry's HTTP transport and session encryption) and object-slot fragmentation in Ruby's heap pages.
 
-**`Process.warmup`** (config.ru, production only) — Ruby 3.3+ API that compacts the heap and optimizes GC after boot, before serving requests.
+### Typical OOM timeline
 
-**`RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=1.3`** (optional Render env var) — Triggers major GC more frequently. Sam Saffron measured ~22% RSS reduction. Causes more GC pauses, acceptable at low traffic.
+Server starts at ~100MB. At 0.3MB/request with bot traffic every minute:
+- ~23 hours to reach 512MB and trigger SIGKILL
+- SIGKILL cannot be caught -- no Ruby error handler, no Sentry, nothing runs
+
+### Mitigations (code changes)
+
+**Homepage served before middleware** (app.rb) -- `r.root` is now matched before `enrich_sentry`, `session['session_id']` assignment, and `identify_user`. Bot traffic to `/` no longer creates sessions, Sentry scopes, or PostHog events. This eliminates the primary source of per-request allocations.
+
+**Sentry::Rack::CaptureExceptions middleware removed** (app.rb) -- This middleware cloned the Sentry hub, created a scope storing the full Rack `env`, and ran session tracking on every request. Under Falcon's fiber/thread model, these allocations leaked ~0.2-0.4MB/request that was never reclaimed. Errors are still captured via `Sentry.capture_exception` in the app's rescue block and `error_handler` plugin. Also set `traces_sample_rate = 0` in config.ru to disable transaction tracing.
+
+**Periodic GC.compact** (lib/memory_logger.rb) -- When RSS exceeds 400MB, `GC.compact` runs every 100 requests. This consolidates the Ruby heap so free pages can be returned to the OS. Won't fully solve malloc fragmentation but helps with Ruby-level fragmentation.
+
+### Mitigations (Render env vars)
+
+**`MALLOC_ARENA_MAX=2`** (set in Render dashboard) -- Limits glibc to 2 memory arenas instead of 8 per thread. Heroku made this the default for all Ruby apps. Already set; insufficient on its own to prevent OOM -- the Sentry middleware removal was the critical fix.
+
+**`Process.warmup`** (config.ru, production only) -- Ruby 3.3+ API that compacts the heap and optimizes GC after boot, before serving requests.
+
+**`RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR=1.3`** (optional) -- Triggers major GC more frequently. Sam Saffron measured ~22% RSS reduction. Causes more GC pauses, acceptable at low traffic.
 
 ### Diagnostic logging
 
@@ -154,14 +174,28 @@ SIGKILL cannot be caught — no Ruby error handler, no Sentry, nothing runs. The
                                         <-- process killed here, no END line
 ```
 
-**How to read the logs:** A START with no matching END is the request that caused OOM. Large positive `delta` values on END lines show which requests grow memory. The `WARNING` line fires when RSS exceeds 400MB.
+**How to read the logs:** A START with no matching END is the request that caused OOM. Large positive `delta` values on END lines show which requests grow memory. The `WARNING` line fires when RSS exceeds 400MB. After the fix, look for `[mem] GC.compact` lines showing compaction results.
 
 ### What doesn't help
 
-- **Sentry / error_handler plugin** — SIGKILL terminates the process before any Ruby code can execute. These only catch Ruby exceptions.
-- **Reducing TupleSpace TTL** — Cached entries are ~1-2KB each, negligible at this scale.
-- **Wrapping OAuth calls in `Sync do`** — Inside Falcon, `Sync do` is a no-op (already in an async task). Net::HTTP calls are automatically non-blocking via Ruby's fiber scheduler.
-- **Removing `--verbose` from Falcon** — Falcon's verbose middleware writes to stdout and doesn't buffer in memory.
+- **Sentry / error_handler plugin** -- SIGKILL terminates the process before any Ruby code can execute. These only catch Ruby exceptions.
+- **Reducing TupleSpace TTL** -- Cached entries are ~1-2KB each, negligible at this scale.
+- **Wrapping OAuth calls in `Sync do`** -- Inside Falcon, `Sync do` is a no-op (already in an async task). Net::HTTP calls are automatically non-blocking via Ruby's fiber scheduler.
+- **Removing `--verbose` from Falcon** -- Falcon's verbose middleware writes to stdout and doesn't buffer in memory.
+
+### Investigation log (May 2026)
+
+Observed `GET /` requests every ~1 minute growing RSS by 0.2-0.4MB with `major_gc=0 minor_gc=0` on most requests. Key data points:
+
+```
+02:58 rss=500.7MB  (WARNING threshold)
+03:09 rss=506.3MB  old_objects drops 549201 -> 50934 (major GC ran, but RSS didn't shrink)
+03:10 rss=507.4MB  old_objects=183943 (climbing back up)
+03:13 rss=510.0MB  -> OOM kill, Render restarts process
+03:14 rss=100.3MB  (fresh start, first request)
+```
+
+The fact that RSS didn't decrease after major GC -- even with `MALLOC_ARENA_MAX=2` already set -- pointed to the Sentry middleware as the primary culprit. `Sentry::Rack::CaptureExceptions` clones the hub, creates scopes, and stores the Rack env on every request. Under Falcon's fiber/thread model, these allocations aren't properly reclaimed. Fix: remove Sentry middleware (keep manual error capture), move homepage route before session/analytics middleware, add GC.compact safety net.
 
 ## Deployment (Render)
 
