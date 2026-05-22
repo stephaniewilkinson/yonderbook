@@ -18,7 +18,6 @@ gem 'mail'
 gem 'nokogiri'
 gem 'oauth'
 gem 'oauth2'
-gem 'posthog-ruby'
 gem 'rack-host-redirect'
 gem 'rake'
 gem 'resend'
@@ -31,6 +30,10 @@ gem 'sequel'
 gem 'sqlite3'
 gem 'tailwindcss-ruby'
 gem 'tilt'
+
+group :production do
+  gem 'posthog-ruby'
+end
 
 group :development do
   gem 'rack-unreloader'

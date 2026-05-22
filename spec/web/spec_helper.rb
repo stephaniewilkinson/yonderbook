@@ -32,6 +32,7 @@ Capybara.register_driver :headless_chrome do |app|
   options.add_argument('--disable-blink-features=AutomationControlled')
   options.add_argument('--disable-dev-shm-usage')
   options.add_argument('--no-sandbox')
+  options.add_argument('--window-size=1400,900')
   Capybara::Selenium::Driver.new app, browser: :chrome, options: options
 end
 
@@ -53,8 +54,8 @@ Capybara.register_driver :headless_firefox do |app|
   Capybara::Selenium::Driver.new app, browser: :firefox, options: options
 end
 
-# Use Firefox in CI (GitHub Actions), Chrome locally (Firefox 144.0 broken on macOS)
-driver = ENV['CI'] ? :headless_firefox : :chrome
+# Use headless Firefox everywhere (Chrome crashes on Falcon's logout redirect)
+driver = :headless_firefox
 
 Capybara.javascript_driver = driver
 
