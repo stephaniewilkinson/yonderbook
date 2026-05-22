@@ -116,9 +116,9 @@ describe App do
       link = find_link('Connect Goodreads')
       page.scroll_to(link)
       link.click
-      link2 = find_link('Connect with Goodreads')
-      page.scroll_to(link2)
-      link2.click
+      link_2 = find_link('Connect with Goodreads')
+      page.scroll_to(link_2)
+      link_2.click
       sleep 2
 
       # Check if already authenticated (redirected to /goodreads/shelves)
