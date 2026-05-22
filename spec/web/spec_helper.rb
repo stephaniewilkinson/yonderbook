@@ -45,6 +45,11 @@ Capybara.register_driver :headless_firefox do |app|
   options.add_argument('--disable-blink-features=AutomationControlled')
   options.add_preference('dom.webdriver.enabled', false)
   options.add_preference('useAutomationExtension', false)
+  # Falcon's Protocol::HTTP::ContentEncoding middleware can produce responses
+  # that headless Firefox rejects with contentEncodingError. Requesting only
+  # identity encoding avoids the issue.
+  options.add_preference('network.http.accept-encoding', 'identity')
+  options.add_preference('network.http.accept-encoding.secure', 'identity')
   Capybara::Selenium::Driver.new app, browser: :firefox, options: options
 end
 

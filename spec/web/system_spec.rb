@@ -53,7 +53,7 @@ describe App do
 
     # Test account creation
     visit '/'
-    click_link 'Sign Up'
+    click_link 'Sign Up', match: :first
 
     # Fill in sign up form (handle email confirmation if present)
     fill_in 'Email', with: fake_email
@@ -113,8 +113,12 @@ describe App do
 
     # Try to connect with Goodreads - OAuth flow requires 3 attempts to bypass Amazon CVF
     3.times do
-      click_link 'Connect Goodreads'
-      click_link 'Connect with Goodreads'
+      link = find_link('Connect Goodreads')
+      page.scroll_to(link)
+      link.click
+      link2 = find_link('Connect with Goodreads')
+      page.scroll_to(link2)
+      link2.click
       sleep 2
 
       # Check if already authenticated (redirected to /goodreads/shelves)
@@ -207,7 +211,9 @@ describe App do
     assert_text 'Choose a shelf'
 
     # Click the BookMooch button for the abandoned shelf (small shelf, faster import)
-    find('a[href="shelves/abandoned/bookmooch"]').click
+    element = find('a[href="shelves/abandoned/bookmooch"]')
+    page.scroll_to(element)
+    element.click
 
     if page.has_text?('BookMooch appears to be down', wait: 5)
       # BookMooch is currently unreachable - verify the user sees the warning
