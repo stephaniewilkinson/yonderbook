@@ -30,15 +30,16 @@ GEM
       traces (~> 0.10)
     async-http-cache (0.4.6)
       async-http (~> 0.56)
-    async-limiter (2.0.0)
+    async-limiter (2.2.0)
       async (>= 2.31)
+      async-utilization (~> 0.4)
     async-pool (0.11.2)
       async (>= 2.0)
     async-service (0.22.0)
       async
       async-container (~> 0.34)
       string-format (~> 0.2)
-    async-utilization (0.3.2)
+    async-utilization (0.4.0)
       console (~> 1.0)
     async-websocket (0.30.0)
       async-http (~> 0.76)
@@ -68,7 +69,7 @@ GEM
     cgi (0.5.1)
     coderay (1.1.3)
     concurrent-ruby (1.3.6)
-    console (1.34.3)
+    console (1.35.1)
       fiber-annotation
       fiber-local (~> 1.1)
       json
