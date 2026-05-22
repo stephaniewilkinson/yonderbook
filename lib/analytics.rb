@@ -14,26 +14,28 @@ module Analytics
 
     at_exit { POSTHOG.shutdown }
 
-    def track(distinct_id, event, properties = {})
+    def track distinct_id, event, properties = {}
       POSTHOG.capture(distinct_id: distinct_id, event: event, properties: properties)
     rescue StandardError => e
       warn "PostHog tracking error: #{e.message}"
     end
 
-    def identify(distinct_id, properties = {})
-      POSTHOG.identify(distinct_id: distinct_id, properties: { '$set': properties })
+    def identify distinct_id, properties = {}
+      POSTHOG.identify(distinct_id: distinct_id, properties: {'$set': properties})
     rescue StandardError => e
       warn "PostHog identify error: #{e.message}"
     end
 
-    def alias_user(distinct_id, alias_id)
+    def alias_user distinct_id, alias_id
       POSTHOG.alias(distinct_id: distinct_id, alias: alias_id)
     rescue StandardError => e
       warn "PostHog alias error: #{e.message}"
     end
   else
     def track(...) = nil
+
     def identify(...) = nil
+
     def alias_user(...) = nil
   end
 end
