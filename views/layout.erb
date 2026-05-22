@@ -238,8 +238,9 @@
         ['flash-error', 'flash-notice'].forEach(function(id) {
           var el = document.getElementById(id);
           if (el) {
+            el.style.transition = 'opacity 0.5s ease';
             setTimeout(function() { el.style.opacity = '0'; }, 3500);
-            setTimeout(function() { el.remove(); }, 4000);
+            setTimeout(function() { el.style.visibility = 'hidden'; }, 4000);
           }
         });
       });

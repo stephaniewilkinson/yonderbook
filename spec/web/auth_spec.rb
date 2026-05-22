@@ -52,7 +52,7 @@ describe 'Authentication flows' do
       fill_in 'Email', with: 'nobody_exists@example.com'
       click_button 'Send Password Reset Email'
 
-      assert_text 'error'
+      assert_text 'No account exists'
     end
   end
 

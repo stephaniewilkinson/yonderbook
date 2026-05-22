@@ -111,6 +111,8 @@ class RodauthConfig < Rodauth::Auth
 
     # Success notifications
     create_account_notice_flash 'Account created! Check your email to verify your account before logging in.'
+    reset_password_notice_flash 'Your password has been reset'
+    reset_password_redirect '/authenticate'
     reset_password_email_sent_notice_flash 'We sent you a password reset link to your email. Click the link in the email to finish resetting your password.'
     reset_password_email_sent_redirect '/authenticate'
 

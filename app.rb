@@ -102,11 +102,12 @@ class App < Roda
     r.get('health') { 'ok' } # route: GET /health
     rodauth.check_session_expiration
     rodauth.check_active_session
+    csrf_redirect_path = r.path
     begin
       r.rodauth
     rescue Roda::RodaPlugins::RouteCsrf::InvalidToken
       flash[:error] = 'Your session has expired. Please try again.'
-      r.redirect r.path
+      r.redirect csrf_redirect_path
     end
     @user = Account[rodauth.session_value] if rodauth.logged_in?
 

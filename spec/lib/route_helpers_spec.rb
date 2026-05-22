@@ -4,6 +4,7 @@ require_relative 'spec_helper'
 require 'auth'
 require 'cache'
 require 'route_helpers'
+require 'securerandom'
 
 describe RouteHelpers do
   # Create a minimal test class that includes RouteHelpers,
@@ -19,7 +20,7 @@ describe RouteHelpers do
       end
     end
     obj = klass.new
-    obj.session = {'session_id' => "test_#{rand(99_999)}"}
+    obj.session = {'session_id' => "test_#{SecureRandom.hex(8)}"}
     obj
   end
 
