@@ -75,9 +75,6 @@ describe App do
     assert_text 'Welcome back,'
     assert_text 'Connect Goodreads'
 
-    # Wait for flash notification to auto-dismiss before testing logout
-    sleep 5
-
     # Test logout by visiting logout path (no logout button in navbar anymore)
     visit '/logout'
     click_button 'Log Out' # Confirm logout
