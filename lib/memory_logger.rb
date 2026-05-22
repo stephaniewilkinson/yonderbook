@@ -8,9 +8,13 @@
 # If a request causes OOM, the "start" line will appear with no
 # matching "end" line -- that identifies the killing request.
 class MemoryLogger
+  OOM_THRESHOLD = 400
+  COMPACT_INTERVAL = 100
+
   def initialize app
     @app = app
     @request_number = 0
+    @last_compact_at = 0
   end
 
   def call env
@@ -40,12 +44,23 @@ class MemoryLogger
          "old_objects=#{gc_after[:old_objects]} major_gc=#{gc_after[:major_gc_count] - gc_before[:major_gc_count]} " \
          "minor_gc=#{gc_after[:minor_gc_count] - gc_before[:minor_gc_count]}"
 
-    warn "[mem] WARNING: RSS at #{rss_after}MB -- approaching 512MB OOM threshold" if rss_after > 400
+    try_compact rid, rss_after
 
     [status, headers, body]
   end
 
   private
+
+  def try_compact rid, rss_after
+    return if rss_after <= OOM_THRESHOLD
+
+    if (rid - @last_compact_at) >= COMPACT_INTERVAL
+      GC.compact
+      warn "[mem] GC.compact at ##{rid}: #{rss_after}MB -> #{rss_mb}MB"
+      @last_compact_at = rid
+    end
+    warn "[mem] WARNING: RSS at #{rss_after}MB -- approaching 512MB OOM threshold"
+  end
 
   def rss_mb
     if File.exist?('/proc/self/status')

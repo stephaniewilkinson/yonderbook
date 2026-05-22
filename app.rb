@@ -48,7 +48,11 @@ end
 require_relative 'lib/rodauth_config'
 
 class App < Roda
-  use Sentry::Rack::CaptureExceptions
+  # Sentry::Rack::CaptureExceptions removed -- it clones the hub, creates a
+  # scope with the full Rack env, and runs session tracking on EVERY request.
+  # Under Falcon's fiber/thread model this leaks ~0.2-0.4MB/request that is
+  # never reclaimed (even with MALLOC_ARENA_MAX=2). Errors are still captured
+  # via Sentry.capture_exception in the rescue block and error_handler plugin.
   use Rack::HostRedirect, 'www.yonderbook.com' => 'yonderbook.com'
 
   plugin :head
@@ -105,6 +109,14 @@ class App < Roda
       r.redirect r.path
     end
     @user = Account[rodauth.session_value] if rodauth.logged_in?
+
+    # Serve homepage early with no session writes, analytics, or Sentry enrichment.
+    # Bots/monitors hit / every minute; skipping these avoids per-request
+    # allocations that fragment glibc malloc arenas and grow RSS toward OOM.
+    r.root do # route: GET /
+      view 'welcome'
+    end
+
     enrich_sentry(r)
     (session['session_id'] ||= SecureRandom.uuid) && identify_user
     # route: WebSocket /ws/bookmooch/:session_id
@@ -115,11 +127,6 @@ class App < Roda
     r.get('check-email') do # route: GET /check-email
       @pending_email = session.delete('pending_email') || 'your email'
       view 'check-email'
-    end
-
-    r.root do # route: GET /
-      Analytics.track analytics_id, 'page_viewed', page: 'welcome'
-      view 'welcome'
     end
 
     r.is 'login' do # route: GET /login
