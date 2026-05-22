@@ -197,6 +197,17 @@ The problem isn't Ruby objects -- GC collects those fine (old_objects drops from
 
 **Health-check-based restart** -- Write a custom `/health` that returns 500 when RSS > 450MB. Render restarts after 60s of failed checks. This is a fallback, not a fix.
 
+### Planned memory allocation improvements
+
+| # | Change | Effort | Impact |
+|---|--------|--------|--------|
+| 1 | Add `gzip_over: 1024` to Roda sessions plugin | 1 line | Medium |
+| 2 | Remove `symbolize_names: true` from `cache.rb` (symbols are never GC'd) | 1 line + key updates | Medium |
+| 3 | Reduce Overdrive concurrency (`limit: 16`, `Semaphore.new(8)`) | 4 lines | High |
+| 4 | Nil out Nokogiri `doc` after extraction in `goodreads.rb` | 2 lines | Medium |
+| 5 | Add Falcon MemoryMonitor supervisor for auto-restart at memory limit | Config file | High (safety net) |
+| 6 | Add Sequel `use_cursor` for large database queries | Per-query | Low-Medium |
+
 ### What doesn't help
 
 - **Sentry / error_handler plugin** -- SIGKILL terminates the process before any Ruby code can execute. These only catch Ruby exceptions.

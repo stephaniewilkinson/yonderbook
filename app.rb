@@ -60,7 +60,7 @@ class App < Roda
   plugin :assets_preloading
   plugin :public, root: 'assets', headers: {'Cache-Control' => 'public, max-age=604800'}
   plugin :flash
-  plugin :sessions, secret: SESSION_SECRET
+  plugin :sessions, secret: SESSION_SECRET, gzip_over: 1024
   plugin :route_csrf
   plugin :slash_path_empty
   plugin :render
