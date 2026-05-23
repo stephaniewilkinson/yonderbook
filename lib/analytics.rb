@@ -26,6 +26,12 @@ module Analytics
       warn "PostHog identify error: #{e.message}"
     end
 
+    def page distinct_id, url, properties = {}
+      POSTHOG.capture(distinct_id: distinct_id, event: '$pageview', properties: properties.merge('$current_url': url))
+    rescue StandardError => e
+      warn "PostHog tracking error: #{e.message}"
+    end
+
     def alias_user distinct_id, alias_id
       POSTHOG.alias(distinct_id: distinct_id, alias: alias_id)
     rescue StandardError => e
@@ -35,6 +41,8 @@ module Analytics
     def track(...) = nil
 
     def identify(...) = nil
+
+    def page(...) = nil
 
     def alias_user(...) = nil
   end

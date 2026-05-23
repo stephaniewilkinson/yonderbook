@@ -120,6 +120,7 @@ class App < Roda
 
     enrich_sentry(r)
     (session['session_id'] ||= SecureRandom.uuid) && identify_user
+    Analytics.page(analytics_id, "#{request.base_url}#{request.path}") if r.get?
     # route: WebSocket /ws/bookmooch/:session_id
     r.on 'ws', 'bookmooch', String do |session_id|
       r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }

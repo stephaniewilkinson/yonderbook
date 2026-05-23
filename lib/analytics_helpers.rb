@@ -8,8 +8,21 @@ module AnalyticsHelpers
 
   def identify_user
     return unless @user
+    return if session['posthog_identified']
 
     Analytics.alias_user @user.id.to_s, session['session_id']
-    Analytics.identify @user.id.to_s, email: @user.email, goodreads_connected: @user.goodreads_connected?
+
+    name = [@user.first_name, @user.last_name].compact.reject(&:empty?).join(' ')
+    properties = {
+      '$email': @user.email,
+      '$name': name.empty? ? @user.email : name,
+      first_name: @user.first_name,
+      last_name: @user.last_name,
+      goodreads_connected: @user.goodreads_connected?,
+      created_at: @user.created_at&.iso8601
+    }
+
+    Analytics.identify @user.id.to_s, properties
+    session['posthog_identified'] = true
   end
 end

@@ -92,6 +92,14 @@ views/
 - **Background testing**: Use `time bundle exec rake` to measure performance
 - **OAuth Links with target="_blank" Break Tests**: Adding `target="_blank"` to OAuth authorization links causes Capybara/Selenium tests to fail because Capybara doesn't automatically follow links that open in new tabs/windows. OAuth links (like the Goodreads "Connect with Goodreads" button) must NOT have `target="_blank"` or automated tests will fail. This was discovered during the `/auth/*` to `/connections/goodreads/*` migration - tests passed at commit 1a57e0f but failed after commit 1edbbd5 added `target="_blank"` to views/connect_goodreads.erb:82.
 
+### Capybara/Selenium Pitfalls
+- **Driver**: Tests use headless Firefox everywhere (CI and local). Chrome crashes on Falcon's logout redirect due to async connection handling — do not switch back to Chrome.
+- **Flash auto-dismiss race condition**: The layout JS auto-dismisses flash messages after 4 seconds. Never use `el.remove()` to dismiss — it causes Selenium "Node with given id does not belong to the document" errors when Selenium reads the DOM mid-removal. Use `visibility: hidden` instead so the element stays in the DOM.
+- **`assert_text` and flash messages**: Prefer asserting on persistent field errors (e.g., `assert_text 'No account exists'`) rather than flash messages that auto-dismiss. Flash text can disappear before Selenium reads it, causing cascade failures across subsequent tests.
+- **`sleep` before page transitions**: Avoid `sleep` between Capybara actions — it holds the Selenium connection idle and can cause the WebDriver session to become stale, especially with Falcon's async server.
+- **`r.path` in CSRF rescue blocks**: After `r.rodauth` processes a route, Roda's `env['PATH_INFO']` is consumed by `r.on`. If an exception propagates out, the env is NOT restored. Save `r.path` before `r.rodauth` and use the saved value in rescue blocks.
+- **TupleSpace cache in tests**: The `Cache::CACHE` TupleSpace is shared across all tests in a process. Use `SecureRandom.hex` (not `rand`) for test session IDs to avoid collisions — Minitest's deterministic PRNG can produce duplicate `rand` values across tests.
+
 ## Environment Setup
 - Copy `.env-example` to `.env` and configure API keys for:
   - Goodreads API (Note: OAuth is NOW WORKING! Users can successfully connect their Goodreads accounts. The API itself is deprecated as of December 2020, but OAuth authentication still functions properly.)
