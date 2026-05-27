@@ -72,11 +72,17 @@ class App < Roda
   plugin :websockets
   plugin :content_security_policy do |csp|
     csp.default_src :self
-    csp.script_src :self, :unsafe_inline, 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://embed.tawk.to'
+    csp.script_src :self,
+                   :unsafe_inline,
+                   'https://cdn.jsdelivr.net',
+                   'https://www.googletagmanager.com',
+                   'https://www.google-analytics.com',
+                   'https://embed.tawk.to',
+                   'https://cdn.usefathom.com'
     csp.style_src :self, :unsafe_inline, 'https://fonts.googleapis.com'
     csp.img_src :self, :data, 'https:'
     csp.font_src :self, 'https://fonts.gstatic.com'
-    csp.connect_src :self, 'wss:', 'https://www.google-analytics.com', 'https://va.tawk.to', 'https://embed.tawk.to'
+    csp.connect_src :self, 'wss:', 'https://www.google-analytics.com', 'https://va.tawk.to', 'https://embed.tawk.to', 'https://usefathom.com'
     csp.frame_src 'https://tawk.to'
     csp.frame_ancestors :none
     csp.form_action :self, 'https://www.goodreads.com'
