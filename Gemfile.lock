@@ -126,7 +126,7 @@ GEM
     io-event (1.16.0)
     io-stream (0.13.0)
     ipaddr (1.2.9)
-    json (2.19.5)
+    json (2.19.7)
     jwt (3.2.0)
       base64
     language_server-protocol (3.17.0.5)
