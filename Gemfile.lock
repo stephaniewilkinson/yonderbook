@@ -209,7 +209,7 @@ GEM
       protocol-http (~> 0.58)
       rack (>= 1.0)
     protocol-url (0.4.0)
-    protocol-websocket (0.21.0)
+    protocol-websocket (0.21.1)
       protocol-http (~> 0.2)
     pry (0.16.0)
       coderay (~> 1.1)
