@@ -50,6 +50,17 @@ module RouteHelpers
     Cache.get(session, key) || yield.tap { |value| Cache.set(session, key => value) }
   end
 
+  # OverDrive blocks some networks outright, answering the library lookup with a
+  # 403 rather than JSON. Send the user back to the zip code form with a message
+  # they can act on, instead of letting it surface as a bare 500.
+  def fetch_local_libraries request, zip
+    Overdrive.local_libraries zip.delete ' '
+  rescue Overdrive::ApiError => e
+    Sentry.capture_exception(e) if defined?(Sentry)
+    flash[:error] = 'We could not reach OverDrive to look up libraries. Please try again in a little while.'
+    request.redirect @shelf_name ? "/goodreads/shelves/#{@shelf_name}/overdrive" : '/goodreads/shelves'
+  end
+
   def sort_by_date_added books
     books.sort_by { |book| book.date_added || '' }.reverse
   end

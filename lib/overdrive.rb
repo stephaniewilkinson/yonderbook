@@ -9,12 +9,12 @@ require 'async/semaphore'
 require 'oauth2'
 require 'uri'
 require_relative 'alternate_isbns'
+require_relative 'overdrive/library_search'
 require_relative 'title_normalizer'
 
 class Overdrive
   BASE_URL     = 'https://api.overdrive.com'
   API_URI      = "#{BASE_URL}/v1".freeze
-  MAPBOX_URI   = 'https://www.overdrive.com/mapbox/find-libraries-by-query'
   OAUTH_URI    = 'https://oauth.overdrive.com'
   KEY          = ENV.fetch('OVERDRIVE_KEY')
   SECRET       = ENV.fetch('OVERDRIVE_SECRET')
@@ -49,20 +49,7 @@ class Overdrive
   Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, :no_isbn, :date_added)
 
   def self.local_libraries zip_code
-    task = Async do
-      internet = Async::HTTP::Internet.new
-      params = URI.encode_www_form query: zip_code, includePublicLibraries: true, includeSchoolLibraries: false
-      headers = [
-        ['user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'],
-        ['referer', 'https://www.overdrive.com/libraries']
-      ]
-      response = internet.get "#{MAPBOX_URI}?#{params}", headers
-      response.read
-    ensure
-      internet&.close
-    end
-    libraries = JSON.parse task.wait
-    libraries.first(10).map { |l| [l['consortiumId'], l['consortiumName'], l['consortiumLogo']] }
+    LibrarySearch.near zip_code
   end
 
   def self.rss_mb
