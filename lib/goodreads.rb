@@ -5,6 +5,7 @@ require 'async/barrier'
 require 'async/http/client'
 require 'async/http/endpoint'
 require 'async/http/internet'
+require 'async/http/internet/instance'
 require 'async/semaphore'
 require 'nokogiri'
 require 'oauth'
@@ -19,6 +20,12 @@ module Goodreads
   BASE_URL = "https://#{HOST}".freeze
   GOODREADS_SECRET = ENV.fetch('GOODREADS_SECRET')
   BOOK_DETAILS = %w[isbn13 book/image_url title authors/author/name published rating date_added].freeze
+
+  # Goodreads sits behind Akamai, which rejects any request that arrives
+  # without a User-Agent: it returns a 403 HTML error page instead of ever
+  # reaching the API. Async::HTTP sends no User-Agent of its own, so every
+  # Goodreads request has to carry one explicitly.
+  DEFAULT_HEADERS = [['user-agent', 'Yonderbook (+https://yonderbook.com)']].freeze
 
   def self.gender_detector
     require 'gender_detector' unless defined?(GenderDetector)
@@ -37,7 +44,7 @@ module Goodreads
     uri.query = URI.encode_www_form user_id: goodreads_user_id, key: API_KEY
 
     Sync do
-      response = Async::HTTP::Internet.get uri.to_s
+      response = Async::HTTP::Internet.get uri.to_s, DEFAULT_HEADERS
       status = response.status
       body = response.read
       response.close
@@ -65,7 +72,7 @@ module Goodreads
 
       # Fetch page 1 to determine total pages
       page1_path = "#{path}&page=1"
-      headers = oauth_headers(page1_path, access_token)
+      headers = request_headers(page1_path, access_token)
       first_response = client.get(page1_path, headers)
       first_status = first_response.status
       first_body = first_response.read
@@ -79,7 +86,7 @@ module Goodreads
       2.upto(number_of_pages).each do |page|
         semaphore.async do
           page_path = "#{path}&page=#{page}"
-          response = client.get page_path, oauth_headers(page_path, access_token)
+          response = client.get page_path, request_headers(page_path, access_token)
           body = response.read
           response.close
           books.concat(extract_books_from_body(body))
@@ -94,11 +101,11 @@ module Goodreads
     end
   end
 
-  def oauth_headers path, access_token
-    return [] unless access_token
+  def request_headers path, access_token
+    return DEFAULT_HEADERS unless access_token
 
     signed_req = access_token.consumer.create_signed_request(:get, path, access_token)
-    [['authorization', signed_req['Authorization']]]
+    [*DEFAULT_HEADERS, ['authorization', signed_req['Authorization']]]
   end
 
   def extract_books_from_body body
@@ -174,7 +181,7 @@ module Goodreads
     uri.query = URI.encode_www_form(key: API_KEY)
 
     Sync do
-      response = Async::HTTP::Internet.get uri.to_s
+      response = Async::HTTP::Internet.get uri.to_s, DEFAULT_HEADERS
 
       case response.status
       when 200
