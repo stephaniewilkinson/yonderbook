@@ -301,7 +301,7 @@ class App < Roda
           flash[:error] = 'please try a different zip code'
           r.redirect '/libraries'
         end
-        @local_libraries = Overdrive.local_libraries zip.delete ' '
+        @local_libraries = fetch_local_libraries(r, zip)
         Cache.set session, libraries: @local_libraries
         r.redirect '/libraries'
       end
