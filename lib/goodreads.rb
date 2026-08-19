@@ -10,6 +10,8 @@ require 'nokogiri'
 require 'oauth'
 require 'uri'
 
+require_relative 'goodreads_response'
+
 module Goodreads
   Book = Struct.new :image_url, :isbn, :title
   API_KEY = ENV.fetch('GOODREADS_API_KEY')
@@ -36,12 +38,13 @@ module Goodreads
 
     Sync do
       response = Async::HTTP::Internet.get uri.to_s
+      status = response.status
       body = response.read
       response.close
 
-      doc = Nokogiri::XML body
-      shelf_names = doc.xpath('//shelves//name').children.to_a
-      shelf_books = doc.xpath('//shelves//book_count').children.map { |x| x.to_s.to_i }
+      shelves = GoodreadsResponse.parse status, body, '//shelves'
+      shelf_names = shelves.xpath('.//name').children.to_a
+      shelf_books = shelves.xpath('.//book_count').children.map { |x| x.to_s.to_i }
 
       shelf_names.zip shelf_books
     end
@@ -64,10 +67,11 @@ module Goodreads
       page1_path = "#{path}&page=1"
       headers = oauth_headers(page1_path, access_token)
       first_response = client.get(page1_path, headers)
+      first_status = first_response.status
       first_body = first_response.read
       first_response.close
-      doc = Nokogiri::XML first_body
-      total = doc.xpath('//reviews').first.attributes['total'].value.to_f
+      reviews = GoodreadsResponse.parse first_status, first_body, '//reviews'
+      total = reviews['total'].to_f
       number_of_pages = total.fdiv(100).ceil
       books.concat(extract_books_from_body(first_body))
 
