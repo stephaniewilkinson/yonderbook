@@ -87,9 +87,30 @@ describe 'Error states' do
     assert_includes last_response.body, 'your email'
   end
 
-  it 'redirects to root for unknown routes under /goodreads' do
+  # Named for a redirect that never happened -- this path 404s, it does not
+  # redirect. Kept as a regression guard that it does not 500.
+  it 'does not error on unknown routes under /goodreads' do
     get '/goodreads/nonexistent'
     refute_equal 500, last_response.status
+  end
+
+  it 'answers an unknown path with 404 rather than an empty body' do
+    get '/no-such-page'
+
+    assert_equal 404, last_response.status
+    assert_includes last_response.body, 'This page wandered off'
+  end
+
+  it 'names the missing path on the 404 page' do
+    get '/definitely/not/here'
+
+    assert_includes last_response.body, '/definitely/not/here'
+  end
+
+  it 'does not redirect unknown paths, which would create soft 404s' do
+    get '/no-such-page'
+
+    refute last_response.redirect?
   end
 
   it 'disconnects Goodreads connection for authenticated user' do
