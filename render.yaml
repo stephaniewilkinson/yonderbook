@@ -13,9 +13,9 @@
 # (yonderbook-clubs, concert-match, launchpad, tectonic) are not in this file
 # and are unaffected -- syncing never deletes a resource.
 #
-# Watch for one thing in the preview: the live service has autoDeployTrigger
-# "checksPass" (deploy only after CI passes). If the blueprint resets that to
-# "commit", deploys stop waiting for CI. Verify before confirming.
+# Anything not declared here gets Render's default, not the service's current
+# value. autoDeployTrigger learned this the hard way -- see the comment on it
+# below. When adding a field to the live service, add it here too.
 
 services:
   - type: web
@@ -25,6 +25,12 @@ services:
     region: oregon
     branch: main
     healthCheckPath: /health
+
+    # Deploy only after CI passes. This MUST be set explicitly: the field
+    # defaults to "commit", so omitting it silently downgrades a service that
+    # was on checksPass -- which is exactly what happened when this blueprint
+    # was first applied. Valid values: commit, checksPass, off.
+    autoDeployTrigger: checksPass
 
     # numInstances is omitted: a service with an attached persistent disk
     # cannot be scaled, and the live value is 1 (the default).
