@@ -5,8 +5,13 @@
 <h5 class="text-center text-lg font-medium text-mauve-950 mt-8">
   Publication Years
 </h5>
+<% busiest_year = @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size) %>
 <p class="text-center text-sm text-mauve-700 mb-4">
-  There are <%= @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size).count %> books from <%= @histogram_dataset.map(&:last).group_by(&:itself).values.max_by(&:size).first %> on this shelf, more than any other year.
+  <% if busiest_year %>
+    There are <%= busiest_year.count %> books from <%= busiest_year.first %> on this shelf, more than any other year.
+  <% else %>
+    No publication years on this shelf yet.
+  <% end %>
 </p>
 <div class="w-full rounded-xl bg-mauve-950/[.025] border border-mauve-950/10">
   <div class="h-96 p-6">
