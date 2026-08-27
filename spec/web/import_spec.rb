@@ -22,10 +22,12 @@ describe 'Goodreads CSV import' do
     DB[:accounts].where(email: email).first
   end
 
+  # Clicks by id, not by label: the button reads "Import my library" the first
+  # time and "Replace my library" once a library exists.
   def import fixture_name
     visit '/import'
     attach_file 'library', fixture(fixture_name)
-    click_button 'Import my library'
+    click_button 'import-submit'
   end
 
   it 'requires a login' do
@@ -101,6 +103,14 @@ describe 'Goodreads CSV import' do
     import 'goodreads_export.csv'
 
     assert_equal 3, DB[:imported_books].where(user_id: account[:id]).count
+  end
+
+  it 'offers to replace rather than import once a library exists' do
+    logged_in_account
+    import 'goodreads_export.csv'
+    visit '/import'
+
+    assert_button 'Replace my library'
   end
 
   it 'removes the imported library on request' do
