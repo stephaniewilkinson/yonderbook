@@ -1,0 +1,112 @@
+# Render Blueprint for Yonderbook -- https://render.com/docs/blueprint-spec
+#
+# Fields below were read from the live service (srv-cuhq5cpu0jms73adb27g) via
+# `render services -o json`, not guessed: name, region, plan, branch,
+# healthCheckPath, runtime, buildCommand, and the disk's name/mountPath/sizeGB.
+#
+# ONE FIELD DELIBERATELY DIFFERS FROM LIVE -- see startCommand below. Everything
+# else is captured as-is so adoption is a no-op.
+#
+# Before applying: Render matches services by name, so `yonderbook` adopts the
+# existing service rather than creating one. Read the change preview and confirm
+# it describes an update, not a create. Other services in the workspace
+# (yonderbook-clubs, concert-match, launchpad, tectonic) are not in this file
+# and are unaffected -- syncing never deletes a resource.
+#
+# Watch for one thing in the preview: the live service has autoDeployTrigger
+# "checksPass" (deploy only after CI passes). If the blueprint resets that to
+# "commit", deploys stop waiting for CI. Verify before confirming.
+
+services:
+  - type: web
+    name: yonderbook
+    runtime: ruby
+    plan: starter
+    region: oregon
+    branch: main
+    healthCheckPath: /health
+
+    # numInstances is omitted: a service with an attached persistent disk
+    # cannot be scaled, and the live value is 1 (the default).
+    #
+    # Ruby version comes from .ruby-version (currently ruby-4.0.6).
+    # Matches live. Note this does NOT run `rake precompile`, so Tailwind is not
+    # rebuilt on deploy -- it works because assets/css/styles.css and
+    # assets/compiled_assets.json are committed. README says otherwise; README
+    # is wrong. Edit input.css without rebuilding and production ships stale CSS.
+    buildCommand: bundle install
+
+    # *** THE ONE INTENTIONAL CHANGE ***
+    #
+    # Live start command has no migration step, and there is no
+    # preDeployCommand either -- migrations have never run automatically on
+    # deploy. Prefixing `rake db:migrate &&` fixes that.
+    #
+    # It belongs here rather than in preDeployCommand because the database is a
+    # SQLite file on the persistent disk, and per Render's deploy docs:
+    #
+    #   "The pre-deploy command executes on a separate instance from your
+    #    running service. Changes you make to the filesystem are not reflected
+    #    in the deployed service. You do not have access to a service's
+    #    attached persistent disk (if it has one)."
+    #
+    # So a pre-deploy migration could not reach /var/data/production.db. This
+    # matches the pattern already used by `launchpad` and `concert-match` in
+    # this same workspace.
+    #
+    # Safe on every boot: Sequel::Migrator tracks the applied version in
+    # schema_info and no-ops when there is nothing to apply. It completes before
+    # falcon binds the port, and a failing migration fails the deploy loudly
+    # instead of serving against a half-migrated database.
+    #
+    # -n 2, not 4: this box is memory-constrained and OOM-sensitive. Do not
+    # raise the thread count without re-reading the OOM section of the README.
+    startCommand: bundle exec rake db:migrate && bundle exec falcon --verbose serve --threaded -n 2 -b http://0.0.0.0:$PORT
+
+    disk:
+      name: disk
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      - key: RACK_ENV
+        value: production
+
+      # Rodauth builds verification and password-reset links from this. It
+      # defaults to http://localhost:9292, so it must be set in production.
+      - key: BASE_URL
+        value: https://yonderbook.com
+
+      # Limits glibc to 2 arenas instead of 8 per thread. README says this is
+      # already set in the dashboard; recorded here so it survives in code.
+      # I did not read it back from the live service -- listing env vars would
+      # have dumped every secret value into a terminal log.
+      - key: MALLOC_ARENA_MAX
+        value: "2"
+
+      # sync: false means "set this in the Render dashboard, never in git".
+      # Render leaves existing values alone, so adopting this blueprint will
+      # not clear secrets already configured on the service.
+      #
+      # Do NOT switch SESSION_SECRET to generateValue: true. Render generates a
+      # ~44-character value, and app.rb raises on boot in production when
+      # SESSION_SECRET is under 64 bytes. Rotating it also logs everyone out.
+      - key: SESSION_SECRET
+        sync: false
+
+      - key: GOODREADS_API_KEY
+        sync: false
+      - key: GOODREADS_SECRET
+        sync: false
+      - key: OVERDRIVE_KEY
+        sync: false
+      - key: OVERDRIVE_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+
+      # Consumed by Sentry.init in config.ru. Its before_send drops every event
+      # when this is unset or empty, so leaving it blank disables reporting
+      # cleanly rather than erroring.
+      - key: SENTRY_DSN
+        sync: false
