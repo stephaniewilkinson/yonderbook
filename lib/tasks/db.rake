@@ -39,7 +39,10 @@ namespace :db do
   task :reset do
     require_relative '../database'
     puts 'Resetting database...'
-    DB.drop_table?(:schema_migrations)
+    # Sequel picks IntegerMigrator for 001_-style filenames, which tracks the
+    # current version in schema_info. schema_migrations is the TimestampMigrator's
+    # table and does not exist in this database.
+    DB.drop_table?(:schema_info)
     Dir.glob('db/*.db').each { |file| File.delete(file) }
     Rake::Task['db:migrate'].invoke
     puts 'Database reset complete!'

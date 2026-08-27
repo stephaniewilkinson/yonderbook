@@ -222,17 +222,38 @@ The fact that RSS didn't decrease after major GC -- even with `MALLOC_ARENA_MAX=
 
 Deployed on [Render](https://render.com) with a persistent disk for SQLite at `/var/data/production.db`.
 
-Render does not use the Procfile — commands are set in the dashboard under Settings:
+Render does not use the Procfile. Configuration lives in `render.yaml` (a Render
+Blueprint); historically it was set by hand in the dashboard under Settings.
 
-**Build command:**
+**What the live service actually runs** (read via `render services -o json` on
+2026-08-27, service `srv-cuhq5cpu0jms73adb27g`):
+
 ```
-bundle install && bundle exec rake precompile
+build:  bundle install
+start:  bundle exec falcon --verbose serve --threaded -n 2 -b http://0.0.0.0:${PORT}
 ```
 
-**Start command:**
-```
-bundle exec rake db:migrate && bundle exec falcon --verbose serve --threaded -n 2 -b http://0.0.0.0:${PORT}
-```
+> **⚠️ Migrations do not run on deploy.** There is no `rake db:migrate` in the
+> start command and no pre-deploy command. Every schema change has to be applied
+> by hand in the Render shell. An earlier version of this section documented a
+> start command with `rake db:migrate &&` in front — that was the intent, but it
+> was never configured on the service.
+>
+> `render.yaml` fixes this: it matches the live service on every field except
+> `startCommand`, where it adds the migration step. Applying the Blueprint (or
+> just editing the start command in the dashboard) resolves it.
+>
+> To see what production is actually running:
+> ```
+> sqlite3 /var/data/production.db "select * from schema_info"
+> ```
+> Note `schema_info`, not `schema_migrations` — Sequel selects `IntegerMigrator`
+> for `001_`-style migration filenames, which tracks a single version integer.
+
+The build command does **not** run `rake precompile`, so Tailwind is not rebuilt
+on deploy. This works only because `assets/css/styles.css` and
+`assets/compiled_assets.json` are committed. Edit `assets/css/input.css` without
+rebuilding and committing the output, and production ships stale CSS.
 
 ### Important notes
 
