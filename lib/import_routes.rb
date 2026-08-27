@@ -48,13 +48,16 @@ module ImportRoutes
     return reject_import 'Choose the CSV file you downloaded from Goodreads.' unless upload.is_a?(Hash) && upload[:tempfile]
     return reject_import 'That file is too large to be a Goodreads export.' if upload[:tempfile].size > MAX_IMPORT_BYTES
 
-    books = GoodreadsCsv.parse upload[:tempfile]
-    return reject_import 'That export does not have any books in it.' if books.empty?
-    return reject_import "That export has more than #{MAX_IMPORT_BOOKS} books, which is more than we can store." if books.size > MAX_IMPORT_BOOKS
+    # Streamed, not parsed into an array: a large library must never be resident
+    # in memory all at once here. See GoodreadsCsv.each_book.
+    count = ImportedBook.replace_library @user.id, GoodreadsCsv.each_book(upload[:tempfile]), max: MAX_IMPORT_BOOKS
+    return reject_import 'That export does not have any books in it.' if count.zero?
 
-    ImportedBook.replace_library @user.id, books
+    count
   rescue GoodreadsCsv::InvalidFormat => e
     reject_import e.message
+  rescue ImportedBook::TooManyBooks
+    reject_import "That export has more than #{MAX_IMPORT_BOOKS} books, which is more than we can store."
   end
 
   def reject_import message

@@ -70,6 +70,42 @@ describe ImportedBook do
     it 'stores an empty library without raising' do
       assert_equal 0, ImportedBook.replace_library(@account.id, [])
     end
+
+    # A truncated or unreadable upload must not destroy real data.
+    it 'does not wipe an existing library when the import yields nothing' do
+      ImportedBook.replace_library @account.id, [book]
+      ImportedBook.replace_library @account.id, []
+
+      assert_equal 1, ImportedBook.library(@account.id).length
+    end
+
+    it 'raises once the import passes max' do
+      two = [book(goodreads_book_id: '1'), book(goodreads_book_id: '2')]
+
+      assert_raises(ImportedBook::TooManyBooks) { ImportedBook.replace_library(@account.id, two, max: 1) }
+    end
+
+    it 'leaves the previous library intact after a too-large import' do
+      ImportedBook.replace_library @account.id, [book]
+      two = [book(goodreads_book_id: '1'), book(goodreads_book_id: '2')]
+      begin
+        ImportedBook.replace_library @account.id, two, max: 1
+      rescue ImportedBook::TooManyBooks
+        nil
+      end
+
+      assert_equal 1, ImportedBook.library(@account.id).length
+    end
+
+    it 'accepts a lazy enumerator, not just an array' do
+      assert_equal 1, ImportedBook.replace_library(@account.id, [book].each)
+    end
+
+    it 'dedupes across insert batches, not just within one' do
+      many = Array.new(ImportedBook::BATCH_SIZE + 10) { book }
+
+      assert_equal 1, ImportedBook.replace_library(@account.id, many)
+    end
   end
 
   describe '.library' do

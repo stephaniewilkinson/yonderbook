@@ -120,6 +120,25 @@ describe GoodreadsCsv do
     end
   end
 
+  describe '.each_book' do
+    it 'returns an enumerator when called without a block, so callers can stream' do
+      assert_kind_of Enumerator, GoodreadsCsv.each_book(csv(sower))
+    end
+
+    it 'yields one book at a time rather than building an array' do
+      titles = []
+      GoodreadsCsv.each_book(csv(sower, piranesi)) { |found| titles << found[:title] }
+
+      assert_equal ['Parable of the Sower (Earthseed, #1)', 'Piranesi'], titles
+    end
+
+    it 'reads only the first row before validating the headers' do
+      enumerator = GoodreadsCsv.each_book "name,qty\nwidget,2"
+
+      assert_raises(GoodreadsCsv::InvalidFormat) { enumerator.first }
+    end
+  end
+
   describe '.shelf_counts' do
     it 'counts books per shelf, largest first' do
       counts = GoodreadsCsv.shelf_counts GoodreadsCsv.parse(csv(sower, piranesi))

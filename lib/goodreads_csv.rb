@@ -27,7 +27,28 @@ module GoodreadsCsv
   # :ratings, :date_added -- plus :goodreads_book_id, :exclusive_shelf and
   # :shelves for persistence.
   def parse source
-    table(source).filter_map { |row| book_from row }
+    each_book(source).to_a
+  end
+
+  # Yields one book at a time, holding a single row rather than the library.
+  #
+  # A 20k-book export is only ~4MB on disk, but materialized as an array of
+  # hashes it costs ~100MB of RSS -- a real risk on a 512MB instance that
+  # already OOMs (see the README). The import path consumes this lazily so peak
+  # memory is bounded by the insert batch, not by how many books someone owns.
+  def each_book source
+    return enum_for(:each_book, source) unless block_given?
+
+    csv = CSV.new decode(source), headers: true
+    row = csv.shift
+    validate_headers csv.headers
+    while row
+      book = book_from row
+      yield book if book
+      row = csv.shift
+    end
+  rescue CSV::MalformedCSVError => e
+    raise InvalidFormat, "That file could not be read as CSV: #{e.message.lines.first.to_s.strip}"
   end
 
   # [[shelf_name, book_count], ...], largest shelf first, ties broken by name.
@@ -39,14 +60,6 @@ module GoodreadsCsv
 
   def books_on books, shelf_name
     books.select { |book| book[:shelves].include? shelf_name }
-  end
-
-  def table source
-    parsed = CSV.parse decode(source), headers: true
-    validate_headers parsed.headers
-    parsed
-  rescue CSV::MalformedCSVError => e
-    raise InvalidFormat, "That file could not be read as CSV: #{e.message.lines.first.to_s.strip}"
   end
 
   def decode source

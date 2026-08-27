@@ -11,17 +11,48 @@ class ImportedBook < Sequel::Model
   many_to_one :account, key: :user_id
 
   COLUMNS = %i[user_id dedupe_key goodreads_book_id isbn title author published_year rating date_added exclusive_shelf shelves].freeze
+  BATCH_SIZE = 500
+
+  # Raised when an import exceeds the caller's limit. Rolls back, so the
+  # previous library survives.
+  class TooManyBooks < RuntimeError; end
 
   # An import is the whole library, so it replaces the previous one rather than
   # merging -- otherwise books removed on Goodreads would linger forever.
   # Returns the number of books stored.
-  def self.replace_library user_id, books
-    rows = books.map { |book| values_for user_id, book }.uniq { |row| row[1] }
+  #
+  # `books` is consumed lazily and inserted in batches: a large library must
+  # never be resident in memory all at once on a 512MB instance.
+  #
+  # An import that yields nothing rolls back rather than wiping the existing
+  # library, so a truncated or unreadable upload cannot destroy real data.
+  def self.replace_library user_id, books, max: nil
+    seen = {}
+    count = 0
     db.transaction do
       where(user_id: user_id).delete
-      import COLUMNS, rows unless rows.empty?
+      books.each_slice(BATCH_SIZE) do |batch|
+        rows = dedupe(batch, seen, user_id)
+        next if rows.empty?
+
+        count += rows.length
+        raise TooManyBooks if max && count > max
+
+        import COLUMNS, rows
+      end
+      raise Sequel::Rollback if count.zero?
     end
-    rows.length
+    count
+  end
+
+  def self.dedupe batch, seen, user_id
+    batch.filter_map do |book|
+      key = dedupe_key book
+      next if seen.key? key
+
+      seen[key] = true
+      values_for user_id, book
+    end
   end
 
   def self.values_for user_id, book
