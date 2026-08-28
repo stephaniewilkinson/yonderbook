@@ -212,6 +212,8 @@ class App < Roda
         # route: GET /goodreads/shelves
         r.get true do
           @shelves = shelf_list
+          # Reaching this without raising means the credentials still work.
+          @goodreads_connection&.touch_synced
           view 'shelves/index'
         end
 

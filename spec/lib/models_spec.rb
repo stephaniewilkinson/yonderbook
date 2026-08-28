@@ -179,4 +179,34 @@ describe BookmoochImport do
       assert_equal 1, BookmoochImport.where(user_id: other.id).count
     end
   end
+
+  describe '#touch_synced' do
+    before do
+      @connection = GoodreadsConnection.create(user_id: @account.id, goodreads_user_id: 'gr1', access_token: 'tok', access_token_secret: 'sec')
+    end
+
+    # The column existed and the connections page rendered it, but nothing
+    # ever wrote it, so the row never appeared.
+    it 'records the first successful sync' do
+      @connection.touch_synced
+
+      refute_nil @connection.reload.last_synced_at
+    end
+
+    it 'does not write again straight away' do
+      @connection.touch_synced
+      first = @connection.reload.last_synced_at
+      @connection.touch_synced
+
+      assert_equal first, @connection.reload.last_synced_at
+    end
+
+    it 'writes again once the value is stale' do
+      @connection.update last_synced_at: Time.now - GoodreadsConnection::SYNC_TOUCH_INTERVAL - 60
+      stale = @connection.reload.last_synced_at
+      @connection.touch_synced
+
+      refute_equal stale, @connection.reload.last_synced_at
+    end
+  end
 end
