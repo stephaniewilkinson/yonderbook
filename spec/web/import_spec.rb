@@ -24,10 +24,15 @@ describe 'Goodreads CSV import' do
 
   # Clicks by id, not by label: the button reads "Import my library" the first
   # time and "Replace my library" once a library exists.
-  def import fixture_name
+  #
+  # click_button returns as soon as the click is dispatched, so the POST can
+  # still be in flight afterwards. Any assertion made straight against the
+  # database would race it, so wait for the resulting page first.
+  def import fixture_name, rejected: false
     visit '/import'
     attach_file 'library', fixture(fixture_name)
     click_button 'import-submit'
+    assert_current_path '/goodreads/shelves' unless rejected
   end
 
   it 'requires a login' do
@@ -85,14 +90,14 @@ describe 'Goodreads CSV import' do
 
   it 'rejects a CSV that is not a Goodreads export, with an actionable message' do
     logged_in_account
-    import 'not_goodreads.csv'
+    import 'not_goodreads.csv', rejected: true
 
     assert_text 'goodreads.com/review/import'
   end
 
   it 'keeps the user on the import page when the upload is rejected' do
     logged_in_account
-    import 'not_goodreads.csv'
+    import 'not_goodreads.csv', rejected: true
 
     assert_text 'How to get your export'
   end
@@ -118,6 +123,8 @@ describe 'Goodreads CSV import' do
     import 'goodreads_export.csv'
     visit '/import'
     accept_confirm { click_button 'Remove it' }
+    # Same race: wait for the redirect before reading the database.
+    assert_text 'has been removed'
 
     assert_equal 0, DB[:imported_books].where(user_id: account[:id]).count
   end
