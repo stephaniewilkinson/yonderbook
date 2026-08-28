@@ -147,6 +147,8 @@ GEM
       capybara
       minitest (~> 5.0)
       rake
+    minitest-retry (0.3.1)
+      minitest (>= 5.0)
     multi_xml (0.9.1)
       bigdecimal (>= 3.1, < 5)
     net-http (0.9.1)
@@ -338,6 +340,7 @@ DEPENDENCIES
   mail
   minitest
   minitest-capybara
+  minitest-retry
   nokogiri
   oauth
   oauth2
