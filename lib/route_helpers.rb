@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'date_added'
+
 # Route helper methods: import tracking, caching, Goodreads/BookMooch integration, Sentry
 module RouteHelpers
   def fetch_and_cache_request_token
@@ -13,11 +15,11 @@ module RouteHelpers
   end
 
   def require_goodreads request
-    unless @user&.goodreads_connected?
-      flash[:error] = 'Please connect your Goodreads account first'
-      request.redirect '/goodreads'
-    end
-    load_goodreads_connection
+    return if imported_library?
+    return load_goodreads_connection if @user&.goodreads_connected?
+
+    flash[:error] = 'Please connect your Goodreads account or import your library first'
+    request.redirect '/goodreads'
   end
 
   def store_goodreads_in_session credentials
@@ -62,7 +64,7 @@ module RouteHelpers
   end
 
   def sort_by_date_added books
-    books.sort_by { |book| book.date_added || '' }.reverse
+    DateAdded.sort_desc books
   end
 
   def import_status

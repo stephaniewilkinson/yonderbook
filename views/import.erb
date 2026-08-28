@@ -1,0 +1,72 @@
+<% content_for :title, "Import Your Goodreads Library" %>
+<% content_for :description, "Upload your Goodreads CSV export to find your books free at the library. No Goodreads connection needed." %>
+
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="text-center">
+    <h3 class="font-display text-2xl font-medium text-mauve-950 mb-4">Import your library</h3>
+    <h5 class="text-xl font-medium text-mauve-700">Upload a Goodreads export and skip connecting your account</h5>
+  </div>
+</div>
+
+<div class="max-w-2xl mx-auto space-y-6">
+  <% if @book_count.positive? %>
+    <div class="rounded-xl bg-mauve-950/[.025] p-6">
+      <h6 class="text-lg font-semibold text-mauve-950 mb-2">Your imported library</h6>
+      <p class="text-mauve-700 mb-4"><%= @book_count %> book<%= 's' if @book_count != 1 %> across <%= @shelf_counts.length %> shelf<%= 'ves' if @shelf_counts.length != 1 %>.</p>
+
+      <div class="flex flex-wrap gap-2 mb-6">
+        <% @shelf_counts.first(8).each do |name, count| %>
+          <span class="inline-flex items-center px-3 py-1 bg-mauve-950/10 text-mauve-950 text-sm rounded-full"><%= name %> &middot; <%= count %></span>
+        <% end %>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <a class="inline-flex items-center px-4 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full transition-colors duration-200" href="/goodreads/shelves">
+          <img src="/svg/book.svg" alt="" class="w-4 h-4 mr-2">
+          Browse your shelves
+        </a>
+        <form action="/import/clear" method="post" onsubmit="return confirm('Remove your imported library? Your shelves will no longer be available until you upload again.')">
+          <%= csrf_tag('/import/clear') %>
+          <button type="submit" class="inline-flex items-center px-4 py-2 bg-mauve-950/10 hover:bg-mauve-950/20 text-mauve-950 text-sm font-medium rounded-full transition-colors duration-200">
+            Remove it
+          </button>
+        </form>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="rounded-xl bg-mauve-950/[.025] p-6">
+    <h6 class="text-lg font-semibold text-mauve-950 mb-4">How to get your export</h6>
+    <ol class="text-mauve-700 space-y-3 mb-6 list-decimal list-inside">
+      <li>Go to <a class="text-mauve-950 underline hover:no-underline" href="https://www.goodreads.com/review/import" rel="noopener">goodreads.com/review/import</a></li>
+      <li>Click <strong class="text-mauve-950">Export Library</strong> and wait a moment for Goodreads to build the file</li>
+      <li>Download the CSV it offers you, then upload it here</li>
+    </ol>
+
+    <form action="/import" method="post" enctype="multipart/form-data">
+      <%= csrf_tag('/import') %>
+      <div class="mb-6">
+        <label for="library" class="block text-sm font-medium text-mauve-950 mb-2">Your Goodreads CSV export:</label>
+        <input type="file"
+               id="library"
+               name="library"
+               accept=".csv,text/csv"
+               required
+               class="w-full px-3 py-2 border border-mauve-300 rounded-xl bg-white focus:ring-2 focus:ring-mauve-500 focus:border-mauve-500 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:bg-mauve-950/10 file:text-mauve-950 file:text-sm file:font-medium">
+      </div>
+      <button class="w-full inline-flex items-center justify-center px-6 py-3 bg-mauve-950 hover:bg-mauve-900 text-white font-medium text-lg rounded-full transition-colors duration-200"
+              type="submit"
+              id="import-submit"
+              name="action">
+        <img src="/svg/book.svg" alt="" class="w-5 h-5 mr-2">
+        <%= @book_count.positive? ? 'Replace my library' : 'Import my library' %>
+      </button>
+    </form>
+  </div>
+
+  <div class="rounded-xl bg-mauve-950/[.025] p-6">
+    <h6 class="text-lg font-semibold text-mauve-950 mb-2">Why import instead of connecting?</h6>
+    <p class="text-mauve-700">Goodreads retired its API in 2020, and connecting an account takes two trips through their login. An export works without any of that, and your shelves stay put once they are here.</p>
+    <p class="text-mauve-700 mt-3">One tradeoff: the export has no cover images, so imported books show without covers until you check them against a library.</p>
+  </div>
+</div>

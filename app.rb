@@ -31,6 +31,7 @@ require_relative 'lib/database'
 require_relative 'lib/email'
 require_relative 'lib/email_templates'
 require_relative 'lib/goodreads'
+require_relative 'lib/import_routes'
 require_relative 'lib/models'
 require_relative 'lib/oauth_helpers'
 require_relative 'lib/overdrive'
@@ -98,6 +99,7 @@ class App < Roda
 
   compile_assets
   include AnalyticsHelpers
+  include ImportRoutes
   include OauthHelpers
   include RouteHelpers
   include SearchRoutes
@@ -170,6 +172,8 @@ class App < Roda
       end
     end
 
+    r.on('import') { handle_import_routes(r) }
+
     r.get 'home' do # route: GET /home
       rodauth.require_login
       unless @user&.goodreads_connected?
@@ -201,14 +205,14 @@ class App < Roda
 
         # route: GET /goodreads/shelves
         r.get true do
-          @shelves = Goodreads.fetch_shelves @goodreads_user_id
+          @shelves = shelf_list
           view 'shelves/index'
         end
 
         r.on String do |shelf_name|
           @shelf_name = shelf_name
           Cache.set session, shelf_name: @shelf_name
-          @book_info = Cache.get(session, @shelf_name.to_sym) || load_background_shelf_data
+          @book_info = imported_shelf_books || Cache.get(session, @shelf_name.to_sym) || load_background_shelf_data
 
           # route: GET /goodreads/shelves/:id
           r.get true do
