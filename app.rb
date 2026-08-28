@@ -2,7 +2,6 @@
 
 system 'roda-parse_routes', '-f', 'routes.json', __FILE__ if ENV.fetch('RACK_ENV', 'development') == 'development'
 
-require 'area'
 require 'async'
 require 'rack/host_redirect'
 require 'roda'
@@ -318,7 +317,7 @@ class App < Roda
           flash[:error] = 'You need to enter a zip code'
           r.redirect '/libraries'
         end
-        unless zip.to_latlon
+        unless Geolocation.known_zip?(zip)
           flash[:error] = 'please try a different zip code'
           r.redirect '/libraries'
         end

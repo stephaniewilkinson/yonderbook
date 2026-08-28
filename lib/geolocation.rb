@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
-require 'area'
-
-# Turns browser coordinates into a US zip code.
+# Turns browser coordinates into a US zip code, and checks that a typed zip is
+# real. The single place in this app that touches the `area` gem.
 #
 # The library lookup is driven by zip: OverDrive's find-libraries-by-query
 # endpoint returns an empty list when handed "lat,lon", and area's own to_zip
 # only matches coordinates it already has exactly. So a position has to be
 # resolved to the nearest zip before it is any use.
 #
-# This does it against the dataset the area gem already loads at require time
-# (43,204 rows, ~27MB resident whether we use it or not), so it costs no extra
-# memory, no API key, and no third-party request.
+# `area` is required lazily, not at boot. Loading it reads 43,204 rows into
+# ~302k String objects and costs +26.9MB of resident memory, about a quarter of
+# this app's startup RSS on a 512MB instance that OOM-kills daily. The bot
+# traffic that drives that pressure only ever hits '/', and most sessions never
+# reach the library step, so a process that never needs zip data no longer pays
+# for it. See #1334 -- replacing the dataset outright is the fuller fix, and
+# keeping every use behind this module is what makes that a small change.
 module Geolocation
   # Rough miles per degree of latitude. Longitude is scaled by cos(latitude),
   # which is close enough to pick a nearest neighbour and avoids running
@@ -30,6 +33,20 @@ module Geolocation
   LONGITUDE = 4
 
   module_function
+
+  # True when the string is a zip code that actually exists. Replaces a bare
+  # `zip.to_latlon` truthiness check; the coordinates were always discarded.
+  def known_zip? zip
+    return false unless zip.to_s.match?(/\A\d{5}\z/)
+
+    !zip_codes.assoc(zip).nil?
+  end
+
+  # Deferred on purpose -- see the note above the module.
+  def zip_codes
+    require 'area'
+    Area.zip_codes
+  end
 
   # Returns {zip:, city:, state:, distance:} for the closest zip code, or nil
   # when the coordinates are unusable or nowhere near the US.
@@ -60,7 +77,7 @@ module Geolocation
     best = nil
     best_squared = nil
 
-    Area.zip_codes.each do |row|
+    zip_codes.each do |row|
       row_lat = row[LATITUDE].to_f
       row_lon = row[LONGITUDE].to_f
       delta_lat = lat - row_lat

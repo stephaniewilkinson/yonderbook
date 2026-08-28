@@ -4,6 +4,28 @@ require_relative 'spec_helper'
 require 'geolocation'
 
 describe Geolocation do
+  describe '.known_zip?' do
+    it 'accepts a real zip code' do
+      assert Geolocation.known_zip?('90210')
+    end
+
+    it 'rejects a five-digit number that is not a zip code' do
+      refute Geolocation.known_zip?('00001')
+    end
+
+    it 'rejects anything that is not five digits' do
+      refute Geolocation.known_zip?('9021')
+    end
+
+    it 'rejects letters without consulting the dataset' do
+      refute Geolocation.known_zip?('ABCDE')
+    end
+
+    it 'rejects nil' do
+      refute Geolocation.known_zip?(nil)
+    end
+  end
+
   describe '.nearest_zip' do
     it 'resolves coordinates in Beverly Hills to a local zip' do
       found = Geolocation.nearest_zip 34.0901, -118.4065
