@@ -27,6 +27,7 @@ module RateLimiting
     throttle_email_senders
     throttle_logins
     throttle_search
+    throttle_zip_lookups
     throttle_writes
     respond_with_429
     Rack::Attack
@@ -63,6 +64,13 @@ module RateLimiting
 
     Rack::Attack.throttle('search reads per ip', limit: 30, period: 60) do |request|
       request.ip if request.get? && request.path.start_with?('/search')
+    end
+  end
+
+  # Public, and each call scans 43k zip rows. Cheap individually, worth a cap.
+  def throttle_zip_lookups
+    Rack::Attack.throttle('zip lookups per ip', limit: 30, period: 60) do |request|
+      request.ip if request.path == '/nearest-zip'
     end
   end
 

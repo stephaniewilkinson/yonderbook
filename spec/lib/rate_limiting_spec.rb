@@ -116,6 +116,22 @@ describe RateLimiting do
     end
   end
 
+  describe 'zip lookups' do
+    # Public, and each call scans 43k rows, so it needs a cap of its own --
+    # the write backstop does not cover GETs.
+    it 'blocks more than thirty lookups a minute' do
+      hammer '/nearest-zip', 31, method: :get
+
+      assert_equal 429, last_response.status
+    end
+
+    it 'leaves ordinary use alone' do
+      hammer '/nearest-zip', 30, method: :get
+
+      assert_equal 200, last_response.status
+    end
+  end
+
   describe 'backstop' do
     it 'caps writes to any path, including ones added later' do
       hammer '/some/future/endpoint', 61
