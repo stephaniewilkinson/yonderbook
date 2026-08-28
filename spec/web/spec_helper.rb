@@ -8,8 +8,26 @@ require 'logger'
 require 'minitest/autorun'
 require 'minitest/capybara'
 require 'minitest/pride'
+require 'minitest/retry'
 require 'rack/test'
 require 'selenium-webdriver'
+
+# Retry ONLY driver and network timeouts, and only twice. See issue #1329.
+#
+# spec/web/system_spec.rb drives a real browser through goodreads.com and
+# Amazon's sign-in portal, with fixed sleeps and a loop to get past Amazon's
+# CVF challenge. When the runner is slow or Amazon presents a challenge,
+# Selenium's HTTP connection times out and the run fails for reasons that have
+# nothing to do with this codebase -- roughly a third of main's runs. Since
+# autoDeployTrigger is checksPass, that blocks production deploys until someone
+# re-runs the job by hand.
+#
+# The list is deliberately narrow. Minitest::Assertion is absent, so a genuine
+# bug still fails on the first attempt, and Capybara::ElementNotFound is absent
+# because that is usually a real defect -- it is how the button-label bug in
+# the import specs was caught. Retrying either would hide work, not save it.
+RETRIED_ERRORS = [Net::ReadTimeout, Net::OpenTimeout, Selenium::WebDriver::Error::TimeoutError].freeze
+Minitest::Retry.use! retry_count: 2, verbose: true, exceptions_to_retry: RETRIED_ERRORS
 
 # Load database connection first
 require_relative '../../lib/database'

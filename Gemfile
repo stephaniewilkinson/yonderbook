@@ -56,5 +56,6 @@ group :test do
   gem 'falcon-capybara'
   gem 'minitest'
   gem 'minitest-capybara'
+  gem 'minitest-retry'
   gem 'rack-test'
 end
