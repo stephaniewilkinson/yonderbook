@@ -82,15 +82,12 @@
     </script>
 
     <% if ENV['RACK_ENV'] == 'production' %>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96996170-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-96996170-1');
-    </script>
+    <!--
+      Replaced Google Analytics (UA-96996170-1). Universal Analytics stopped
+      processing data on 1 July 2023, so that tag had been collecting nothing
+      for three years while still costing a request and a DNS lookup.
+    -->
+    <script src="https://cdn.usefathom.com/script.js" data-site="YKRZHUNU" defer></script>
     <% end %>
   </head>
 
