@@ -236,7 +236,7 @@ describe App do
       # a fixed two minutes and then asserting into a job that is still
       # running -- which is how this failed. It also returns as soon as the
       # job finishes, instead of always burning two minutes.
-      assert_text 'Success!', wait: 300
+      assert page.has_text?('Success!', wait: 300), 'the BookMooch import never reported success'
     end
   end
 end
