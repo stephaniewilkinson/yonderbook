@@ -26,9 +26,16 @@ case ENV.fetch('RACK_ENV', nil)
 when 'production', 'staging'
   require_relative 'app'
   require_relative 'lib/memory_logger'
+  require_relative 'lib/rate_limiting'
   require_relative 'lib/request_timeout'
   logger = Logger.new $stdout
   logger.level = Logger::WARN
+  # First in the stack: a throttled request should cost as little as possible,
+  # and never reach session decryption or analytics. Production and staging
+  # only -- the test suite drives hundreds of logins from one address, and the
+  # rules are covered directly in spec/lib/rate_limiting_spec.rb.
+  RateLimiting.configure
+  use Rack::Attack
   use MemoryLogger
   use RequestTimeout
   Process.warmup
