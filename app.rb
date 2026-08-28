@@ -83,6 +83,13 @@ class App < Roda
   end
 
   plugin :rodauth, auth_class: RodauthConfig
+  # Unmatched paths render a real page instead of a bare empty 404. Kept as a
+  # 404 rather than redirecting to '/': a redirect would turn every broken link
+  # and bot probe into a soft 404, which search engines penalise, and the site
+  # is actively working its SEO.
+  plugin :not_found do
+    view 'not_found'
+  end
   plugin :error_handler do |e|
     warn "#{e.class}: #{e.message}\n#{e.backtrace.first(20).join("\n")}"
     response.status = 500
@@ -274,8 +281,11 @@ class App < Roda
           @website_id = Cache.get session, :website_id
           @library_url = Cache.get session, :library_url
           unless @titles
-            flash[:error] = 'Please choose a shelf first'
-            r.redirect 'shelves'
+            # Resume at the furthest step already completed rather than sending
+            # them back to the start of the flow.
+            libraries = Cache.get session, :libraries
+            flash[:error] = libraries ? 'Please choose a library first' : 'Please choose a shelf first'
+            r.redirect libraries ? '/libraries' : '/goodreads/shelves'
           end
           @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
           @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
@@ -311,8 +321,10 @@ class App < Roda
         @shelf_name = Cache.get session, :shelf_name
         @local_libraries = Cache.get session, :libraries
         unless @local_libraries
-          flash[:error] = 'Please choose a shelf first'
-          r.redirect '/goodreads/shelves'
+          # A shelf is already chosen, so the missing step is the zip code, not
+          # the shelf. Send them one step back instead of to the beginning.
+          flash[:error] = @shelf_name ? 'Please enter your zip code first' : 'Please choose a shelf first'
+          r.redirect @shelf_name ? "/goodreads/shelves/#{@shelf_name}/overdrive" : '/goodreads/shelves'
         end
         view 'library'
       end

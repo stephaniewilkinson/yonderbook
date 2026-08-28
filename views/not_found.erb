@@ -1,0 +1,30 @@
+<% content_for :title, "Page Not Found" %>
+<% content_for :description, "That page could not be found." %>
+
+<div class="max-w-2xl mx-auto text-center py-16">
+  <img src="/svg/star.svg" alt="" class="w-16 h-16 mx-auto opacity-60 mb-8">
+
+  <h1 class="font-display text-4xl sm:text-5xl font-medium tracking-tight text-mauve-950 mb-4">
+    This page wandered off
+  </h1>
+
+  <p class="text-xl text-mauve-700 mb-10">
+    We could not find anything at <span class="font-medium text-mauve-950"><%= request.path %></span>.
+  </p>
+
+  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+    <a href="/" class="inline-flex items-center px-8 py-4 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">
+      Back to the homepage
+    </a>
+
+    <% if @user %>
+      <a href="/goodreads/shelves" class="inline-flex items-center px-6 py-4 bg-mauve-950/10 text-mauve-950 font-medium text-lg rounded-full hover:bg-mauve-950/20 transition-colors duration-200">
+        Your shelves
+      </a>
+    <% else %>
+      <a href="/about" class="inline-flex items-center px-6 py-4 bg-mauve-950/10 text-mauve-950 font-medium text-lg rounded-full hover:bg-mauve-950/20 transition-colors duration-200">
+        What is Yonderbook?
+      </a>
+    <% end %>
+  </div>
+</div>
