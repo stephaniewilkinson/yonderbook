@@ -30,6 +30,7 @@ require_relative 'lib/cache'
 require_relative 'lib/database'
 require_relative 'lib/email'
 require_relative 'lib/email_templates'
+require_relative 'lib/geolocation'
 require_relative 'lib/goodreads'
 require_relative 'lib/import_routes'
 require_relative 'lib/models'
@@ -134,6 +135,12 @@ class App < Roda
       r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
     end
     r.get('import-status') { import_status.to_json } # route: GET /import-status
+
+    # route: GET /nearest-zip?lat=34.09&lon=-118.40
+    r.get 'nearest-zip' do
+      response['Content-Type'] = 'application/json'
+      (Geolocation.nearest_zip(r.params['lat'], r.params['lon']) || {error: 'no_match'}).to_json
+    end
     r.get('check-email') do # route: GET /check-email
       @pending_email = session.delete('pending_email') || 'your email'
       view 'check-email'

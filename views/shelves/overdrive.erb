@@ -33,6 +33,64 @@
         <img src="/svg/location-marker.svg" alt="Location" class="w-5 h-5 mr-2">
         Find a library
       </button>
+
+      <div class="mt-4 text-center">
+        <button type="button"
+                id="use-my-location"
+                class="inline-flex items-center px-4 py-2 bg-mauve-950/10 hover:bg-mauve-950/20 text-mauve-950 text-sm font-medium rounded-full transition-colors duration-200">
+          Or use my current location
+        </button>
+        <p id="location-status" class="text-sm text-mauve-700 mt-2 hidden"></p>
+      </div>
     </form>
   </div>
 </div>
+
+<script>
+  // Fills the zip field from the browser's location rather than replacing the
+  // form: the user still sees which zip was chosen and can correct it before
+  // submitting. Geolocation is unavailable on insecure origins and can be
+  // denied, so the typed field always remains the primary path.
+  (function () {
+    const button = document.getElementById('use-my-location');
+    const status = document.getElementById('location-status');
+    const zipcode = document.getElementById('zipcode');
+    if (!button || !navigator.geolocation) { return; }
+
+    function show(message) {
+      status.textContent = message;
+      status.classList.remove('hidden');
+    }
+
+    button.addEventListener('click', function () {
+      button.disabled = true;
+      show('Finding your location...');
+
+      navigator.geolocation.getCurrentPosition(function (position) {
+        const query = new URLSearchParams({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        });
+
+        fetch('/nearest-zip?' + query)
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            button.disabled = false;
+            if (!data.zip) {
+              show('We could not match that to a US zip code. Please type one instead.');
+              return;
+            }
+            zipcode.value = data.zip;
+            show('Using ' + data.city + ', ' + data.state + ' (' + data.zip + '). Change it if that is wrong.');
+          })
+          .catch(function () {
+            button.disabled = false;
+            show('Something went wrong looking that up. Please type a zip code instead.');
+          });
+      }, function () {
+        button.disabled = false;
+        show('We could not get your location. Please type a zip code instead.');
+      });
+    });
+  })();
+</script>
