@@ -32,6 +32,7 @@ require_relative 'lib/email_templates'
 require_relative 'lib/geolocation'
 require_relative 'lib/goodreads'
 require_relative 'lib/import_routes'
+require_relative 'lib/libby_url'
 require_relative 'lib/models'
 require_relative 'lib/oauth_helpers'
 require_relative 'lib/overdrive'
@@ -140,6 +141,13 @@ class App < Roda
       response['Content-Type'] = 'application/json'
       (Geolocation.nearest_zip(r.params['lat'], r.params['lon']) || {error: 'no_match'}).to_json
     end
+    # route: GET /api/libby_url?title=Piranesi&author=Susanna+Clarke
+    r.get 'api', 'libby_url' do
+      response['Content-Type'] = 'application/json'
+      url = LibbyUrl.for(r.params['title'], r.params['author'])
+      (url ? {url: url} : {error: 'title is required'}).to_json
+    end
+
     r.get('check-email') do # route: GET /check-email
       @pending_email = session.delete('pending_email') || 'your email'
       view 'check-email'
