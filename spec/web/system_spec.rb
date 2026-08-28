@@ -231,8 +231,12 @@ describe App do
       fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
       click_button 'Authenticate'
       assert_text 'Importing Books to BookMooch'
-      sleep 120
-      assert_text 'Success!'
+      # The import calls BookMooch and Open Library once per book, so how long
+      # it takes is not ours to predict. Waiting for the outcome beats sleeping
+      # a fixed two minutes and then asserting into a job that is still
+      # running -- which is how this failed. It also returns as soon as the
+      # job finishes, instead of always burning two minutes.
+      assert_text 'Success!', wait: 300
     end
   end
 end
