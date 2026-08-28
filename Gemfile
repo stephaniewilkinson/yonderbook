@@ -4,7 +4,6 @@ source 'https://gem.coop'
 
 ruby File.read(File.join(__dir__, '.ruby-version')).chomp.delete_prefix('ruby-')
 
-gem 'area'
 gem 'argon2'
 gem 'async-http'
 gem 'async-limiter'
