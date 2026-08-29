@@ -54,8 +54,8 @@ describe 'Security headers' do
   end
 
   describe 'analytics gating' do
-    # Production only, matching how PostHog and the old GA tag were gated, so
-    # local and CI traffic never pollutes the numbers.
+    # Production only, matching how the old GA tag was gated, so local and CI
+    # traffic never pollutes the numbers.
     it 'does not load the analytics script outside production' do
       get '/'
 

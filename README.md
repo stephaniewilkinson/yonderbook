@@ -149,7 +149,7 @@ Server starts at ~100MB. At 0.3MB/request with bot traffic every minute:
 
 ### Mitigations (code changes)
 
-**Homepage served before middleware** (app.rb) -- `r.root` is now matched before `enrich_sentry`, `session['session_id']` assignment, and `identify_user`. Bot traffic to `/` no longer creates sessions, Sentry scopes, or PostHog events. This eliminates the primary source of per-request allocations.
+**Homepage served before middleware** (app.rb) -- `r.root` is now matched before `enrich_sentry` and the `session['session_id']` assignment. Bot traffic to `/` no longer creates sessions or Sentry scopes. This eliminates the primary source of per-request allocations.
 
 **Sentry::Rack::CaptureExceptions middleware removed** (app.rb) -- This middleware cloned the Sentry hub, created a scope storing the full Rack `env`, and ran session tracking on every request. Under Falcon's fiber/thread model, these allocations leaked ~0.2-0.4MB/request that was never reclaimed. Errors are still captured via `Sentry.capture_exception` in the app's rescue block and `error_handler` plugin. Also set `traces_sample_rate = 0` in config.ru to disable transaction tracing.
 
@@ -178,12 +178,11 @@ Server starts at ~100MB. At 0.3MB/request with bot traffic every minute:
 
 ### Why memory still grows (post-fix)
 
-The mitigations above eliminated the biggest leak (bot traffic on `/`), but RSS still creeps up on non-homepage requests. Every authenticated request runs through this pipeline (app.rb lines 103-121):
+The mitigations above eliminated the biggest leak (bot traffic on `/`), but RSS still creeps up on non-homepage requests. Every authenticated request runs through this pipeline (app.rb lines 108-127):
 
 1. **Session decryption/encryption** -- Rodauth decrypts the incoming session cookie and re-encrypts the outgoing one via OpenSSL. Cipher contexts are C-level `malloc` allocations.
 2. **Sentry scope calls** -- `enrich_sentry` calls `Sentry.set_user` and `Sentry.set_tags` on every request, creating scope objects on the Sentry hub even without the middleware.
-3. **PostHog identify on every request** -- `identify_user` calls `Analytics.alias_user` and `Analytics.identify` for every logged-in request, pushing events onto PostHog's internal queue.
-4. **DB query** -- `Account[rodauth.session_value]` runs a database query on every authenticated request.
+3. **DB query** -- `Account[rodauth.session_value]` runs a database query on every authenticated request.
 
 The problem isn't Ruby objects -- GC collects those fine (old_objects drops from 549k to 50k). The problem is **glibc malloc fragmentation from C-level allocations**. OpenSSL cipher contexts, Sentry internals, and database buffers are allocated via `malloc()`. When freed, they leave holes in the heap that glibc can't return to the OS. Falcon's fiber concurrency makes this worse -- fibers interleave allocations across memory pages, so no page is ever fully free.
 

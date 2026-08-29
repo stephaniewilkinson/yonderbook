@@ -31,10 +31,6 @@ gem 'sqlite3'
 gem 'tailwindcss-ruby'
 gem 'tilt'
 
-group :production do
-  gem 'posthog-ruby'
-end
-
 group :development do
   gem 'rack-unreloader'
   gem 'rackup'
