@@ -14,13 +14,28 @@ module Cache
   module_function
 
   def set session, **pairs
-    pairs.each do |key, value|
-      CACHE["#{session['session_id']}/#{key}"] = value
-    end
+    set_in_session session['session_id'], **pairs
   end
 
   def get session, key
-    CACHE["#{session['session_id']}/#{key}"]
+    get_in_session session['session_id'], key
+  end
+
+  # Same in-memory store as `set`/`get`, for callers holding a session id rather
+  # than the session itself -- WebSocket handlers never see the Rack session.
+  #
+  # Deliberately not `set_by_id`, which serialises through JSON on disk. The
+  # availability titles are objects the view calls methods on, and a JSON round
+  # trip would hand it bare hashes. Nothing here touches the filesystem, so
+  # OAuth tokens stored this way stay in memory.
+  def set_in_session session_id, **pairs
+    pairs.each do |key, value|
+      CACHE["#{session_id}/#{key}"] = value
+    end
+  end
+
+  def get_in_session session_id, key
+    CACHE["#{session_id}/#{key}"]
   end
 
   # Set cache values by session ID using shared filesystem (cross-process)

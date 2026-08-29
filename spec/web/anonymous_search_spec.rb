@@ -149,6 +149,27 @@ describe 'Anonymous search flow' do
     end
   end
 
+  # #1347: the OverDrive check is handed to a WebSocket because it does not fit
+  # inside RequestTimeout's 25s budget. The progress page is what the browser
+  # waits on while that runs.
+  describe 'GET /search/availability/progress' do
+    it 'redirects to / when no session credentials exist' do
+      visit '/search/availability/progress'
+
+      assert_current_path '/'
+    end
+
+    it 'points the socket and the results link at the anonymous flow' do
+      with_anonymous_session do
+        get '/search/availability/progress'
+
+        assert_equal 200, last_response.status
+        assert_includes last_response.body, '/ws/availability/'
+        assert_includes last_response.body, "resultsPath = '/search/availability'"
+      end
+    end
+  end
+
   describe 'POST /search/availability' do
     it 'redirects to / when no session credentials exist' do
       post '/search/availability', 'consortium' => '1047'
