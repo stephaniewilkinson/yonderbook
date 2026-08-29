@@ -17,20 +17,19 @@
       </p>
 
       <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <% if @auth_url %>
-          <%# Deliberately no target="_blank": it opens a tab Capybara will not
-              follow, which breaks the anonymous flow specs. %>
-          <a href="<%= @auth_url %>" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-indigo-800 to-violet-800 text-white font-medium text-lg rounded-full shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
-            Connect with Goodreads
-          </a>
-        <% else %>
-          <%# Goodreads was unreachable when the request token was fetched. The
-              page still has to render -- offer the path that does not need them. %>
-          <a href="/import" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-indigo-800 to-violet-800 text-white font-medium text-lg rounded-full shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            Import a CSV export instead
-          </a>
-        <% end %>
+        <%# Links to /connect rather than a pre-fetched authorize URL. Building
+            one here would mean writing to the session on a route that runs
+            before the session id exists -- every visitor would share the cache
+            key, and assigning an id would put a Set-Cookie on every bot
+            request, which is the leak the OOM work removed. /connect fetches
+            the token on click instead.
+
+            No target="_blank" anywhere on this page: it opens a tab Capybara
+            will not follow, and the anonymous flow specs drive these links. %>
+        <a href="/connect" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-indigo-800 to-violet-800 text-white font-medium text-lg rounded-full shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+          <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
+          Connect with Goodreads
+        </a>
 
         <a href="/authenticate" class="inline-flex items-center justify-center px-8 py-4 glass-panel text-mauve-950 font-medium text-lg rounded-full hover:bg-white/80 transition-colors duration-200">
           Already have an account? Log in
