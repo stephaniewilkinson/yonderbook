@@ -54,6 +54,28 @@ describe 'Anonymous search flow' do
     end
   end
 
+  # POST /search/library calls check_csrf!, but its form lives in the shared
+  # shelves/overdrive.erb, which the authenticated flow also renders. The
+  # authenticated POST /libraries does not check, so a missing token went
+  # unnoticed there and broke every anonymous zip code submission.
+  describe 'GET /search/shelves/:name/overdrive form' do
+    it 'emits the CSRF token that POST /search/library demands' do
+      with_anonymous_session do
+        get '/search/shelves/to-read/overdrive'
+
+        assert_includes last_response.body, '_csrf'
+      end
+    end
+
+    it 'posts to the anonymous library route' do
+      with_anonymous_session do
+        get '/search/shelves/to-read/overdrive'
+
+        assert_includes last_response.body, 'action="/search/library"'
+      end
+    end
+  end
+
   describe 'GET /search/availability' do
     it 'redirects to / when no session credentials exist' do
       visit '/search/availability'
