@@ -7,6 +7,7 @@ module SearchRoutes
 
     request.on('shelves') { anonymous_shelf_routes request }
     request.on('library') { anonymous_library_routes request }
+    request.on('availability') { anonymous_availability_routes request }
   end
 
   def anonymous_shelf_routes request
@@ -66,8 +67,61 @@ module SearchRoutes
     end
   end
 
+  def anonymous_availability_routes request
+    # route: POST /search/availability?consortium=1047
+    request.post true do
+      check_csrf!
+      @shelf_name = Cache.get session, :shelf_name
+      consortium = typecast_params.pos_int('consortium')
+      reject_library request, 'Invalid library selection' unless consortium
+
+      book_info = anonymous_shelf_books
+      if book_info.nil? || book_info.empty?
+        flash[:error] = "We couldn't read that shelf from Goodreads. Please pick a shelf and try again."
+        request.redirect '/search/shelves'
+      end
+
+      cache_anonymous_availability request, book_info, consortium
+      request.redirect '/search/availability'
+    end
+
+    # route: GET /search/availability
+    request.get true do
+      load_cached_availability
+      unless @titles
+        # Resume at the furthest step already completed, the same way the
+        # authenticated page does.
+        @shelf_name = Cache.get session, :shelf_name
+        libraries = Cache.get session, :libraries
+        flash[:error] = libraries ? 'Please choose a library first' : 'Please choose a shelf first'
+        request.redirect libraries ? '/search/library' : '/search/shelves'
+      end
+      split_titles_by_availability
+      @anonymous_search = true
+      @library_action = '/search/library'
+      view 'availability'
+    end
+  end
+
+  # Kept out of the route block so the rescue covers the OverDrive calls and
+  # nothing else -- wrapping the whole block would swallow the CSRF rejection,
+  # which has to reach the app's handler.
+  def cache_anonymous_availability request, book_info, consortium
+    overdrive = Overdrive.new(book_info, consortium)
+    titles = overdrive.fetch_titles_availability
+    Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
+  rescue Overdrive::ApiError => e
+    Sentry.capture_exception(e) if defined?(Sentry)
+    reject_library request, 'We could not reach OverDrive for that library. Please try another.'
+  end
+
   def anonymous_shelf_books
     cached_or_fetch(@shelf_name.to_sym) { Goodreads.get_books(@shelf_name, @goodreads_user_id, @anon_access_token) }
+  end
+
+  def reject_library request, message
+    flash[:error] = message
+    request.redirect '/search/library'
   end
 
   def zip_form_path

@@ -21,6 +21,7 @@ unless CGI.respond_to?(:parse)
 end
 
 require_relative 'lib/auth'
+require_relative 'lib/availability_helpers'
 require_relative 'lib/bookmooch'
 require_relative 'lib/cache'
 require_relative 'lib/database'
@@ -98,6 +99,7 @@ class App < Roda
   compile_assets
   include ImportRoutes
   include OauthHelpers
+  include AvailabilityHelpers
   include RouteHelpers
   include SearchRoutes
 
@@ -296,10 +298,7 @@ class App < Roda
       r.is 'availability' do
         require_goodreads r
         r.get do # route: GET /goodreads/availability
-          @titles = Cache.get session, :titles
-          @collection_token = Cache.get session, :collection_token
-          @website_id = Cache.get session, :website_id
-          @library_url = Cache.get session, :library_url
+          load_cached_availability
           unless @titles
             # Resume at the furthest step already completed rather than sending
             # them back to the start of the flow.
@@ -307,10 +306,7 @@ class App < Roda
             flash[:error] = libraries ? 'Please choose a library first' : 'Please choose a shelf first'
             r.redirect libraries ? '/libraries' : '/goodreads/shelves'
           end
-          @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
-          @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })
-          @no_isbn_books = sort_by_date_added(@titles.select(&:no_isbn))
-          @unavailable_books = sort_by_date_added(@titles.select { |a| a.copies_owned.zero? && !a.no_isbn })
+          split_titles_by_availability
           view 'availability'
         end
       end
