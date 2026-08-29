@@ -29,6 +29,7 @@ require_relative 'lib/email_templates'
 require_relative 'lib/geolocation'
 require_relative 'lib/goodreads'
 require_relative 'lib/import_routes'
+require_relative 'lib/libby_url'
 require_relative 'lib/models'
 require_relative 'lib/oauth_helpers'
 require_relative 'lib/overdrive'
@@ -136,6 +137,13 @@ class App < Roda
       response['Content-Type'] = 'application/json'
       (Geolocation.nearest_zip(r.params['lat'], r.params['lon']) || {error: 'no_match'}).to_json
     end
+    # route: GET /api/libby_url?title=Piranesi&author=Susanna+Clarke
+    r.get 'api', 'libby_url' do
+      response['Content-Type'] = 'application/json'
+      url = LibbyUrl.for(r.params['title'], r.params['author'])
+      (url ? {url: url} : {error: 'title is required'}).to_json
+    end
+
     r.get('check-email') do # route: GET /check-email
       @pending_email = session.delete('pending_email') || 'your email'
       view 'check-email'
@@ -208,6 +216,8 @@ class App < Roda
         # route: GET /goodreads/shelves
         r.get true do
           @shelves = shelf_list
+          # Reaching this without raising means the credentials still work.
+          @goodreads_connection&.touch_synced
           view 'shelves/index'
         end
 
@@ -226,9 +236,6 @@ class App < Roda
             view 'shelves/show'
           end
 
-          # Blocking fetch for sub-routes that need @book_info
-          @book_info ||= fetch_shelf_blocking(@shelf_name)
-
           r.on 'bookmooch' do
             unless Bookmooch.available?
               flash[:error] = 'BookMooch appears to be down right now. Please try again later.'
@@ -237,12 +244,14 @@ class App < Roda
 
             # route: GET /goodreads/shelves/:id/bookmooch
             r.get true do
+              @book_info ||= fetch_shelf_blocking(@shelf_name)
               @new_count, @skip_count, @no_isbn_count = bookmooch_preview(@user.id, @book_info)
               view 'shelves/bookmooch'
             end
 
             # route: POST /goodreads/shelves/:id/bookmooch?username=foo&password=baz
             r.post do
+              @book_info ||= fetch_shelf_blocking(@shelf_name)
               BookmoochImport.clear_imports(@user.id) if r.params['reimport'] == '1'
               filtered = filter_already_imported_books(@user.id, @book_info)
               cache_bookmooch_params(r, filtered, @user.id, @book_info.size - filtered.size)
@@ -263,8 +272,13 @@ class App < Roda
           end
 
           r.is 'overdrive' do
+            # Renders a zip code form and nothing else. Deliberately does NOT
+            # load the shelf: doing so timed out on large shelves (#1333), and
+            # the "Get Books" link on the shelf index comes straight here, so
+            # nothing has warmed the cache yet.
             r.get(true) { view 'shelves/overdrive' } # route: GET /goodreads/shelves/:id/overdrive
             r.post do # route: POST /goodreads/shelves/:id/overdrive?consortium=1047
+              @book_info ||= fetch_shelf_blocking(@shelf_name)
               consortium = typecast_params.pos_int('consortium')
               unless consortium
                 flash[:error] = 'Invalid library selection'

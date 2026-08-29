@@ -39,7 +39,11 @@
       <%= progress_label %>
     </a>
     <% end %>
-    <a id="toast-link" href="<%= import_url %>" class="hidden mt-3 block text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-800 to-violet-800 rounded-full px-4 py-2 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+    <%# `block` is added by the swap below rather than sitting here beside `hidden`.
+        The two carry the same specificity, so which one applies is decided by the
+        order Tailwind happens to emit them in -- today `.hidden` lands second and
+        wins, but that is luck, not a guarantee. %>
+    <a id="toast-link" href="<%= import_url %>" class="hidden mt-3 text-center text-sm font-medium text-white bg-gradient-to-r from-indigo-800 to-violet-800 rounded-full px-4 py-2 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
       <%= done_label %>
     </a>
   </div>
@@ -64,9 +68,16 @@
           document.getElementById('toast-check').classList.remove('hidden');
           document.getElementById('toast-message').textContent = '<%= done_message %>';
           document.getElementById('toast-subtitle').classList.add('hidden');
+          // Move `block` along with `hidden` -- an element keeping a display
+          // utility is not reliably hidden by the `hidden` class alone.
           var progressLink = document.getElementById('toast-progress-link');
-          if (progressLink) progressLink.classList.add('hidden');
-          document.getElementById('toast-link').classList.remove('hidden');
+          if (progressLink) {
+            progressLink.classList.add('hidden');
+            progressLink.classList.remove('block');
+          }
+          var doneLink = document.getElementById('toast-link');
+          doneLink.classList.remove('hidden');
+          doneLink.classList.add('block');
         }
       })
       .catch(function() {});

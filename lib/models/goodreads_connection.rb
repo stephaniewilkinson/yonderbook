@@ -4,6 +4,12 @@ require 'oauth'
 
 # GoodreadsConnection model for persisting OAuth credentials
 class GoodreadsConnection < Sequel::Model
+  # How stale last_synced_at may get before we write again. The shelf list is
+  # fetched on every visit to /goodreads/shelves; without this the page would
+  # cost a database write each time, and "last synced" is not interesting to
+  # the minute.
+  SYNC_TOUCH_INTERVAL = 3600
+
   many_to_one :account, key: :user_id
 
   def validate
@@ -23,6 +29,15 @@ class GoodreadsConnection < Sequel::Model
   def before_update
     super
     self.updated_at = Time.now
+  end
+
+  # Records that we successfully reached Goodreads with these credentials.
+  # The column existed and the connections page rendered it, but nothing ever
+  # wrote it, so the row never appeared.
+  def touch_synced
+    return if last_synced_at && last_synced_at > Time.now - SYNC_TOUCH_INTERVAL
+
+    update last_synced_at: Time.now
   end
 
   # Generate an OAuth access token object for making Goodreads API requests

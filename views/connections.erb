@@ -41,7 +41,7 @@
           <% if @goodreads_connection.last_synced_at %>
             <div class="flex items-center justify-between py-2 px-3 bg-mauve-950/[.025] rounded-lg">
               <span class="font-medium">Last synced:</span>
-              <span class="text-mauve-950"><%= @goodreads_connection.last_synced_at.strftime('%B %d, %Y') %></span>
+              <span class="text-mauve-950"><%= @goodreads_connection.last_synced_at.strftime('%B %d, %Y at %l:%M %p').squeeze(' ') %></span>
             </div>
           <% end %>
         </div>

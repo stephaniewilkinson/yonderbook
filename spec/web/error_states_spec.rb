@@ -138,6 +138,24 @@ describe 'Error states' do
     assert last_response.redirect?
   end
 
+  # #1333: this page is a zip code form and nothing more, but it used to load
+  # the entire shelf from Goodreads first and time out on large ones. The
+  # "Get Books" link on the shelf index comes straight here, so the cache is
+  # cold on the common path.
+  it 'renders the library form without any shelf data cached' do
+    seed_goodreads_user
+    visit '/goodreads/shelves/to-read/overdrive'
+
+    assert_field 'zipcode'
+  end
+
+  it 'offers the location shortcut on the library form' do
+    seed_goodreads_user
+    visit '/goodreads/shelves/to-read/overdrive'
+
+    assert_button 'Or use my current location'
+  end
+
   it 'redirects from /goodreads/availability when no titles cached' do
     seed_goodreads_user
     visit '/goodreads/availability'
