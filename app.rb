@@ -122,9 +122,15 @@ class App < Roda
     # Serve homepage early with no session writes or Sentry enrichment.
     # Bots/monitors hit / every minute; skipping these avoids per-request
     # allocations that fragment glibc malloc arenas and grow RSS toward OOM.
-    r.root do # route: GET /
-      view 'welcome'
-    end
+    #
+    # Everything here only reads. `goodreads_session_present?` looks the
+    # credentials up without assigning a session id, and no request token is
+    # fetched -- that would write to the cache under a key derived from an id
+    # that does not exist yet, which every visitor would share. /connect does it
+    # on click instead, from a route that runs after the id is assigned.
+    #
+    # welcome.erb is kept but no longer routed to.
+    r.root { root_response(r) } # route: GET /
 
     enrich_sentry(r)
     session['session_id'] ||= SecureRandom.uuid
@@ -137,6 +143,10 @@ class App < Roda
       r.websocket { |connection| Websockets.handle_availability(connection, session_id) }
     end
     r.get('import-status') { import_status.to_json } # route: GET /import-status
+
+    # Sits here, after the session id is assigned, because caching a request
+    # token keys on that id.
+    r.get('connect') { redirect_to_goodreads_authorization(r) } # route: GET /connect
 
     # route: GET /nearest-zip?lat=34.09&lon=-118.40
     r.get 'nearest-zip' do

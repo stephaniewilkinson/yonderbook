@@ -10,6 +10,26 @@ module OauthHelpers
     request.redirect '/'
   end
 
+  # The homepage's Goodreads button. Kept off `/` because caching a request
+  # token keys on the session id, which the root route deliberately does not
+  # assign -- see the comment there.
+  #
+  # fetch_and_cache_request_token swallows failures and returns nil, so the
+  # fallback keeps a dead Goodreads from redirecting the visitor to nowhere.
+  def redirect_to_goodreads_authorization request
+    request_token = fetch_and_cache_request_token
+    request.redirect request_token&.authorize_url || '/'
+  end
+
+  # Anonymous visitors go straight to their shelves; signed-in ones to their
+  # home page. Everyone else gets the search interface. All reads -- nothing
+  # here may write to the session.
+  def root_response request
+    request.redirect '/home' if @user
+    request.redirect '/search/shelves' if goodreads_session_present?
+    view 'search'
+  end
+
   def handle_anonymous_oauth_callback request, request_token
     credentials = Goodreads.exchange_token(request_token)
     store_goodreads_in_session(credentials)
