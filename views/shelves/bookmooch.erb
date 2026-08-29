@@ -75,7 +75,11 @@
             Authenticate
           </button>
 
-          <button class="sending-btn hidden w-full inline-flex items-center justify-center px-6 py-3 bg-mauve-300 text-mauve-950 font-medium rounded-full"
+          <%# `inline-flex` is added by the swap below rather than sitting here beside
+              `hidden`. The two carry the same specificity and Tailwind emits
+              `.inline-flex` last, so together they left this button on screen next to
+              the Authenticate one from the moment the page loaded. %>
+          <button class="sending-btn hidden w-full items-center justify-center px-6 py-3 bg-mauve-300 text-mauve-950 font-medium rounded-full"
                   type="button"
                   disabled>
             <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -94,8 +98,13 @@
   var oldbutton = document.getElementsByClassName('authenticate-btn')[0];
   var newbutton = document.getElementsByClassName('sending-btn')[0];
 
+  // Move `inline-flex` along with `hidden`. Adding `hidden` on its own does not
+  // hide an element that also carries a display utility -- Tailwind emits
+  // `.inline-flex` after `.hidden`, so the later rule wins.
   oldbutton.onclick = function(){
     newbutton.classList.remove('hidden');
+    newbutton.classList.add('inline-flex');
     oldbutton.classList.add('hidden');
+    oldbutton.classList.remove('inline-flex');
   };
 </script>
