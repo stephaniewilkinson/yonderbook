@@ -22,4 +22,20 @@ describe 'Anonymous search flow' do
       assert_current_path '/'
     end
   end
+
+  describe 'GET /search/library' do
+    it 'redirects to / when no session credentials exist' do
+      visit '/search/library'
+
+      assert_current_path '/'
+    end
+  end
+
+  describe 'GET /search/shelves/:name/overdrive' do
+    it 'redirects to / when no session credentials exist' do
+      visit '/search/shelves/to-read/overdrive'
+
+      assert_current_path '/'
+    end
+  end
 end

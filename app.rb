@@ -238,9 +238,6 @@ class App < Roda
             view 'shelves/show'
           end
 
-          # Blocking fetch for sub-routes that need @book_info
-          @book_info ||= fetch_shelf_blocking(@shelf_name)
-
           r.on 'bookmooch' do
             unless Bookmooch.available?
               flash[:error] = 'BookMooch appears to be down right now. Please try again later.'
@@ -249,12 +246,14 @@ class App < Roda
 
             # route: GET /goodreads/shelves/:id/bookmooch
             r.get true do
+              @book_info ||= fetch_shelf_blocking(@shelf_name)
               @new_count, @skip_count, @no_isbn_count = bookmooch_preview(@user.id, @book_info)
               view 'shelves/bookmooch'
             end
 
             # route: POST /goodreads/shelves/:id/bookmooch?username=foo&password=baz
             r.post do
+              @book_info ||= fetch_shelf_blocking(@shelf_name)
               BookmoochImport.clear_imports(@user.id) if r.params['reimport'] == '1'
               filtered = filter_already_imported_books(@user.id, @book_info)
               cache_bookmooch_params(r, filtered, @user.id, @book_info.size - filtered.size)
@@ -275,8 +274,13 @@ class App < Roda
           end
 
           r.is 'overdrive' do
+            # Renders a zip code form and nothing else. Deliberately does NOT
+            # load the shelf: doing so timed out on large shelves (#1333), and
+            # the "Get Books" link on the shelf index comes straight here, so
+            # nothing has warmed the cache yet.
             r.get(true) { view 'shelves/overdrive' } # route: GET /goodreads/shelves/:id/overdrive
             r.post do # route: POST /goodreads/shelves/:id/overdrive?consortium=1047
+              @book_info ||= fetch_shelf_blocking(@shelf_name)
               consortium = typecast_params.pos_int('consortium')
               unless consortium
                 flash[:error] = 'Invalid library selection'

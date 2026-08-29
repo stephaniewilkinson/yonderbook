@@ -67,7 +67,13 @@ module AlternateIsbns
 
       uncached_isbns.each do |isbn|
         semaphore.async do
-          limiter.async do
+          # Wait on the limiter's task rather than just spawning it. Only the
+          # semaphore tasks are registered with the barrier, so without this a
+          # semaphore task finishes the moment its child is scheduled and
+          # `barrier.wait` returns on work that is still in flight -- dropping
+          # the alternates for whichever books were mid-request, and leaving
+          # orphans to report progress after the caller has moved on.
+          fetch_task = limiter.async do
             alternates, work_key = fetch_alternates_for_isbn_with_retry(isbn)
             result[isbn] = alternates unless alternates.empty?
             IsbnAlternate.store(isbn, alternates, work_key: work_key)
@@ -77,6 +83,8 @@ module AlternateIsbns
             completed_count += 1
             report_progress(progress_callback, completed_count, total_isbns)
           end
+
+          fetch_task.wait
         end
       end
 
