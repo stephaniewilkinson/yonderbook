@@ -191,8 +191,6 @@ GEM
     parser (3.3.12.0)
       ast (~> 2.4.1)
       racc
-    posthog-ruby (3.23.5)
-      concurrent-ruby (~> 1)
     prism (1.9.0)
     protocol-hpack (1.5.1)
     protocol-http (0.71.0)
@@ -340,7 +338,6 @@ DEPENDENCIES
   nokogiri
   oauth
   oauth2
-  posthog-ruby
   pry
   rack-attack
   rack-host-redirect
