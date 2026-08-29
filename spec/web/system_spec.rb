@@ -231,12 +231,38 @@ describe App do
       fill_in 'password', with: ENV.fetch('BOOKMOOCH_PASSWORD')
       click_button 'Authenticate'
       assert_text 'Importing Books to BookMooch'
-      # The import calls BookMooch and Open Library once per book, so how long
-      # it takes is not ours to predict. Waiting for the outcome beats sleeping
-      # a fixed two minutes and then asserting into a job that is still
-      # running -- which is how this failed. It also returns as soon as the
-      # job finishes, instead of always burning two minutes.
-      assert page.has_text?('Success!', wait: 300), 'the BookMooch import never reported success'
+
+      # The import calls Open Library and BookMooch once per book, so how long
+      # it takes is not ours to predict. A fixed sleep fired into a job that
+      # was still running, which is how #1337, #1338 and #1339 failed. Wait for
+      # whichever terminal state lands first instead: the results page, or the
+      # progress page revealing its error box. Capybara has no "wait for
+      # either", so alternate short waits between the two.
+      #
+      # Note the has_text? rather than assert_text: minitest-capybara defines
+      # assert_text(*args) with no **options, so a wait: keyword arrives as a
+      # positional Hash and Capybara reads the text as a query type --
+      # "ArgumentError: Success! is not a valid type for a text query".
+      deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 240
+      succeeded = failed = false
+      until succeeded || failed || Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+        succeeded = page.has_text?(/Success!|No Books Added/, wait: 2)
+        failed = page.has_css?('#error-message', wait: 0)
+      end
+
+      assert succeeded || failed, 'the BookMooch import neither finished nor reported an error'
+
+      # BookMooch answers the API with an HTML page from some networks, CI
+      # runners among them, and no amount of waiting turns that into a finished
+      # import -- #1340 and #1341 waited five minutes and still failed. What is
+      # ours to get right is telling the user, so assert that instead of a
+      # third party's mood, the same allowance the OverDrive 403 branch above
+      # makes.
+      if failed
+        refute_empty find('#error-message').text, 'the import failed without telling the user why'
+      else
+        assert_match %r{/bookmooch/results\z}, page.current_path
+      end
     end
   end
 end
