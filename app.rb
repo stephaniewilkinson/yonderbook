@@ -132,6 +132,10 @@ class App < Roda
     r.on 'ws', 'bookmooch', String do |session_id|
       r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
     end
+    # route: WebSocket /ws/availability/:session_id
+    r.on 'ws', 'availability', String do |session_id|
+      r.websocket { |connection| Websockets.handle_availability(connection, session_id) }
+    end
     r.get('import-status') { import_status.to_json } # route: GET /import-status
 
     # route: GET /nearest-zip?lat=34.09&lon=-118.40
@@ -286,18 +290,27 @@ class App < Roda
                 flash[:error] = 'Invalid library selection'
                 r.redirect "/goodreads/shelves/#{@shelf_name}/overdrive"
               end
-              overdrive = Overdrive.new(@book_info, consortium)
-              titles = overdrive.fetch_titles_availability
-              Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
-              r.redirect '/goodreads/availability'
+              # The OverDrive check does not fit in a request (#1347), so hand it
+              # to the WebSocket and send the browser somewhere that can wait.
+              queue_availability_check @book_info, consortium
+              r.redirect '/goodreads/availability/progress'
             end
           end
         end
       end
 
-      r.is 'availability' do
+      r.on 'availability' do
         require_goodreads r
-        r.get do # route: GET /goodreads/availability
+
+        # route: GET /goodreads/availability/progress
+        r.get 'progress' do
+          @session_id = session['session_id']
+          @results_path = '/goodreads/availability'
+          @retry_path = '/libraries'
+          view 'availability_progress'
+        end
+
+        r.get true do # route: GET /goodreads/availability
           load_cached_availability
           unless @titles
             # Resume at the furthest step already completed rather than sending

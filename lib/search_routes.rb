@@ -81,8 +81,18 @@ module SearchRoutes
         request.redirect '/search/shelves'
       end
 
-      cache_anonymous_availability request, book_info, consortium
-      request.redirect '/search/availability'
+      # Same reason as the authenticated twin: the OverDrive check does not fit
+      # in a request (#1347), so the WebSocket runs it.
+      queue_availability_check book_info, consortium
+      request.redirect '/search/availability/progress'
+    end
+
+    # route: GET /search/availability/progress
+    request.get 'progress' do
+      @session_id = session['session_id']
+      @results_path = '/search/availability'
+      @retry_path = '/search/library'
+      view 'availability_progress'
     end
 
     # route: GET /search/availability
@@ -101,18 +111,6 @@ module SearchRoutes
       @library_action = '/search/library'
       view 'availability'
     end
-  end
-
-  # Kept out of the route block so the rescue covers the OverDrive calls and
-  # nothing else -- wrapping the whole block would swallow the CSRF rejection,
-  # which has to reach the app's handler.
-  def cache_anonymous_availability request, book_info, consortium
-    overdrive = Overdrive.new(book_info, consortium)
-    titles = overdrive.fetch_titles_availability
-    Cache.set(session, titles:, collection_token: overdrive.collection_token, website_id: overdrive.website_id, library_url: overdrive.library_url)
-  rescue Overdrive::ApiError => e
-    Sentry.capture_exception(e) if defined?(Sentry)
-    reject_library request, 'We could not reach OverDrive for that library. Please try another.'
   end
 
   def anonymous_shelf_books

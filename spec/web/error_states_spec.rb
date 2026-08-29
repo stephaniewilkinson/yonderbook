@@ -161,4 +161,15 @@ describe 'Error states' do
     visit '/goodreads/availability'
     assert_text 'Please choose a shelf first'
   end
+
+  # #1347: the OverDrive check moved to a WebSocket because it does not fit in
+  # RequestTimeout's 25s budget. This page is what the browser waits on, so it
+  # has to render without any titles cached -- there are none until the socket
+  # finishes.
+  it 'renders the availability progress page before any titles exist' do
+    seed_goodreads_user
+    visit '/goodreads/availability/progress'
+
+    assert_text 'Checking Library Availability'
+  end
 end

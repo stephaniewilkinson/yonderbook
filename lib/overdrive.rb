@@ -98,17 +98,27 @@ class Overdrive
     body['collectionToken']
   end
 
-  def fetch_titles_availability
+  # The optional block is called after each chunk lands, so a caller streaming
+  # to a browser has something to show. Chunks are the only honest unit of
+  # progress here: within one, the OverDrive search, edition expansion and
+  # availability lookup all run concurrently and finish out of order.
+  def fetch_titles_availability &progress_callback
     total_start = monotonic_now
     rss_before = self.class.rss_mb
     chunks = @book_info.each_slice(CHUNK_SIZE).to_a
     warn "[overdrive] Starting: #{@book_info.size} books in #{chunks.size} chunks, RSS=#{rss_before.round(1)}MB"
 
     results = Array.new(chunks.size)
+    completed = 0
     task = Async do
       barrier = Async::Barrier.new
       chunks.each_with_index do |chunk, i|
-        barrier.async { results[i] = process_chunk(chunk, i + 1, chunks.size) }
+        barrier.async do
+          results[i] = process_chunk(chunk, i + 1, chunks.size)
+          # Fibers on one thread, so this increment needs no lock.
+          completed += 1
+          report_chunk_progress(progress_callback, completed, chunks.size)
+        end
       end
       barrier.wait
     ensure
@@ -124,6 +134,14 @@ class Overdrive
   private
 
   def monotonic_now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+  # A failure to report progress must never lose the availability results the
+  # chunk just produced -- the socket may have closed while this ran.
+  def report_chunk_progress callback, completed, total
+    callback&.call(type: 'progress', message: "Checking availability — #{completed} of #{total} batches complete...", current: completed, total: total)
+  rescue StandardError
+    nil
+  end
 
   def process_chunk chunk, chunk_num, chunk_count
     start = monotonic_now
