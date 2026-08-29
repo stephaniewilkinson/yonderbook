@@ -76,6 +76,53 @@ describe 'Anonymous search flow' do
     end
   end
 
+  # Someone can connect Goodreads before they have an account. Those credentials
+  # live in the session cache, which dies with the session, so signing up has to
+  # copy them onto the account or the connection is silently lost.
+  describe 'account creation with anonymous Goodreads credentials' do
+    def sign_up email
+      visit '/sign-up'
+      fill_in 'Email', with: email
+      fill_in 'Password', with: 'SecurePassword123!'
+      click_button 'Create Account'
+    end
+
+    it 'copies the session credentials onto the new account' do
+      email = "migrate_#{Time.now.to_i}_#{rand(9999)}@example.com"
+      with_anonymous_session { sign_up email }
+
+      account = DB[:accounts].where(email: email).first
+      refute_nil account, 'the account was not created'
+      connection = DB[:goodreads_connections].where(user_id: account[:id]).first
+
+      refute_nil connection, 'the Goodreads connection was not migrated'
+      assert_equal ANON_CREDENTIALS[:anon_goodreads_user_id], connection[:goodreads_user_id]
+      assert_equal ANON_CREDENTIALS[:anon_goodreads_token], connection[:access_token]
+    end
+
+    # They can always reconnect from /connections, so a failed migration must not
+    # cost them the account they actually asked for.
+    it 'still creates the account when the migration raises' do
+      email = "migrate_fail_#{Time.now.to_i}_#{rand(9999)}@example.com"
+      exploding = ->(*) { raise 'Goodreads is unreachable' }
+
+      with_anonymous_session do
+        Goodreads.stub(:save_goodreads_connection, exploding) { sign_up email }
+      end
+
+      refute_nil DB[:accounts].where(email: email).first, 'the account was not created'
+    end
+
+    it 'leaves accounts without session credentials alone' do
+      email = "no_migrate_#{Time.now.to_i}_#{rand(9999)}@example.com"
+      sign_up email
+
+      account = DB[:accounts].where(email: email).first
+      refute_nil account, 'the account was not created'
+      assert_empty DB[:goodreads_connections].where(user_id: account[:id]).all
+    end
+  end
+
   describe 'GET /search/availability' do
     it 'redirects to / when no session credentials exist' do
       visit '/search/availability'

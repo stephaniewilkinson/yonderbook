@@ -82,6 +82,26 @@ class RodauthConfig < Rodauth::Auth
     # Store email in session after account creation for the interstitial page
     after_create_account do
       session['pending_email'] = account[login_column]
+
+      # A visitor can connect Goodreads before signing up. Those credentials sit
+      # in the session cache, which dies with the session, so copy them onto the
+      # account or the connection is silently lost at the moment they commit.
+      #
+      # The cache entries stay put: they still have to verify their email, and
+      # the anonymous flow has to keep working until they do.
+      goodreads_user_id = Cache.get(session, :anon_goodreads_user_id)
+      token = Cache.get(session, :anon_goodreads_token)
+      secret = Cache.get(session, :anon_goodreads_secret)
+
+      if goodreads_user_id && token && secret
+        begin
+          Goodreads.save_goodreads_connection(account[account_id_column], goodreads_user_id, token, secret)
+        rescue StandardError => e
+          # Never cost someone the account they actually asked for -- they can
+          # reconnect from /connections.
+          Sentry.capture_exception(e) if defined?(Sentry)
+        end
+      end
     end
 
     # Email configuration
