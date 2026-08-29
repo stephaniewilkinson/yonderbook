@@ -1,0 +1,116 @@
+<!-- Hero Section -->
+<div class="pt-16 pb-10 relative animate-fade-in-up overflow-hidden">
+  <!-- Vibrant Background Gradients -->
+  <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-bl from-indigo-200/50 via-violet-200/40 to-transparent rounded-full blur-3xl -z-10 -mt-32 -mr-32"></div>
+  <div class="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-mauve-200/50 to-transparent rounded-full blur-3xl -z-10 -ml-32"></div>
+
+  <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 relative z-10 px-4 sm:px-6 lg:px-8">
+
+    <!-- Left Column: Text Content -->
+    <div class="flex-1 max-w-3xl">
+      <h1 class="font-display text-5xl sm:text-7xl font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-indigo-950 via-mauve-900 to-violet-900 mb-6 leading-tight">
+        See which of your books are free at your library
+      </h1>
+
+      <p class="text-xl sm:text-2xl text-mauve-700 mb-10 leading-relaxed max-w-2xl font-light">
+        Connect your Goodreads shelf, pick your library, and find out what you can borrow right now. No account needed.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <% if @auth_url %>
+          <%# Deliberately no target="_blank": it opens a tab Capybara will not
+              follow, which breaks the anonymous flow specs. %>
+          <a href="<%= @auth_url %>" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-indigo-800 to-violet-800 text-white font-medium text-lg rounded-full shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+            <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
+            Connect with Goodreads
+          </a>
+        <% else %>
+          <%# Goodreads was unreachable when the request token was fetched. The
+              page still has to render -- offer the path that does not need them. %>
+          <a href="/import" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-indigo-800 to-violet-800 text-white font-medium text-lg rounded-full shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+            Import a CSV export instead
+          </a>
+        <% end %>
+
+        <a href="/authenticate" class="inline-flex items-center justify-center px-8 py-4 glass-panel text-mauve-950 font-medium text-lg rounded-full hover:bg-white/80 transition-colors duration-200">
+          Already have an account? Log in
+        </a>
+      </div>
+
+      <p class="mt-6 text-sm text-mauve-600 max-w-2xl leading-relaxed">
+        <strong class="font-medium text-mauve-700">Why two clicks?</strong>
+        Goodreads <a href="https://www.goodreads.com/topic/show/21788520-api-deprecation" class="text-mauve-950 hover:underline font-medium">deprecated their API</a>
+        in 2020, which broke automatic redirects. You may need to press Connect a second time when you come back.
+      </p>
+    </div>
+
+    <!-- Right Column: Hero Image -->
+    <div class="flex-1 w-full max-w-2xl lg:max-w-none relative">
+      <div class="absolute inset-0 bg-gradient-to-tr from-violet-400/20 to-indigo-400/20 rounded-full blur-3xl transform scale-90"></div>
+      <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop" alt="Library visualization" width="1200" height="800" class="relative z-10 w-full h-auto object-cover rounded-3xl drop-shadow-2xl hover:-translate-y-2 transition-transform duration-700" style="max-height: 550px;">
+    </div>
+
+  </div>
+</div>
+
+<!-- How It Works -->
+<div class="pb-12 pt-6 relative z-10 w-full max-w-7xl mx-auto">
+  <div class="w-full grid md:grid-cols-3 gap-y-12 md:gap-y-0 text-center glass-panel rounded-3xl p-10 md:p-12 shadow-2xl relative overflow-hidden group">
+    <!-- Subtle ambient glow -->
+    <div class="absolute inset-0 bg-gradient-to-r from-indigo-100/30 via-violet-100/20 to-mauve-100/30 opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+    <!-- Step 1 -->
+    <div class="relative z-10 px-4">
+      <div class="w-16 h-16 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner text-indigo-700">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+      </div>
+      <h2 class="font-display font-semibold text-2xl text-mauve-950 mb-3">1. Connect</h2>
+      <p class="text-mauve-600 text-base leading-relaxed">Link your Goodreads account and choose any shelf.</p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="relative z-10 px-4 md:border-l border-white/40">
+      <div class="w-16 h-16 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner text-violet-700">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      </div>
+      <h2 class="font-display font-semibold text-2xl text-mauve-950 mb-3">2. Pick Your Library</h2>
+      <p class="text-mauve-600 text-base leading-relaxed">Enter a zip code and pick from the library systems near you.</p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="relative z-10 px-4 md:border-l border-white/40">
+      <div class="w-16 h-16 bg-gradient-to-br from-rose-50 to-rose-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner text-rose-700">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <h2 class="font-display font-semibold text-2xl text-mauve-950 mb-3">3. See Results</h2>
+      <p class="text-mauve-600 text-base leading-relaxed">See what is available now, what has a waitlist, and what is missing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Social Proof / Stats -->
+<div class="pb-16 pt-8 relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <div class="text-center mb-10">
+    <h2 class="font-display text-3xl font-semibold tracking-tight text-mauve-950">Built for Bookworms. Since 2016.</h2>
+    <div class="w-16 h-1 bg-gradient-to-r from-indigo-300 to-violet-400 rounded-full mx-auto mt-4"></div>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center max-w-5xl mx-auto">
+    <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-4xl font-display font-semibold text-indigo-900 mb-2">4,800+</div>
+      <div class="text-xs font-medium text-mauve-600 uppercase tracking-wider">Readers served</div>
+    </div>
+    <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-4xl font-display font-semibold text-violet-900 mb-2">10</div>
+      <div class="text-xs font-medium text-mauve-600 uppercase tracking-wider">Years running</div>
+    </div>
+    <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-4xl font-display font-semibold text-mauve-900 mb-2">1,000+</div>
+      <div class="text-xs font-medium text-mauve-600 uppercase tracking-wider">Libraries searchable</div>
+    </div>
+    <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">
+      <div class="text-4xl font-display font-semibold text-rose-900 mb-2">$0</div>
+      <div class="text-xs font-medium text-mauve-600 uppercase tracking-wider">Cost to readers</div>
+    </div>
+  </div>
+</div>
