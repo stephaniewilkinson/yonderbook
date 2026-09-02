@@ -79,9 +79,10 @@ describe App do
     visit '/logout'
     click_button 'Log Out' # Confirm logout
 
-    # Should be back on the welcome page
+    # Should be back on the search homepage. It replaced welcome.erb at / in
+    # #1267, so this no longer asserts that page's "Create Your Account".
     assert_text 'Log in'
-    assert_text 'Create Your Account'
+    assert_text 'Connect with Goodreads'
 
     # Test login with the same credentials
     click_link 'Log in'
