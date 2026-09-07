@@ -275,7 +275,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.72.1, < 2)
     ruby-progressbar (1.13.0)
-    rubyzip (3.5.0)
+    rubyzip (3.6.0)
     samovar (2.5.1)
       console (~> 1.0)
     selenium-webdriver (4.48.0)
