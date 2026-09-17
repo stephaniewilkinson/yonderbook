@@ -4,9 +4,9 @@ require_relative 'spec_helper'
 
 # An anonymous visitor's Goodreads credentials live in the Cache under their
 # session id, which a Rack::Test request cannot reach -- the id is sealed in the
-# encrypted session cookie. Stub the read instead, so these specs exercise the
-# routes rather than the session plumbing.
-ANON_CREDENTIALS = {anon_goodreads_user_id: '1', anon_goodreads_token: 'token', anon_goodreads_secret: 'secret'}.freeze
+# encrypted session cookie. ANON_CREDENTIALS (spec_helper) is what the stubbed
+# read returns, so these specs exercise the routes rather than the session
+# plumbing.
 
 describe 'Anonymous search flow' do
   include Capybara::DSL

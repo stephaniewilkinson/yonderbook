@@ -5,6 +5,12 @@
 # only where an incomplete flow sends the visitor back to differs, so that
 # stays with each route.
 module AvailabilityHelpers
+  # Where "Search library" goes when the library's own OverDrive address is
+  # unknown. library_url is derived from a dlrHomepage link that not every
+  # consortium returns, and an empty "?websiteID=" -- which is what the view
+  # used to render in that case -- is a link to nowhere.
+  OVERDRIVE_HOME = 'https://www.overdrive.com/libraries'
+
   # Hand the OverDrive check to the WebSocket rather than running it inline.
   # RequestTimeout caps a request at 25s to stay under Render's proxy, and a
   # large shelf takes longer than that (#1347); the middleware exempts WebSocket
@@ -17,10 +23,12 @@ module AvailabilityHelpers
     Cache.set(session, availability_book_info: book_info, availability_consortium: consortium)
   end
 
+  # Two of the four values this used to read -- collection_token and
+  # website_id -- were cached, read back, assigned, and used by nothing.
+  # website_id existed only so the view could rebuild the borrow URL that
+  # Overdrive#library_url already returns.
   def load_cached_availability
     @titles = Cache.get session, :titles
-    @collection_token = Cache.get session, :collection_token
-    @website_id = Cache.get session, :website_id
     @library_url = Cache.get session, :library_url
   end
 

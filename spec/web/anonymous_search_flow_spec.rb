@@ -229,4 +229,36 @@ describe 'Anonymous search flow, end to end' do
         .new('Sapiens', 'Yuval Noah Harari', 'cover.jpg', 3, 5, '9780062316097', 'https://link.overdrive.com/', 'id-1', nil, false, '2024-01-01')
     end
   end
+
+  # #441. collection_token, website_id and library_url all came off one
+  # Overdrive instance and were three session keys representing one object --
+  # and two of the three were written, read back, assigned to ivars, and used
+  # by nothing at all.
+  describe 'the library context on the results page' do
+    def render_with library_url
+      cached = {titles: [flow_title], library_url: library_url, shelf_name: 'to-read', libraries: [%w[1135 Seattle]]}
+      with_anonymous_session(cached) { get '/search/availability' }
+    end
+
+    def flow_title
+      Struct.new(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, :no_isbn, :date_added)
+        .new('Unowned Book', 'An Author', 'cover.jpg', 0, 0, '9780062316097', nil, nil, nil, false, '2024-01-01')
+    end
+
+    it 'links the library using the cached url' do
+      render_with 'https://link.overdrive.com/?websiteID=87'
+
+      assert_includes last_response.body, 'https://link.overdrive.com/?websiteID=87'
+    end
+
+    it 'falls back to the OverDrive library finder when the url is unknown' do
+      # Not every consortium returns a dlrHomepage link. The view used to
+      # rebuild the URL from a website id, so a missing one rendered
+      # "?websiteID=" with nothing after it -- a link to nowhere.
+      render_with nil
+
+      assert_includes last_response.body, AvailabilityHelpers::OVERDRIVE_HOME
+      refute_includes last_response.body, 'websiteID="'
+    end
+  end
 end
