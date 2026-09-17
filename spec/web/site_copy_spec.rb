@@ -136,4 +136,24 @@ describe 'site copy' do
       assert_includes last_response.body, 'No account needed'
     end
   end
+
+  describe 'robots directives' do
+    it 'leaves the static pages indexable' do
+      %w[/ /faq /about /how-it-works].each do |path|
+        get path
+
+        refute_includes last_response.body, 'name="robots"', "#{path} asks not to be indexed"
+      end
+    end
+
+    it 'asks search engines not to index one visitor\'s results' do
+      # A set of availability results belongs to one person and one moment.
+      # Same for the progress page, which exists only while a job runs.
+      %w[availability availability_progress].each do |view|
+        source = File.read("views/#{view}.erb")
+
+        assert_includes source, "content_for :robots, 'noindex'"
+      end
+    end
+  end
 end

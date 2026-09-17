@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<%= content_for(:description) || "Goodreads Libby integration made easy. Automatically check which books on your Goodreads want-to-read shelf are available free at your library through Libby and OverDrive." %>">
     <meta name="keywords" content="Goodreads, Libby, OverDrive, BookMooch, free books, library ebooks, book trading, want to read, reading list, free audiobooks, library catalog search">
+    <% # Pages whose content belongs to one visitor and one moment -- a set of
+       # availability results, a progress page -- ask not to be indexed. Static
+       # pages set nothing here and stay indexable. %>
+    <% if content_for(:robots) %>
+      <meta name="robots" content="<%= content_for(:robots) %>">
+    <% end %>
 
     <!-- Canonical URL -->
     <link rel="canonical" href="<%= @canonical_url || "https://yonderbook.com#{request.path}" %>">
