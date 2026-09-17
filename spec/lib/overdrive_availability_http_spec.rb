@@ -136,4 +136,75 @@ describe 'Overdrive availability over HTTP' do
     # 30 ids over a batch size of 25 is two requests, not one and not thirty.
     assert_requested(:get, %r{/v2/collections/#{COLLECTION}/availability}o, times: 2)
   end
+
+  # #542. The search sends no format filter, so a title the library holds as
+  # both an ebook and an audiobook comes back as two products. Nothing read
+  # mediaType, so they collapsed into one row labelled "Read".
+  describe 'formats' do
+    def stub_products *products
+      stub_request(:get, %r{/v1/collections/#{COLLECTION}/products}o).to_return(status: 200, body: JSON.dump({'products' => products}))
+    end
+
+    def product id:, media_type:
+      {'id' => id, 'mediaType' => media_type, 'images' => {}, 'contentDetails' => [{'href' => "https://link.overdrive.com/?#{id}"}]}
+    end
+
+    it 'carries the product mediaType onto the title' do
+      stub_products product(id: 'a1', media_type: 'audiobook')
+      stub_availability id: 'a1'
+
+      assert_equal 'audiobook', Overdrive.new([book], '1135').fetch_titles_availability.first.format
+    end
+
+    it 'keeps each format as its own result' do
+      # Keyed on identifier alone, these became one row -- and since
+      # should_replace? keeps whichever has the most copies, the audiobook
+      # could win and be presented as an ebook.
+      stub_products product(id: 'ebook-1', media_type: 'eBook'), product(id: 'audio-1', media_type: 'audiobook')
+      stub_request(:get, %r{/v2/collections/#{COLLECTION}/availability}o).to_return(
+        status: 200,
+        body: JSON.dump(
+          {
+            'availability' => [
+              {'reserveId' => 'ebook-1', 'copiesAvailable' => 1, 'copiesOwned' => 2},
+              {'reserveId' => 'audio-1', 'copiesAvailable' => 9, 'copiesOwned' => 9}
+            ]
+          }
+        )
+      )
+
+      titles = Overdrive.new([book], '1135').fetch_titles_availability
+
+      assert_equal %w[audiobook ebook], titles.map(&:format).sort
+      assert_equal [1, 9], titles.map(&:copies_available).sort
+    end
+
+    it 'normalises the casing OverDrive uses' do
+      stub_products product(id: 'a1', media_type: 'eBook')
+      stub_availability id: 'a1'
+
+      assert_equal 'ebook', Overdrive.new([book], '1135').fetch_titles_availability.first.format
+    end
+
+    it 'falls back to ebook when a product carries no mediaType' do
+      stub_products({'id' => 'a1', 'images' => {}, 'contentDetails' => []})
+      stub_availability id: 'a1'
+
+      assert_equal 'ebook', Overdrive.new([book], '1135').fetch_titles_availability.first.format
+    end
+
+    it 'gives a book the catalog does not carry a format anyway' do
+      # The view reads .format on every row, including the placeholder for a
+      # book with no matched product.
+      stub_products
+
+      assert_equal 'ebook', Overdrive.new([book], '1135').fetch_titles_availability.first.format
+    end
+
+    it 'labels a format for a reader' do
+      assert_equal 'audiobook', Overdrive.format_label('audiobook')
+      assert_equal 'ebook', Overdrive.format_label(nil)
+      assert_equal 'ebook', Overdrive.format_label('something-new')
+    end
+  end
 end

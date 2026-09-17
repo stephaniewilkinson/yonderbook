@@ -32,6 +32,12 @@ module AvailabilityHelpers
     @library_url = Cache.get session, :library_url
   end
 
+  # "Read" is wrong on an audiobook, and every result carried it because
+  # nothing read the product's mediaType (#542).
+  def listen_or_read title
+    title.format == 'audiobook' ? 'Listen' : 'Read'
+  end
+
   def split_titles_by_availability
     @available_books = sort_by_date_added(@titles.select { |a| a.copies_available.positive? })
     @waitlist_books = sort_by_date_added(@titles.select { |a| a.copies_available.zero? && a.copies_owned.positive? })

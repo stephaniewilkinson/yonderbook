@@ -46,7 +46,19 @@ class Overdrive
     end
   end
 
-  Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :availability_url, :no_isbn, :date_added)
+  # `format` is the product's OverDrive mediaType -- "ebook", "audiobook",
+  # "video". It was never read before, so every result was presented as an
+  # ebook regardless of what it actually was.
+  #
+  # `availability_url` is gone: it was declared here, set to nil at both
+  # construction sites, and read by nothing.
+  Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :no_isbn, :date_added)
+
+  # What OverDrive calls a format, and what a person calls it.
+  FORMAT_LABELS = {'ebook' => 'ebook', 'audiobook' => 'audiobook', 'video' => 'video'}.freeze
+  DEFAULT_FORMAT = 'ebook'
+
+  def self.format_label(format) = FORMAT_LABELS.fetch(format.to_s, DEFAULT_FORMAT)
 
   def self.local_libraries zip_code
     LibrarySearch.near zip_code
@@ -183,7 +195,7 @@ class Overdrive
       copies_owned: 0,
       url: nil,
       id: nil,
-      availability_url: nil,
+      format: DEFAULT_FORMAT,
       no_isbn: no_isbn,
       date_added: book[:date_added]
     )
@@ -242,7 +254,7 @@ class Overdrive
           isbn: book.isbn,
           url: edition.dig('contentDetails', 0, 'href'),
           id: edition['id'],
-          availability_url: nil,
+          format: edition['mediaType'].to_s.downcase.then { |media| media.empty? ? DEFAULT_FORMAT : media },
           no_isbn: book.no_isbn,
           date_added: book.date_added
         )
@@ -280,11 +292,18 @@ class Overdrive
     end
   end
 
-  # Consolidate duplicate editions across all titles
+  # Consolidate duplicate editions across all titles.
+  #
+  # Keyed on format as well as identifier. Keying on identifier alone collapsed
+  # every format of a title into one row and kept whichever had the most copies
+  # -- so a library with the audiobook but not the ebook showed the audiobook
+  # labelled "Read". The ISBN carried here is the Goodreads one, which is the
+  # same for every format OverDrive returned, so it cannot separate them.
   def consolidate_duplicate_titles titles
     books_by_key = {}
     titles.each do |book|
-      key = book.isbn&.then { |isbn| isbn.empty? ? nil : isbn } || TitleNormalizer.normalize(book.title)
+      identifier = book.isbn&.then { |isbn| isbn.empty? ? nil : isbn } || TitleNormalizer.normalize(book.title)
+      key = [identifier, book.format]
       if books_by_key[key]
         books_by_key[key] = book if should_replace?(book, books_by_key[key])
       else

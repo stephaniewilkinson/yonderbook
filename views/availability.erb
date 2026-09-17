@@ -31,9 +31,10 @@
           title: title.title,
           author: title.author,
           isbn: title.isbn,
+          badge: Overdrive.format_label(title.format),
           status_label: 'Available:',
           status_value: title.copies_owned == 999999 ? 'Unlimited' : "#{title.copies_available}/#{title.copies_owned}",
-          button: {url: title.url, icon: '/svg/book.svg', label: 'Read', class: 'bg-mauve-950 hover:bg-mauve-900'}
+          button: {url: title.url, icon: '/svg/book.svg', label: listen_or_read(title), class: 'bg-mauve-950 hover:bg-mauve-900'}
         }
       end
     },
@@ -49,6 +50,7 @@
           title: title.title,
           author: title.author,
           isbn: title.isbn,
+          badge: Overdrive.format_label(title.format),
           status_label: 'Waitlist:',
           status_value: title.copies_owned == 999999 ? 'Unlimited' : "#{title.copies_available}/#{title.copies_owned}",
           button: {url: title.url, icon: '/svg/book.svg', label: 'Reserve', class: 'bg-mauve-950 hover:bg-mauve-900'}
