@@ -10,16 +10,6 @@ require 'sentry-ruby'
 require 'tilt'
 # require 'zbar'
 
-# Ruby 4.0 removed CGI.parse; the oauth gem still uses it
-require 'cgi'
-unless CGI.respond_to?(:parse)
-  def CGI.parse query_string
-    URI.decode_www_form(query_string).each_with_object({}) do |(k, v), hash|
-      (hash[k] ||= []) << v
-    end
-  end
-end
-
 require_relative 'lib/auth'
 require_relative 'lib/availability_helpers'
 require_relative 'lib/bookmooch'

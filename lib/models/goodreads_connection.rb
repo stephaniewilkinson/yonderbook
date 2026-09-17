@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'oauth'
+require_relative '../cgi_parse_shim'
 
 # GoodreadsConnection model for persisting OAuth credentials
 class GoodreadsConnection < Sequel::Model

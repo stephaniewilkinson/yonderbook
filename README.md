@@ -40,7 +40,60 @@ sqlite3 db/development.db
 bundle exec rake test
 ```
 
-Tests require environment variables — copy `.env-example` to `.env` and fill in values.
+Tests require environment variables — copy `.env-example` to `.env` and fill in
+values. The values no longer have to be real: the suite reaches no external
+service, so placeholders are enough.
+
+### HTTP mocking
+
+Every call to Goodreads, OverDrive, BookMooch and OpenLibrary is stubbed at the
+HTTP layer, and `WebMock.disable_net_connect!` makes an unstubbed one fail the
+spec by name rather than quietly going out to the network.
+
+Almost all of this app's requests go through `Async::HTTP` rather than
+`Net::HTTP`, in three shapes (`Internet.get`, `Internet.new`, `Client.new`).
+WebMock's `async_http_client` adapter swaps the `Async::HTTP::Client` constant,
+and `Internet#make_client` resolves that constant at call time, so one swap
+covers all three. The `oauth` gem and `resend` (via HTTParty) use `Net::HTTP`
+and are covered by the adapter for that.
+
+- `spec/support/http_mocking.rb` — WebMock and VCR configuration, plus
+  `HttpFixtures` builders for the response shapes the parsers expect.
+- `spec/support/default_external_apis.rb` — the defaults every `spec/web` spec
+  starts from, so a browser spec driving a whole flow does not have to restate
+  them. A spec that cares about one response calls `stub_request` itself; the
+  later stub wins.
+
+Two things to know when writing a stub. `Async::HTTP::Internet` adds
+`Accept-Encoding: gzip, identity`, which does not affect a plain
+`stub_request(:get, url)` but must be included in any stub using
+`.with(headers:)`. And `WebMock::NetConnectNotAllowedError` descends from
+`Exception`, not `StandardError`, so the `rescue StandardError` guards in `lib/`
+cannot swallow it — an unstubbed call fails the spec instead of being reported
+as an application error.
+
+### Cassettes
+
+`spec/fixtures/cassettes/` holds recorded responses for payloads too large to
+hand-build — currently a 250-book Goodreads shelf across three pages. Use
+`with_cassette('name') { ... }`; VCR is off otherwise, so everything else gets
+WebMock's error, which names the request and prints a ready-to-paste stub.
+
+Delete a cassette and run with real credentials to re-record it. Credentials are
+filtered out on the way in.
+
+### Specs that need the network
+
+Two specs in `spec/web/system_spec.rb` drive the browser to goodreads.com and
+through Amazon's sign-in. That traffic belongs to the browser process, so
+WebMock can neither block nor stub it. They skip unless `LIVE_EXTERNAL_SPECS=1`
+is set, and they need real credentials and a Goodreads account with the right
+shelves. They are also the specs #1329 is about, which used to fail about a
+third of main's runs and block deploys.
+
+One known flake remains: `root route::GET / sends a logged-in user to their home
+page` fails intermittently on browser/session timing. It predates this setup and
+is not related to HTTP mocking.
 
 ## Key Files
 
@@ -51,6 +104,7 @@ Tests require environment variables — copy `.env-example` to `.env` and fill i
 - `lib/sentry_tracing.rb` — Opt-in latency measurement for the Goodreads and OverDrive routes
 - `Rakefile` — Defines `precompile`, `tailwind:build`, `tailwind:watch`, and loads `lib/tasks/*.rake`
 - `lib/database.rb` — Sequel/SQLite setup; creates DB constant, path depends on `RACK_ENV`
+- `lib/cgi_parse_shim.rb` — Restores `CGI.parse`, removed in Ruby 4.0 and still called by the `oauth` gem
 - `lib/tasks/db.rake` — Database rake tasks (migrate, reset, create_migration)
 
 TODO: Clearly display the Goodreads name or logo on any location where Goodreads data appears. For instance if you are displaying Goodreads reviews, they should either be in a section clearly titled "Goodreads Reviews", or each review should say "Goodreads review from John: 4 of 5 stars..."

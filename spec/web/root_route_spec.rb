@@ -11,10 +11,11 @@ describe 'root route' do
 
   let(:app) { App }
 
+  # Only the cache is stubbed here. rebuild_access_token makes no HTTP call --
+  # it just wraps the stored credentials in an OAuth::AccessToken -- so the
+  # real one runs.
   def with_goodreads_session(&)
-    Cache.stub(:get, ->(_session, key) { ROOT_ANON_CREDENTIALS[key] }) do
-      Auth.stub(:rebuild_access_token, Object.new, &)
-    end
+    Cache.stub(:get, ->(_session, key) { ROOT_ANON_CREDENTIALS[key] }, &)
   end
 
   describe 'GET /' do
@@ -47,6 +48,12 @@ describe 'root route' do
     it 'sends a logged-in user to their home page' do
       email, password = create_account_direct
       password_login(email, password)
+      # password_login clicks and returns without waiting for the POST to land.
+      # Visiting '/' before the session cookie is set intermittently saw the
+      # anonymous homepage instead of the redirect. seed_goodreads_user waits
+      # on the same text for the same reason.
+      assert_text 'Welcome back,'
+
       visit '/'
 
       assert_current_path '/home'
@@ -54,24 +61,37 @@ describe 'root route' do
   end
 
   describe 'GET /connect' do
+    REQUEST_TOKEN = 'https://www.goodreads.com/oauth/request_token'
+
     it 'redirects to the Goodreads authorize url' do
-      token = Struct.new(:authorize_url).new('https://www.goodreads.com/oauth/authorize?oauth_token=abc')
+      # Stubbed at the HTTP layer, so the OAuth signing and the authorize_url
+      # the oauth gem derives from the token both run for real.
+      stub_request(:post, REQUEST_TOKEN).to_return(status: 200, body: 'oauth_token=abc&oauth_token_secret=xyz')
 
-      Auth.stub(:fetch_request_token, token) do
-        get '/connect'
+      get '/connect'
 
-        assert_equal token.authorize_url, last_response.headers['location']
-      end
+      assert_equal 'https://www.goodreads.com/oauth/authorize?oauth_token=abc', last_response.headers['location']
     end
 
     # fetch_and_cache_request_token swallows the failure and returns nil, so
     # without a fallback this would redirect to nowhere.
     it 'sends the visitor back to the homepage when Goodreads is unreachable' do
-      Auth.stub(:fetch_request_token, ->(*) { raise 'Goodreads is unreachable' }) do
-        get '/connect'
+      stub_request(:post, REQUEST_TOKEN).to_timeout
 
-        assert_equal '/', last_response.headers['location']
-      end
+      get '/connect'
+
+      assert_equal '/', last_response.headers['location']
+    end
+
+    it 'retries a timeout before giving up' do
+      # Auth.fetch_request_token retries twice on a network error, which is
+      # three attempts in total. Nothing proved that until the request could
+      # be counted.
+      stub_request(:post, REQUEST_TOKEN).to_timeout
+
+      get '/connect'
+
+      assert_requested(:post, REQUEST_TOKEN, times: 3)
     end
   end
 end

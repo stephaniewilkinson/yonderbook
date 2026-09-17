@@ -287,8 +287,10 @@ Lint/RescueException:
   Exclude:
     - lib/sentry_capture.rb
 
-# Specs stand in for Sentry classes that need a configured hub, and a fake is
-# clearest defined next to the tests that use it.
+# Specs name the URLs they stub as constants at the top of the describe block,
+# which reads better than repeating the pattern in every example, and they
+# define fakes for classes that need real configuration to construct -- both
+# clearest next to the tests that use them.
 Lint/ConstantDefinitionInBlock:
   Exclude:
     - spec/**/*_spec.rb
