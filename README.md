@@ -223,7 +223,43 @@ Books are processed in chunks of 100 to bound memory. Each chunk completes the f
 
 ## OOM / Memory Management
 
-The app runs on Render's Starter plan (512MB RAM). The process starts at ~100MB and grows steadily until OOM kill at 512MB.
+The app runs on Render's Starter plan (512MB RAM).
+
+### Current status: the OOM is fixed (measured 2026-09-17)
+
+**The daily OOM kill described below no longer happens.** Everything from "Root
+cause" onwards is the history of a solved problem, kept because it explains why
+the mitigations exist and what to watch if it comes back.
+
+Measured from Render's logs:
+
+| Signal | Value |
+| --- | --- |
+| `MemoryLogger` request counter | #106,480 on 2026-09-12 → **#191,770** on 2026-09-17 |
+| Render instance id | `xbr7b`, unchanged across 28 samples at 6h intervals over 7 days |
+| RSS | 225.2MB → **229.4MB** across those ~85,000 requests |
+
+`MemoryLogger` resets its counter to 0 on every process start
+(`lib/memory_logger.rb`), so a counter climbing monotonically past 191,000 means
+the process has not restarted in at least 5½ days. The instance id says the same
+thing back to 2026-09-11.
+
+RSS moved +4.2MB over ~85,000 requests. The leak documented below was 0.2-0.4MB
+*per request*. Current RSS sits well under both the 400MB warning threshold and
+the 512MB limit.
+
+Two caveats. This is inferred from the request counter and instance id rather
+than from Render's own restart events, and Render's log retention bounds how far
+back it can be checked — seven days confirmed. It is strong evidence, not a
+guarantee about earlier weeks.
+
+To re-check:
+
+```bash
+render logs -r srv-cuhq5cpu0jms73adb27g --limit 200 -o json --confirm | grep -o '\[mem\] #[0-9]* START'
+```
+
+A number lower than the last one recorded here means the process restarted.
 
 ### Root cause
 
@@ -237,11 +273,14 @@ There are two layers to the problem:
 
 **Layer 2: Memory that GC cannot reclaim.** Even after Ruby's major GC collects objects (old_objects drops from 549k to 50k), RSS doesn't decrease -- it stays at 506MB and keeps climbing. This happens even with `MALLOC_ARENA_MAX=2` set, ruling out simple glibc arena fragmentation. The retained memory likely comes from C-level allocations in OpenSSL (used by Sentry's HTTP transport and session encryption) and object-slot fragmentation in Ruby's heap pages.
 
-### Typical OOM timeline
+### Typical OOM timeline (historical, before the mitigations)
 
-Server starts at ~100MB. At 0.3MB/request with bot traffic every minute:
+Server started at ~100MB. At 0.3MB/request with bot traffic every minute:
 - ~23 hours to reach 512MB and trigger SIGKILL
 - SIGKILL cannot be caught -- no Ruby error handler, no Sentry, nothing runs
+
+The second point still holds and is why nothing in-process can report a restart.
+The first no longer describes production; see "Current status" above.
 
 ### Mitigations (code changes)
 
@@ -282,7 +321,13 @@ Removing it also removed the only thing watching the middleware stack, so errors
 
 ### Why memory still grows (post-fix)
 
-The mitigations above eliminated the biggest leak (bot traffic on `/`), but RSS still creeps up on non-homepage requests. Every authenticated request runs through this pipeline (app.rb lines 108-127):
+Written when RSS was still climbing after the mitigations. The 2026-09-17
+measurement puts the remaining growth at roughly 4MB per 85,000 requests, which
+is slow enough that the process now outlives any plausible deploy interval. The
+mechanism below is still the right explanation for the residual creep; it just
+no longer adds up to a kill.
+
+Every authenticated request runs through this pipeline (app.rb lines 108-127):
 
 1. **Session decryption/encryption** -- Rodauth decrypts the incoming session cookie and re-encrypts the outgoing one via OpenSSL. Cipher contexts are C-level `malloc` allocations.
 2. **Sentry scope calls** -- `enrich_sentry` calls `Sentry.set_user` and `Sentry.set_tags` on every request, creating scope objects on the Sentry hub even without the middleware.
@@ -294,19 +339,47 @@ The problem isn't Ruby objects -- GC collects those fine (old_objects drops from
 
 ### Next steps for memory
 
+None of these are needed while RSS holds at ~229MB. Kept for the case where
+"Current status" stops being true.
+
 **`malloc_trim` gem** -- Calls `malloc_trim()` after each major GC cycle to return freed glibc pages to the OS. ~1% CPU overhead, Linux only (which Render uses). This is the lowest-effort next step. Typical RSS reduction: 10-30%.
 
 **jemalloc** -- A drop-in malloc replacement that returns memory to the OS far more aggressively. Used by GitLab, Discourse, and Mastodon. However, it requires a Docker deploy on Render (`apt-get install libjemalloc2` + `LD_PRELOAD`), which is overkill unless `malloc_trim` proves insufficient. Typical RSS reduction: 25-40%.
 
 **Health-check-based restart** -- Write a custom `/health` that returns 500 when RSS > 450MB. Render restarts after 60s of failed checks. This is a fallback, not a fix.
 
-### Seeing the OOM at all
+### Noticing a restart
 
-Nothing in this process can report its own SIGKILL, so the app's most frequent production failure is the one its error reporting is structurally incapable of seeing. **Sentry Uptime Monitoring** is the answer, and it is dashboard configuration rather than code: an HTTP check run from Sentry's infrastructure against `https://yonderbook.com/`, which opens an issue when the app stops answering during a Render restart and resolves it when the app comes back. It costs this process no memory, which matters given memory is the whole problem.
+Nothing in this process can report its own SIGKILL, so if the OOM comes back,
+the app's error reporting is structurally incapable of seeing it. That gap is
+real; what changed is its urgency, since there are currently no restarts to
+count.
 
-What it makes newly answerable is how often this actually happens. "Roughly daily" is an estimate from reading logs; a restart count per week is a number, and it is the number that says whether the next mitigation worked.
+**Render's logs already answer it, for free.** The request counter and instance
+id used under "Current status" are the cheapest check available and need no
+third party:
 
-`Sentry.capture_check_in` (Cron Monitoring) is the in-process alternative -- a heartbeat on a timer carrying the RSS that `MemoryLogger` already samples, where a missed beat means the process died between beats. It needs code and it costs memory, so it is only worth it if the uptime check turns out not to be enough.
+```bash
+render logs -r srv-cuhq5cpu0jms73adb27g --limit 200 -o json --confirm | grep -o '\[mem\] #[0-9]* START'
+```
+
+**Sentry Uptime Monitoring** is the automated option -- dashboard configuration
+rather than code, an HTTP check from Sentry's infrastructure that opens an issue
+when the app stops answering and resolves when it returns. Two things to know
+before setting one up:
+
+- It is metered against the pay-as-you-go budget. With that budget at zero,
+  Sentry refuses to create the monitor.
+- The default failure threshold of 3, at a 1-minute interval, means downtime
+  shorter than ~3 minutes never opens an issue. A Render restart is often
+  quicker than that, so the defaults would miss the event being watched for.
+  Use a threshold of 1, and point it at the apex domain -- `Rack::HostRedirect`
+  301s `www`, and the default assertions require a 2xx.
+
+`Sentry.capture_check_in` (Cron Monitoring) is the in-process alternative -- a
+heartbeat carrying the RSS that `MemoryLogger` already samples, where a missed
+beat means the process died between beats. It needs code and it costs memory,
+so it is the last resort rather than the first.
 
 ### What doesn't help
 
