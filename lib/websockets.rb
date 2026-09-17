@@ -26,11 +26,11 @@ module Websockets
 
     run_import(connection, session_id, book_info, username, password)
   rescue Bookmooch::AuthenticationError, Bookmooch::RateLimitError => e
-    Sentry.capture_exception(e) if defined?(Sentry)
+    Sentry.capture_exception(e)
     write_error(connection, e.message)
     connection.close
   rescue StandardError => e
-    Sentry.capture_exception(e) if defined?(Sentry)
+    Sentry.capture_exception(e)
     write_error(connection, "An error occurred: #{e.message}")
     connection.close
   end
@@ -60,7 +60,7 @@ module Websockets
     # rather than leaking an exception string. Overdrive::ApiError is not
     # caught separately: it belongs to the zip code library search, and nothing
     # on this path raises it.
-    Sentry.capture_exception(e) if defined?(Sentry)
+    Sentry.capture_exception(e)
     write_error(connection, 'We could not reach OverDrive for that library. Please try another.')
     connection.close
   end

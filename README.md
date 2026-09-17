@@ -46,6 +46,9 @@ Tests require environment variables — copy `.env-example` to `.env` and fill i
 
 - `app.rb` — Main Roda application class with routing, plugins, and Rodauth config
 - `config.ru` — Rack config; loads Sentry, sets up env-specific middleware
+- `lib/sentry_capture.rb` — Outermost middleware; reports what the stack above the app raises
+- `lib/sentry_scrubber.rb` — `before_send` hook; drops request data and redacts credentials
+- `lib/sentry_tracing.rb` — Opt-in latency measurement for the Goodreads and OverDrive routes
 - `Rakefile` — Defines `precompile`, `tailwind:build`, `tailwind:watch`, and loads `lib/tasks/*.rake`
 - `lib/database.rb` — Sequel/SQLite setup; creates DB constant, path depends on `RACK_ENV`
 - `lib/tasks/db.rake` — Database rake tasks (migrate, reset, create_migration)
@@ -53,6 +56,45 @@ Tests require environment variables — copy `.env-example` to `.env` and fill i
 TODO: Clearly display the Goodreads name or logo on any location where Goodreads data appears. For instance if you are displaying Goodreads reviews, they should either be in a section clearly titled "Goodreads Reviews", or each review should say "Goodreads review from John: 4 of 5 stars..."
 
 TODO: Link back to the page on Goodreads where the data data appears. For instance, if displaying a review, the name of the reviewer and a "more..." link at the end of the review must link back to the review detail page. You may not nofollow this link.
+
+## Error Reporting (Sentry)
+
+Configured in `config.ru`. `lib/sentry_capture.rb` reports what the middleware
+stack raises, `lib/sentry_scrubber.rb` cleans events on the way out, and
+`lib/sentry_tracing.rb` measures latency when it is switched on. The OOM section
+below covers why the Rack integration is not used and what replaced it.
+
+**Releases.** `config.release` comes from `RENDER_GIT_COMMIT`, which Render
+exports into the runtime environment. That is what gives Sentry regression
+detection (an issue reopens when it reappears in a release later than the one
+that resolved it), "first seen in" as a deploy rather than a timestamp, and
+suspect-commit attribution. Nil locally. Running `sentry-cli releases new` /
+`set-commits` / `finalize` in the build, or installing the GitHub integration,
+is what turns those SHAs into linked commits — not done yet.
+
+**PII.** `send_default_pii` is off, and `enrich_sentry` sends a user `id`
+without an email. `SentryScrubber` drops request bodies, cookies, query strings
+and `env` wholesale, and redacts keys matching `/passw|secret|token|api[-_]?key|
+auth|credential|session|cookie/i` anywhere else in the event. Nothing attaches
+request data today, so the scrubber is not load-bearing — it is what keeps that
+true through an upgrade or a careless call site. The rule for hand-set context
+is `enrich_sentry_error`'s: send `request.params.keys`, never `request.params`.
+
+**Tracing.** Off unless `SENTRY_TRACES_SAMPLE_RATE` is set, because transaction
+objects hold Rack `env` references. `SentryTracing` is the only thing that
+starts a transaction, and only for `/goodreads/shelves*` and
+`/goodreads/availability` — the routes that wait on Goodreads and OverDrive,
+and whose timeouts (25s in `lib/request_timeout.rb`, `with_timeout(20)` in
+`lib/route_helpers.rb`) were picked without a distribution to pick them from. It
+never puts the transaction on a scope, so there are no child spans and no hub
+clone; what it measures is end-to-end wall time.
+
+To try it: set `SENTRY_TRACES_SAMPLE_RATE=0.05` on staging, confirm the RSS
+baseline from `MemoryLogger` output first, watch RSS across a full day including
+the hour the OOM usually lands, and unset the variable to roll back without a
+deploy. The RSS graph is the acceptance test, not the trace data. If the curve
+changes at all, leaving it off is a good outcome — it turns the reasoning in
+`lib/sentry_tracing.rb` from a hypothesis into a measurement.
 
 ## Spam Prevention
 
@@ -151,7 +193,15 @@ Server starts at ~100MB. At 0.3MB/request with bot traffic every minute:
 
 **Homepage served before middleware** (app.rb) -- `r.root` is now matched before `enrich_sentry` and the `session['session_id']` assignment. Bot traffic to `/` no longer creates sessions or Sentry scopes. This eliminates the primary source of per-request allocations.
 
-**Sentry::Rack::CaptureExceptions middleware removed** (app.rb) -- This middleware cloned the Sentry hub, created a scope storing the full Rack `env`, and ran session tracking on every request. Under Falcon's fiber/thread model, these allocations leaked ~0.2-0.4MB/request that was never reclaimed. Errors are still captured via `Sentry.capture_exception` in the app's rescue block and `error_handler` plugin. Also set `traces_sample_rate = 0` in config.ru to disable transaction tracing.
+**Sentry::Rack::CaptureExceptions middleware removed** (app.rb) -- This middleware cloned the Sentry hub, created a scope storing the full Rack `env`, and ran session tracking on every request. Under Falcon's fiber/thread model, these allocations leaked ~0.2-0.4MB/request that was never reclaimed. Tracing is off by default for the same reason (see below).
+
+Removing it also removed the only thing watching the middleware stack, so errors are captured in three places instead, none of which clone a hub:
+
+- the rescue block at the bottom of the route tree in app.rb, which covers the route tree and most of what happens inside it
+- the `error_handler` plugin, for anything that raises after that block returns -- a template raising during `view`, an error inside the rescue handler itself, anything a plugin raises above the routing tree
+- `SentryCapture` (`lib/sentry_capture.rb`), outermost in config.ru, for `Rack::HostRedirect`, `Rack::Attack`, `MemoryLogger` and `RequestTimeout`. A rescue and a re-raise: no hub clone, no scope, no reference to `env` held past the call, no session tracking, no transaction.
+
+`SentryCapture.capture_once` is what keeps the first two from sending two events for the same exception -- outside production the route rescue re-raises, and `error_handler` then sees the same object.
 
 **Periodic GC.compact** (lib/memory_logger.rb) -- When RSS exceeds 400MB, `GC.compact` runs every 100 requests. This consolidates the Ruby heap so free pages can be returned to the OS. Won't fully solve malloc fragmentation but helps with Ruby-level fragmentation.
 
@@ -195,6 +245,14 @@ The problem isn't Ruby objects -- GC collects those fine (old_objects drops from
 **jemalloc** -- A drop-in malloc replacement that returns memory to the OS far more aggressively. Used by GitLab, Discourse, and Mastodon. However, it requires a Docker deploy on Render (`apt-get install libjemalloc2` + `LD_PRELOAD`), which is overkill unless `malloc_trim` proves insufficient. Typical RSS reduction: 25-40%.
 
 **Health-check-based restart** -- Write a custom `/health` that returns 500 when RSS > 450MB. Render restarts after 60s of failed checks. This is a fallback, not a fix.
+
+### Seeing the OOM at all
+
+Nothing in this process can report its own SIGKILL, so the app's most frequent production failure is the one its error reporting is structurally incapable of seeing. **Sentry Uptime Monitoring** is the answer, and it is dashboard configuration rather than code: an HTTP check run from Sentry's infrastructure against `https://yonderbook.com/`, which opens an issue when the app stops answering during a Render restart and resolves it when the app comes back. It costs this process no memory, which matters given memory is the whole problem.
+
+What it makes newly answerable is how often this actually happens. "Roughly daily" is an estimate from reading logs; a restart count per week is a number, and it is the number that says whether the next mitigation worked.
+
+`Sentry.capture_check_in` (Cron Monitoring) is the in-process alternative -- a heartbeat on a timer carrying the RSS that `MemoryLogger` already samples, where a missed beat means the process died between beats. It needs code and it costs memory, so it is only worth it if the uptime check turns out not to be enough.
 
 ### What doesn't help
 

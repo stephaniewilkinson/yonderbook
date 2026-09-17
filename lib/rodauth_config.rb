@@ -99,7 +99,7 @@ class RodauthConfig < Rodauth::Auth
         rescue StandardError => e
           # Never cost someone the account they actually asked for -- they can
           # reconnect from /connections.
-          Sentry.capture_exception(e) if defined?(Sentry)
+          Sentry.capture_exception(e)
         end
       end
     end

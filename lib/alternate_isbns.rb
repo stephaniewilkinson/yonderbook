@@ -78,7 +78,7 @@ module AlternateIsbns
             result[isbn] = alternates unless alternates.empty?
             IsbnAlternate.store(isbn, alternates, work_key: work_key)
           rescue StandardError => e
-            Sentry.capture_exception(e, extra: {isbn: isbn}) if defined?(Sentry)
+            Sentry.capture_exception(e, extra: {isbn: isbn})
           ensure
             completed_count += 1
             report_progress(progress_callback, completed_count, total_isbns)

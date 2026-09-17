@@ -280,6 +280,19 @@ Lint/InheritException:
 Lint/NumberConversion:
   Enabled: false
 
+# SentryCapture reports what the middleware stack raises and re-raises it
+# untouched. Narrowing it to StandardError would drop exactly the failures it
+# exists to see -- NoMemoryError above all, on an app that is OOM-killed daily.
+Lint/RescueException:
+  Exclude:
+    - lib/sentry_capture.rb
+
+# Specs stand in for Sentry classes that need a configured hub, and a fake is
+# clearest defined next to the tests that use it.
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - spec/**/*_spec.rb
+
 Lint/SafeNavigationChain:
   AllowedMethods:
     - present?
@@ -335,6 +348,11 @@ Metrics/PerceivedComplexity:
   Max: 20
 
 #################### Naming ################################
+
+# Specs stand in for third-party objects and have to match their method names.
+Naming/AccessorMethodName:
+  Exclude:
+    - spec/**/*_spec.rb
 
 Naming/PredicatePrefix:
   NamePrefix:
