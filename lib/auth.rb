@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'oauth'
+require_relative 'cgi_parse_shim'
 
 module Auth
   API_KEY = ENV.fetch('GOODREADS_API_KEY')

@@ -280,6 +280,12 @@ Lint/InheritException:
 Lint/NumberConversion:
   Enabled: false
 
+# Specs name the URLs they stub as constants at the top of the describe block,
+# which reads better than repeating the pattern in every example.
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - spec/**/*_spec.rb
+
 Lint/SafeNavigationChain:
   AllowedMethods:
     - present?

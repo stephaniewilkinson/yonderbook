@@ -11,6 +11,13 @@ require 'minitest/pride'
 require 'minitest/retry'
 require 'rack/test'
 require 'selenium-webdriver'
+# Blocks the network, allowing localhost so Capybara's Falcon server and
+# Selenium's driver connection still work.
+#
+# Note the limit of this: WebMock intercepts in-process HTTP only. When
+# system_spec drives a real browser to goodreads.com, that traffic belongs to
+# the browser process and is neither blocked nor stubbable from here.
+require_relative '../support/http_mocking'
 
 # Retry ONLY driver and network timeouts, and only twice. See issue #1329.
 #
@@ -85,8 +92,32 @@ Capybara.configure do |config|
   config.app_host = 'http://localhost:9292'
 end
 
+# Browser specs drive whole flows, so one page load can touch several services.
+# See spec/support/default_external_apis.rb for what each answers and why a
+# spec overrides rather than adds.
+require_relative '../support/default_external_apis'
+Minitest::Test.prepend DefaultExternalApis
+
 # Helper module for test utilities
 module TestHelpers
+  # Two specs in system_spec.rb drive the browser to goodreads.com and through
+  # Amazon's sign-in, or need a real library's OverDrive catalogue. That
+  # traffic belongs to the browser process, so WebMock can neither block nor
+  # stub it -- they are the only specs here that genuinely need the network,
+  # real credentials, and a Goodreads account with the right shelves.
+  #
+  # They are also the specs #1329 is about: roughly a third of main's runs
+  # failed on Amazon's CVF challenge or a Selenium timeout, and since
+  # autoDeployTrigger is checksPass, that blocked production deploys.
+  #
+  # Opt in with LIVE_EXTERNAL_SPECS=1 when you have credentials and want to
+  # check the real integration. Everything else runs offline.
+  def skip_unless_live_external
+    return if ENV['LIVE_EXTERNAL_SPECS'] == '1'
+
+    skip 'set LIVE_EXTERNAL_SPECS=1 to run specs that reach Goodreads and OverDrive through the browser'
+  end
+
   # Helper to log in with password via the login page
   def password_login email, password
     visit '/authenticate'
@@ -120,7 +151,11 @@ module TestHelpers
   # Returns [email, password].
   def create_account_direct
     require 'argon2'
-    email = "test_#{Time.now.to_i}_#{rand(9999)}@example.com"
+    require 'securerandom'
+    # Time.now.to_i + rand(9999) collides when two accounts are created in the
+    # same second, which surfaced as an intermittent UniqueConstraintViolation
+    # on accounts.email.
+    email = "test_#{SecureRandom.hex(12)}@example.com"
     password = 'SecurePassword123!'
     hash = Argon2::Password.new(t_cost: 1, m_cost: 5).create(password)
     DB[:accounts].insert(email: email, password_hash: hash, status_id: 2)

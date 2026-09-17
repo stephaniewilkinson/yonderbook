@@ -1,0 +1,2831 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://www.goodreads.com/review/list/42.xml?key=<GOODREADS_API_KEY>&page=1&per_page=100&shelf=to-read&v=2
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - Yonderbook (+https://yonderbook.com)
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/xml; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <GoodreadsResponse>
+          <reviews start="1" end="100" total="250">
+        <review>
+          <book>
+            <isbn13>9780062316098</isbn13>
+            <image_url>https://images.gr-assets.com/books/1.jpg</image_url>
+            <title>Recorded Book 1</title>
+            <authors><author><name>Author 1</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316099</isbn13>
+            <image_url>https://images.gr-assets.com/books/2.jpg</image_url>
+            <title>Recorded Book 2</title>
+            <authors><author><name>Author 2</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316100</isbn13>
+            <image_url>https://images.gr-assets.com/books/3.jpg</image_url>
+            <title>Recorded Book 3</title>
+            <authors><author><name>Author 3</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316101</isbn13>
+            <image_url>https://images.gr-assets.com/books/4.jpg</image_url>
+            <title>Recorded Book 4</title>
+            <authors><author><name>Author 4</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316102</isbn13>
+            <image_url>https://images.gr-assets.com/books/5.jpg</image_url>
+            <title>Recorded Book 5</title>
+            <authors><author><name>Author 5</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316103</isbn13>
+            <image_url>https://images.gr-assets.com/books/6.jpg</image_url>
+            <title>Recorded Book 6</title>
+            <authors><author><name>Author 6</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316104</isbn13>
+            <image_url>https://images.gr-assets.com/books/7.jpg</image_url>
+            <title>Recorded Book 7</title>
+            <authors><author><name>Author 7</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316105</isbn13>
+            <image_url>https://images.gr-assets.com/books/8.jpg</image_url>
+            <title>Recorded Book 8</title>
+            <authors><author><name>Author 8</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316106</isbn13>
+            <image_url>https://images.gr-assets.com/books/9.jpg</image_url>
+            <title>Recorded Book 9</title>
+            <authors><author><name>Author 9</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316107</isbn13>
+            <image_url>https://images.gr-assets.com/books/10.jpg</image_url>
+            <title>Recorded Book 10</title>
+            <authors><author><name>Author 10</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316108</isbn13>
+            <image_url>https://images.gr-assets.com/books/11.jpg</image_url>
+            <title>Recorded Book 11</title>
+            <authors><author><name>Author 11</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316109</isbn13>
+            <image_url>https://images.gr-assets.com/books/12.jpg</image_url>
+            <title>Recorded Book 12</title>
+            <authors><author><name>Author 12</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316110</isbn13>
+            <image_url>https://images.gr-assets.com/books/13.jpg</image_url>
+            <title>Recorded Book 13</title>
+            <authors><author><name>Author 13</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316111</isbn13>
+            <image_url>https://images.gr-assets.com/books/14.jpg</image_url>
+            <title>Recorded Book 14</title>
+            <authors><author><name>Author 14</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316112</isbn13>
+            <image_url>https://images.gr-assets.com/books/15.jpg</image_url>
+            <title>Recorded Book 15</title>
+            <authors><author><name>Author 15</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316113</isbn13>
+            <image_url>https://images.gr-assets.com/books/16.jpg</image_url>
+            <title>Recorded Book 16</title>
+            <authors><author><name>Author 16</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316114</isbn13>
+            <image_url>https://images.gr-assets.com/books/17.jpg</image_url>
+            <title>Recorded Book 17</title>
+            <authors><author><name>Author 17</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316115</isbn13>
+            <image_url>https://images.gr-assets.com/books/18.jpg</image_url>
+            <title>Recorded Book 18</title>
+            <authors><author><name>Author 18</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316116</isbn13>
+            <image_url>https://images.gr-assets.com/books/19.jpg</image_url>
+            <title>Recorded Book 19</title>
+            <authors><author><name>Author 19</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316117</isbn13>
+            <image_url>https://images.gr-assets.com/books/20.jpg</image_url>
+            <title>Recorded Book 20</title>
+            <authors><author><name>Author 20</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316118</isbn13>
+            <image_url>https://images.gr-assets.com/books/21.jpg</image_url>
+            <title>Recorded Book 21</title>
+            <authors><author><name>Author 21</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316119</isbn13>
+            <image_url>https://images.gr-assets.com/books/22.jpg</image_url>
+            <title>Recorded Book 22</title>
+            <authors><author><name>Author 22</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316120</isbn13>
+            <image_url>https://images.gr-assets.com/books/23.jpg</image_url>
+            <title>Recorded Book 23</title>
+            <authors><author><name>Author 23</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316121</isbn13>
+            <image_url>https://images.gr-assets.com/books/24.jpg</image_url>
+            <title>Recorded Book 24</title>
+            <authors><author><name>Author 24</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316122</isbn13>
+            <image_url>https://images.gr-assets.com/books/25.jpg</image_url>
+            <title>Recorded Book 25</title>
+            <authors><author><name>Author 25</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316123</isbn13>
+            <image_url>https://images.gr-assets.com/books/26.jpg</image_url>
+            <title>Recorded Book 26</title>
+            <authors><author><name>Author 26</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316124</isbn13>
+            <image_url>https://images.gr-assets.com/books/27.jpg</image_url>
+            <title>Recorded Book 27</title>
+            <authors><author><name>Author 27</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316125</isbn13>
+            <image_url>https://images.gr-assets.com/books/28.jpg</image_url>
+            <title>Recorded Book 28</title>
+            <authors><author><name>Author 28</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316126</isbn13>
+            <image_url>https://images.gr-assets.com/books/29.jpg</image_url>
+            <title>Recorded Book 29</title>
+            <authors><author><name>Author 29</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316127</isbn13>
+            <image_url>https://images.gr-assets.com/books/30.jpg</image_url>
+            <title>Recorded Book 30</title>
+            <authors><author><name>Author 30</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316128</isbn13>
+            <image_url>https://images.gr-assets.com/books/31.jpg</image_url>
+            <title>Recorded Book 31</title>
+            <authors><author><name>Author 31</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316129</isbn13>
+            <image_url>https://images.gr-assets.com/books/32.jpg</image_url>
+            <title>Recorded Book 32</title>
+            <authors><author><name>Author 32</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316130</isbn13>
+            <image_url>https://images.gr-assets.com/books/33.jpg</image_url>
+            <title>Recorded Book 33</title>
+            <authors><author><name>Author 33</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316131</isbn13>
+            <image_url>https://images.gr-assets.com/books/34.jpg</image_url>
+            <title>Recorded Book 34</title>
+            <authors><author><name>Author 34</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316132</isbn13>
+            <image_url>https://images.gr-assets.com/books/35.jpg</image_url>
+            <title>Recorded Book 35</title>
+            <authors><author><name>Author 35</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316133</isbn13>
+            <image_url>https://images.gr-assets.com/books/36.jpg</image_url>
+            <title>Recorded Book 36</title>
+            <authors><author><name>Author 36</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316134</isbn13>
+            <image_url>https://images.gr-assets.com/books/37.jpg</image_url>
+            <title>Recorded Book 37</title>
+            <authors><author><name>Author 37</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316135</isbn13>
+            <image_url>https://images.gr-assets.com/books/38.jpg</image_url>
+            <title>Recorded Book 38</title>
+            <authors><author><name>Author 38</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316136</isbn13>
+            <image_url>https://images.gr-assets.com/books/39.jpg</image_url>
+            <title>Recorded Book 39</title>
+            <authors><author><name>Author 39</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316137</isbn13>
+            <image_url>https://images.gr-assets.com/books/40.jpg</image_url>
+            <title>Recorded Book 40</title>
+            <authors><author><name>Author 40</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316138</isbn13>
+            <image_url>https://images.gr-assets.com/books/41.jpg</image_url>
+            <title>Recorded Book 41</title>
+            <authors><author><name>Author 41</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316139</isbn13>
+            <image_url>https://images.gr-assets.com/books/42.jpg</image_url>
+            <title>Recorded Book 42</title>
+            <authors><author><name>Author 42</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316140</isbn13>
+            <image_url>https://images.gr-assets.com/books/43.jpg</image_url>
+            <title>Recorded Book 43</title>
+            <authors><author><name>Author 43</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316141</isbn13>
+            <image_url>https://images.gr-assets.com/books/44.jpg</image_url>
+            <title>Recorded Book 44</title>
+            <authors><author><name>Author 44</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316142</isbn13>
+            <image_url>https://images.gr-assets.com/books/45.jpg</image_url>
+            <title>Recorded Book 45</title>
+            <authors><author><name>Author 45</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316143</isbn13>
+            <image_url>https://images.gr-assets.com/books/46.jpg</image_url>
+            <title>Recorded Book 46</title>
+            <authors><author><name>Author 46</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316144</isbn13>
+            <image_url>https://images.gr-assets.com/books/47.jpg</image_url>
+            <title>Recorded Book 47</title>
+            <authors><author><name>Author 47</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316145</isbn13>
+            <image_url>https://images.gr-assets.com/books/48.jpg</image_url>
+            <title>Recorded Book 48</title>
+            <authors><author><name>Author 48</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316146</isbn13>
+            <image_url>https://images.gr-assets.com/books/49.jpg</image_url>
+            <title>Recorded Book 49</title>
+            <authors><author><name>Author 49</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316147</isbn13>
+            <image_url>https://images.gr-assets.com/books/50.jpg</image_url>
+            <title>Recorded Book 50</title>
+            <authors><author><name>Author 50</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316148</isbn13>
+            <image_url>https://images.gr-assets.com/books/51.jpg</image_url>
+            <title>Recorded Book 51</title>
+            <authors><author><name>Author 51</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316149</isbn13>
+            <image_url>https://images.gr-assets.com/books/52.jpg</image_url>
+            <title>Recorded Book 52</title>
+            <authors><author><name>Author 52</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316150</isbn13>
+            <image_url>https://images.gr-assets.com/books/53.jpg</image_url>
+            <title>Recorded Book 53</title>
+            <authors><author><name>Author 53</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316151</isbn13>
+            <image_url>https://images.gr-assets.com/books/54.jpg</image_url>
+            <title>Recorded Book 54</title>
+            <authors><author><name>Author 54</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316152</isbn13>
+            <image_url>https://images.gr-assets.com/books/55.jpg</image_url>
+            <title>Recorded Book 55</title>
+            <authors><author><name>Author 55</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316153</isbn13>
+            <image_url>https://images.gr-assets.com/books/56.jpg</image_url>
+            <title>Recorded Book 56</title>
+            <authors><author><name>Author 56</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316154</isbn13>
+            <image_url>https://images.gr-assets.com/books/57.jpg</image_url>
+            <title>Recorded Book 57</title>
+            <authors><author><name>Author 57</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316155</isbn13>
+            <image_url>https://images.gr-assets.com/books/58.jpg</image_url>
+            <title>Recorded Book 58</title>
+            <authors><author><name>Author 58</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316156</isbn13>
+            <image_url>https://images.gr-assets.com/books/59.jpg</image_url>
+            <title>Recorded Book 59</title>
+            <authors><author><name>Author 59</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316157</isbn13>
+            <image_url>https://images.gr-assets.com/books/60.jpg</image_url>
+            <title>Recorded Book 60</title>
+            <authors><author><name>Author 60</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316158</isbn13>
+            <image_url>https://images.gr-assets.com/books/61.jpg</image_url>
+            <title>Recorded Book 61</title>
+            <authors><author><name>Author 61</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316159</isbn13>
+            <image_url>https://images.gr-assets.com/books/62.jpg</image_url>
+            <title>Recorded Book 62</title>
+            <authors><author><name>Author 62</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316160</isbn13>
+            <image_url>https://images.gr-assets.com/books/63.jpg</image_url>
+            <title>Recorded Book 63</title>
+            <authors><author><name>Author 63</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316161</isbn13>
+            <image_url>https://images.gr-assets.com/books/64.jpg</image_url>
+            <title>Recorded Book 64</title>
+            <authors><author><name>Author 64</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316162</isbn13>
+            <image_url>https://images.gr-assets.com/books/65.jpg</image_url>
+            <title>Recorded Book 65</title>
+            <authors><author><name>Author 65</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316163</isbn13>
+            <image_url>https://images.gr-assets.com/books/66.jpg</image_url>
+            <title>Recorded Book 66</title>
+            <authors><author><name>Author 66</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316164</isbn13>
+            <image_url>https://images.gr-assets.com/books/67.jpg</image_url>
+            <title>Recorded Book 67</title>
+            <authors><author><name>Author 67</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316165</isbn13>
+            <image_url>https://images.gr-assets.com/books/68.jpg</image_url>
+            <title>Recorded Book 68</title>
+            <authors><author><name>Author 68</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316166</isbn13>
+            <image_url>https://images.gr-assets.com/books/69.jpg</image_url>
+            <title>Recorded Book 69</title>
+            <authors><author><name>Author 69</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316167</isbn13>
+            <image_url>https://images.gr-assets.com/books/70.jpg</image_url>
+            <title>Recorded Book 70</title>
+            <authors><author><name>Author 70</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316168</isbn13>
+            <image_url>https://images.gr-assets.com/books/71.jpg</image_url>
+            <title>Recorded Book 71</title>
+            <authors><author><name>Author 71</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316169</isbn13>
+            <image_url>https://images.gr-assets.com/books/72.jpg</image_url>
+            <title>Recorded Book 72</title>
+            <authors><author><name>Author 72</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316170</isbn13>
+            <image_url>https://images.gr-assets.com/books/73.jpg</image_url>
+            <title>Recorded Book 73</title>
+            <authors><author><name>Author 73</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316171</isbn13>
+            <image_url>https://images.gr-assets.com/books/74.jpg</image_url>
+            <title>Recorded Book 74</title>
+            <authors><author><name>Author 74</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316172</isbn13>
+            <image_url>https://images.gr-assets.com/books/75.jpg</image_url>
+            <title>Recorded Book 75</title>
+            <authors><author><name>Author 75</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316173</isbn13>
+            <image_url>https://images.gr-assets.com/books/76.jpg</image_url>
+            <title>Recorded Book 76</title>
+            <authors><author><name>Author 76</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316174</isbn13>
+            <image_url>https://images.gr-assets.com/books/77.jpg</image_url>
+            <title>Recorded Book 77</title>
+            <authors><author><name>Author 77</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316175</isbn13>
+            <image_url>https://images.gr-assets.com/books/78.jpg</image_url>
+            <title>Recorded Book 78</title>
+            <authors><author><name>Author 78</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316176</isbn13>
+            <image_url>https://images.gr-assets.com/books/79.jpg</image_url>
+            <title>Recorded Book 79</title>
+            <authors><author><name>Author 79</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316177</isbn13>
+            <image_url>https://images.gr-assets.com/books/80.jpg</image_url>
+            <title>Recorded Book 80</title>
+            <authors><author><name>Author 80</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316178</isbn13>
+            <image_url>https://images.gr-assets.com/books/81.jpg</image_url>
+            <title>Recorded Book 81</title>
+            <authors><author><name>Author 81</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316179</isbn13>
+            <image_url>https://images.gr-assets.com/books/82.jpg</image_url>
+            <title>Recorded Book 82</title>
+            <authors><author><name>Author 82</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316180</isbn13>
+            <image_url>https://images.gr-assets.com/books/83.jpg</image_url>
+            <title>Recorded Book 83</title>
+            <authors><author><name>Author 83</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316181</isbn13>
+            <image_url>https://images.gr-assets.com/books/84.jpg</image_url>
+            <title>Recorded Book 84</title>
+            <authors><author><name>Author 84</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316182</isbn13>
+            <image_url>https://images.gr-assets.com/books/85.jpg</image_url>
+            <title>Recorded Book 85</title>
+            <authors><author><name>Author 85</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316183</isbn13>
+            <image_url>https://images.gr-assets.com/books/86.jpg</image_url>
+            <title>Recorded Book 86</title>
+            <authors><author><name>Author 86</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316184</isbn13>
+            <image_url>https://images.gr-assets.com/books/87.jpg</image_url>
+            <title>Recorded Book 87</title>
+            <authors><author><name>Author 87</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316185</isbn13>
+            <image_url>https://images.gr-assets.com/books/88.jpg</image_url>
+            <title>Recorded Book 88</title>
+            <authors><author><name>Author 88</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316186</isbn13>
+            <image_url>https://images.gr-assets.com/books/89.jpg</image_url>
+            <title>Recorded Book 89</title>
+            <authors><author><name>Author 89</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316187</isbn13>
+            <image_url>https://images.gr-assets.com/books/90.jpg</image_url>
+            <title>Recorded Book 90</title>
+            <authors><author><name>Author 90</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316188</isbn13>
+            <image_url>https://images.gr-assets.com/books/91.jpg</image_url>
+            <title>Recorded Book 91</title>
+            <authors><author><name>Author 91</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316189</isbn13>
+            <image_url>https://images.gr-assets.com/books/92.jpg</image_url>
+            <title>Recorded Book 92</title>
+            <authors><author><name>Author 92</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316190</isbn13>
+            <image_url>https://images.gr-assets.com/books/93.jpg</image_url>
+            <title>Recorded Book 93</title>
+            <authors><author><name>Author 93</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316191</isbn13>
+            <image_url>https://images.gr-assets.com/books/94.jpg</image_url>
+            <title>Recorded Book 94</title>
+            <authors><author><name>Author 94</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316192</isbn13>
+            <image_url>https://images.gr-assets.com/books/95.jpg</image_url>
+            <title>Recorded Book 95</title>
+            <authors><author><name>Author 95</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316193</isbn13>
+            <image_url>https://images.gr-assets.com/books/96.jpg</image_url>
+            <title>Recorded Book 96</title>
+            <authors><author><name>Author 96</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316194</isbn13>
+            <image_url>https://images.gr-assets.com/books/97.jpg</image_url>
+            <title>Recorded Book 97</title>
+            <authors><author><name>Author 97</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316195</isbn13>
+            <image_url>https://images.gr-assets.com/books/98.jpg</image_url>
+            <title>Recorded Book 98</title>
+            <authors><author><name>Author 98</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316196</isbn13>
+            <image_url>https://images.gr-assets.com/books/99.jpg</image_url>
+            <title>Recorded Book 99</title>
+            <authors><author><name>Author 99</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316197</isbn13>
+            <image_url>https://images.gr-assets.com/books/100.jpg</image_url>
+            <title>Recorded Book 100</title>
+            <authors><author><name>Author 100</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+          </reviews>
+        </GoodreadsResponse>
+    http_version:
+  recorded_at: Thu, 17 Sep 2026 12:00:00 GMT
+- request:
+    method: get
+    uri: https://www.goodreads.com/review/list/42.xml?key=<GOODREADS_API_KEY>&page=2&per_page=100&shelf=to-read&v=2
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - Yonderbook (+https://yonderbook.com)
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/xml; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <GoodreadsResponse>
+          <reviews start="101" end="200" total="250">
+        <review>
+          <book>
+            <isbn13>9780062316198</isbn13>
+            <image_url>https://images.gr-assets.com/books/101.jpg</image_url>
+            <title>Recorded Book 101</title>
+            <authors><author><name>Author 101</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316199</isbn13>
+            <image_url>https://images.gr-assets.com/books/102.jpg</image_url>
+            <title>Recorded Book 102</title>
+            <authors><author><name>Author 102</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316200</isbn13>
+            <image_url>https://images.gr-assets.com/books/103.jpg</image_url>
+            <title>Recorded Book 103</title>
+            <authors><author><name>Author 103</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316201</isbn13>
+            <image_url>https://images.gr-assets.com/books/104.jpg</image_url>
+            <title>Recorded Book 104</title>
+            <authors><author><name>Author 104</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316202</isbn13>
+            <image_url>https://images.gr-assets.com/books/105.jpg</image_url>
+            <title>Recorded Book 105</title>
+            <authors><author><name>Author 105</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316203</isbn13>
+            <image_url>https://images.gr-assets.com/books/106.jpg</image_url>
+            <title>Recorded Book 106</title>
+            <authors><author><name>Author 106</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316204</isbn13>
+            <image_url>https://images.gr-assets.com/books/107.jpg</image_url>
+            <title>Recorded Book 107</title>
+            <authors><author><name>Author 107</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316205</isbn13>
+            <image_url>https://images.gr-assets.com/books/108.jpg</image_url>
+            <title>Recorded Book 108</title>
+            <authors><author><name>Author 108</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316206</isbn13>
+            <image_url>https://images.gr-assets.com/books/109.jpg</image_url>
+            <title>Recorded Book 109</title>
+            <authors><author><name>Author 109</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316207</isbn13>
+            <image_url>https://images.gr-assets.com/books/110.jpg</image_url>
+            <title>Recorded Book 110</title>
+            <authors><author><name>Author 110</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316208</isbn13>
+            <image_url>https://images.gr-assets.com/books/111.jpg</image_url>
+            <title>Recorded Book 111</title>
+            <authors><author><name>Author 111</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316209</isbn13>
+            <image_url>https://images.gr-assets.com/books/112.jpg</image_url>
+            <title>Recorded Book 112</title>
+            <authors><author><name>Author 112</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316210</isbn13>
+            <image_url>https://images.gr-assets.com/books/113.jpg</image_url>
+            <title>Recorded Book 113</title>
+            <authors><author><name>Author 113</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316211</isbn13>
+            <image_url>https://images.gr-assets.com/books/114.jpg</image_url>
+            <title>Recorded Book 114</title>
+            <authors><author><name>Author 114</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316212</isbn13>
+            <image_url>https://images.gr-assets.com/books/115.jpg</image_url>
+            <title>Recorded Book 115</title>
+            <authors><author><name>Author 115</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316213</isbn13>
+            <image_url>https://images.gr-assets.com/books/116.jpg</image_url>
+            <title>Recorded Book 116</title>
+            <authors><author><name>Author 116</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316214</isbn13>
+            <image_url>https://images.gr-assets.com/books/117.jpg</image_url>
+            <title>Recorded Book 117</title>
+            <authors><author><name>Author 117</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316215</isbn13>
+            <image_url>https://images.gr-assets.com/books/118.jpg</image_url>
+            <title>Recorded Book 118</title>
+            <authors><author><name>Author 118</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316216</isbn13>
+            <image_url>https://images.gr-assets.com/books/119.jpg</image_url>
+            <title>Recorded Book 119</title>
+            <authors><author><name>Author 119</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316217</isbn13>
+            <image_url>https://images.gr-assets.com/books/120.jpg</image_url>
+            <title>Recorded Book 120</title>
+            <authors><author><name>Author 120</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316218</isbn13>
+            <image_url>https://images.gr-assets.com/books/121.jpg</image_url>
+            <title>Recorded Book 121</title>
+            <authors><author><name>Author 121</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316219</isbn13>
+            <image_url>https://images.gr-assets.com/books/122.jpg</image_url>
+            <title>Recorded Book 122</title>
+            <authors><author><name>Author 122</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316220</isbn13>
+            <image_url>https://images.gr-assets.com/books/123.jpg</image_url>
+            <title>Recorded Book 123</title>
+            <authors><author><name>Author 123</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316221</isbn13>
+            <image_url>https://images.gr-assets.com/books/124.jpg</image_url>
+            <title>Recorded Book 124</title>
+            <authors><author><name>Author 124</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316222</isbn13>
+            <image_url>https://images.gr-assets.com/books/125.jpg</image_url>
+            <title>Recorded Book 125</title>
+            <authors><author><name>Author 125</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316223</isbn13>
+            <image_url>https://images.gr-assets.com/books/126.jpg</image_url>
+            <title>Recorded Book 126</title>
+            <authors><author><name>Author 126</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316224</isbn13>
+            <image_url>https://images.gr-assets.com/books/127.jpg</image_url>
+            <title>Recorded Book 127</title>
+            <authors><author><name>Author 127</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316225</isbn13>
+            <image_url>https://images.gr-assets.com/books/128.jpg</image_url>
+            <title>Recorded Book 128</title>
+            <authors><author><name>Author 128</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316226</isbn13>
+            <image_url>https://images.gr-assets.com/books/129.jpg</image_url>
+            <title>Recorded Book 129</title>
+            <authors><author><name>Author 129</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316227</isbn13>
+            <image_url>https://images.gr-assets.com/books/130.jpg</image_url>
+            <title>Recorded Book 130</title>
+            <authors><author><name>Author 130</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316228</isbn13>
+            <image_url>https://images.gr-assets.com/books/131.jpg</image_url>
+            <title>Recorded Book 131</title>
+            <authors><author><name>Author 131</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316229</isbn13>
+            <image_url>https://images.gr-assets.com/books/132.jpg</image_url>
+            <title>Recorded Book 132</title>
+            <authors><author><name>Author 132</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316230</isbn13>
+            <image_url>https://images.gr-assets.com/books/133.jpg</image_url>
+            <title>Recorded Book 133</title>
+            <authors><author><name>Author 133</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316231</isbn13>
+            <image_url>https://images.gr-assets.com/books/134.jpg</image_url>
+            <title>Recorded Book 134</title>
+            <authors><author><name>Author 134</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316232</isbn13>
+            <image_url>https://images.gr-assets.com/books/135.jpg</image_url>
+            <title>Recorded Book 135</title>
+            <authors><author><name>Author 135</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316233</isbn13>
+            <image_url>https://images.gr-assets.com/books/136.jpg</image_url>
+            <title>Recorded Book 136</title>
+            <authors><author><name>Author 136</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316234</isbn13>
+            <image_url>https://images.gr-assets.com/books/137.jpg</image_url>
+            <title>Recorded Book 137</title>
+            <authors><author><name>Author 137</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316235</isbn13>
+            <image_url>https://images.gr-assets.com/books/138.jpg</image_url>
+            <title>Recorded Book 138</title>
+            <authors><author><name>Author 138</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316236</isbn13>
+            <image_url>https://images.gr-assets.com/books/139.jpg</image_url>
+            <title>Recorded Book 139</title>
+            <authors><author><name>Author 139</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316237</isbn13>
+            <image_url>https://images.gr-assets.com/books/140.jpg</image_url>
+            <title>Recorded Book 140</title>
+            <authors><author><name>Author 140</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316238</isbn13>
+            <image_url>https://images.gr-assets.com/books/141.jpg</image_url>
+            <title>Recorded Book 141</title>
+            <authors><author><name>Author 141</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316239</isbn13>
+            <image_url>https://images.gr-assets.com/books/142.jpg</image_url>
+            <title>Recorded Book 142</title>
+            <authors><author><name>Author 142</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316240</isbn13>
+            <image_url>https://images.gr-assets.com/books/143.jpg</image_url>
+            <title>Recorded Book 143</title>
+            <authors><author><name>Author 143</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316241</isbn13>
+            <image_url>https://images.gr-assets.com/books/144.jpg</image_url>
+            <title>Recorded Book 144</title>
+            <authors><author><name>Author 144</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316242</isbn13>
+            <image_url>https://images.gr-assets.com/books/145.jpg</image_url>
+            <title>Recorded Book 145</title>
+            <authors><author><name>Author 145</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316243</isbn13>
+            <image_url>https://images.gr-assets.com/books/146.jpg</image_url>
+            <title>Recorded Book 146</title>
+            <authors><author><name>Author 146</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316244</isbn13>
+            <image_url>https://images.gr-assets.com/books/147.jpg</image_url>
+            <title>Recorded Book 147</title>
+            <authors><author><name>Author 147</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316245</isbn13>
+            <image_url>https://images.gr-assets.com/books/148.jpg</image_url>
+            <title>Recorded Book 148</title>
+            <authors><author><name>Author 148</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316246</isbn13>
+            <image_url>https://images.gr-assets.com/books/149.jpg</image_url>
+            <title>Recorded Book 149</title>
+            <authors><author><name>Author 149</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316247</isbn13>
+            <image_url>https://images.gr-assets.com/books/150.jpg</image_url>
+            <title>Recorded Book 150</title>
+            <authors><author><name>Author 150</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316248</isbn13>
+            <image_url>https://images.gr-assets.com/books/151.jpg</image_url>
+            <title>Recorded Book 151</title>
+            <authors><author><name>Author 151</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316249</isbn13>
+            <image_url>https://images.gr-assets.com/books/152.jpg</image_url>
+            <title>Recorded Book 152</title>
+            <authors><author><name>Author 152</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316250</isbn13>
+            <image_url>https://images.gr-assets.com/books/153.jpg</image_url>
+            <title>Recorded Book 153</title>
+            <authors><author><name>Author 153</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316251</isbn13>
+            <image_url>https://images.gr-assets.com/books/154.jpg</image_url>
+            <title>Recorded Book 154</title>
+            <authors><author><name>Author 154</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316252</isbn13>
+            <image_url>https://images.gr-assets.com/books/155.jpg</image_url>
+            <title>Recorded Book 155</title>
+            <authors><author><name>Author 155</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316253</isbn13>
+            <image_url>https://images.gr-assets.com/books/156.jpg</image_url>
+            <title>Recorded Book 156</title>
+            <authors><author><name>Author 156</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316254</isbn13>
+            <image_url>https://images.gr-assets.com/books/157.jpg</image_url>
+            <title>Recorded Book 157</title>
+            <authors><author><name>Author 157</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316255</isbn13>
+            <image_url>https://images.gr-assets.com/books/158.jpg</image_url>
+            <title>Recorded Book 158</title>
+            <authors><author><name>Author 158</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316256</isbn13>
+            <image_url>https://images.gr-assets.com/books/159.jpg</image_url>
+            <title>Recorded Book 159</title>
+            <authors><author><name>Author 159</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316257</isbn13>
+            <image_url>https://images.gr-assets.com/books/160.jpg</image_url>
+            <title>Recorded Book 160</title>
+            <authors><author><name>Author 160</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316258</isbn13>
+            <image_url>https://images.gr-assets.com/books/161.jpg</image_url>
+            <title>Recorded Book 161</title>
+            <authors><author><name>Author 161</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316259</isbn13>
+            <image_url>https://images.gr-assets.com/books/162.jpg</image_url>
+            <title>Recorded Book 162</title>
+            <authors><author><name>Author 162</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316260</isbn13>
+            <image_url>https://images.gr-assets.com/books/163.jpg</image_url>
+            <title>Recorded Book 163</title>
+            <authors><author><name>Author 163</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316261</isbn13>
+            <image_url>https://images.gr-assets.com/books/164.jpg</image_url>
+            <title>Recorded Book 164</title>
+            <authors><author><name>Author 164</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316262</isbn13>
+            <image_url>https://images.gr-assets.com/books/165.jpg</image_url>
+            <title>Recorded Book 165</title>
+            <authors><author><name>Author 165</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316263</isbn13>
+            <image_url>https://images.gr-assets.com/books/166.jpg</image_url>
+            <title>Recorded Book 166</title>
+            <authors><author><name>Author 166</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316264</isbn13>
+            <image_url>https://images.gr-assets.com/books/167.jpg</image_url>
+            <title>Recorded Book 167</title>
+            <authors><author><name>Author 167</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316265</isbn13>
+            <image_url>https://images.gr-assets.com/books/168.jpg</image_url>
+            <title>Recorded Book 168</title>
+            <authors><author><name>Author 168</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316266</isbn13>
+            <image_url>https://images.gr-assets.com/books/169.jpg</image_url>
+            <title>Recorded Book 169</title>
+            <authors><author><name>Author 169</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316267</isbn13>
+            <image_url>https://images.gr-assets.com/books/170.jpg</image_url>
+            <title>Recorded Book 170</title>
+            <authors><author><name>Author 170</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316268</isbn13>
+            <image_url>https://images.gr-assets.com/books/171.jpg</image_url>
+            <title>Recorded Book 171</title>
+            <authors><author><name>Author 171</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316269</isbn13>
+            <image_url>https://images.gr-assets.com/books/172.jpg</image_url>
+            <title>Recorded Book 172</title>
+            <authors><author><name>Author 172</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316270</isbn13>
+            <image_url>https://images.gr-assets.com/books/173.jpg</image_url>
+            <title>Recorded Book 173</title>
+            <authors><author><name>Author 173</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316271</isbn13>
+            <image_url>https://images.gr-assets.com/books/174.jpg</image_url>
+            <title>Recorded Book 174</title>
+            <authors><author><name>Author 174</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316272</isbn13>
+            <image_url>https://images.gr-assets.com/books/175.jpg</image_url>
+            <title>Recorded Book 175</title>
+            <authors><author><name>Author 175</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316273</isbn13>
+            <image_url>https://images.gr-assets.com/books/176.jpg</image_url>
+            <title>Recorded Book 176</title>
+            <authors><author><name>Author 176</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316274</isbn13>
+            <image_url>https://images.gr-assets.com/books/177.jpg</image_url>
+            <title>Recorded Book 177</title>
+            <authors><author><name>Author 177</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316275</isbn13>
+            <image_url>https://images.gr-assets.com/books/178.jpg</image_url>
+            <title>Recorded Book 178</title>
+            <authors><author><name>Author 178</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316276</isbn13>
+            <image_url>https://images.gr-assets.com/books/179.jpg</image_url>
+            <title>Recorded Book 179</title>
+            <authors><author><name>Author 179</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316277</isbn13>
+            <image_url>https://images.gr-assets.com/books/180.jpg</image_url>
+            <title>Recorded Book 180</title>
+            <authors><author><name>Author 180</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316278</isbn13>
+            <image_url>https://images.gr-assets.com/books/181.jpg</image_url>
+            <title>Recorded Book 181</title>
+            <authors><author><name>Author 181</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316279</isbn13>
+            <image_url>https://images.gr-assets.com/books/182.jpg</image_url>
+            <title>Recorded Book 182</title>
+            <authors><author><name>Author 182</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316280</isbn13>
+            <image_url>https://images.gr-assets.com/books/183.jpg</image_url>
+            <title>Recorded Book 183</title>
+            <authors><author><name>Author 183</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316281</isbn13>
+            <image_url>https://images.gr-assets.com/books/184.jpg</image_url>
+            <title>Recorded Book 184</title>
+            <authors><author><name>Author 184</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316282</isbn13>
+            <image_url>https://images.gr-assets.com/books/185.jpg</image_url>
+            <title>Recorded Book 185</title>
+            <authors><author><name>Author 185</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316283</isbn13>
+            <image_url>https://images.gr-assets.com/books/186.jpg</image_url>
+            <title>Recorded Book 186</title>
+            <authors><author><name>Author 186</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316284</isbn13>
+            <image_url>https://images.gr-assets.com/books/187.jpg</image_url>
+            <title>Recorded Book 187</title>
+            <authors><author><name>Author 187</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316285</isbn13>
+            <image_url>https://images.gr-assets.com/books/188.jpg</image_url>
+            <title>Recorded Book 188</title>
+            <authors><author><name>Author 188</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316286</isbn13>
+            <image_url>https://images.gr-assets.com/books/189.jpg</image_url>
+            <title>Recorded Book 189</title>
+            <authors><author><name>Author 189</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316287</isbn13>
+            <image_url>https://images.gr-assets.com/books/190.jpg</image_url>
+            <title>Recorded Book 190</title>
+            <authors><author><name>Author 190</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316288</isbn13>
+            <image_url>https://images.gr-assets.com/books/191.jpg</image_url>
+            <title>Recorded Book 191</title>
+            <authors><author><name>Author 191</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316289</isbn13>
+            <image_url>https://images.gr-assets.com/books/192.jpg</image_url>
+            <title>Recorded Book 192</title>
+            <authors><author><name>Author 192</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316290</isbn13>
+            <image_url>https://images.gr-assets.com/books/193.jpg</image_url>
+            <title>Recorded Book 193</title>
+            <authors><author><name>Author 193</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316291</isbn13>
+            <image_url>https://images.gr-assets.com/books/194.jpg</image_url>
+            <title>Recorded Book 194</title>
+            <authors><author><name>Author 194</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316292</isbn13>
+            <image_url>https://images.gr-assets.com/books/195.jpg</image_url>
+            <title>Recorded Book 195</title>
+            <authors><author><name>Author 195</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316293</isbn13>
+            <image_url>https://images.gr-assets.com/books/196.jpg</image_url>
+            <title>Recorded Book 196</title>
+            <authors><author><name>Author 196</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316294</isbn13>
+            <image_url>https://images.gr-assets.com/books/197.jpg</image_url>
+            <title>Recorded Book 197</title>
+            <authors><author><name>Author 197</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316295</isbn13>
+            <image_url>https://images.gr-assets.com/books/198.jpg</image_url>
+            <title>Recorded Book 198</title>
+            <authors><author><name>Author 198</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316296</isbn13>
+            <image_url>https://images.gr-assets.com/books/199.jpg</image_url>
+            <title>Recorded Book 199</title>
+            <authors><author><name>Author 199</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316297</isbn13>
+            <image_url>https://images.gr-assets.com/books/200.jpg</image_url>
+            <title>Recorded Book 200</title>
+            <authors><author><name>Author 200</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+          </reviews>
+        </GoodreadsResponse>
+    http_version:
+  recorded_at: Thu, 17 Sep 2026 12:00:00 GMT
+- request:
+    method: get
+    uri: https://www.goodreads.com/review/list/42.xml?key=<GOODREADS_API_KEY>&page=3&per_page=100&shelf=to-read&v=2
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - Yonderbook (+https://yonderbook.com)
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/xml; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <GoodreadsResponse>
+          <reviews start="201" end="250" total="250">
+        <review>
+          <book>
+            <isbn13>9780062316298</isbn13>
+            <image_url>https://images.gr-assets.com/books/201.jpg</image_url>
+            <title>Recorded Book 201</title>
+            <authors><author><name>Author 201</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316299</isbn13>
+            <image_url>https://images.gr-assets.com/books/202.jpg</image_url>
+            <title>Recorded Book 202</title>
+            <authors><author><name>Author 202</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316300</isbn13>
+            <image_url>https://images.gr-assets.com/books/203.jpg</image_url>
+            <title>Recorded Book 203</title>
+            <authors><author><name>Author 203</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316301</isbn13>
+            <image_url>https://images.gr-assets.com/books/204.jpg</image_url>
+            <title>Recorded Book 204</title>
+            <authors><author><name>Author 204</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316302</isbn13>
+            <image_url>https://images.gr-assets.com/books/205.jpg</image_url>
+            <title>Recorded Book 205</title>
+            <authors><author><name>Author 205</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316303</isbn13>
+            <image_url>https://images.gr-assets.com/books/206.jpg</image_url>
+            <title>Recorded Book 206</title>
+            <authors><author><name>Author 206</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316304</isbn13>
+            <image_url>https://images.gr-assets.com/books/207.jpg</image_url>
+            <title>Recorded Book 207</title>
+            <authors><author><name>Author 207</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316305</isbn13>
+            <image_url>https://images.gr-assets.com/books/208.jpg</image_url>
+            <title>Recorded Book 208</title>
+            <authors><author><name>Author 208</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316306</isbn13>
+            <image_url>https://images.gr-assets.com/books/209.jpg</image_url>
+            <title>Recorded Book 209</title>
+            <authors><author><name>Author 209</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316307</isbn13>
+            <image_url>https://images.gr-assets.com/books/210.jpg</image_url>
+            <title>Recorded Book 210</title>
+            <authors><author><name>Author 210</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316308</isbn13>
+            <image_url>https://images.gr-assets.com/books/211.jpg</image_url>
+            <title>Recorded Book 211</title>
+            <authors><author><name>Author 211</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316309</isbn13>
+            <image_url>https://images.gr-assets.com/books/212.jpg</image_url>
+            <title>Recorded Book 212</title>
+            <authors><author><name>Author 212</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316310</isbn13>
+            <image_url>https://images.gr-assets.com/books/213.jpg</image_url>
+            <title>Recorded Book 213</title>
+            <authors><author><name>Author 213</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316311</isbn13>
+            <image_url>https://images.gr-assets.com/books/214.jpg</image_url>
+            <title>Recorded Book 214</title>
+            <authors><author><name>Author 214</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316312</isbn13>
+            <image_url>https://images.gr-assets.com/books/215.jpg</image_url>
+            <title>Recorded Book 215</title>
+            <authors><author><name>Author 215</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316313</isbn13>
+            <image_url>https://images.gr-assets.com/books/216.jpg</image_url>
+            <title>Recorded Book 216</title>
+            <authors><author><name>Author 216</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316314</isbn13>
+            <image_url>https://images.gr-assets.com/books/217.jpg</image_url>
+            <title>Recorded Book 217</title>
+            <authors><author><name>Author 217</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316315</isbn13>
+            <image_url>https://images.gr-assets.com/books/218.jpg</image_url>
+            <title>Recorded Book 218</title>
+            <authors><author><name>Author 218</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316316</isbn13>
+            <image_url>https://images.gr-assets.com/books/219.jpg</image_url>
+            <title>Recorded Book 219</title>
+            <authors><author><name>Author 219</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316317</isbn13>
+            <image_url>https://images.gr-assets.com/books/220.jpg</image_url>
+            <title>Recorded Book 220</title>
+            <authors><author><name>Author 220</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316318</isbn13>
+            <image_url>https://images.gr-assets.com/books/221.jpg</image_url>
+            <title>Recorded Book 221</title>
+            <authors><author><name>Author 221</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316319</isbn13>
+            <image_url>https://images.gr-assets.com/books/222.jpg</image_url>
+            <title>Recorded Book 222</title>
+            <authors><author><name>Author 222</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316320</isbn13>
+            <image_url>https://images.gr-assets.com/books/223.jpg</image_url>
+            <title>Recorded Book 223</title>
+            <authors><author><name>Author 223</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316321</isbn13>
+            <image_url>https://images.gr-assets.com/books/224.jpg</image_url>
+            <title>Recorded Book 224</title>
+            <authors><author><name>Author 224</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316322</isbn13>
+            <image_url>https://images.gr-assets.com/books/225.jpg</image_url>
+            <title>Recorded Book 225</title>
+            <authors><author><name>Author 225</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316323</isbn13>
+            <image_url>https://images.gr-assets.com/books/226.jpg</image_url>
+            <title>Recorded Book 226</title>
+            <authors><author><name>Author 226</name></author></authors>
+            <published>2001</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316324</isbn13>
+            <image_url>https://images.gr-assets.com/books/227.jpg</image_url>
+            <title>Recorded Book 227</title>
+            <authors><author><name>Author 227</name></author></authors>
+            <published>2002</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316325</isbn13>
+            <image_url>https://images.gr-assets.com/books/228.jpg</image_url>
+            <title>Recorded Book 228</title>
+            <authors><author><name>Author 228</name></author></authors>
+            <published>2003</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316326</isbn13>
+            <image_url>https://images.gr-assets.com/books/229.jpg</image_url>
+            <title>Recorded Book 229</title>
+            <authors><author><name>Author 229</name></author></authors>
+            <published>2004</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316327</isbn13>
+            <image_url>https://images.gr-assets.com/books/230.jpg</image_url>
+            <title>Recorded Book 230</title>
+            <authors><author><name>Author 230</name></author></authors>
+            <published>2005</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316328</isbn13>
+            <image_url>https://images.gr-assets.com/books/231.jpg</image_url>
+            <title>Recorded Book 231</title>
+            <authors><author><name>Author 231</name></author></authors>
+            <published>2006</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316329</isbn13>
+            <image_url>https://images.gr-assets.com/books/232.jpg</image_url>
+            <title>Recorded Book 232</title>
+            <authors><author><name>Author 232</name></author></authors>
+            <published>2007</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316330</isbn13>
+            <image_url>https://images.gr-assets.com/books/233.jpg</image_url>
+            <title>Recorded Book 233</title>
+            <authors><author><name>Author 233</name></author></authors>
+            <published>2008</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316331</isbn13>
+            <image_url>https://images.gr-assets.com/books/234.jpg</image_url>
+            <title>Recorded Book 234</title>
+            <authors><author><name>Author 234</name></author></authors>
+            <published>2009</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316332</isbn13>
+            <image_url>https://images.gr-assets.com/books/235.jpg</image_url>
+            <title>Recorded Book 235</title>
+            <authors><author><name>Author 235</name></author></authors>
+            <published>2010</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316333</isbn13>
+            <image_url>https://images.gr-assets.com/books/236.jpg</image_url>
+            <title>Recorded Book 236</title>
+            <authors><author><name>Author 236</name></author></authors>
+            <published>2011</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316334</isbn13>
+            <image_url>https://images.gr-assets.com/books/237.jpg</image_url>
+            <title>Recorded Book 237</title>
+            <authors><author><name>Author 237</name></author></authors>
+            <published>2012</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316335</isbn13>
+            <image_url>https://images.gr-assets.com/books/238.jpg</image_url>
+            <title>Recorded Book 238</title>
+            <authors><author><name>Author 238</name></author></authors>
+            <published>2013</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316336</isbn13>
+            <image_url>https://images.gr-assets.com/books/239.jpg</image_url>
+            <title>Recorded Book 239</title>
+            <authors><author><name>Author 239</name></author></authors>
+            <published>2014</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316337</isbn13>
+            <image_url>https://images.gr-assets.com/books/240.jpg</image_url>
+            <title>Recorded Book 240</title>
+            <authors><author><name>Author 240</name></author></authors>
+            <published>2015</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316338</isbn13>
+            <image_url>https://images.gr-assets.com/books/241.jpg</image_url>
+            <title>Recorded Book 241</title>
+            <authors><author><name>Author 241</name></author></authors>
+            <published>2016</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316339</isbn13>
+            <image_url>https://images.gr-assets.com/books/242.jpg</image_url>
+            <title>Recorded Book 242</title>
+            <authors><author><name>Author 242</name></author></authors>
+            <published>2017</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 09 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316340</isbn13>
+            <image_url>https://images.gr-assets.com/books/243.jpg</image_url>
+            <title>Recorded Book 243</title>
+            <authors><author><name>Author 243</name></author></authors>
+            <published>2018</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 01 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316341</isbn13>
+            <image_url>https://images.gr-assets.com/books/244.jpg</image_url>
+            <title>Recorded Book 244</title>
+            <authors><author><name>Author 244</name></author></authors>
+            <published>2019</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 02 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316342</isbn13>
+            <image_url>https://images.gr-assets.com/books/245.jpg</image_url>
+            <title>Recorded Book 245</title>
+            <authors><author><name>Author 245</name></author></authors>
+            <published>2020</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 03 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316343</isbn13>
+            <image_url>https://images.gr-assets.com/books/246.jpg</image_url>
+            <title>Recorded Book 246</title>
+            <authors><author><name>Author 246</name></author></authors>
+            <published>2021</published>
+          </book>
+          <rating>2</rating>
+          <date_added>Mon Jan 04 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316344</isbn13>
+            <image_url>https://images.gr-assets.com/books/247.jpg</image_url>
+            <title>Recorded Book 247</title>
+            <authors><author><name>Author 247</name></author></authors>
+            <published>2022</published>
+          </book>
+          <rating>3</rating>
+          <date_added>Mon Jan 05 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316345</isbn13>
+            <image_url>https://images.gr-assets.com/books/248.jpg</image_url>
+            <title>Recorded Book 248</title>
+            <authors><author><name>Author 248</name></author></authors>
+            <published>2023</published>
+          </book>
+          <rating>4</rating>
+          <date_added>Mon Jan 06 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316346</isbn13>
+            <image_url>https://images.gr-assets.com/books/249.jpg</image_url>
+            <title>Recorded Book 249</title>
+            <authors><author><name>Author 249</name></author></authors>
+            <published>2024</published>
+          </book>
+          <rating>5</rating>
+          <date_added>Mon Jan 07 00:00:00 -0800 2024</date_added>
+        </review>
+        <review>
+          <book>
+            <isbn13>9780062316347</isbn13>
+            <image_url>https://images.gr-assets.com/books/250.jpg</image_url>
+            <title>Recorded Book 250</title>
+            <authors><author><name>Author 250</name></author></authors>
+            <published>2000</published>
+          </book>
+          <rating>1</rating>
+          <date_added>Mon Jan 08 00:00:00 -0800 2024</date_added>
+        </review>
+          </reviews>
+        </GoodreadsResponse>
+    http_version:
+  recorded_at: Thu, 17 Sep 2026 12:00:00 GMT
+recorded_with: VCR 6.4.0

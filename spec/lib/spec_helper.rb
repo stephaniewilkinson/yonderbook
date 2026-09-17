@@ -8,3 +8,7 @@ require 'dotenv/load'
 require 'minitest/autorun'
 require 'minitest/pride'
 require 'tuple_space'
+# Blocks the network and provides the fixtures. An unstubbed call raises
+# WebMock::NetConnectNotAllowedError naming the request, rather than silently
+# depending on Goodreads, OverDrive, BookMooch or OpenLibrary being up.
+require_relative '../support/http_mocking'

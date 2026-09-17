@@ -87,12 +87,14 @@ class Overdrive
     end
 
     body = JSON.parse task.wait
-    case body
-    in links: {dlrHomepage: {href: String => url}} if url =~ /websiteID=(\d+)/
-      @website_id = ::Regexp.last_match(1)
+
+    # Ruby hash patterns only accept symbol keys, so the `in links: {...}` this
+    # replaces never matched a JSON.parse result and @website_id was always
+    # nil. views/availability.erb interpolates it straight into a borrow link,
+    # so every availability result carried a "?websiteID=" pointing nowhere.
+    if (homepage = body.dig('links', 'dlrHomepage', 'href')) && (match = homepage.match(/websiteID=(\d+)/))
+      @website_id = match[1]
       @library_url = "https://link.overdrive.com/?websiteID=#{@website_id}"
-    else
-      nil
     end
 
     body['collectionToken']
