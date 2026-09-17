@@ -62,10 +62,8 @@
           <p class="text-mauve-700 pt-1">Return here and click "Connect with Goodreads" again</p>
         </div>
       </div>
-      <div class="mt-6 pt-6 border-t border-mauve-950/10">
-        <p class="text-sm text-mauve-700 text-left">
-          <strong>Why two clicks?</strong> Goodreads <a href="https://www.goodreads.com/topic/show/21788520-api-deprecation" class="text-mauve-950 hover:underline font-medium" target="_blank">deprecated their API</a> in 2020, breaking automatic redirects. The connection still works, but requires these manual steps.
-        </p>
+      <div class="mt-6 pt-6 border-t border-mauve-950/10 text-left">
+        <%= partial 'two_click_explainer' %>
       </div>
     </div>
 
@@ -97,8 +95,5 @@
       </a>
     </div>
 
-    <p class="text-sm text-mauve-700 mt-6">
-      Don't want to click twice? <a href="/import" class="text-mauve-950 hover:underline font-medium">Upload your Goodreads export</a> and skip connecting altogether.
-    </p>
   </div>
 </div>

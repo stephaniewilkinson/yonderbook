@@ -27,6 +27,7 @@ require_relative 'lib/overdrive'
 require_relative 'lib/route_helpers'
 require_relative 'lib/search_routes'
 require_relative 'lib/sentry_capture'
+require_relative 'lib/site_copy'
 require_relative 'lib/websockets'
 
 SESSION_SECRET = ENV.fetch('SESSION_SECRET').then do |s|
@@ -348,7 +349,7 @@ class App < Roda
           r.redirect '/libraries'
         end
         unless Geolocation.known_zip?(zip)
-          flash[:error] = 'please try a different zip code'
+          flash[:error] = "We don't recognize that zip code. Please try another."
           r.redirect '/libraries'
         end
         @local_libraries = fetch_local_libraries(r, zip)

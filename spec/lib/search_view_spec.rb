@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'spec_helper'
+require 'site_copy'
 require 'tilt'
 
 # The page links to /connect rather than a pre-fetched authorize URL: building
@@ -11,7 +12,15 @@ CONNECT_ANCHOR = %r{<a[^>]*href=['"]/connect['"][^>]*>}
 describe 'views/search.erb' do
   # Rendered through Tilt rather than a request: this is the view's own markup,
   # and the route that serves it belongs to #1267.
-  def render_search = Tilt.new('views/search.erb').render(Object.new)
+  #
+  # The scope stands in for the Roda instance only as far as `partial`, which
+  # the page uses for the stats bar and the two-click explainer. Rendering
+  # those the same way keeps their content inside what these specs can see.
+  class TiltScope
+    def partial(name, locals = {}) = Tilt.new("views/_#{name}.erb").render(self, locals)
+  end
+
+  def render_search = Tilt.new('views/search.erb').render(TiltScope.new)
 
   # The anchor wrapping the connect link, so assertions about it cannot
   # accidentally match one of the other links on the page.
