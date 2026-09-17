@@ -8,12 +8,9 @@ require 'goodreads'
 # request building, the response parsing and the error handling -- which is all
 # of the code these cover.
 describe 'Goodreads over HTTP' do
-  SHELF_LIST = %r{\Ahttps://www\.goodreads\.com/shelf/list\.xml}
-  REVIEW_LIST = %r{\Ahttps://www\.goodreads\.com/review/list/}
-
   describe '.fetch_shelves' do
     it 'returns shelf names paired with counts' do
-      stub_request(:get, SHELF_LIST).to_return(status: 200, body: HttpFixtures.goodreads_shelf_list([['to-read', 12], ['read', 40]]))
+      stub_request(:get, HttpFixtures::SHELF_LIST_URL).to_return(status: 200, body: HttpFixtures.goodreads_shelf_list([['to-read', 12], ['read', 40]]))
 
       assert_equal([['to-read', 12], ['read', 40]], Goodreads.fetch_shelves('42').map { |name, count| [name.to_s, count] })
     end
@@ -21,15 +18,15 @@ describe 'Goodreads over HTTP' do
     it 'sends the User-Agent Akamai requires' do
       # lib/goodreads.rb:24-28: without one, Goodreads answers 403 HTML rather
       # than ever reaching the API. Nothing else in the suite proves we send it.
-      stub_request(:get, SHELF_LIST).to_return(status: 200, body: HttpFixtures.goodreads_shelf_list([['read', 1]]))
+      stub_request(:get, HttpFixtures::SHELF_LIST_URL).to_return(status: 200, body: HttpFixtures.goodreads_shelf_list([['read', 1]]))
 
       Goodreads.fetch_shelves('42')
 
-      assert_requested(:get, SHELF_LIST, headers: {'User-Agent' => 'Yonderbook (+https://yonderbook.com)'})
+      assert_requested(:get, HttpFixtures::SHELF_LIST_URL, headers: {'User-Agent' => 'Yonderbook (+https://yonderbook.com)'})
     end
 
     it 'raises ApiError naming the status when Akamai answers 403 with HTML' do
-      stub_request(:get, SHELF_LIST).to_return(status: 403, body: HttpFixtures.akamai_403_page)
+      stub_request(:get, HttpFixtures::SHELF_LIST_URL).to_return(status: 403, body: HttpFixtures.akamai_403_page)
 
       error = assert_raises(GoodreadsResponse::ApiError) { Goodreads.fetch_shelves('42') }
 
@@ -40,7 +37,10 @@ describe 'Goodreads over HTTP' do
     it 'raises ApiError when a 200 omits the element instead of degrading to an empty list' do
       # A revoked key and an expired token both do this. Without the check it
       # would read as "this account has no shelves".
-      stub_request(:get, SHELF_LIST).to_return(status: 200, body: '<?xml version="1.0"?><GoodreadsResponse><error>Invalid API key</error></GoodreadsResponse>')
+      stub_request(:get, HttpFixtures::SHELF_LIST_URL).to_return(
+        status: 200,
+        body: '<?xml version="1.0"?><GoodreadsResponse><error>Invalid API key</error></GoodreadsResponse>'
+      )
 
       error = assert_raises(GoodreadsResponse::ApiError) { Goodreads.fetch_shelves('42') }
 
@@ -49,7 +49,7 @@ describe 'Goodreads over HTTP' do
     end
 
     it 'surfaces a connection failure rather than hanging' do
-      stub_request(:get, SHELF_LIST).to_timeout
+      stub_request(:get, HttpFixtures::SHELF_LIST_URL).to_timeout
 
       assert_raises(StandardError) { Goodreads.fetch_shelves('42') }
     end
@@ -76,7 +76,7 @@ describe 'Goodreads over HTTP' do
 
     it 'parses every field the view needs off one review' do
       reviews = [HttpFixtures.goodreads_review(isbn: '9780062316097', title: 'Sapiens', author: 'Yuval Noah Harari', published: '2015', rating: '5')]
-      stub_request(:get, REVIEW_LIST).to_return(status: 200, body: HttpFixtures.goodreads_review_page(reviews))
+      stub_request(:get, HttpFixtures::REVIEW_LIST_URL).to_return(status: 200, body: HttpFixtures.goodreads_review_page(reviews))
 
       book = Goodreads.get_books('to-read', '42').first
 
@@ -86,7 +86,7 @@ describe 'Goodreads over HTTP' do
     end
 
     it 'raises ApiError on a 403 rather than returning an empty shelf' do
-      stub_request(:get, REVIEW_LIST).to_return(status: 403, body: HttpFixtures.akamai_403_page)
+      stub_request(:get, HttpFixtures::REVIEW_LIST_URL).to_return(status: 403, body: HttpFixtures.akamai_403_page)
 
       assert_raises(GoodreadsResponse::ApiError) { Goodreads.get_books('to-read', '42') }
     end

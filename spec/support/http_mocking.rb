@@ -100,9 +100,18 @@ Minitest::Test.include CassetteHelpers
 # missing one field produces ragged arrays and an IndexError from inside
 # Array#transpose rather than a readable failure. Build payloads through these
 # helpers instead of inline strings.
+# Constants assigned inside a `describe` block land at top level rather than on
+# the generated class, so two spec files naming the same URL pattern silently
+# collide -- which is how a FakeRequest in one file replaced an unrelated one in
+# another. The shared patterns live here instead.
 module HttpFixtures
   GOODREADS_HOST = 'https://www.goodreads.com'
   OVERDRIVE_LIBRARY_SEARCH = 'https://www.overdrive.com/mapbox/find-libraries-by-query'
+
+  REQUEST_TOKEN_URL = "#{GOODREADS_HOST}/oauth/request_token".freeze
+  SHELF_LIST_URL = %r{\Ahttps://www\.goodreads\.com/shelf/list\.xml}
+  REVIEW_LIST_URL = %r{\Ahttps://www\.goodreads\.com/review/list/}
+  FIND_LIBRARIES_URL = %r{\Ahttps://www\.overdrive\.com/mapbox/find-libraries-by-query}
 
   module_function
 

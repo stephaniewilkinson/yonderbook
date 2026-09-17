@@ -10,7 +10,7 @@ module RouteHelpers
 
     Auth.fetch_request_token.tap { |token| Cache.set(session, request_token: token) if token }
   rescue StandardError => e
-    Sentry.capture_exception(e) if defined?(Sentry)
+    Sentry.capture_exception(e)
     nil
   end
 
@@ -58,7 +58,7 @@ module RouteHelpers
   def fetch_local_libraries request, zip, fallback: nil
     Overdrive.local_libraries zip.delete ' '
   rescue Overdrive::ApiError => e
-    Sentry.capture_exception(e) if defined?(Sentry)
+    Sentry.capture_exception(e)
     flash[:error] = 'We could not reach OverDrive to look up libraries. Please try again in a little while.'
     request.redirect fallback || (@shelf_name ? "/goodreads/shelves/#{@shelf_name}/overdrive" : '/goodreads/shelves')
   end
@@ -92,7 +92,7 @@ module RouteHelpers
         Cache.set_by_id(sid, goodreads_shelf_data: book_info, goodreads_shelf_ready: true)
       end
     rescue StandardError => e
-      Sentry.capture_exception(e) if defined?(Sentry)
+      Sentry.capture_exception(e)
       Cache.set_by_id(sid, goodreads_shelf_ready: true, goodreads_shelf_error: e.message)
     end
     true
@@ -179,7 +179,10 @@ module RouteHelpers
   end
 
   def enrich_sentry request
-    Sentry.set_user(id: @user.id, email: @user.email) if @user
+    # id without email. id is enough to count affected users, group by person
+    # and join back to the database; email would put every account-holder's
+    # address on every error they hit, for the length of Sentry's retention.
+    Sentry.set_user(id: @user.id) if @user
     Sentry.set_tags(route: request.path)
   end
 

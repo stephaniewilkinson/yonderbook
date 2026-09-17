@@ -26,6 +26,7 @@ require_relative 'lib/oauth_helpers'
 require_relative 'lib/overdrive'
 require_relative 'lib/route_helpers'
 require_relative 'lib/search_routes'
+require_relative 'lib/sentry_capture'
 require_relative 'lib/websockets'
 
 SESSION_SECRET = ENV.fetch('SESSION_SECRET').then do |s|
@@ -41,8 +42,11 @@ class App < Roda
   # Sentry::Rack::CaptureExceptions removed -- it clones the hub, creates a
   # scope with the full Rack env, and runs session tracking on EVERY request.
   # Under Falcon's fiber/thread model this leaks ~0.2-0.4MB/request that is
-  # never reclaimed (even with MALLOC_ARENA_MAX=2). Errors are still captured
-  # via Sentry.capture_exception in the rescue block and error_handler plugin.
+  # never reclaimed (even with MALLOC_ARENA_MAX=2). Errors are captured in
+  # three places instead, none of which clone a hub: the rescue block at the
+  # bottom of the route tree, the error_handler plugin below for anything that
+  # raises after that block returns, and SentryCapture in config.ru for the
+  # middleware above this class.
   use Rack::HostRedirect, 'www.yonderbook.com' => 'yonderbook.com'
 
   plugin :head
@@ -80,7 +84,14 @@ class App < Roda
   plugin :not_found do
     view 'not_found'
   end
+  # Catches what the route-block rescue cannot: a template that raises during
+  # `view`, an error inside the rescue handler itself (enrich_sentry_error
+  # touches request.params, which can raise on a malformed body), and anything
+  # a plugin raises above the routing tree. Those are the hardest errors to
+  # reproduce from a stderr line, so they are the last ones that should be
+  # reaching stderr alone.
   plugin :error_handler do |e|
+    SentryCapture.capture_once(e)
     warn "#{e.class}: #{e.message}\n#{e.backtrace.first(20).join("\n")}"
     response.status = 500
     'Internal Server Error'
@@ -360,7 +371,7 @@ class App < Roda
     end
   rescue OAuth::Unauthorized, StandardError => e
     enrich_sentry_error(r)
-    Sentry.capture_exception(e)
+    SentryCapture.capture_once(e)
 
     # In production, redirect gracefully; in dev/test, raise to see full error
     raise e unless ENV['RACK_ENV'] == 'production'
