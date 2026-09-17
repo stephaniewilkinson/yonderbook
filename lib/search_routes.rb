@@ -46,7 +46,7 @@ module SearchRoutes
     request.post true do
       check_csrf!
       @shelf_name = Cache.get session, :shelf_name
-      zip = request.params['zipcode'].to_s
+      zip = Geolocation.normalize_zip request.params['zipcode']
       reject_zip request, 'You need to enter a zip code' if zip.empty?
       reject_zip request, "We don't recognize that zip code. Please try another." unless Geolocation.known_zip?(zip)
 

@@ -138,6 +138,13 @@
                      class="px-4 py-2 text-sm font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
                     Account
                   </a>
+                  <%# /logout was reachable only by typing the URL: nothing in
+                      the app linked to it. It renders a confirmation rather
+                      than logging out on click, so a plain link is safe. %>
+                  <a href="/logout"
+                     class="px-4 py-2 text-sm font-medium text-mauve-700 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                    Log Out
+                  </a>
                 <% else %>
                   <a href="/authenticate"
                      class="px-4 py-2 text-sm font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
@@ -187,6 +194,10 @@
                 <a href="/account"
                    class="block px-4 py-2 text-base font-medium text-mauve-950 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
                   Account
+                </a>
+                <a href="/logout"
+                   class="block px-4 py-2 text-base font-medium text-mauve-700 hover:bg-mauve-950/10 rounded-full transition-colors duration-200">
+                  Log Out
                 </a>
               <% else %>
                 <a href="/authenticate"
