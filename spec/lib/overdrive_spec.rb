@@ -16,6 +16,7 @@ describe Overdrive do
         url: 'http://link',
         id: 'abc',
         format: 'ebook',
+        library: 'Seattle Public Library',
         no_isbn: false,
         date_added: '2024-01-01'
       )
@@ -36,6 +37,7 @@ describe Overdrive do
         url: nil,
         id: nil,
         format: 'ebook',
+        library: 'Seattle Public Library',
         no_isbn: false,
         date_added: nil
       )
@@ -58,6 +60,7 @@ describe Overdrive do
         url: nil,
         id: nil,
         format: 'ebook',
+        library: 'Seattle Public Library',
         no_isbn: false,
         date_added: nil
       )

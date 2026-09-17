@@ -9,6 +9,7 @@ require 'async/semaphore'
 require 'oauth2'
 require 'uri'
 require_relative 'alternate_isbns'
+require_relative 'overdrive/across_libraries'
 require_relative 'overdrive/library_search'
 require_relative 'title_normalizer'
 
@@ -46,19 +47,31 @@ class Overdrive
     end
   end
 
-  # `format` is the product's OverDrive mediaType -- "ebook", "audiobook",
-  # "video". It was never read before, so every result was presented as an
-  # ebook regardless of what it actually was.
+  # One copy of a book: a single format, at a single library.
   #
-  # `availability_url` is gone: it was declared here, set to nil at both
-  # construction sites, and read by nothing.
-  Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :no_isbn, :date_added)
+  # `format` is the product's OverDrive mediaType -- "ebook", "audiobook",
+  # "video". It was read nowhere before, so every result was presented as an
+  # ebook regardless of what the library actually holds.
+  #
+  # `library` is the consortium's display name, so the results page can say
+  # where a copy is rather than only that one exists.
+  #
+  # `availability_url` used to sit here: declared, set to nil at both
+  # construction sites, and read by nothing. It is gone.
+  Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :library, :no_isbn, :date_added)
 
   # What OverDrive calls a format, and what a person calls it.
   FORMAT_LABELS = {'ebook' => 'ebook', 'audiobook' => 'audiobook', 'video' => 'video'}.freeze
   DEFAULT_FORMAT = 'ebook'
 
   def self.format_label(format) = FORMAT_LABELS.fetch(format.to_s, DEFAULT_FORMAT)
+
+  # How one book is identified across formats and libraries. The ISBN comes
+  # from Goodreads, so it is the same for every OverDrive product matched to
+  # it; a book without one falls back to its normalised title.
+  def self.book_key isbn, title
+    isbn.to_s.empty? ? TitleNormalizer.normalize(title) : isbn
+  end
 
   def self.local_libraries zip_code
     LibrarySearch.near zip_code
@@ -196,6 +209,7 @@ class Overdrive
       url: nil,
       id: nil,
       format: DEFAULT_FORMAT,
+      library: nil,
       no_isbn: no_isbn,
       date_added: book[:date_added]
     )
@@ -255,6 +269,7 @@ class Overdrive
           url: edition.dig('contentDetails', 0, 'href'),
           id: edition['id'],
           format: edition['mediaType'].to_s.downcase.then { |media| media.empty? ? DEFAULT_FORMAT : media },
+          library: book.library,
           no_isbn: book.no_isbn,
           date_added: book.date_added
         )
@@ -302,8 +317,7 @@ class Overdrive
   def consolidate_duplicate_titles titles
     books_by_key = {}
     titles.each do |book|
-      identifier = book.isbn&.then { |isbn| isbn.empty? ? nil : isbn } || TitleNormalizer.normalize(book.title)
-      key = [identifier, book.format]
+      key = [self.class.book_key(book.isbn, book.title), book.format]
       if books_by_key[key]
         books_by_key[key] = book if should_replace?(book, books_by_key[key])
       else

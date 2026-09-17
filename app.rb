@@ -297,14 +297,14 @@ class App < Roda
             r.get(true) { view 'shelves/overdrive' } # route: GET /goodreads/shelves/:id/overdrive
             r.post do # route: POST /goodreads/shelves/:id/overdrive?consortium=1047
               @book_info ||= fetch_shelf_blocking(@shelf_name)
-              consortium = typecast_params.pos_int('consortium')
-              unless consortium
-                flash[:error] = 'Invalid library selection'
+              libraries = chosen_libraries r
+              if libraries.empty?
+                flash[:error] = 'Please choose at least one library'
                 r.redirect "/goodreads/shelves/#{@shelf_name}/overdrive"
               end
               # The OverDrive check does not fit in a request (#1347), so hand it
               # to the WebSocket and send the browser somewhere that can wait.
-              queue_availability_check @book_info, consortium
+              queue_availability_check @book_info, libraries
               r.redirect '/goodreads/availability/progress'
             end
           end

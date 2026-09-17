@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'sentry-ruby'
 require_relative 'bookmooch'
 require_relative 'cache'
 require_relative 'overdrive'
@@ -46,15 +47,15 @@ module Websockets
     connection.flush
 
     book_info = Cache.get_in_session(session_id, :availability_book_info)
-    consortium = Cache.get_in_session(session_id, :availability_consortium)
+    libraries = Cache.get_in_session(session_id, :availability_libraries)
 
-    unless book_info && consortium
+    if book_info.nil? || libraries.nil? || libraries.empty?
       write_error(connection, 'Missing job parameters')
       connection.close
       return
     end
 
-    run_availability(connection, session_id, book_info, consortium)
+    run_availability(connection, session_id, book_info, libraries)
   rescue StandardError => e
     # Everything in here is OverDrive work, so the message names OverDrive
     # rather than leaking an exception string. Overdrive::ApiError is not
@@ -65,10 +66,12 @@ module Websockets
     connection.close
   end
 
-  def run_availability connection, session_id, book_info, consortium
+  def run_availability connection, session_id, book_info, libraries
     closed = false
-    overdrive = Overdrive.new(book_info, consortium)
-    titles = overdrive.fetch_titles_availability do |progress|
+    # Libraries are checked in order, and a book stops being searched once it
+    # is available somewhere -- see Overdrive.fetch_across_libraries for why
+    # that matters more than it looks.
+    availability = Overdrive.fetch_across_libraries(book_info, libraries) do |progress|
       next if closed
 
       connection.write(progress.to_json)
@@ -79,11 +82,13 @@ module Websockets
 
     # Cached whether or not the browser is still listening: they may have
     # navigated away, and the results page reads from here either way.
-    # One value rather than three. collection_token, website_id and library_url
-    # all come off this same Overdrive instance and were three session keys
-    # representing one object -- and of the three, only the URL was ever read
-    # by anything (#441).
-    Cache.set_in_session session_id, titles:, library_url: overdrive.library_url
+    #
+    # library_url is the fallback for the "search your library" button on books
+    # nobody owns, so the first library's is as good as any. library_names is
+    # what lets the page say "not owned by Brooklyn and NYPL" rather than
+    # "not owned by library".
+    titles = availability.copies
+    Cache.set_in_session session_id, titles:, library_url: availability.library_urls.values.compact.first, library_names: libraries.map(&:last)
     return if closed
 
     connection.write({type: 'complete', message: "Found #{titles.size} titles.", titles_count: titles.size}.to_json)
