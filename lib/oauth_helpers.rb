@@ -25,6 +25,17 @@ module OauthHelpers
   # home page. Everyone else gets the search interface. All reads -- nothing
   # here may write to the session.
   def root_response request
+    # This route answers three different ways for the same URL: a logged-in
+    # user is redirected to /home, a visitor carrying Goodreads credentials in
+    # the session to /search/shelves, and everyone else gets the search view.
+    #
+    # It was sending no cache headers at all, and a 200 with no Cache-Control,
+    # ETag or Last-Modified is one a browser may reuse under heuristic
+    # freshness. Firefox did exactly that: after logging in, a request for /
+    # never left the browser and the cached anonymous homepage was served to a
+    # logged-in visitor (#1383). A shared cache could do the same across
+    # visitors.
+    response.headers['Cache-Control'] = 'private, no-store'
     request.redirect '/home' if @user
     request.redirect '/search/shelves' if goodreads_session_present?
     view 'search'
