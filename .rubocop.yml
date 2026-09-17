@@ -280,6 +280,14 @@ Lint/InheritException:
 Lint/NumberConversion:
   Enabled: false
 
+# lib/overdrive/across_libraries.rb reopens class Overdrive to add the
+# multi-library coordinator. It holds only class methods, which reads as a
+# static class to this cop -- but it is not a class definition, and turning it
+# into a module would not reopen the same constant.
+Style/StaticClass:
+  Exclude:
+    - lib/overdrive/across_libraries.rb
+
 # SentryCapture reports what the middleware stack raises and re-raises it
 # untouched. Narrowing it to StandardError would drop exactly the failures it
 # exists to see -- NoMemoryError above all, on an app that is OOM-killed daily.

@@ -72,8 +72,8 @@ module SearchRoutes
     request.post true do
       check_csrf!
       @shelf_name = Cache.get session, :shelf_name
-      consortium = typecast_params.pos_int('consortium')
-      reject_library request, 'Invalid library selection' unless consortium
+      libraries = chosen_libraries request
+      reject_library request, 'Please choose at least one library' if libraries.empty?
 
       book_info = anonymous_shelf_books
       if book_info.nil? || book_info.empty?
@@ -83,7 +83,7 @@ module SearchRoutes
 
       # Same reason as the authenticated twin: the OverDrive check does not fit
       # in a request (#1347), so the WebSocket runs it.
-      queue_availability_check book_info, consortium
+      queue_availability_check book_info, libraries
       request.redirect '/search/availability/progress'
     end
 

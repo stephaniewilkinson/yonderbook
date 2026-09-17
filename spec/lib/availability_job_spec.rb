@@ -39,9 +39,9 @@ describe 'availability job' do
     end
 
     it 'reads back what the session-keyed writer stored' do
-      Cache.set_in_session 'session-shared', availability_consortium: 1047
+      Cache.set_in_session 'session-shared', availability_libraries: [%w[1047 Seattle]]
 
-      assert_equal 1047, Cache.get_in_session('session-shared', :availability_consortium)
+      assert_equal [%w[1047 Seattle]], Cache.get_in_session('session-shared', :availability_libraries)
     end
   end
 
@@ -58,7 +58,7 @@ describe 'availability job' do
     # The page shows a spinner until the socket says otherwise, so a crash that
     # writes nothing would spin forever.
     it 'reports an OverDrive failure rather than leaving the page spinning' do
-      Cache.set_in_session 'session-overdrive-down', availability_book_info: [{title: 'A'}], availability_consortium: 1047
+      Cache.set_in_session 'session-overdrive-down', availability_book_info: [{title: 'A'}], availability_libraries: [%w[1047 Seattle]]
       connection = FakeConnection.new
 
       Overdrive.stub(:new, ->(*) { raise 'OverDrive is unreachable' }) do

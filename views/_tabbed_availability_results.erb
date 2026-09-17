@@ -67,6 +67,31 @@
                           <% end %>
                         </div>
                       <% end %>
+                      <%# One block per copy: which library, which format, and
+                          what to do about it. A book can be an ebook at one
+                          library and an audiobook at another, and the row is
+                          the book rather than the copy (#1390). %>
+                      <% (book[:copies] || []).each do |copy| %>
+                        <div class="mb-3 last:mb-0">
+                          <div class="flex items-center justify-between mb-1.5 gap-2">
+                            <span class="text-xs text-mauve-700 truncate">
+                              <% if copy[:library] %><span class="font-medium text-mauve-950"><%= copy[:library] %></span> · <% end %><%= copy[:format] %>
+                            </span>
+                            <% if copy[:status_value] %>
+                              <span class="text-xs font-semibold text-mauve-950 whitespace-nowrap"><%= copy[:status_value] %></span>
+                            <% end %>
+                          </div>
+                          <a href="<%= copy[:button][:url] %>"
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             class="w-full inline-flex items-center justify-center px-3 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full transition-colors duration-200">
+                            <% if copy[:button][:icon] %>
+                              <img src="<%= copy[:button][:icon] %>" alt="<%= copy[:button][:label] %>" class="w-4 h-4 mr-1">
+                            <% end %>
+                            <%= copy[:button][:label] %>
+                          </a>
+                        </div>
+                      <% end %>
                       <% if book[:button] %>
                         <a href="<%= book[:button][:url] %>"
                            target="_blank"

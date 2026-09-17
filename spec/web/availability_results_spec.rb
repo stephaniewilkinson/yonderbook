@@ -20,7 +20,7 @@ describe 'availability results' do
   end
 
   describe 'GET /search/availability with results' do
-    Title = Struct.new(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :no_isbn, :date_added)
+    Title = Struct.new(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :library, :no_isbn, :date_added)
 
     def available_title
       Title.new(
@@ -33,6 +33,7 @@ describe 'availability results' do
         'https://link.overdrive.com/?content=1',
         'id-1',
         'ebook',
+        'Seattle Public Library',
         false,
         '2024-01-01'
       )
@@ -102,8 +103,19 @@ describe 'availability results' do
     end
 
     def available_title_for_authenticated
-      Struct.new(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :no_isbn, :date_added)
-        .new('Sapiens', 'Yuval Noah Harari', 'cover.jpg', 3, 5, '9780062316097', 'https://link.overdrive.com/', 'id-1', 'ebook', false, '2024-01-01')
+      Struct.new(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :library, :no_isbn, :date_added)
+        .new('Sapiens',
+             'Yuval Noah Harari',
+             'cover.jpg',
+             3,
+             5,
+             '9780062316097',
+             'https://link.overdrive.com/',
+             'id-1',
+             'ebook',
+             'Seattle Public Library',
+             false,
+             '2024-01-01')
     end
   end
 
@@ -118,8 +130,8 @@ describe 'availability results' do
     end
 
     def flow_title
-      Struct.new(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :no_isbn, :date_added)
-        .new('Unowned Book', 'An Author', 'cover.jpg', 0, 0, '9780062316097', nil, nil, 'ebook', false, '2024-01-01')
+      Struct.new(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :library, :no_isbn, :date_added)
+        .new('Unowned Book', 'An Author', 'cover.jpg', 0, 0, '9780062316097', nil, nil, 'ebook', 'Seattle Public Library', false, '2024-01-01')
     end
 
     it 'links the library using the cached url' do
@@ -157,6 +169,7 @@ describe 'availability results' do
         'https://link.overdrive.com/?c=1',
         'id-1',
         format,
+        'Seattle Public Library',
         false,
         '2024-01-01'
       )

@@ -189,4 +189,45 @@ describe 'site copy' do
       end
     end
   end
+
+  # #1390. Each library is a full extra pass over the shelf, so the picker has
+  # to be a bounded multi-select rather than an unbounded one.
+  describe 'the library picker' do
+    def render_picker
+      with_libraries = {
+        shelf_name: 'to-read',
+        libraries: [%w[1135 Brooklyn], %w[4242 NYPL], %w[7 Queens], %w[8 Jersey]],
+        anon_goodreads_user_id: '1',
+        anon_goodreads_token: 't',
+        anon_goodreads_secret: 's'
+      }
+      Cache.stub(:get, ->(_session, key) { with_libraries[key] }) { get '/search/library' }
+    end
+
+    it 'lets more than one library be chosen' do
+      render_picker
+
+      assert_includes last_response.body, 'name="consortium[]"'
+      assert_includes last_response.body, 'type="checkbox"'
+    end
+
+    it 'offers every library found near the zip code' do
+      render_picker
+
+      %w[Brooklyn NYPL Queens Jersey].each { |name| assert_includes last_response.body, name }
+    end
+
+    it 'tells the reader the cap and why it exists' do
+      render_picker
+
+      assert_includes last_response.body, "Pick up to #{AvailabilityHelpers::MAX_LIBRARIES}"
+      assert_includes last_response.body, 'longer wait'
+    end
+
+    it 'preselects one so the common case is a single click' do
+      render_picker
+
+      assert_includes last_response.body, 'checked'
+    end
+  end
 end

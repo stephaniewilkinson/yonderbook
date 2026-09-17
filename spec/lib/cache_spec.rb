@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require_relative 'spec_helper'
+require 'availability_helpers'
 require 'cache'
+require 'overdrive'
 require 'securerandom'
 
 describe Cache do
@@ -177,6 +179,60 @@ describe Cache do
 
       assert_nil Cache.get_by_id(session_id, :books)
       assert_nil Cache.get_by_id(session_id, :other)
+    end
+  end
+
+  # #1390. The cap is enforced server-side as well as in the picker: the form
+  # is the polite version, not the guarantee.
+  describe 'choosing libraries' do
+    # A stand-in for the Roda instance: chosen_libraries reads params and the
+    # session cache, and nothing else.
+    class LibraryChooser
+      include AvailabilityHelpers
+
+      attr_accessor :session
+    end
+
+    FakeParams = Struct.new(:params)
+
+    def chooser_for session_id
+      LibraryChooser.new.tap { |chooser| chooser.session = {'session_id' => session_id} }
+    end
+
+    def nearby = [%w[1135 Brooklyn], %w[4242 NYPL], %w[7 Queens], %w[8 Jersey]]
+
+    it 'pairs each chosen id with its name' do
+      session_id = "lib-#{SecureRandom.hex(4)}"
+      Cache.set_in_session session_id, libraries: nearby
+
+      chosen = chooser_for(session_id).chosen_libraries FakeParams.new({'consortium' => %w[4242 1135]})
+
+      assert_equal [%w[1135 Brooklyn], %w[4242 NYPL]], chosen
+    end
+
+    it 'caps the number of libraries' do
+      session_id = "lib-#{SecureRandom.hex(4)}"
+      Cache.set_in_session session_id, libraries: nearby
+
+      chosen = chooser_for(session_id).chosen_libraries FakeParams.new({'consortium' => %w[1135 4242 7 8]})
+
+      assert_equal AvailabilityHelpers::MAX_LIBRARIES, chosen.size
+    end
+
+    it 'ignores an id that was not among the libraries offered' do
+      session_id = "lib-#{SecureRandom.hex(4)}"
+      Cache.set_in_session session_id, libraries: nearby
+
+      chosen = chooser_for(session_id).chosen_libraries FakeParams.new({'consortium' => %w[9999]})
+
+      assert_empty chosen
+    end
+
+    it 'returns nothing when none were chosen' do
+      session_id = "lib-#{SecureRandom.hex(4)}"
+      Cache.set_in_session session_id, libraries: nearby
+
+      assert_empty chooser_for(session_id).chosen_libraries(FakeParams.new({}))
     end
   end
 end
