@@ -15,7 +15,7 @@ describe Overdrive do
         isbn: '123',
         url: 'http://link',
         id: 'abc',
-        availability_url: nil,
+        format: 'ebook',
         no_isbn: false,
         date_added: '2024-01-01'
       )
@@ -35,7 +35,7 @@ describe Overdrive do
         isbn: '123',
         url: nil,
         id: nil,
-        availability_url: nil,
+        format: 'ebook',
         no_isbn: false,
         date_added: nil
       )
@@ -57,7 +57,7 @@ describe Overdrive do
         isbn: '123',
         url: nil,
         id: nil,
-        availability_url: nil,
+        format: 'ebook',
         no_isbn: false,
         date_added: nil
       )
