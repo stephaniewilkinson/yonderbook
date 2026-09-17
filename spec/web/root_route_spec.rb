@@ -37,6 +37,17 @@ describe 'root route' do
       assert_nil cookie, 'the homepage wrote a session cookie'
     end
 
+    # #1383. The same URL answers three ways depending on session state, so a
+    # cached copy is a copy of someone else's answer. It was sending no
+    # Cache-Control, ETag or Last-Modified at all, which lets a browser reuse
+    # it under heuristic freshness -- Firefox served a logged-in visitor the
+    # cached anonymous homepage without asking the server.
+    it 'forbids caching, because the response depends on the session' do
+      get '/'
+
+      assert_equal 'private, no-store', last_response.headers['Cache-Control']
+    end
+
     it 'sends a visitor who already connected Goodreads to their shelves' do
       with_goodreads_session do
         get '/'
