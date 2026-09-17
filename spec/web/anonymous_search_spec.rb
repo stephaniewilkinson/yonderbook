@@ -17,11 +17,14 @@ describe 'Anonymous search flow' do
 
   # `cached` lets each spec choose how far through the flow the visitor has
   # already got, by supplying the values that step would have left behind.
+  #
+  # Only the cache read is stubbed. rebuild_access_token makes no HTTP call --
+  # it wraps the stored credentials in an OAuth::AccessToken -- so the real one
+  # runs, and the requests it signs are stubbed at the HTTP layer instead
+  # (spec/support/default_external_apis.rb).
   def with_anonymous_session(cached = {}, &)
     values = ANON_CREDENTIALS.merge(cached)
-    Cache.stub(:get, ->(_session, key) { values[key] }) do
-      Auth.stub(:rebuild_access_token, Object.new, &)
-    end
+    Cache.stub(:get, ->(_session, key) { values[key] }, &)
   end
 
   describe 'GET /search-callback' do
@@ -88,7 +91,7 @@ describe 'Anonymous search flow' do
     end
 
     it 'copies the session credentials onto the new account' do
-      email = "migrate_#{Time.now.to_i}_#{rand(9999)}@example.com"
+      email = "migrate_#{SecureRandom.hex(12)}@example.com"
       with_anonymous_session { sign_up email }
 
       account = DB[:accounts].where(email: email).first
@@ -103,7 +106,7 @@ describe 'Anonymous search flow' do
     # They can always reconnect from /connections, so a failed migration must not
     # cost them the account they actually asked for.
     it 'still creates the account when the migration raises' do
-      email = "migrate_fail_#{Time.now.to_i}_#{rand(9999)}@example.com"
+      email = "migrate_fail_#{SecureRandom.hex(12)}@example.com"
       exploding = ->(*) { raise 'Goodreads is unreachable' }
 
       with_anonymous_session do
@@ -114,7 +117,7 @@ describe 'Anonymous search flow' do
     end
 
     it 'leaves accounts without session credentials alone' do
-      email = "no_migrate_#{Time.now.to_i}_#{rand(9999)}@example.com"
+      email = "no_migrate_#{SecureRandom.hex(12)}@example.com"
       sign_up email
 
       account = DB[:accounts].where(email: email).first

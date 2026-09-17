@@ -105,6 +105,7 @@ describe App do
   end
 
   it 'connects Goodreads via OAuth and browses shelves' do
+    skip_unless_live_external
     fake_email, fake_password = create_account_direct
     password_login(fake_email, fake_password)
     assert_text 'Welcome back,'
@@ -157,6 +158,7 @@ describe App do
   end
 
   it 'searches OverDrive libraries for a seeded Goodreads user' do
+    skip_unless_live_external
     seed_goodreads_user
     visit '/goodreads/shelves/zora/overdrive'
     assert_text 'zip code'

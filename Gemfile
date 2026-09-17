@@ -53,4 +53,6 @@ group :test do
   gem 'minitest-capybara'
   gem 'minitest-retry'
   gem 'rack-test'
+  gem 'vcr'
+  gem 'webmock'
 end
