@@ -7,15 +7,15 @@ require 'sentry_scrubber'
 describe SentryScrubber do
   # Stand-ins for Sentry::ErrorEvent and Sentry::RequestInterface with the
   # attributes before_send touches.
-  FakeEvent = Struct.new(:request, :extra, :contexts, :tags)
-  FakeRequest = Struct.new(:data, :cookies, :query_string, :env, :headers, :url, :http_method)
+  FakeSentryEvent = Struct.new(:request, :extra, :contexts, :tags)
+  FakeSentryRequest = Struct.new(:data, :cookies, :query_string, :env, :headers, :url, :http_method)
 
   def scrub **attrs
-    SentryScrubber.call FakeEvent.new(attrs[:request], attrs.fetch(:extra, {}), attrs.fetch(:contexts, {}), attrs.fetch(:tags, {}))
+    SentryScrubber.call FakeSentryEvent.new(attrs[:request], attrs.fetch(:extra, {}), attrs.fetch(:contexts, {}), attrs.fetch(:tags, {}))
   end
 
   it 'returns the event so it is still sent' do
-    event = FakeEvent.new(nil, {}, {}, {})
+    event = FakeSentryEvent.new(nil, {}, {}, {})
     assert_same event, SentryScrubber.call(event, nil)
   end
 
@@ -29,7 +29,7 @@ describe SentryScrubber do
     # safe on those routes, so the body goes wholesale.
     it 'drops the body, cookies, query string and env' do
       body = {'username' => 'steph', 'password' => 'hunter2'}
-      request = FakeRequest.new(body, 'rack.session=abc123', 'token=xyz', {'HTTP_COOKIE' => 'rack.session=abc123'}, {})
+      request = FakeSentryRequest.new(body, 'rack.session=abc123', 'token=xyz', {'HTTP_COOKIE' => 'rack.session=abc123'}, {})
 
       result = scrub(request: request).request
 
@@ -40,7 +40,7 @@ describe SentryScrubber do
     end
 
     it 'keeps the url and method, which name the failing route' do
-      request = FakeRequest.new(nil, nil, nil, {}, {}, 'https://yonderbook.com/goodreads/shelves', 'GET')
+      request = FakeSentryRequest.new(nil, nil, nil, {}, {}, 'https://yonderbook.com/goodreads/shelves', 'GET')
 
       result = scrub(request: request).request
 
@@ -49,7 +49,7 @@ describe SentryScrubber do
     end
 
     it 'redacts credential-carrying headers' do
-      request = FakeRequest.new(nil, nil, nil, {}, {'Authorization' => 'Bearer abc', 'Content-Type' => 'application/json'}, nil, nil)
+      request = FakeSentryRequest.new(nil, nil, nil, {}, {'Authorization' => 'Bearer abc', 'Content-Type' => 'application/json'}, nil, nil)
 
       headers = scrub(request: request).request.headers
 

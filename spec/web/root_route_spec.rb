@@ -61,12 +61,10 @@ describe 'root route' do
   end
 
   describe 'GET /connect' do
-    REQUEST_TOKEN = 'https://www.goodreads.com/oauth/request_token'
-
     it 'redirects to the Goodreads authorize url' do
       # Stubbed at the HTTP layer, so the OAuth signing and the authorize_url
       # the oauth gem derives from the token both run for real.
-      stub_request(:post, REQUEST_TOKEN).to_return(status: 200, body: 'oauth_token=abc&oauth_token_secret=xyz')
+      stub_request(:post, HttpFixtures::REQUEST_TOKEN_URL).to_return(status: 200, body: 'oauth_token=abc&oauth_token_secret=xyz')
 
       get '/connect'
 
@@ -76,7 +74,7 @@ describe 'root route' do
     # fetch_and_cache_request_token swallows the failure and returns nil, so
     # without a fallback this would redirect to nowhere.
     it 'sends the visitor back to the homepage when Goodreads is unreachable' do
-      stub_request(:post, REQUEST_TOKEN).to_timeout
+      stub_request(:post, HttpFixtures::REQUEST_TOKEN_URL).to_timeout
 
       get '/connect'
 
@@ -87,11 +85,11 @@ describe 'root route' do
       # Auth.fetch_request_token retries twice on a network error, which is
       # three attempts in total. Nothing proved that until the request could
       # be counted.
-      stub_request(:post, REQUEST_TOKEN).to_timeout
+      stub_request(:post, HttpFixtures::REQUEST_TOKEN_URL).to_timeout
 
       get '/connect'
 
-      assert_requested(:post, REQUEST_TOKEN, times: 3)
+      assert_requested(:post, HttpFixtures::REQUEST_TOKEN_URL, times: 3)
     end
   end
 end
