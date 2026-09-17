@@ -98,6 +98,11 @@ end
 require_relative '../support/default_external_apis'
 Minitest::Test.prepend DefaultExternalApis
 
+# Credentials an anonymous visitor carries in the session cache after connecting
+# Goodreads. Shared by anonymous_search_spec.rb and anonymous_search_flow_spec.rb,
+# which is why it lives here rather than in whichever of them loads first.
+ANON_CREDENTIALS = {anon_goodreads_user_id: '1', anon_goodreads_token: 'token', anon_goodreads_secret: 'secret'}.freeze
+
 # Helper module for test utilities
 module TestHelpers
   # Two specs in system_spec.rb drive the browser to goodreads.com and through

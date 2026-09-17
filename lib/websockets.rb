@@ -79,13 +79,11 @@ module Websockets
 
     # Cached whether or not the browser is still listening: they may have
     # navigated away, and the results page reads from here either way.
-    Cache.set_in_session(
-      session_id,
-      titles:,
-      collection_token: overdrive.collection_token,
-      website_id: overdrive.website_id,
-      library_url: overdrive.library_url
-    )
+    # One value rather than three. collection_token, website_id and library_url
+    # all come off this same Overdrive instance and were three session keys
+    # representing one object -- and of the three, only the URL was ever read
+    # by anything (#441).
+    Cache.set_in_session session_id, titles:, library_url: overdrive.library_url
     return if closed
 
     connection.write({type: 'complete', message: "Found #{titles.size} titles.", titles_count: titles.size}.to_json)

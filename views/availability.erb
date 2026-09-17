@@ -71,7 +71,7 @@
           opacity: true,
           status_label: 'Not owned by library',
           button: {
-            url: "https://link.overdrive.com/?websiteID=#{@website_id}",
+            url: @library_url || AvailabilityHelpers::OVERDRIVE_HOME,
             icon_svg: search_icon,
             label: 'Search library',
             title: "Search your library for: #{title.title} by #{title.author}",
@@ -95,7 +95,7 @@
           opacity: true,
           status_label: 'Missing ISBN',
           button: {
-            url: "https://link.overdrive.com/?websiteID=#{@website_id}",
+            url: @library_url || AvailabilityHelpers::OVERDRIVE_HOME,
             icon_svg: search_icon,
             label: 'Search library',
             title: "Search your library for: #{title.title} by #{title.author}",
