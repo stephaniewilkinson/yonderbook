@@ -9,12 +9,25 @@ class TupleSpace < Rinda::TupleSpace
     super(reaper_period_in_secs)
   end
 
+  attr_reader :expires_in_secs
+
   def []= key, value
+    store key, value
+  end
+
+  # `[]=` cannot take a third argument, so anything wanting a lifetime other
+  # than the default calls this. Cache uses it to expire an abandoned anonymous
+  # session sooner than a signed-in one.
+  #
+  # Note the TTL is refreshed on every write, so an actively used session
+  # extends indefinitely. That is intended: this only bounds abandoned
+  # sessions, which is exactly the case worth bounding.
+  def store key, value, expires_in_secs: @expires_in_secs
     take [key, nil], true
   rescue Rinda::RequestExpiredError
     nil
   ensure
-    write [key, value], @expires_in_secs
+    write [key, value], expires_in_secs
   end
 
   def [] key

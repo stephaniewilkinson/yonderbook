@@ -69,4 +69,114 @@ describe Cache do
       assert_equal 'data', Cache.get_by_id(@session_id, :fresh)
     end
   end
+
+  # #1265. An anonymous session holds Goodreads credentials for someone who may
+  # never come back, on a 512MB instance. A signed-in one has an account behind
+  # it and keeps the longer default.
+  describe 'session lifetimes' do
+    def anonymous_session = {'session_id' => "anon-#{SecureRandom.hex(6)}"}
+
+    def signed_in_session = {'session_id' => "user-#{SecureRandom.hex(6)}", 'account_id' => 42}
+
+    it 'recognises a session with no account as anonymous' do
+      assert Cache.anonymous_session?(anonymous_session)
+      refute Cache.anonymous_session?(signed_in_session)
+    end
+
+    it 'gives an anonymous session the shorter lifetime' do
+      session = anonymous_session
+      Cache.set session, shelf_name: 'to-read'
+
+      assert_equal Cache::ANONYMOUS_TTL, Cache.ttl_for(session['session_id'])
+    end
+
+    it 'leaves a signed-in session on the default lifetime' do
+      session = signed_in_session
+      Cache.set session, shelf_name: 'to-read'
+
+      assert_equal Cache::CACHE.expires_in_secs, Cache.ttl_for(session['session_id'])
+    end
+
+    # The WebSocket handlers hold a session id and never see the Rack session,
+    # so the marker Cache.set leaves behind is how they inherit the right one.
+    it 'lets a caller holding only a session id inherit the lifetime' do
+      session = anonymous_session
+      Cache.set session, shelf_name: 'to-read'
+
+      Cache.set_in_session session['session_id'], titles: %w[a b]
+
+      assert_equal Cache::ANONYMOUS_TTL, Cache.ttl_for(session['session_id'])
+      assert_equal %w[a b], Cache.get_in_session(session['session_id'], :titles)
+    end
+
+    it 'defaults an unmarked session id to the longer lifetime' do
+      # Shortening a signed-in session by accident is the worse mistake.
+      assert_equal Cache::CACHE.expires_in_secs, Cache.ttl_for("never-seen-#{SecureRandom.hex(4)}")
+    end
+  end
+
+  describe 'filesystem cleanup' do
+    def stamp_path = File.join(Cache::SHARED_DIR, Cache::CLEANUP_STAMP)
+
+    before do
+      FileUtils.mkdir_p Cache::SHARED_DIR
+      FileUtils.rm_f stamp_path
+    end
+
+    it 'is due when it has never run' do
+      assert Cache.cleanup_due?
+    end
+
+    # The old trigger was a module-level request counter. Falcon runs several
+    # processes, each kept its own count, so on a quiet day files outlived the
+    # cutoff by a wide margin. An mtime is shared by every process.
+    it 'is not due again immediately after running' do
+      Cache.cleanup_stale
+
+      refute Cache.cleanup_due?
+    end
+
+    it 'is due again once the interval has passed' do
+      Cache.cleanup_stale
+      old = Time.now - Cache::CLEANUP_INTERVAL - 60
+      File.utime old, old, stamp_path
+
+      assert Cache.cleanup_due?
+    end
+
+    it 'expires an anonymous entry sooner than a signed-in one' do
+      session_id = "ttl-#{SecureRandom.hex(6)}"
+      Cache.set_by_id session_id, anonymous: true, shelf: %w[a]
+      Cache.set_by_id "#{session_id}-user", shelf: %w[a]
+
+      anon = Cache.path_for(session_id, :shelf, anonymous: true)
+      user = Cache.path_for("#{session_id}-user", :shelf)
+      # Both older than the anonymous cutoff, neither older than an hour.
+      aged = Time.now - Cache::ANONYMOUS_TTL - 60
+      [anon, user].each { |f| File.utime aged, aged, f }
+
+      Cache.cleanup_stale
+
+      refute_path_exists anon, 'the anonymous entry outlived its cutoff'
+      assert_path_exists user, 'the signed-in entry was expired early'
+    end
+
+    it 'reads an entry back whichever way it was written' do
+      session_id = "read-#{SecureRandom.hex(6)}"
+      Cache.set_by_id session_id, anonymous: true, books: [{isbn: '1'}]
+
+      assert_equal [{isbn: '1'}], Cache.get_by_id(session_id, :books)
+    end
+
+    it 'clears both namings for a session' do
+      session_id = "clear-#{SecureRandom.hex(6)}"
+      Cache.set_by_id session_id, anonymous: true, books: %w[a]
+      Cache.set_by_id session_id, other: %w[b]
+
+      Cache.clear_by_id session_id
+
+      assert_nil Cache.get_by_id(session_id, :books)
+      assert_nil Cache.get_by_id(session_id, :other)
+    end
+  end
 end
