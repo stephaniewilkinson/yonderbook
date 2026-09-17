@@ -24,6 +24,13 @@ module Geolocation
 
   module_function
 
+  # Whitespace out of a typed zip code. People put spaces in them, and
+  # `known_zip?` rejects anything that is not exactly five digits -- "941 03"
+  # and " 94103 " both came back unknown. The strip has to happen before the
+  # check, not after: it used to live in RouteHelpers#fetch_local_libraries,
+  # which only runs once validation has already passed.
+  def normalize_zip(zip) = zip.to_s.gsub(/\s+/, '')
+
   # True when the string is a zip code that actually exists. Replaces a bare
   # `zip.to_latlon` truthiness check; the coordinates were always discarded.
   def known_zip?(zip) = ZipCodes.known?(zip)

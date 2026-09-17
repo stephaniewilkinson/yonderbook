@@ -342,7 +342,7 @@ class App < Roda
 
       r.post true do # route: POST /libraries?zipcode=90029
         @shelf_name = Cache.get session, :shelf_name
-        zip = r.params['zipcode'].to_s
+        zip = Geolocation.normalize_zip r.params['zipcode']
 
         if zip.empty?
           flash[:error] = 'You need to enter a zip code'

@@ -7,6 +7,11 @@ require 'json'
 # renderings drift apart again, which is the failure mode that made the FAQ,
 # the HowTo steps and the stats bar worth centralising in the first place.
 describe 'site copy' do
+  # Rack::Test for the markup assertions; Capybara for the one case that needs
+  # a real login, since the logged-out nav is what an unauthenticated
+  # Rack::Test request would always see.
+  include Capybara::DSL
+  include Minitest::Capybara::Behaviour
   include Rack::Test::Methods
 
   let(:app) { App }
@@ -153,6 +158,34 @@ describe 'site copy' do
         source = File.read("views/#{view}.erb")
 
         assert_includes source, "content_for :robots, 'noindex'"
+      end
+    end
+  end
+
+  # #1271. The nav already branched on login state; what it never had was a way
+  # out. /logout was reachable only by typing the URL.
+  describe 'navigation' do
+    it 'offers an anonymous visitor the way in' do
+      get '/'
+
+      assert_includes last_response.body, 'href="/authenticate"'
+      assert_includes last_response.body, 'href="/sign-up"'
+      refute_includes last_response.body, 'href="/logout"'
+    end
+
+    it 'offers a logged-in user the way out' do
+      email, password = create_account_direct
+      password_login(email, password)
+      assert_text 'Welcome back,'
+
+      assert page.has_link?('Log Out', href: '/logout'), 'no way to log out from the nav'
+    end
+
+    it 'links the FAQ from somewhere on every page' do
+      %w[/ /about /how-it-works].each do |path|
+        get path
+
+        assert_includes last_response.body, 'href="/faq"', "#{path} does not link the FAQ"
       end
     end
   end

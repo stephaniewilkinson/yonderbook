@@ -4,6 +4,30 @@ require_relative 'spec_helper'
 require 'geolocation'
 
 describe Geolocation do
+  describe '.normalize_zip' do
+    # known_zip? wants exactly five digits, and people type spaces. The strip
+    # used to live in RouteHelpers#fetch_local_libraries, which only runs after
+    # validation has already passed -- so "941 03" was rejected as unknown
+    # despite the code trying to handle it.
+    it 'removes whitespace from anywhere in the value' do
+      assert_equal '94103', Geolocation.normalize_zip('941 03')
+      assert_equal '94103', Geolocation.normalize_zip(' 94103 ')
+      assert_equal '94103', Geolocation.normalize_zip("94103\n")
+    end
+
+    it 'leaves a clean zip code alone' do
+      assert_equal '94103', Geolocation.normalize_zip('94103')
+    end
+
+    it 'copes with nil' do
+      assert_equal '', Geolocation.normalize_zip(nil)
+    end
+
+    it 'produces a value known_zip? accepts' do
+      assert Geolocation.known_zip?(Geolocation.normalize_zip('902 10'))
+    end
+  end
+
   describe '.known_zip?' do
     it 'accepts a real zip code' do
       assert Geolocation.known_zip?('90210')

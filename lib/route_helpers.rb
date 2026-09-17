@@ -56,7 +56,7 @@ module RouteHelpers
   # 403 rather than JSON. Send the user back to the zip code form with a message
   # they can act on, instead of letting it surface as a bare 500.
   def fetch_local_libraries request, zip, fallback: nil
-    Overdrive.local_libraries zip.delete ' '
+    Overdrive.local_libraries Geolocation.normalize_zip(zip)
   rescue Overdrive::ApiError => e
     Sentry.capture_exception(e)
     flash[:error] = 'We could not reach OverDrive to look up libraries. Please try again in a little while.'
