@@ -48,7 +48,7 @@ module SearchRoutes
       @shelf_name = Cache.get session, :shelf_name
       zip = request.params['zipcode'].to_s
       reject_zip request, 'You need to enter a zip code' if zip.empty?
-      reject_zip request, 'Please try a different zip code' unless Geolocation.known_zip?(zip)
+      reject_zip request, "We don't recognize that zip code. Please try another." unless Geolocation.known_zip?(zip)
 
       Cache.set session, libraries: fetch_local_libraries(request, zip, fallback: zip_form_path)
       request.redirect '/search/library'

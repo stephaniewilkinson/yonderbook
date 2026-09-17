@@ -1,0 +1,12 @@
+<% # The one explanation of the Goodreads double-click. It was written four
+   # different ways across three templates, and only one of them said what the
+   # two clicks actually do. Text lives in SiteCopy so all of them stay in step. %>
+<div class="rounded-xl bg-mauve-50 border border-mauve-950/10 p-5 text-sm text-mauve-700">
+  <p class="font-semibold text-mauve-950 mb-1"><%= SiteCopy::TWO_CLICK_HEADING %></p>
+  <p class="leading-relaxed"><%= SiteCopy::TWO_CLICK_BODY %></p>
+  <p class="leading-relaxed mt-2">
+    <%= SiteCopy::TWO_CLICK_ALTERNATIVE_LEAD %>
+    <a href="/import" class="font-medium text-indigo-700 underline hover:text-indigo-900"><%= SiteCopy::TWO_CLICK_ALTERNATIVE_LINK %></a>
+    <%= SiteCopy::TWO_CLICK_ALTERNATIVE_TAIL %>
+  </p>
+</div>

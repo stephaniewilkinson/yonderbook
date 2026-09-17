@@ -59,7 +59,13 @@ module OauthHelpers
     @user.refresh
     request.redirect '/goodreads/shelves'
   rescue OAuth::Unauthorized
-    flash[:error] = 'Fetched details! Click login'
+    # Was "Fetched details! Click login": styled as an error, opening with a
+    # success, describing something that did not happen, and pointing at a
+    # control that does not exist. It fires at the exact moment someone is
+    # trying to connect Goodreads, which is the product's first-run path.
+    #
+    # Same wording as the anonymous twin above, because it is the same event.
+    flash[:error] = "Almost there — click 'Connect with Goodreads' one more time"
     request.redirect '/'
   end
 end

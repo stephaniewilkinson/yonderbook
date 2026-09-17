@@ -1,3 +1,4 @@
+<% content_for :robots, 'noindex' %>
 <% content_for :title, "Library Availability" %>
 <% content_for :description, "See which books from your Goodreads list are available at your library right now. Borrow free ebooks and audiobooks via Libby." %>
 
@@ -107,3 +108,7 @@
 %>
 
 <%= render('_tabbed_availability_results', locals: {header: header, tabs: tabs}) %>
+
+<% if @anonymous_search %>
+  <%= partial 'anonymous_conversion' %>
+<% end %>
