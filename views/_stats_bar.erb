@@ -1,5 +1,5 @@
 <% # Figures and their provenance live in SiteCopy::STATS. This was duplicated
-   # across search.erb and welcome.erb, so updating one left the other wrong. %>
+   # across two templates, so updating one left the other wrong. %>
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center max-w-5xl mx-auto">
   <% SiteCopy.stats.zip(%w[text-indigo-900 text-violet-900 text-mauve-900 text-rose-900]).each do |stat, colour| %>
     <div class="p-6 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/40 shadow-sm hover:shadow-md transition-shadow">

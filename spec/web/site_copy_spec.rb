@@ -2,6 +2,8 @@
 
 require_relative 'spec_helper'
 require 'json'
+require 'memory_logger'
+require 'stringio'
 
 # Copy that appears twice used to be typed twice. These specs fail if the two
 # renderings drift apart again, which is the failure mode that made the FAQ,
@@ -228,6 +230,58 @@ describe 'site copy' do
       render_picker
 
       assert_includes last_response.body, 'checked'
+    end
+  end
+
+  # The session id in a WebSocket path is a capability: the handlers look up
+  # cached job parameters under it and act on them. The BookMooch one reads a
+  # stored username and password and performs an import on that account.
+  describe 'WebSocket authorization' do
+    it 'refuses a socket for somebody else\'s session' do
+      get '/ws/availability/not-my-session-id'
+
+      assert_equal 403, last_response.status
+    end
+
+    it 'refuses the BookMooch socket the same way' do
+      # This is the one that matters: possession of the id was enough to run
+      # an import against another account's stored BookMooch credentials.
+      get '/ws/bookmooch/not-my-session-id'
+
+      assert_equal 403, last_response.status
+    end
+
+    it 'does not leak the session id into the logs' do
+      # Render keeps whatever reaches stderr, and MemoryLogger logs the path
+      # of every request twice.
+      logger = MemoryLogger.new(->(_env) { [200, {}, %w[ok]] })
+      logged = capture_stderr do
+        logger.call({'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/ws/availability/1e4a9f60-0b1e-4c7a-9a3b-1f2e3d4c5b6a'})
+      end
+
+      refute_includes logged, '1e4a9f60-0b1e-4c7a-9a3b-1f2e3d4c5b6a'
+      assert_includes logged, '/ws/availability/:session_id'
+    end
+
+    def capture_stderr
+      previous = $stderr
+      $stderr = StringIO.new
+      yield
+      $stderr.string
+    ensure
+      $stderr = previous
+    end
+  end
+
+  # The entity rating itself, five stars from one rating, on every indexed
+  # page. Google treats self-serving review markup as spam.
+  describe 'review markup' do
+    it 'asserts no rating it made up about itself' do
+      %w[/ /about /faq /how-it-works].each do |path|
+        get path
+
+        refute json_ld_of('WebApplication').key?('aggregateRating'), "#{path} rates itself"
+      end
     end
   end
 end
