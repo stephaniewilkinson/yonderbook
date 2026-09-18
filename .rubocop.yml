@@ -303,6 +303,12 @@ Lint/ConstantDefinitionInBlock:
   Exclude:
     - spec/**/*_spec.rb
 
+# A fake standing in for Sentry::ExceptionInterface has to expose `values`,
+# because that is the attribute the real one exposes.
+Lint/StructNewOverride:
+  Exclude:
+    - spec/**/*_spec.rb
+
 Lint/SafeNavigationChain:
   AllowedMethods:
     - present?

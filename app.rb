@@ -26,6 +26,7 @@ require_relative 'lib/oauth_helpers'
 require_relative 'lib/overdrive'
 require_relative 'lib/route_helpers'
 require_relative 'lib/search_routes'
+require_relative 'lib/secrets'
 require_relative 'lib/sentry_capture'
 require_relative 'lib/site_copy'
 require_relative 'lib/websockets'
@@ -93,7 +94,10 @@ class App < Roda
   # reaching stderr alone.
   plugin :error_handler do |e|
     SentryCapture.capture_once(e)
-    warn "#{e.class}: #{e.message}\n#{e.backtrace.first(20).join("\n")}"
+    # Redacted: the Goodreads key travels as a query parameter, so a failure
+    # mid-request carries it in the message, and Render's log drain keeps
+    # whatever reaches stderr.
+    warn Secrets.redact("#{e.class}: #{e.message}\n#{e.backtrace.first(20).join("\n")}")
     response.status = 500
     'Internal Server Error'
   end
