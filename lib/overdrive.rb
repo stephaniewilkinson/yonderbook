@@ -10,7 +10,9 @@ require 'oauth2'
 require 'uri'
 require_relative 'alternate_isbns'
 require_relative 'overdrive/across_libraries'
+require_relative 'overdrive/instrumentation'
 require_relative 'overdrive/library_search'
+require_relative 'overdrive/matching'
 require_relative 'title_normalizer'
 
 class Overdrive
@@ -20,32 +22,6 @@ class Overdrive
   KEY          = ENV.fetch('OVERDRIVE_KEY')
   SECRET       = ENV.fetch('OVERDRIVE_SECRET')
   CHUNK_SIZE   = 100
-
-  module Matching
-    module_function
-
-    def title_matches_exactly? product, target_title
-      product_title = product['title']
-      return false unless product_title
-
-      normalized_overdrive = TitleNormalizer.normalize(product_title)
-      normalized_goodreads = TitleNormalizer.normalize(target_title)
-      return true if normalized_overdrive == normalized_goodreads
-      return true if normalized_goodreads.start_with?(normalized_overdrive)
-      return true if normalized_overdrive.start_with?(normalized_goodreads)
-
-      false
-    end
-
-    def author_matches? product, target_author
-      product_author = product.dig('primaryCreator', 'name')
-      return false unless product_author
-      return false if target_author.nil? || target_author.empty?
-
-      author_last_name = target_author.split.last.downcase
-      product_author.downcase.include?(author_last_name)
-    end
-  end
 
   # One copy of a book: a single format, at a single library.
   #
@@ -60,11 +36,19 @@ class Overdrive
   # construction sites, and read by nothing. It is gone.
   Title = Data.define(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :library, :no_isbn, :date_added)
 
-  # What OverDrive calls a format, and what a person calls it.
-  FORMAT_LABELS = {'ebook' => 'ebook', 'audiobook' => 'audiobook', 'video' => 'video'}.freeze
   DEFAULT_FORMAT = 'ebook'
 
-  def self.format_label(format) = FORMAT_LABELS.fetch(format.to_s, DEFAULT_FORMAT)
+  # The product's own mediaType, lowercased, or the default when OverDrive sent
+  # none at all.
+  #
+  # Deliberately not a list of known formats. It used to be one, and anything
+  # absent from it came back as "ebook" -- so a magazine or a comic, both of
+  # which OverDrive carries, would have been labelled an ebook. That is the
+  # same lie this was written to stop telling.
+  def self.format_label format
+    value = format.to_s.strip.downcase
+    value.empty? ? DEFAULT_FORMAT : value
+  end
 
   # How one book is identified across formats and libraries. The ISBN comes
   # from Goodreads, so it is the same for every OverDrive product matched to
@@ -75,14 +59,6 @@ class Overdrive
 
   def self.local_libraries zip_code
     LibrarySearch.near zip_code
-  end
-
-  def self.rss_mb
-    status_path = "/proc/#{Process.pid}/status"
-    kb = File.exist?(status_path) ? File.read(status_path)[/VmRSS:\s+(\d+)/, 1].to_i : `ps -o rss= -p #{Process.pid}`.to_i
-    kb / 1024.0
-  rescue StandardError
-    0.0
   end
 
   def initialize book_info, consortium_id
@@ -160,38 +136,12 @@ class Overdrive
 
   private
 
-  def monotonic_now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-
-  # A failure to report progress must never lose the availability results the
-  # chunk just produced -- the socket may have closed while this ran.
-  def report_chunk_progress callback, completed, total
-    callback&.call(type: 'progress', message: "Checking availability — #{completed} of #{total} batches complete...", current: completed, total: total)
-  rescue StandardError
-    nil
-  end
-
   def process_chunk chunk, chunk_num, chunk_count
     start = monotonic_now
     result = fetch_availability(expand_editions(search_chunk(chunk)))
     elapsed = (monotonic_now - start).round(2)
     warn "[overdrive] Chunk #{chunk_num}/#{chunk_count}: #{chunk.size} books, #{elapsed}s, RSS=#{self.class.rss_mb.round(1)}MB"
     result
-  end
-
-  def record_timings rss_before, total_start, chunk_count, titles_count
-    elapsed = (monotonic_now - total_start).round(2)
-    rss_after = self.class.rss_mb.round(1)
-    delta = (rss_after - rss_before).round(1)
-    @timings = {
-      total_books: @book_info.size,
-      chunk_count:,
-      total_elapsed: elapsed,
-      rss_before: rss_before.round(1),
-      rss_after:,
-      rss_delta: delta,
-      titles_returned: titles_count
-    }
-    warn "[overdrive] Done: #{elapsed}s, #{titles_count} titles, RSS #{rss_before.round(1)}->#{rss_after}MB (delta #{delta}MB)"
   end
 
   def should_replace? candidate, current
