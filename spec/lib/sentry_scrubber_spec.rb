@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'spec_helper'
+require 'secrets'
 require 'sentry-ruby'
 require 'sentry_scrubber'
 
@@ -89,6 +90,61 @@ describe SentryScrubber do
 
     it 'redacts sensitive tags' do
       assert_equal SentryScrubber::REDACTED, scrub(tags: {route: '/login', 'api-key' => 'abc'}).tags['api-key']
+    end
+  end
+
+  # Key-name scrubbing cannot reach free text, and the Goodreads key travels as
+  # a query parameter -- so an exception raised mid-request carries it in the
+  # message, which used to go to Sentry verbatim.
+  describe 'credential values in free text' do
+    FakeSingleException = Struct.new(:value)
+    # `values` shadows Struct#values, which is exactly the shape
+    # Sentry::ExceptionInterface has, so the fake matches it.
+    FakeExceptionInterface = Struct.new(:values)
+
+    def with_key key
+      previous = ENV.fetch('GOODREADS_API_KEY', nil)
+      ENV['GOODREADS_API_KEY'] = key
+      Secrets.reset!
+      yield
+    ensure
+      previous.nil? ? ENV.delete('GOODREADS_API_KEY') : ENV['GOODREADS_API_KEY'] = previous
+      Secrets.reset!
+    end
+
+    def event_with_exception message
+      event = FakeSentryEvent.new(nil, {}, {}, {})
+      event.define_singleton_method(:exception) { @exception ||= FakeExceptionInterface.new([FakeSingleException.new(message)]) }
+      event.define_singleton_method(:breadcrumbs) { nil }
+      event
+    end
+
+    it 'redacts the key out of an exception message' do
+      with_key 'abcd1234efgh5678' do
+        event = event_with_exception('Timeout on https://www.goodreads.com/review/list/42.xml?key=abcd1234efgh5678&v=2')
+
+        SentryScrubber.call event
+
+        refute_includes event.exception.values.first.value, 'abcd1234efgh5678'
+      end
+    end
+
+    it 'redacts the key out of a value nested in extra' do
+      with_key 'abcd1234efgh5678' do
+        scrubbed = scrub(extra: {last_url: 'https://www.goodreads.com/shelf/list.xml?key=abcd1234efgh5678'})
+
+        refute_includes scrubbed.extra[:last_url], 'abcd1234efgh5678'
+      end
+    end
+
+    it 'leaves an unrelated message intact' do
+      with_key 'abcd1234efgh5678' do
+        event = event_with_exception('Net::ReadTimeout')
+
+        SentryScrubber.call event
+
+        assert_equal 'Net::ReadTimeout', event.exception.values.first.value
+      end
     end
   end
 end

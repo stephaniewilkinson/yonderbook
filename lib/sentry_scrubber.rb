@@ -23,6 +23,8 @@
 # 2. Redact sensitive keys everywhere else in the event. extra, contexts and
 #    tags are all set by hand -- see enrich_sentry_error in lib/route_helpers
 #    -- and a future call site can pass more than it means to.
+require_relative 'secrets'
+
 module SentryScrubber
   SENSITIVE_KEY = /passw|secret|token|api[-_]?key|auth|credential|session|cookie/i
   REDACTED = '[Filtered]'
@@ -36,7 +38,22 @@ module SentryScrubber
     event.extra = scrub(event.extra)
     event.contexts = scrub(event.contexts)
     event.tags = scrub(event.tags)
+    redact_messages event
     event
+  end
+
+  # Key-name scrubbing cannot reach an exception message, and that is where the
+  # Goodreads key is most likely to surface: it travels as a query parameter,
+  # so a failure mid-request carries it in the string. Match on the value.
+  # respond_to? throughout: this is wired to before_send_transaction as well,
+  # and a TransactionEvent carries no exception.
+  def redact_messages event
+    Array(event.exception&.values).each { |exception| exception.value = Secrets.redact(exception.value) } if event.respond_to?(:exception)
+    if event.respond_to?(:breadcrumbs)
+      crumbs = event.breadcrumbs.respond_to?(:to_hash) ? event.breadcrumbs.to_hash[:values] : nil
+      Array(crumbs).each { |crumb| crumb[:message] = Secrets.redact(crumb[:message]) if crumb.is_a?(Hash) }
+    end
+    event.message = Secrets.redact(event.message) if event.respond_to?(:message=) && event.respond_to?(:message) && event.message
   end
 
   def scrub_request request
@@ -53,6 +70,7 @@ module SentryScrubber
     case value
     when Hash then value.to_h { |k, v| [k, SENSITIVE_KEY.match?(k.to_s) ? REDACTED : scrub(v)] }
     when Array then value.map { |v| scrub v }
+    when String then Secrets.redact(value)
     else value
     end
   end
