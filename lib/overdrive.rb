@@ -165,10 +165,21 @@ class Overdrive
     )
   end
 
-  def availability_path book
-    isbn = book[:isbn]
-    query = isbn && !isbn.empty? ? isbn : "\"#{TitleNormalizer.clean_for_search(book[:title])}\""
-    "/v1/collections/#{@collection_token}/products?#{URI.encode_www_form(minimum: false, limit: 5, q: query)}"
+  # Where a book is looked up in this library's catalogue.
+  #
+  # Always by title, even when Goodreads gave us an ISBN. `q=` is a keyword
+  # search and does not index ISBNs: measured against live OverDrive, 0 hits in
+  # 40, using ISBNs taken from products this very library holds. Every book
+  # with an ISBN therefore searched twice -- once for nothing, then again by
+  # title -- against the phase the README names as the bottleneck (#1394).
+  #
+  # There is no working alternative. `identifiers=`, `identifiers=ISBN:`, and
+  # `ISBN=` are all accepted and silently ignored, returning the same
+  # unfiltered first five products as no filter at all; `crossRefId=` is a 400;
+  # `q=isbn:` and `q=identifier:` return nothing.
+  def search_path book
+    query = "\"#{TitleNormalizer.clean_for_search(book[:title])}\""
+    "/v1/collections/#{@collection_token}/products?#{URI.encode_www_form(minimum: false, limit: 10, q: query)}"
   end
 
   # Search Overdrive catalog for a chunk of books. Returns [[Title, body_string], ...]
@@ -278,16 +289,13 @@ class Overdrive
   end
 
   def fetch_book_data client, book
-    response = client.get(availability_path(book), {'Authorization' => "Bearer #{@token}"})
+    response = client.get(search_path(book), {'Authorization' => "Bearer #{@token}"})
     body = response.read
     response.close
-    no_isbn = missing_isbn?(book)
-    body = if no_isbn
-      validate_title_search_results(client, body, book[:author], book[:title])
-    else
-      try_title_search_with_metadata(client, book, body)
-    end
-    [title(book, no_isbn: no_isbn), body]
+    # One path now, with or without an ISBN: both did a title search in the
+    # end, and the ISBN branch only differed by a check that could not
+    # discriminate between products.
+    [title(book, no_isbn: missing_isbn?(book)), validate_title_search_results(body, book[:author], book[:title])]
   rescue StandardError
     [title(book, no_isbn: missing_isbn?(book)), nil]
   ensure
@@ -301,10 +309,10 @@ class Overdrive
   # The path for a book Goodreads has no ISBN for. Same widening as the ISBN
   # path: a book held as both an ebook and an audiobook should show both,
   # rather than whichever OverDrive listed first.
-  def validate_title_search_results client, search_body, target_author, target_title
+  def validate_title_search_results search_body, target_author, target_title
     return {'products' => []}.to_json if no_products?(search_body)
 
-    matched = find_matching_products_via_metadata(client, search_body, nil, target_author, target_title)
+    matched = find_matching_products_via_metadata(search_body, target_author, target_title)
     return {'products' => matched}.to_json unless matched.empty?
 
     {'products' => []}.to_json
@@ -312,59 +320,16 @@ class Overdrive
     {'products' => []}.to_json
   end
 
-  def try_title_search_with_metadata client, book, isbn_search_body
-    return isbn_search_body unless no_products?(isbn_search_body)
-
-    clean_title = TitleNormalizer.clean_for_search(book[:title])
-    params = URI.encode_www_form minimum: false, limit: 10, q: "\"#{clean_title}\""
-    path = "/v1/collections/#{@collection_token}/products?#{params}"
-    response = client.get(path, {'Authorization' => "Bearer #{@token}"})
-    title_body = response.read
-    response.close
-    matched = find_matching_products_via_metadata(client, title_body, book[:isbn], book[:author], book[:title])
-    return {'products' => matched}.to_json unless matched.empty?
-
-    isbn_search_body
-  rescue StandardError
-    isbn_search_body
-  ensure
-    response&.close
-  end
-
-  # Every format that matches, rather than whichever OverDrive returned first.
-  #
-  # This used to stop at the first author-and-title match. The title search
-  # comes back with both formats mixed -- measured at four audiobooks and six
-  # ebooks in a ten-result page -- and OverDrive returns audiobooks first, so
-  # five of five books tested resolved to the audiobook. A reader looking at
-  # their want-to-read shelf was shown the audiobook of everything and the
-  # ebook of nothing (#1395).
-  #
-  # One product per format, not every match: the search returns several
-  # editions of each -- different narrators, different publishers -- and
-  # consolidate_duplicate_titles would collapse them to one row per format
-  # anyway. Keeping them all would multiply the availability lookups that
-  # follow for results nobody sees.
-  def find_matching_products_via_metadata client, search_body, target_isbn, target_author, target_title
+  def find_matching_products_via_metadata search_body, target_author, target_title
     parsed = JSON.parse(search_body)
     overdrive_results = parsed['products']
     return [] unless overdrive_results && !overdrive_results.empty?
 
     matches = overdrive_results.select do |product|
-      next false unless Matching.author_matches?(product, target_author)
-      # Title first: it is free, and it is what almost always decides. The
-      # ISBN check reaches OpenLibrary, and this now runs per product rather
-      # than stopping at the first.
-      next true if Matching.title_matches_exactly?(product, target_title)
-
-      target_isbn && !target_isbn.empty? && isbn_matches_in_metadata?(client, product, target_isbn)
+      Matching.author_matches?(product, target_author) && Matching.title_matches_exactly?(product, target_title)
     end
 
     matches.uniq { |product| product['mediaType'].to_s.downcase }
-  end
-
-  def isbn_matches_in_metadata? _client, _product, target_isbn
-    (AlternateIsbns.fetch_alternate_isbns([target_isbn])[target_isbn] || []).include?(target_isbn)
   end
 
   def async_availability_responses batches

@@ -33,6 +33,9 @@ describe 'Overdrive availability over HTTP' do
           'products' => [
             {
               'id' => id,
+              # Title and author are what the matcher narrows on now that every
+              # lookup goes by title (#1394).
+              'title' => 'Sapiens',
               'images' => {'cover300Wide' => {'href' => 'https://img.overdrive.com/cover.jpg'}},
               'contentDetails' => [{'href' => 'https://link.overdrive.com/?content=1'}],
               'primaryCreator' => {'name' => 'Yuval Noah Harari'}
@@ -73,13 +76,16 @@ describe 'Overdrive availability over HTTP' do
     assert_requested(:get, 'https://api.overdrive.com/v1/libraries/1135', headers: {'Authorization' => 'Bearer od-token'})
   end
 
-  it 'searches by ISBN when the book has one' do
+  # OverDrive indexes no ISBN, in any parameter, so the title is all there is
+  # to search on (#1394).
+  it 'searches by title even when the book has an ISBN' do
     stub_product_search
     stub_availability
 
     Overdrive.new([book], '1135').fetch_titles_availability
 
-    assert_requested(:get, /products.*q=9780062316097/, times: 1)
+    assert_requested(:get, /products.*q=%22Sapiens%22/i, times: 1)
+    assert_not_requested(:get, /q=9780062316097/)
   end
 
   it 'merges copy counts onto the title' do
@@ -126,8 +132,18 @@ describe 'Overdrive availability over HTTP' do
   it 'batches availability at 25 product ids per request' do
     books = Array.new(30) { |i| {isbn: "978006231609#{i}", title: "Book #{i}", author: 'A', image_url: 'i', date_added: '2024-01-01'} }
     stub_request(:get, %r{/v1/collections/#{COLLECTION}/products}o).to_return do |request|
-      isbn = request.uri.query_values['q']
-      {status: 200, body: JSON.dump({'products' => [{'id' => "id-#{isbn}", 'images' => {}, 'contentDetails' => []}]})}
+      # The query is a quoted title now, so key the fake product off that.
+      wanted = request.uri.query_values['q'].to_s.delete('"')
+      {
+        status: 200,
+        body: JSON.dump(
+          {
+            'products' => [
+              {'id' => "id-#{wanted}", 'title' => wanted, 'primaryCreator' => {'name' => 'A'}, 'images' => {}, 'contentDetails' => []}
+            ]
+          }
+        )
+      }
     end
     stub_request(:get, %r{/v2/collections/#{COLLECTION}/availability}o).to_return(status: 200, body: JSON.dump({'availability' => []}))
 
@@ -146,7 +162,14 @@ describe 'Overdrive availability over HTTP' do
     end
 
     def product id:, media_type:
-      {'id' => id, 'mediaType' => media_type, 'images' => {}, 'contentDetails' => [{'href' => "https://link.overdrive.com/?#{id}"}]}
+      {
+        'id' => id,
+        'mediaType' => media_type,
+        'title' => 'Sapiens',
+        'primaryCreator' => {'name' => 'Yuval Noah Harari'},
+        'images' => {},
+        'contentDetails' => [{'href' => "https://link.overdrive.com/?#{id}"}]
+      }
     end
 
     it 'carries the product mediaType onto the title' do
@@ -187,7 +210,7 @@ describe 'Overdrive availability over HTTP' do
     end
 
     it 'falls back to ebook when a product carries no mediaType' do
-      stub_products({'id' => 'a1', 'images' => {}, 'contentDetails' => []})
+      stub_products({'id' => 'a1', 'title' => 'Sapiens', 'primaryCreator' => {'name' => 'Yuval Noah Harari'}, 'images' => {}, 'contentDetails' => []})
       stub_availability id: 'a1'
 
       assert_equal 'ebook', Overdrive.new([book], '1135').fetch_titles_availability.first.format
