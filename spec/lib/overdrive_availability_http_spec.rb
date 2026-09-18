@@ -204,7 +204,15 @@ describe 'Overdrive availability over HTTP' do
     it 'labels a format for a reader' do
       assert_equal 'audiobook', Overdrive.format_label('audiobook')
       assert_equal 'ebook', Overdrive.format_label(nil)
-      assert_equal 'ebook', Overdrive.format_label('something-new')
+      assert_equal 'ebook', Overdrive.format_label('  ')
+    end
+
+    # OverDrive carries magazines and comics as well. An allowlist that fell
+    # back to "ebook" would mislabel them, which is the bug this was written
+    # to stop rather than repeat in a smaller way.
+    it 'passes an unfamiliar format through instead of calling it an ebook' do
+      assert_equal 'magazine', Overdrive.format_label('Magazine')
+      assert_equal 'comic', Overdrive.format_label('comic')
     end
   end
 end

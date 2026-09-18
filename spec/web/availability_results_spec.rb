@@ -188,10 +188,12 @@ describe 'availability results' do
       assert_includes last_response.body, 'Read'
     end
 
-    it 'badges each result with its format' do
+    it 'names the format on the copy itself, next to the library' do
+      # A book-level badge cannot work once a book can have two formats. The
+      # format belongs to the copy, beside the library holding it.
       render_titles [title_of('audiobook')]
 
-      assert_includes last_response.body, 'audiobook'
+      assert_match(%r{Seattle Public Library</span>\s*·\s*audiobook}, last_response.body)
     end
 
     it 'shows both formats of the same book as separate results' do
@@ -200,6 +202,47 @@ describe 'availability results' do
       assert_includes last_response.body, 'Listen'
       assert_includes last_response.body, 'ebook'
       assert_includes last_response.body, 'audiobook'
+    end
+  end
+
+  # The action has to match what the copy actually is.
+  describe 'the action on a copy' do
+    def render_format format
+      title = Title.new(
+        'Sapiens',
+        'Yuval Noah Harari',
+        'cover.jpg',
+        3,
+        5,
+        '9780062316097',
+        'https://link.overdrive.com/?c=1',
+        'id-1',
+        format,
+        'Seattle Public Library',
+        false,
+        '2024-01-01'
+      )
+      cached = {titles: [title], library_url: 'https://link.overdrive.com/?websiteID=87', shelf_name: 'to-read', libraries: [%w[1135 Seattle]]}
+      with_anonymous_session(cached) { get '/search/availability' }
+    end
+
+    it 'says Listen for an audiobook' do
+      render_format 'audiobook'
+
+      assert_includes last_response.body, 'Listen'
+    end
+
+    it 'says Watch for a video' do
+      render_format 'video'
+
+      assert_includes last_response.body, 'Watch'
+    end
+
+    it 'says Read for anything textual, including a format it has not seen' do
+      render_format 'magazine'
+
+      assert_includes last_response.body, 'Read'
+      assert_includes last_response.body, 'magazine'
     end
   end
 end

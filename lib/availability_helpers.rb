@@ -51,9 +51,14 @@ module AvailabilityHelpers
   end
 
   # "Read" is wrong on an audiobook, and every result carried it because
-  # nothing read the product's mediaType (#542).
-  def listen_or_read title
-    title.format == 'audiobook' ? 'Listen' : 'Read'
+  # nothing read the product's mediaType (#542). Anything unrecognised still
+  # says Read, which is the safe guess for a text format.
+  def action_label copy
+    case copy.format
+    when 'audiobook' then 'Listen'
+    when 'video' then 'Watch'
+    else 'Read'
+    end
   end
 
   # One book, and every copy of it found: each format, at each library.
@@ -81,7 +86,7 @@ module AvailabilityHelpers
         button: {
           url: copy.url,
           icon: '/svg/book.svg',
-          label: action == :reserve ? 'Reserve' : listen_or_read(copy),
+          label: action == :reserve ? 'Reserve' : action_label(copy),
           class: 'bg-mauve-950 hover:bg-mauve-900'
         }
       }
