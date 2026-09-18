@@ -348,11 +348,14 @@ class Overdrive
 
   def no_products?(body) = JSON.parse(body)['products']&.empty? != false
 
+  # The path for a book Goodreads has no ISBN for. Same widening as the ISBN
+  # path: a book held as both an ebook and an audiobook should show both,
+  # rather than whichever OverDrive listed first.
   def validate_title_search_results client, search_body, target_author, target_title
     return {'products' => []}.to_json if no_products?(search_body)
 
-    matched_product = find_matching_product_via_metadata(client, search_body, nil, target_author, target_title)
-    return {'products' => [matched_product]}.to_json if matched_product
+    matched = find_matching_products_via_metadata(client, search_body, nil, target_author, target_title)
+    return {'products' => matched}.to_json unless matched.empty?
 
     {'products' => []}.to_json
   rescue StandardError
@@ -368,8 +371,8 @@ class Overdrive
     response = client.get(path, {'Authorization' => "Bearer #{@token}"})
     title_body = response.read
     response.close
-    matched_product = find_matching_product_via_metadata(client, title_body, book[:isbn], book[:author], book[:title])
-    return {'products' => [matched_product]}.to_json if matched_product
+    matched = find_matching_products_via_metadata(client, title_body, book[:isbn], book[:author], book[:title])
+    return {'products' => matched}.to_json unless matched.empty?
 
     isbn_search_body
   rescue StandardError
@@ -378,17 +381,36 @@ class Overdrive
     response&.close
   end
 
-  def find_matching_product_via_metadata client, search_body, target_isbn, target_author, target_title
+  # Every format that matches, rather than whichever OverDrive returned first.
+  #
+  # This used to stop at the first author-and-title match. The title search
+  # comes back with both formats mixed -- measured at four audiobooks and six
+  # ebooks in a ten-result page -- and OverDrive returns audiobooks first, so
+  # five of five books tested resolved to the audiobook. A reader looking at
+  # their want-to-read shelf was shown the audiobook of everything and the
+  # ebook of nothing (#1395).
+  #
+  # One product per format, not every match: the search returns several
+  # editions of each -- different narrators, different publishers -- and
+  # consolidate_duplicate_titles would collapse them to one row per format
+  # anyway. Keeping them all would multiply the availability lookups that
+  # follow for results nobody sees.
+  def find_matching_products_via_metadata client, search_body, target_isbn, target_author, target_title
     parsed = JSON.parse(search_body)
     overdrive_results = parsed['products']
-    return unless overdrive_results && !overdrive_results.empty?
+    return [] unless overdrive_results && !overdrive_results.empty?
 
-    overdrive_results.each do |overdrive_book|
-      next unless Matching.author_matches?(overdrive_book, target_author)
-      return overdrive_book if target_isbn && !target_isbn.empty? && isbn_matches_in_metadata?(client, overdrive_book, target_isbn)
-      return overdrive_book if Matching.title_matches_exactly?(overdrive_book, target_title)
+    matches = overdrive_results.select do |product|
+      next false unless Matching.author_matches?(product, target_author)
+      # Title first: it is free, and it is what almost always decides. The
+      # ISBN check reaches OpenLibrary, and this now runs per product rather
+      # than stopping at the first.
+      next true if Matching.title_matches_exactly?(product, target_title)
+
+      target_isbn && !target_isbn.empty? && isbn_matches_in_metadata?(client, product, target_isbn)
     end
-    nil
+
+    matches.uniq { |product| product['mediaType'].to_s.downcase }
   end
 
   def isbn_matches_in_metadata? _client, _product, target_isbn
