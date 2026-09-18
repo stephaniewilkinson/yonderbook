@@ -207,7 +207,19 @@ Accepts up to **25 comma-separated product IDs** per request. Returns `copiesAva
 ### Key Limitations
 
 - **No bulk search**: Each book requires its own search API call. For a shelf of 500 books, that's 500+ search calls. This is the main bottleneck.
-- **Print ISBNs are not searchable**: Goodreads shelves contain print ISBNs, but only digital ISBNs (ebook/audiobook format) are searchable via the `identifiers` parameter. Print ISBNs appear in `otherFormatIdentifiers` in responses but cannot be used as search input. This is why the code falls back to title+author matching when ISBN search returns no results.
+- **No ISBN search at all** — measured against the live API, 2026-09-18. Not "print ISBNs don't work, digital ones do", which is what this section used to say. Nothing works:
+
+  | attempt | result |
+  | --- | --- |
+  | `q=<isbn>` | 0 products, in 40 of 40 tries — using ISBNs taken off products that library holds |
+  | `identifiers=<isbn>` | accepted and **silently ignored**: returns the same unfiltered first five products as sending no filter at all |
+  | `identifiers=ISBN:<isbn>`, `ISBN=<isbn>` | same, silently ignored |
+  | `crossRefId=<isbn>` | HTTP 400 |
+  | `q=isbn:<isbn>`, `q=identifier:<isbn>` | 0 products |
+
+  The silent-ignore is the trap: a filtered query and an unfiltered one both return five products with HTTP 200, so counting non-empty responses reads as a hit. Compare the titles returned against a control with no filter before believing any of it.
+
+  So every lookup goes by title, and `Matching` narrows the results by author and title. Print ISBNs do appear in `otherFormatIdentifiers` on responses; they are just as unusable as search input as digital ones.
 - **Rate limits are undocumented**: The [API Usage Requirements](https://developer.overdrive.com/docs/api-usage-requirements) say "honor any limitations we set" but don't publish specific numbers. The code uses `Async::Semaphore.new(16)` for concurrent requests.
 - **Availability is product-ID-only**: The v2 availability endpoint requires OverDrive product IDs, not ISBNs. A two-phase lookup (search then availability) is unavoidable without a local index.
 

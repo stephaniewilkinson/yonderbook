@@ -34,7 +34,22 @@ describe 'Overdrive.fetch_across_libraries' do
     def stub_collection collection, available:
       stub_request(:get, %r{/v1/collections/#{collection}/products}).to_return(
         status: 200,
-        body: JSON.dump({'products' => [{'id' => "#{collection}-1", 'mediaType' => 'ebook', 'images' => {}, 'contentDetails' => []}]})
+        # Title and author are what the matcher narrows on, now that every
+        # lookup goes by title (#1394).
+        body: JSON.dump(
+          {
+            'products' => [
+              {
+                'id' => "#{collection}-1",
+                'mediaType' => 'ebook',
+                'title' => 'Sapiens',
+                'primaryCreator' => {'name' => 'Yuval Noah Harari'},
+                'images' => {},
+                'contentDetails' => []
+              }
+            ]
+          }
+        )
       )
       stub_request(:get, %r{/v2/collections/#{collection}/availability}).to_return(
         status: 200,

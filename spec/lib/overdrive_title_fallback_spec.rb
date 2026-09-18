@@ -48,14 +48,14 @@ describe 'Overdrive title-search fallback' do
 
     # An ISBN query that finds nothing, then a title query that finds both
     # formats -- which is what the live API actually does.
-    def stub_isbn_miss_then_title_hit *title_products
+    def stub_title_search *title_products
       stub_request(:get, %r{/v1/collections/#{COLLECTION}/products\?.*q=9780062316097}o).to_return(status: 200, body: JSON.dump({'products' => []}))
       stub_request(:get, %r{/v1/collections/#{COLLECTION}/products\?.*q=%22}o).to_return(status: 200, body: JSON.dump({'products' => title_products}))
     end
 
     it 'keeps both formats rather than the first one listed' do
       # Audiobook first, exactly as OverDrive orders them.
-      stub_isbn_miss_then_title_hit product(id: 'audio-1', media_type: 'Audiobook'), product(id: 'ebook-1', media_type: 'eBook')
+      stub_title_search product(id: 'audio-1', media_type: 'Audiobook'), product(id: 'ebook-1', media_type: 'eBook')
       stub_request(:get, %r{/v2/collections/#{COLLECTION}/availability}o).to_return(
         status: 200,
         body: JSON.dump(
@@ -74,7 +74,7 @@ describe 'Overdrive title-search fallback' do
     end
 
     it 'no longer resolves a two-format book to the audiobook alone' do
-      stub_isbn_miss_then_title_hit product(id: 'audio-1', media_type: 'Audiobook'), product(id: 'ebook-1', media_type: 'eBook')
+      stub_title_search product(id: 'audio-1', media_type: 'Audiobook'), product(id: 'ebook-1', media_type: 'eBook')
       stub_request(:get, %r{/v2/collections/#{COLLECTION}/availability}o).to_return(status: 200, body: JSON.dump({'availability' => []}))
 
       formats = Overdrive.new([book], '1135').fetch_titles_availability.map(&:format)
@@ -86,10 +86,10 @@ describe 'Overdrive title-search fallback' do
     # different publishers. Consolidation would collapse them anyway, and
     # keeping them all multiplies the availability lookups that follow.
     it 'keeps one product per format, not every edition' do
-      stub_isbn_miss_then_title_hit product(id: 'audio-1', media_type: 'Audiobook'),
-                                    product(id: 'audio-2', media_type: 'Audiobook'),
-                                    product(id: 'ebook-1', media_type: 'eBook'),
-                                    product(id: 'ebook-2', media_type: 'eBook')
+      stub_title_search product(id: 'audio-1', media_type: 'Audiobook'),
+                        product(id: 'audio-2', media_type: 'Audiobook'),
+                        product(id: 'ebook-1', media_type: 'eBook'),
+                        product(id: 'ebook-2', media_type: 'eBook')
       stub_request(:get, %r{/v2/collections/#{COLLECTION}/availability}o).to_return(status: 200, body: JSON.dump({'availability' => []}))
 
       titles = Overdrive.new([book], '1135').fetch_titles_availability
@@ -99,7 +99,7 @@ describe 'Overdrive title-search fallback' do
     end
 
     it 'ignores a product by another author' do
-      stub_isbn_miss_then_title_hit product(id: 'other-1', media_type: 'eBook', author: 'Someone Else'), product(id: 'audio-1', media_type: 'Audiobook')
+      stub_title_search product(id: 'other-1', media_type: 'eBook', author: 'Someone Else'), product(id: 'audio-1', media_type: 'Audiobook')
       stub_request(:get, %r{/v2/collections/#{COLLECTION}/availability}o).to_return(status: 200, body: JSON.dump({'availability' => []}))
 
       titles = Overdrive.new([book], '1135').fetch_titles_availability
@@ -108,12 +108,72 @@ describe 'Overdrive title-search fallback' do
     end
 
     it 'still returns the book with no copies when nothing matches' do
-      stub_isbn_miss_then_title_hit product(id: 'other-1', media_type: 'eBook', title: 'Something Else', author: 'Someone Else')
+      stub_title_search product(id: 'other-1', media_type: 'eBook', title: 'Something Else', author: 'Someone Else')
 
       titles = Overdrive.new([book], '1135').fetch_titles_availability
 
       assert_equal %w[Sapiens], titles.map(&:title)
       assert_equal 0, titles.first.copies_available
+    end
+  end
+
+  # #1394. A book with an ISBN used to cost two searches: `q=<isbn>`, which
+  # never matched, and then the title search that actually works.
+  describe 'searches per book' do
+    def stub_title_hit
+      stub_request(:get, %r{/v1/collections/#{COLLECTION}/products}o).to_return(
+        status: 200,
+        body: JSON.dump(
+          {
+            'products' => [
+              {
+                'id' => 'p-1',
+                'mediaType' => 'eBook',
+                'title' => 'Sapiens',
+                'primaryCreator' => {'name' => 'Yuval Noah Harari'},
+                'images' => {},
+                'contentDetails' => []
+              }
+            ]
+          }
+        )
+      )
+      stub_request(:get, %r{/v2/collections/#{COLLECTION}/availability}o).to_return(status: 200, body: JSON.dump({'availability' => []}))
+    end
+
+    it 'searches once for a book with an ISBN' do
+      stub_title_hit
+
+      Overdrive.new([book], '1135').fetch_titles_availability
+
+      assert_requested(:get, %r{/v1/collections/#{COLLECTION}/products}o, times: 1)
+    end
+
+    it 'searches once for a book without one' do
+      stub_title_hit
+
+      Overdrive.new([book.merge(isbn: nil)], '1135').fetch_titles_availability
+
+      assert_requested(:get, %r{/v1/collections/#{COLLECTION}/products}o, times: 1)
+    end
+
+    it 'never queries an ISBN, because OverDrive does not index them' do
+      stub_title_hit
+
+      Overdrive.new([book], '1135').fetch_titles_availability
+
+      assert_not_requested(:get, /q=9780062316097/)
+    end
+
+    # isbn_matches_in_metadata? reached OpenLibrary and then asked whether an
+    # ISBN appeared in its own list of alternates, never looking at the product
+    # it was meant to be matching. It is gone, and so is the round trip.
+    it 'reaches OpenLibrary not at all' do
+      stub_title_hit
+
+      Overdrive.new([book], '1135').fetch_titles_availability
+
+      assert_not_requested(:get, /openlibrary\.org/)
     end
   end
 end
