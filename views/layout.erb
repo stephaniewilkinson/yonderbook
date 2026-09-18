@@ -61,11 +61,11 @@
     site still says it is free where a person can read it -- the FAQ answer in
     SiteCopy::FAQ and the stats bar -- which is one edit if that ever changes.
     See #1360. %>
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "5",
-        "ratingCount": "1"
-      },
+<%# No "aggregateRating" here on purpose. It asserted five stars from a
+    single rating, site-wide, with nothing behind it -- the entity rating
+    itself. Google's structured data policy treats self-serving review markup
+    as spam and can suppress rich results or issue a manual action for it.
+    If real ratings ever exist, this can come back sourced from them. %>
       "featureList": [
         "Import Goodreads shelves",
         "Find books at local libraries",

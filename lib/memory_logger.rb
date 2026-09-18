@@ -26,6 +26,11 @@ class MemoryLogger
     # Skip noisy health checks and static assets
     return @app.call(env) if path == '/health' || path.start_with?('/assets/', '/favicon')
 
+    # The session id in a WebSocket path identifies one visitor's cached job.
+    # Render keeps whatever reaches stderr, so log the route rather than the
+    # id -- there is nothing to learn from the value and no reason to keep it.
+    path = path.sub(%r{\A(/ws/[^/]+)/.+\z}, '\\1/:session_id')
+
     rss_before = rss_mb
     warn "[mem] ##{rid} START #{method} #{path} rss=#{rss_before}MB"
 

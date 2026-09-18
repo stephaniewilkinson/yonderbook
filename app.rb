@@ -134,18 +134,28 @@ class App < Roda
     # fetched -- that would write to the cache under a key derived from an id
     # that does not exist yet, which every visitor would share. /connect does it
     # on click instead, from a route that runs after the id is assigned.
-    #
-    # welcome.erb is kept but no longer routed to.
     r.root { root_response(r) } # route: GET /
 
     enrich_sentry(r)
     session['session_id'] ||= SecureRandom.uuid
+    # The session id in these paths is a capability, not a name. The handlers
+    # look up cached job parameters under it and act on them -- the BookMooch
+    # one reads a stored username and password and performs an import on that
+    # account -- and neither checked that the id belonged to the caller. The
+    # cookie is what proves that, so compare against it.
+    #
+    # Nothing legitimate is affected: the progress pages build the socket URL
+    # from session['session_id'] (@session_id in the views), so a real client
+    # always matches.
+    #
     # route: WebSocket /ws/bookmooch/:session_id
     r.on 'ws', 'bookmooch', String do |session_id|
+      r.halt([403, {'content-type' => 'text/plain'}, %w[Forbidden]]) unless session_id == session['session_id']
       r.websocket { |connection| Websockets.handle_bookmooch(connection, session_id) }
     end
     # route: WebSocket /ws/availability/:session_id
     r.on 'ws', 'availability', String do |session_id|
+      r.halt([403, {'content-type' => 'text/plain'}, %w[Forbidden]]) unless session_id == session['session_id']
       r.websocket { |connection| Websockets.handle_availability(connection, session_id) }
     end
     r.get('import-status') { import_status.to_json } # route: GET /import-status
