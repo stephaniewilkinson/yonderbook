@@ -9,7 +9,7 @@ GEM
       ffi (~> 1.15)
       ffi-compiler (~> 1.0)
     ast (2.4.3)
-    async (2.45.0)
+    async (2.45.1)
       console (~> 1.29)
       fiber-annotation
       io-event (~> 1.21)
@@ -29,7 +29,7 @@ GEM
     async-limiter (2.3.0)
       async (>= 2.31)
       async-utilization (~> 0.4)
-    async-pool (0.11.2)
+    async-pool (0.12.0)
       async (>= 2.0)
     async-service (0.25.0)
       async
