@@ -71,6 +71,49 @@ describe 'availability job' do
     end
   end
 
+  describe 'Websockets.handle_availability with a shelf still to load' do
+    # A shelf that was not cached used to be fetched inside the POST, which ran
+    # past the 25s request timeout on large shelves.
+    def queue_shelf session_id
+      shelf = {name: 'to-read', goodreads_user_id: '42', access_token: :token}
+      Cache.set_in_session session_id, availability_book_info: nil, availability_libraries: [%w[1047 Seattle]], availability_shelf: shelf
+    end
+
+    it 'fetches the shelf, caches it, and checks it' do
+      queue_shelf 'session-cold-shelf'
+      books = [{title: 'A', isbn: '1'}]
+      fetched_with = nil
+      checked = nil
+      connection = FakeConnection.new
+
+      get_books = ->(*args) { (fetched_with = args) && books }
+      Goodreads.stub(:get_books, get_books) do
+        Websockets.stub(:run_availability, ->(_c, _s, book_info, _l) { checked = book_info }) do
+          Websockets.handle_availability connection, 'session-cold-shelf'
+        end
+      end
+
+      assert_equal ['to-read', '42', :token], fetched_with
+      assert_equal books, checked
+      assert_equal books, Cache.get_in_session('session-cold-shelf', :'to-read')
+      assert_nil Cache.get_in_session('session-cold-shelf', :availability_shelf)
+      assert_equal %w[connected status], connection.types
+    end
+
+    it 'blames Goodreads, not OverDrive, when the shelf will not load' do
+      queue_shelf 'session-goodreads-down'
+      connection = FakeConnection.new
+
+      Goodreads.stub(:get_books, ->(*) { raise 'Goodreads is unreachable' }) do
+        Websockets.handle_availability connection, 'session-goodreads-down'
+      end
+
+      assert_equal 'error', connection.types.last
+      assert_includes connection.messages.last['message'], 'Goodreads'
+      assert connection.closed?, 'the socket was left open'
+    end
+  end
+
   describe 'Overdrive#fetch_titles_availability progress' do
     # Skips initialize, which reaches OverDrive for a token before it does
     # anything else.
