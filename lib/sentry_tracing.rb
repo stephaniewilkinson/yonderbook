@@ -7,10 +7,10 @@
 # objects hold Rack env references and contributed to the RSS growth documented
 # in the README. That left the app with no latency data of any kind, which
 # matters more here than it would elsewhere: lib/request_timeout.rb caps a
-# request at 25s and lib/route_helpers.rb gives the background shelf fetch
-# task.with_timeout(20), and both numbers were picked without a distribution to
-# pick them from. Whether 20s is generous or tight for a Goodreads shelf fetch
-# currently becomes known via user complaint.
+# request at 25s and lib/shelf_loading.rb gives the background shelf fetch
+# BACKGROUND_FETCH_TIMEOUT, and both numbers were picked without a distribution
+# to pick them from. Whether that is generous or tight for a Goodreads shelf
+# fetch currently becomes known via user complaint.
 #
 # Three things keep this different in kind from the blanket rate that was
 # removed:
