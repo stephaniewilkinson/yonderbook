@@ -25,9 +25,21 @@ module AvailabilityHelpers
   #
   # Any titles from a previous library are cleared first, so the progress page
   # cannot redirect to stale results if this run fails.
-  def queue_availability_check book_info, libraries
+  #
+  # `shelf:` is for a shelf nobody has loaded yet. Fetching it from Goodreads
+  # is itself too slow for a request on a large shelf -- 100 books a page, four
+  # pages at a time -- so the WebSocket fetches it first and then runs the
+  # check. Passed instead of book_info, never alongside it.
+  def queue_availability_check book_info, libraries, shelf: nil
     Cache.set(session, titles: nil)
-    Cache.set(session, availability_book_info: book_info, availability_libraries: libraries)
+    Cache.set(session, availability_book_info: book_info, availability_libraries: libraries, availability_shelf: shelf)
+  end
+
+  # Everything the WebSocket needs to fetch a shelf on its own: it never sees
+  # the Rack session or @goodreads_connection. Kept in the in-memory cache
+  # only, so the access token is never written to disk.
+  def shelf_fetch_job shelf_name
+    {name: shelf_name, goodreads_user_id: @goodreads_user_id, access_token: @goodreads_connection.oauth_access_token}
   end
 
   # The consortium ids a reader picked, paired with their names, capped and in

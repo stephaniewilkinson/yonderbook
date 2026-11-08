@@ -3,6 +3,7 @@
 require 'sentry-ruby'
 require_relative 'bookmooch'
 require_relative 'cache'
+require_relative 'goodreads'
 require_relative 'overdrive'
 
 # WebSocket handlers for real-time updates
@@ -48,12 +49,16 @@ module Websockets
 
     book_info = Cache.get_in_session(session_id, :availability_book_info)
     libraries = Cache.get_in_session(session_id, :availability_libraries)
+    shelf = Cache.get_in_session(session_id, :availability_shelf)
 
-    if book_info.nil? || libraries.nil? || libraries.empty?
+    if (book_info.nil? && shelf.nil?) || libraries.nil? || libraries.empty?
       write_error(connection, 'Missing job parameters')
       connection.close
       return
     end
+
+    book_info ||= fetch_queued_shelf(connection, session_id, shelf)
+    return unless book_info
 
     run_availability(connection, session_id, book_info, libraries)
   rescue StandardError => e
@@ -64,6 +69,26 @@ module Websockets
     Sentry.capture_exception(e)
     write_error(connection, 'We could not reach OverDrive for that library. Please try another.')
     connection.close
+  end
+
+  # The shelf the availability POST did not have cached. Loading it in the
+  # request timed out on large shelves, so it is loaded here, where there is no
+  # request timeout. Cached under the shelf's own key as well, so the stats page
+  # and a second library check do not fetch it again.
+  #
+  # Rescued separately from handle_availability, whose message blames OverDrive.
+  def fetch_queued_shelf connection, session_id, shelf
+    connection.write({type: 'status', message: 'Loading your Goodreads shelf...'}.to_json)
+    connection.flush
+
+    book_info = Goodreads.get_books(shelf[:name], shelf[:goodreads_user_id], shelf[:access_token])
+    Cache.set_in_session session_id, shelf[:name].to_sym => book_info, availability_book_info: book_info, availability_shelf: nil
+    book_info
+  rescue StandardError => e
+    Sentry.capture_exception(e)
+    write_error(connection, 'We could not load that shelf from Goodreads. Please try again.')
+    connection.close
+    nil
   end
 
   def run_availability connection, session_id, book_info, libraries
