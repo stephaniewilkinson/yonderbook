@@ -123,10 +123,6 @@ module SearchRoutes
 
     @book_info = anonymous_ready_books
     book_info = shelf_or_wait request, libraries, '/search/availability/continue'
-    if book_info.empty?
-      flash[:error] = "We couldn't read that shelf from Goodreads. Please pick a shelf and try again."
-      request.redirect '/search/shelves'
-    end
 
     # Same reason as the authenticated twin: the OverDrive check does not fit
     # in a request (#1347), so the WebSocket runs it.
@@ -149,8 +145,9 @@ module SearchRoutes
     request.redirect '/search/library'
   end
 
+  # The zip code form for the shelf in hand, signed in or not.
   def zip_form_path
-    @shelf_name ? "/search/shelves/#{@shelf_name}/overdrive" : '/search/shelves'
+    @shelf_name ? "#{shelves_path}/#{@shelf_name}/overdrive" : shelves_path
   end
 
   # event: a Fathom event to report on the page the redirect lands on (#1411).

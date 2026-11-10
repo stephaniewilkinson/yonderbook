@@ -54,6 +54,22 @@ module RouteHelpers
     @anonymous_library = @user ? nil : Cache.get(session, :anonymous_library)
   end
 
+  # Goodreads failing is expected now that its API is deprecated, not a 500.
+  # It used to fall through to the catch-all, which sent the reader to the
+  # homepage with no word of why. Say so, and point at the CSV import, which
+  # doesn't need Goodreads at all.
+  def goodreads_failed request, error
+    enrich_sentry_error request
+    SentryCapture.capture_once error
+    flash['error'] = if error.message.include?('HTTP 401')
+      "Goodreads didn't accept your connection. It may have expired: connect again, or upload a CSV export instead."
+    else
+      "Goodreads didn't answer. Try again in a minute, or upload a CSV export instead."
+    end
+    flash['fathom_event'] = 'goodreads_unreachable'
+    request.redirect '/import'
+  end
+
   # Where a reader's shelves are listed: their account, or the anonymous flow.
   def shelves_path = @user ? '/goodreads/shelves' : '/search/shelves'
 

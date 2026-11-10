@@ -92,7 +92,7 @@ module ShelfLoading
   def fail_background_shelf_import sid
     Cache.clear_by_id(sid)
     clear_pending_import
-    flash[:error] = 'We could not load that shelf from Goodreads. Please try again.'
+    flash[:error] = 'We could not load that shelf from Goodreads. Try again, or upload a CSV export instead.'
     request.redirect shelves_path
   end
 
@@ -110,10 +110,11 @@ module ShelfLoading
   end
 
   # POST of the chosen libraries: the shelf, or a redirect to wait for it with
-  # the choice kept. Without a fiber scheduler (specs) it fetches inline.
+  # the choice kept (or back to the shelves, if it's empty). Without a fiber
+  # scheduler (specs) it fetches inline.
   def shelf_or_wait request, libraries, continue_path
     @book_info ||= fetch_shelf_blocking(@shelf_name) unless Fiber.scheduler
-    return @book_info if @book_info
+    return @book_info.tap { reject_empty_shelf request, @book_info } if @book_info
 
     Cache.set session, pending_availability_libraries: libraries
     request.redirect continue_path
@@ -129,8 +130,18 @@ module ShelfLoading
       flash[:error] = 'Please choose a library first'
       request.redirect libraries_path
     end
+    reject_empty_shelf request, @book_info
     queue_availability_check @book_info, libraries
     request.redirect progress_path
+  end
+
+  # An empty shelf used to queue a check with nothing in it (signed in), or
+  # be blamed on Goodreads (anonymous). It's just empty: say so.
+  def reject_empty_shelf request, book_info
+    return unless book_info.empty?
+
+    flash['error'] = "Your #{@shelf_name} shelf has no books on it yet. Pick another shelf."
+    request.redirect shelves_path
   end
 
   # For a POST that needs the shelf after the cache expired. Sends them back to

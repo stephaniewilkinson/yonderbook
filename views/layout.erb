@@ -101,7 +101,7 @@
         flash (a CSV import lands on the shelves page, which has its own).
         Rendered in every environment so specs can see them; the script that
         sends them only loads in production. See #1408. %>
-    <% [*content_for(:fathom_event).to_s.split, flash['fathom_event']].compact.uniq.each do |fathom_event| %>
+    <% [*content_for(:fathom_event).to_s.split, flash['fathom_event'] || flash[:fathom_event]].compact.uniq.each do |fathom_event| %>
     <meta name="fathom-event" content="<%= fathom_event %>">
     <% end %>
   </head>

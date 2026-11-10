@@ -385,8 +385,10 @@ class App < Roda
         @shelf_name = Cache.get session, :shelf_name
         zip = Geolocation.normalize_zip r.params['zipcode']
 
-        reject_zip r, 'You need to enter a zip code', to: '/libraries' if zip.empty?
-        reject_zip r, "We don't recognize that zip code. Please try another.", to: '/libraries', event: 'zip_not_recognized' unless Geolocation.known_zip?(zip)
+        # Straight back to the zip form. Via /libraries, which redirects there
+        # again when nothing is cached, the extra hop spent the message.
+        reject_zip r, 'You need to enter a zip code' if zip.empty?
+        reject_zip r, "We don't recognize that zip code. Please try another.", event: 'zip_not_recognized' unless Geolocation.known_zip?(zip)
         @local_libraries = fetch_local_libraries(r, zip)
         Cache.set session, libraries: @local_libraries
         r.redirect '/libraries'
@@ -405,6 +407,8 @@ class App < Roda
         view 'library'
       end
     end
+  rescue GoodreadsResponse::ApiError => e
+    goodreads_failed r, e
   rescue OAuth::Unauthorized, StandardError => e
     enrich_sentry_error(r)
     SentryCapture.capture_once(e)
