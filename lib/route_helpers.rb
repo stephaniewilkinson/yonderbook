@@ -28,7 +28,7 @@ module RouteHelpers
     return if imported_library?
     return load_goodreads_connection if @user&.goodreads_connected?
 
-    flash[:error] = 'Please connect your Goodreads account or import your library first'
+    flash['error'] = 'Please connect your Goodreads account or import your library first'
     request.redirect '/goodreads'
   end
 
@@ -78,8 +78,8 @@ module RouteHelpers
   def require_goodreads_session request
     return if anonymous_library || goodreads_session_present?
 
-    flash[:error] = 'Connect Goodreads or upload a CSV export to get started'
-    request.redirect '/'
+    flash['error'] = 'Connect Goodreads or upload a CSV export to get started'
+    request.redirect(@user ? '/home' : '/')
   end
 
   def load_goodreads_connection
@@ -98,7 +98,7 @@ module RouteHelpers
     Overdrive.local_libraries Geolocation.normalize_zip(zip)
   rescue Overdrive::ApiError => e
     Sentry.capture_exception(e)
-    flash[:error] = 'We could not reach OverDrive to look up libraries. Please try again in a little while.'
+    flash['error'] = 'We could not reach OverDrive to look up libraries. Please try again in a little while.'
     # Early warning for the scraped library lookup. #1411
     flash['fathom_event'] = 'library_lookup_failed'
     request.redirect fallback || (@shelf_name ? "/goodreads/shelves/#{@shelf_name}/overdrive" : '/goodreads/shelves')

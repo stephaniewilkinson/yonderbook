@@ -128,7 +128,7 @@ class App < Roda
     begin
       r.rodauth
     rescue Roda::RodaPlugins::RouteCsrf::InvalidToken
-      flash[:error] = 'Your session has expired. Please try again.'
+      flash['error'] = 'Your session has expired. Please try again.'
       r.redirect csrf_redirect_path
     end
     @user = Account[rodauth.session_value] if rodauth.logged_in?
@@ -285,7 +285,7 @@ class App < Roda
 
           r.on 'bookmooch' do
             unless Bookmooch.available?
-              flash[:error] = 'BookMooch appears to be down right now. Please try again later.'
+              flash['error'] = 'BookMooch appears to be down right now. Please try again later.'
               r.redirect "/goodreads/shelves/#{@shelf_name}"
             end
 
@@ -339,7 +339,7 @@ class App < Roda
             r.post do # route: POST /goodreads/shelves/:id/overdrive?consortium=1047
               libraries = chosen_libraries r
               if libraries.empty?
-                flash[:error] = 'Please choose at least one library'
+                flash['error'] = 'Please choose at least one library'
                 r.redirect "/goodreads/shelves/#{@shelf_name}/overdrive"
               end
               book_info = shelf_or_wait r, libraries, "/goodreads/shelves/#{@shelf_name}/overdrive/continue"
@@ -369,7 +369,7 @@ class App < Roda
             # Resume at the furthest step already completed rather than sending
             # them back to the start of the flow.
             libraries = Cache.get session, :libraries
-            flash[:error] = libraries ? 'Please choose a library first' : 'Please choose a shelf first'
+            flash['error'] = libraries ? 'Please choose a library first' : 'Please choose a shelf first'
             r.redirect libraries ? '/libraries' : '/goodreads/shelves'
           end
           split_titles_by_availability
@@ -401,7 +401,7 @@ class App < Roda
         unless @local_libraries
           # A shelf is already chosen, so the missing step is the zip code, not
           # the shelf. Send them one step back instead of to the beginning.
-          flash[:error] = @shelf_name ? 'Please enter your zip code first' : 'Please choose a shelf first'
+          flash['error'] = @shelf_name ? 'Please enter your zip code first' : 'Please choose a shelf first'
           r.redirect @shelf_name ? "/goodreads/shelves/#{@shelf_name}/overdrive" : '/goodreads/shelves'
         end
         view 'library'
@@ -416,7 +416,9 @@ class App < Roda
     # In production, redirect gracefully; in dev/test, raise to see full error
     raise e unless ENV['RACK_ENV'] == 'production'
 
-    flash[:error] = 'That request took too long. Please try again.' if e.is_a?(RequestTimeout::Error)
-    r.redirect '/'
+    flash['error'] = 'That request took too long. Please try again.' if e.is_a?(RequestTimeout::Error)
+    # '/' sends a signed-in reader on to /home, and that extra hop spent the
+    # message (#1428).
+    r.redirect(@user ? '/home' : '/')
   end
 end

@@ -92,7 +92,7 @@ module ShelfLoading
   def fail_background_shelf_import sid
     Cache.clear_by_id(sid)
     clear_pending_import
-    flash[:error] = 'We could not load that shelf from Goodreads. Try again, or upload a CSV export instead.'
+    flash['error'] = 'We could not load that shelf from Goodreads. Try again, or upload a CSV export instead.'
     request.redirect shelves_path
   end
 
@@ -127,7 +127,7 @@ module ShelfLoading
     return view('shelves/loading') unless @book_info
 
     unless (libraries = Cache.get(session, :pending_availability_libraries))
-      flash[:error] = 'Please choose a library first'
+      flash['error'] = 'Please choose a library first'
       request.redirect libraries_path
     end
     reject_empty_shelf request, @book_info
@@ -147,7 +147,7 @@ module ShelfLoading
   # For a POST that needs the shelf after the cache expired. Sends them back to
   # the GET to load it rather than fetching it here, where it would time out.
   def redirect_to_reload_shelf request
-    flash[:error] = 'Your shelf needed reloading. Please sign in to BookMooch again once it loads.'
+    flash['error'] = 'Your shelf needed reloading. Please sign in to BookMooch again once it loads.'
     request.redirect request.path
   end
 end

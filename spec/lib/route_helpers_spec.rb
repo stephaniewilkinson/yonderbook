@@ -116,7 +116,7 @@ describe RouteHelpers do
       redirected_to = catch(:halt) { redirecting_helper.load_background_shelf_data }
 
       assert_equal '/goodreads/shelves', redirected_to
-      assert_includes redirecting_helper.flash[:error], 'Goodreads'
+      assert_includes redirecting_helper.flash['error'], 'Goodreads'
       assert_nil redirecting_helper.session['pending_import_type'], 'a pending import would bring the loading page straight back'
       assert_nil Cache.get_by_id(sid, :goodreads_shelf_error)
     end

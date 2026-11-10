@@ -6,8 +6,10 @@ module OauthHelpers
     token = Cache.get session, :request_token
     return token if token
 
-    flash[:error] = "Please click 'Connect with Goodreads' again"
-    request.redirect '/'
+    flash['error'] = "Please click 'Connect with Goodreads' again"
+    # Signed in, the Connect button is on /goodreads; '/' would bounce them to
+    # /home and lose this message (#1428).
+    request.redirect(@user ? '/goodreads' : '/')
   end
 
   # The homepage's Goodreads button. Kept off `/` because caching a request
@@ -52,14 +54,14 @@ module OauthHelpers
     store_goodreads_in_session(credentials)
     request.redirect '/search/shelves'
   rescue OAuth::Unauthorized
-    flash[:error] = "Almost there — click 'Connect with Goodreads' one more time"
+    flash['error'] = "Almost there — click 'Connect with Goodreads' one more time"
     flash['fathom_event'] = 'connect_retry' # #1411
     request.redirect '/'
   end
 
   def handle_authenticated_oauth_callback request, request_token
     unless @user
-      flash[:error] = 'Please log in first before connecting Goodreads'
+      flash['error'] = 'Please log in first before connecting Goodreads'
       request.redirect '/'
     end
     Goodreads.fetch_user request_token, @user.id
@@ -76,7 +78,7 @@ module OauthHelpers
     # To /goodreads, not '/': for a logged-in user '/' redirects again to
     # /home, and that extra hop consumed the flash, so this message (and the
     # connect_retry event) never showed. /goodreads is where the button is.
-    flash[:error] = "Almost there — click 'Connect with Goodreads' one more time"
+    flash['error'] = "Almost there — click 'Connect with Goodreads' one more time"
     flash['fathom_event'] = 'connect_retry' # #1411
     request.redirect '/goodreads'
   end

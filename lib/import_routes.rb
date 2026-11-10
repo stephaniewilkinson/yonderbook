@@ -40,7 +40,7 @@ module ImportRoutes
       request.redirect '/import' unless count
 
       flash['fathom_event'] = 'csv_uploaded'
-      flash[:notice] = "Imported #{count} book#{'s' unless count == 1} from your Goodreads export."
+      flash['notice'] = "Imported #{count} book#{'s' unless count == 1} from your Goodreads export."
       request.redirect shelves_path
     end
 
@@ -48,7 +48,7 @@ module ImportRoutes
     request.post 'clear' do
       check_csrf!
       @user ? ImportedBook.clear(@user.id) : Cache.set(session, anonymous_library: nil)
-      flash[:notice] = 'Your imported library has been removed.'
+      flash['notice'] = 'Your imported library has been removed.'
       request.redirect '/import'
     end
   end
@@ -108,7 +108,7 @@ module ImportRoutes
   end
 
   def reject_import message
-    flash[:error] = message
+    flash['error'] = message
     nil
   end
 

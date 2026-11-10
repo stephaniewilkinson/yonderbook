@@ -34,4 +34,20 @@ describe 'messages after a redirect' do
     assert_current_path '/goodreads/shelves/to-read/overdrive'
     assert_text "We don't recognize that zip code"
   end
+
+  # '/' sends a signed-in reader on to /home, and that hop spent the message.
+  describe 'signed in, where the homepage would have bounced them' do
+    def signed_in
+      email, password = create_account_direct
+      password_login email, password
+    end
+
+    it 'explains why the anonymous search sent them home' do
+      signed_in
+      visit '/search/shelves'
+
+      assert_current_path '/home'
+      assert_text 'Connect Goodreads or upload a CSV export to get started'
+    end
+  end
 end
