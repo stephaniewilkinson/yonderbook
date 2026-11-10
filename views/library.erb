@@ -1,4 +1,6 @@
 <% content_for :title, "Choose Your Library" %>
+<%# A zip with no OverDrive library near it: a coverage gap. #1411 %>
+<% content_for :fathom_event, 'no_libraries_found' if @local_libraries.empty? %>
 <% content_for :description, "Select your local library to search for free ebooks and audiobooks from your Goodreads list via Libby/OverDrive." %>
 
 <div class="max-w-4xl mx-auto mb-8">

@@ -18,6 +18,12 @@ module OauthHelpers
   # fallback keeps a dead Goodreads from redirecting the visitor to nowhere.
   def redirect_to_goodreads_authorization request
     request_token = fetch_and_cache_request_token
+    unless request_token
+      # Was silent: the visitor landed back on the homepage with no idea why.
+      # Also the earliest warning that the deprecated Goodreads API is going. #1411
+      flash['error'] = "Goodreads isn't responding right now. Try again in a minute, or upload a CSV export instead."
+      flash['fathom_event'] = 'goodreads_unreachable'
+    end
     request.redirect request_token&.authorize_url || '/'
   end
 

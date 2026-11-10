@@ -358,14 +358,8 @@ class App < Roda
         @shelf_name = Cache.get session, :shelf_name
         zip = Geolocation.normalize_zip r.params['zipcode']
 
-        if zip.empty?
-          flash[:error] = 'You need to enter a zip code'
-          r.redirect '/libraries'
-        end
-        unless Geolocation.known_zip?(zip)
-          flash[:error] = "We don't recognize that zip code. Please try another."
-          r.redirect '/libraries'
-        end
+        reject_zip r, 'You need to enter a zip code', to: '/libraries' if zip.empty?
+        reject_zip r, "We don't recognize that zip code. Please try another.", to: '/libraries', event: 'zip_not_recognized' unless Geolocation.known_zip?(zip)
         @local_libraries = fetch_local_libraries(r, zip)
         Cache.set session, libraries: @local_libraries
         r.redirect '/libraries'

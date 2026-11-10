@@ -15,9 +15,22 @@
     if (window.fathom && name) window.fathom.trackEvent(name);
   }
 
+  // A reader coming back to check again, more than a day after last time: the
+  // only retention signal Fathom can show for visitors without an account.
+  // Undercounts when the browser clears storage. #1411
+  function trackReturn() {
+    var key = 'yonderbook.results_viewed_at';
+    try {
+      var last = Number(window.localStorage.getItem(key));
+      if (last && Date.now() - last > 24 * 60 * 60 * 1000) track('results_viewed_again');
+      window.localStorage.setItem(key, String(Date.now()));
+    } catch (e) { /* storage blocked: skip it */ }
+  }
+
   window.addEventListener('load', function () {
     document.querySelectorAll('meta[name="fathom-event"]').forEach(function (meta) {
       track(meta.content);
+      if (meta.content === 'results_viewed') trackReturn();
     });
   });
 
