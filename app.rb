@@ -60,7 +60,11 @@ class App < Roda
   plugin :sessions, secret: SESSION_SECRET
   plugin :route_csrf
   plugin :slash_path_empty
-  plugin :render
+  # escape: true makes <%= %> HTML-escape its output; <%== %> is for markup
+  # the app builds itself (partials, csrf_tag, inline SVG, JSON-LD). Titles and
+  # authors come from Goodreads or an uploaded CSV, so printing them raw let a
+  # crafted export inject markup into the page. #1415
+  plugin :render, escape: true
   plugin :partials
   plugin :content_for
   plugin :typecast_params

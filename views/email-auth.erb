@@ -18,7 +18,7 @@
   <% end %>
 
   <form method="post" action="<%= rodauth.email_auth_path %>" class="space-y-4">
-    <%= csrf_tag(rodauth.email_auth_path) %>
+    <%== csrf_tag(rodauth.email_auth_path) %>
     <input type="hidden" name="<%= rodauth.email_auth_key_param %>" value="<%= rodauth.param(rodauth.email_auth_key_param) %>">
 
     <div class="pt-2">

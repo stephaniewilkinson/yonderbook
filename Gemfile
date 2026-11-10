@@ -10,6 +10,7 @@ gem 'async-limiter'
 gem 'bcrypt'
 gem 'dotenv'
 gem 'drb'
+gem 'erubi' # plugin :render, escape: true (#1415)
 gem 'falcon'
 gem 'gender_detector'
 gem 'i18n', '>= 1'

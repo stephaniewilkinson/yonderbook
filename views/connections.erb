@@ -52,7 +52,7 @@
             View Your Shelves
           </a>
           <form method="post" action="/account/disconnect-goodreads" class="inline-block">
-            <%= csrf_tag('/account/disconnect-goodreads') %>
+            <%== csrf_tag('/account/disconnect-goodreads') %>
             <button type="submit"
                     onclick="return confirm('Are you sure you want to disconnect your Goodreads account? This will remove your connection and delete your synced data.')"
                     class="inline-flex items-center px-6 py-3 bg-red-600 text-white font-medium rounded-full hover:bg-red-700 transition-colors duration-200 cursor-pointer">

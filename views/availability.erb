@@ -91,8 +91,8 @@
   ]
 %>
 
-<%= render('_tabbed_availability_results', locals: {header: header, tabs: tabs}) %>
+<%== render('_tabbed_availability_results', locals: {header: header, tabs: tabs}) %>
 
 <% if @anonymous_search %>
-  <%= partial 'anonymous_conversion' %>
+  <%== partial 'anonymous_conversion' %>
 <% end %>

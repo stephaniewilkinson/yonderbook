@@ -209,7 +209,7 @@ describe 'Fathom funnel events' do
     get '/connect'
     follow_redirect!
 
-    assert_includes last_response.body, "Goodreads isn't responding"
+    assert_includes Nokogiri::HTML(last_response.body).text, "Goodreads isn't responding"
     assert_equal %w[goodreads_unreachable], events_in(last_response.body)
   end
 

@@ -85,7 +85,7 @@ describe 'honest copy' do
     it 'is simply not owned when the library does not have it' do
       body = results_for(0)
 
-      assert_includes body, "1 books aren't owned by your library"
+      assert_includes Nokogiri::HTML(body).text, "1 books aren't owned by your library"
       refute_includes body, 'Missing ISBN'
     end
   end

@@ -4,6 +4,16 @@ require_relative 'date_added'
 
 # Route helper methods: import tracking, caching, Goodreads/BookMooch integration, Sentry
 module RouteHelpers
+  # JSON that is safe to print raw inside a <script> block. JSON.generate leaves
+  # "<" alone, so a book title containing "</script>" would end the block and
+  # let the rest of the title run as markup. These \uXXXX forms are still
+  # valid JSON and decode to the same strings. #1415
+  JSON_SCRIPT_ESCAPES = {'<' => '\u003c', '>' => '\u003e', '&' => '\u0026', "\u2028" => '\u2028', "\u2029" => '\u2029'}.freeze
+
+  def json_for_script value
+    JSON.generate(value).gsub(/[<>&\u2028\u2029]/, JSON_SCRIPT_ESCAPES)
+  end
+
   def fetch_and_cache_request_token
     cached = Cache.get(session, :request_token)
     return cached if cached

@@ -6,7 +6,7 @@
    # walks people through. It used to put "select your library" before
    # "choose a shelf" and point two steps at the same URL. %>
 <script type="application/ld+json">
-<%= SiteCopy.how_to_json_ld %>
+<%== SiteCopy.how_to_json_ld %>
 </script>
 
 <div class="max-w-4xl mx-auto">
@@ -28,7 +28,7 @@
           <h2 class="text-2xl font-display font-medium text-mauve-950 mb-3"><%= step[:name] %></h2>
           <p class="text-mauve-700 leading-relaxed mb-4"><%= step[:text] %></p>
           <% if i.zero? %>
-            <%= partial 'two_click_explainer' %>
+            <%== partial 'two_click_explainer' %>
           <% end %>
         </div>
       </div>
