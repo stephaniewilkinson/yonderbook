@@ -77,5 +77,14 @@
 
     boxes.forEach(function (box) { box.addEventListener('change', sync); });
     sync();
+
+    // #1403: is searching several libraries too slow? Remember how many were
+    // picked and when, so the progress page can report how long it took.
+    document.getElementById('library-form').addEventListener('submit', function () {
+      var chosen = boxes.filter(function (box) { return box.checked; }).length;
+      try {
+        sessionStorage.setItem('yonderbook.check', JSON.stringify({libraries: chosen, at: Date.now()}));
+      } catch (e) { /* storage blocked: the timing just goes unreported */ }
+    });
   })();
 </script>

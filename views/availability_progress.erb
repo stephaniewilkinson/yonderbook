@@ -37,6 +37,25 @@
   const wsUrl = `${protocol}//${window.location.host}/ws/availability/${sessionId}`;
   const resultsPath = '<%= @results_path %>';
 
+  // #1403: how long a check took, from submitting the libraries (including
+  // any wait for the shelf) to results, by how many libraries were searched.
+  // Literal names only: Fathom event names are permanent.
+  const CHECK_TIME_EVENTS = {
+    1: ['check_1_library_under_30s', 'check_1_library_30_to_90s', 'check_1_library_over_90s'],
+    2: ['check_2_libraries_under_30s', 'check_2_libraries_30_to_90s', 'check_2_libraries_over_90s'],
+    3: ['check_3_libraries_under_30s', 'check_3_libraries_30_to_90s', 'check_3_libraries_over_90s']
+  };
+  function reportCheckTime() {
+    try {
+      const check = JSON.parse(sessionStorage.getItem('yonderbook.check') || 'null');
+      sessionStorage.removeItem('yonderbook.check');
+      const names = check && CHECK_TIME_EVENTS[check.libraries];
+      if (!names || !window.fathom) return;
+      const seconds = (Date.now() - check.at) / 1000;
+      window.fathom.trackEvent(names[seconds < 30 ? 0 : seconds < 90 ? 1 : 2]);
+    } catch (e) { /* storage blocked or unreadable: skip it */ }
+  }
+
   const statusMessage = document.getElementById('status-message');
   const progressText = document.getElementById('progress-text');
   const errorMessage = document.getElementById('error-message');
@@ -80,6 +99,7 @@
         break;
 
       case 'complete':
+        reportCheckTime();
         statusMessage.textContent = data.message;
         progressText.textContent = 'Done!';
         setTimeout(function() {
