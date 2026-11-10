@@ -39,7 +39,8 @@ describe 'privacy, terms and deleting an account' do
       bookmooch_imports: DB[:bookmooch_imports].where(user_id: id).count,
       account_password_reset_keys: DB[:account_password_reset_keys].where(id:).count,
       alert_subscriptions: DB[:alert_subscriptions].where(user_id: id).count,
-      watched_titles: DB[:watched_titles].where(user_id: id).count
+      watched_titles: DB[:watched_titles].where(user_id: id).count,
+      wanted_books: DB[:wanted_books].where(user_id: id).count
     }
   end
 
@@ -52,6 +53,7 @@ describe 'privacy, terms and deleting an account' do
     DB[:account_password_reset_keys].insert(id:, key: 'k', deadline: Time.now + 3600)
     DB[:alert_subscriptions].insert(user_id: id, unsubscribe_token: "t#{id}")
     DB[:watched_titles].insert(user_id: id, consortium_id: '1135', reserve_id: 'r', title: 'T')
+    DB[:wanted_books].insert(user_id: id, title: 'W')
     password_login email, password
     visit '/import'
     attach_file 'library', File.expand_path('../fixtures/goodreads_export.csv', __dir__)

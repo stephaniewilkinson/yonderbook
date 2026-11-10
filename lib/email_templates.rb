@@ -96,7 +96,7 @@ module EmailTemplates
               </td></tr>
               <tr><td style="background-color:#ffffff;border:1px solid #{COLORS[:border]};border-radius:8px;padding:40px 32px;">
                 <h1 style="margin:0 0 8px;font-family:system-ui,sans-serif;font-size:22px;font-weight:600;color:#{COLORS[:button_bg]};">Available to borrow now</h1>
-                <p style="margin:0 0 24px;font-family:system-ui,sans-serif;font-size:16px;line-height:24px;color:#{COLORS[:body_text]};">#{books.one? ? 'A book' : 'Books'} on your list had no copy free when you last checked. #{books.one? ? 'It has' : 'They have'} one now. Copies go quickly, so borrow soon.</p>
+                <p style="margin:0 0 24px;font-family:system-ui,sans-serif;font-size:16px;line-height:24px;color:#{COLORS[:body_text]};">#{books.one? ? 'A book on your list has a copy' : 'Books on your list have copies'} free now, either off a waitlist or newly added by your library. Copies go quickly, so borrow soon.</p>
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   #{items.join}
                 </table>

@@ -7,7 +7,8 @@
       <h3 class="font-display text-xl font-medium text-mauve-950 mb-2">Alerts are on</h3>
       <p class="text-mauve-700 text-sm leading-relaxed mb-5">
         Every morning we check <%= watching %> cop<%= watching == 1 ? 'y' : 'ies' %> at
-        <%= sentence(subscription.library_list.map(&:last)) %>, and email you when a book you're waiting on has one free.
+        <%= sentence(subscription.library_list.map(&:last)) %>, and once a week we look for books on your list they've added.
+        We email you when one has a copy free.
       </p>
       <div class="flex flex-wrap gap-3">
         <form method="post" action="/alerts">
@@ -27,8 +28,9 @@
     <% else %>
       <h3 class="font-display text-xl font-medium text-mauve-950 mb-2">Get an email when these come free</h3>
       <p class="text-mauve-700 text-sm leading-relaxed mb-5">
-        Waitlists move. We'll check these libraries every morning and email you when a book you're waiting on has a copy free.
-        Only when something changes, and you can turn it off from any email.
+        Waitlists move, and libraries buy new books. We'll check these libraries every morning, look for the books they
+        don't have yet once a week, and email you when one has a copy free. Only when something changes, and you can turn
+        it off from any email.
       </p>
       <form method="post" action="/alerts">
         <%== csrf_tag('/alerts') %>

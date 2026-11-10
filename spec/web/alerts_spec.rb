@@ -38,7 +38,13 @@ describe 'availability alerts' do
   end
 
   def with_results(&)
-    values = {titles: [waiting_copy], availability_libraries: [%w[1135 Seattle]], library_names: %w[Seattle], shelf_name: 'to-read'}
+    values = {
+      titles: [waiting_copy],
+      availability_libraries: [%w[1135 Seattle]],
+      library_names: %w[Seattle],
+      shelf_name: 'to-read',
+      availability_book_info: [{title: 'Piranesi', author: 'Susanna Clarke', isbn: '9781635575996'}, {title: 'Not at the library', author: 'X', isbn: nil}]
+    }
     Cache.stub(:get, ->(_session, key) { values[key] }, &)
   end
 
@@ -91,6 +97,7 @@ describe 'availability alerts' do
     end
 
     assert_equal ['abc-1'], DB[:watched_titles].where(user_id: id).select_map(:reserve_id)
+    assert_equal ['Not at the library'], DB[:wanted_books].where(user_id: id).select_map(:title)
     assert_includes page.html, '<meta name="fathom-event" content="notify_subscribed">'
   end
 
