@@ -69,6 +69,10 @@
       color: 'mauve',
       count: @unavailable_books.size,
       empty_message: 'All books from your shelf are available or on the waitlist!',
+      description: (if @library_site
+                      "Libraries buy books readers ask for. \"Ask your library to buy it\" opens #{@library_site_name}'s site, " \
+                        'where you can recommend the book once you sign in with your library card.'
+                    end),
       action_button: {url: @library_action || '/libraries', icon: '/svg/refresh.svg', label: 'Try a different library'},
       books: @unavailable_books.map do |book|
         {
@@ -78,13 +82,26 @@
           isbn: book.isbn,
           opacity: true,
           status_label: @library_names.size > 1 ? "Not owned by #{sentence(@library_names)}" : 'Not owned by library',
-          button: {
-            url: @library_url || AvailabilityHelpers::OVERDRIVE_HOME,
-            icon_svg: search_icon,
-            label: 'Search library',
-            title: "Search your library for: #{book.title} by #{book.author}",
-            class: 'bg-mauve-700 hover:bg-mauve-800'
-          }
+          # Ask the library to buy it, where its OverDrive site lets readers
+          # recommend titles; otherwise the old search fallback.
+          button: if (suggestion = purchase_suggestion_url(book))
+            {
+              url: suggestion,
+              icon_svg: search_icon,
+              label: 'Ask your library to buy it',
+              title: "Recommend #{book.title} to #{@library_site_name}. Sign in with your library card on their page.",
+              class: 'bg-mauve-700 hover:bg-mauve-800',
+              fathom_click: 'suggest_purchase_click'
+            }
+          else
+            {
+              url: @library_url || AvailabilityHelpers::OVERDRIVE_HOME,
+              icon_svg: search_icon,
+              label: 'Search library',
+              title: "Search your library for: #{book.title} by #{book.author}",
+              class: 'bg-mauve-700 hover:bg-mauve-800'
+            }
+          end
         }
       end
     }

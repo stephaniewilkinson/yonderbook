@@ -88,7 +88,15 @@ module Websockets
     # what lets the page say "not owned by Brooklyn and NYPL" rather than
     # "not owned by library".
     titles = availability.copies
-    Cache.set_in_session session_id, titles:, library_url: availability.library_urls.values.compact.first, library_names: libraries.map(&:last)
+    # The first library with its own OverDrive site is where a reader is sent
+    # to ask for a book nobody owns.
+    site_name, site = availability.library_sites.find { |_name, url| url }
+    Cache.set_in_session session_id,
+                         titles:,
+                         library_url: availability.library_urls.values.compact.first,
+                         library_names: libraries.map(&:last),
+                         library_site: site,
+                         library_site_name: site_name
     return if closed
 
     connection.write({type: 'complete', message: "Found #{titles.size} titles.", titles_count: titles.size}.to_json)

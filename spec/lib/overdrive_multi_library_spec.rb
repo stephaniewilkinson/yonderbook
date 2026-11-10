@@ -117,11 +117,22 @@ describe 'Overdrive.fetch_across_libraries' do
       assert_equal "https://link.overdrive.com/?websiteID=#{BROOKLYN}", urls['Brooklyn']
     end
 
+    # Where a reader is sent to ask a library to buy a book it doesn't own.
+    it "collects each library's own OverDrive site" do
+      stub_collection 'brooklyn', available: 0
+      stub_collection 'nypl', available: 0
+
+      sites = Overdrive.fetch_across_libraries([book], libraries).library_sites
+
+      assert_equal({'Brooklyn' => 'https://x.overdrive.com', 'NYPL' => 'https://x.overdrive.com'}, sites)
+    end
+
     it 'does nothing when no library was chosen' do
       result = Overdrive.fetch_across_libraries([book], [])
 
       assert_empty result.copies
       assert_empty result.library_urls
+      assert_empty result.library_sites
     end
   end
 end
