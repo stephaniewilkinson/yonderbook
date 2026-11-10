@@ -451,6 +451,39 @@ on deploy. This works only because `assets/css/styles.css` and
 `assets/compiled_assets.json` are committed. Edit `assets/css/input.css` without
 rebuilding and committing the output, and production ships stale CSS.
 
+### Backups
+
+The database is backed up only by **Render's disk snapshots**: one every 24
+hours, each kept for seven days ([Render: disks](https://render.com/docs/disks),
+checked 2026-11-10). There is no other copy, decided 2026-11-10.
+
+What that means in practice:
+
+- **Up to a day of data can be lost.** A restore puts the whole disk back as
+  it was at the snapshot; every account, import and BookMooch record written
+  since is gone. Render can't restore part of a disk.
+- **Seven days is the window.** A problem noticed later than that can't be
+  undone.
+- **It's a snapshot of a live file.** Render advises against relying on disk
+  restores for databases. SQLite in WAL mode (`lib/database.rb`) is built to
+  recover from an abrupt stop, which is what a snapshot looks like to it, so it
+  should open cleanly, but run the integrity check below before trusting it.
+- **It doesn't leave Render.** Losing the Render account or service loses the
+  backups with it.
+
+To restore: Render Dashboard, then the service, then **Disks**, then pick a
+snapshot and restore. Then, in the service's Shell:
+
+```
+sqlite3 /var/data/production.db "pragma integrity_check"   # expect: ok
+sqlite3 /var/data/production.db "select * from schema_info" # migration version
+```
+
+If more is ever needed, the two options considered were a nightly
+`VACUUM INTO` copy on the same disk (a guaranteed-consistent file inside each
+snapshot), and Litestream streaming to object storage (off Render, restorable
+to any point in time).
+
 ### Important notes
 
 - Render's persistent disk (`/var/data`) is only mounted at **runtime**, not during builds. Migrations must run in the start command.
