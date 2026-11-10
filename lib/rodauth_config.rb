@@ -7,7 +7,41 @@ class RodauthConfig < Rodauth::Auth
     db DB
     enable :login, :logout, :create_account, :verify_account, :reset_password, :lockout
     enable :email_auth, :argon2, :update_password_hash, :active_sessions
-    enable :session_expiration, :disallow_common_passwords
+    enable :session_expiration, :disallow_common_passwords, :close_account
+
+    # "Delete my account" means delete (#1416), not Rodauth's default of marking
+    # it closed and keeping the row. goodreads_connections, imported_books and
+    # bookmooch_imports go with it by ON DELETE CASCADE.
+    delete_account_on_close? true
+    close_account_redirect '/'
+    # password_hash_table is pointed at accounts itself (below), so Rodauth's
+    # close_account -- which deletes the row from a separate password-hash
+    # table -- deleted the account row before after_close_account could run.
+    # Here the hash goes with the account, so only mark it closed.
+    # (account_password_hash_column is Rodauth's own way to keep the hash on
+    # accounts; switching to it would remove the need for this.)
+    auth_class_eval do
+      def close_account
+        update_account(account_status_column => account_closed_status_value)
+      end
+    end
+    close_account_notice_flash 'Your account and everything stored with it have been deleted.'
+
+    # Rodauth's own key tables reference accounts without a cascade, and foreign
+    # keys are enforced (lib/database.rb), so a leftover verification,
+    # password-reset or sign-in-link key would block the delete. Runs inside
+    # the same transaction, before delete_account.
+    after_close_account do
+      %i[
+        account_verification_keys
+        account_password_reset_keys
+        account_email_auth_keys
+        account_login_failures
+        account_lockouts
+      ].each { |table| db[table].where(id: account_id).delete }
+      db[:account_active_session_keys].where(account_id: account_id).delete
+    end
+
     hmac_secret SESSION_SECRET
     allow_raw_email_token? true if ENV['RACK_ENV'] == 'test'
 

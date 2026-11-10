@@ -125,7 +125,8 @@ module SiteCopy
               'Shelves fetched from Goodreads are kept in memory for a short while during your visit, not saved. ' \
               'If you upload a Goodreads CSV export, that library is saved to your account so you do not have to upload it again. ' \
               'You can remove it from the import page at any time. ' \
-              'You can disconnect Goodreads and delete the stored connection from your Account page.'
+              'You can disconnect Goodreads from Connections, or delete your account and everything stored with it from your Account page. ' \
+              'The privacy page has the full list.'
     },
     {
       question: 'Which libraries does Yonderbook support?',

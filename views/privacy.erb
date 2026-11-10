@@ -1,0 +1,87 @@
+<% content_for :title, "Privacy" %>
+<% content_for :description, "What Yonderbook stores, what it keeps only while you use it, which services it relies on, and how to delete everything." %>
+<%# Keep this in step with the code it describes: lib/models, lib/cache.rb,
+    lib/rodauth_config.rb (close_account) and the FAQ answer about stored data
+    in lib/site_copy.rb. #1416 %>
+
+<div class="max-w-3xl mx-auto">
+  <div class="mb-10">
+    <h1 class="font-display text-3xl sm:text-4xl font-medium tracking-tight text-mauve-950 mb-3">Privacy</h1>
+    <p class="text-mauve-700">Last updated 10 November 2026</p>
+  </div>
+
+  <div class="space-y-10 text-mauve-700 leading-relaxed">
+    <section>
+      <p>Yonderbook finds the books on your reading list that your public library has. It needs very little about you to do that, and it keeps less than it could. This page says exactly what, for how long, and who else is involved.</p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-medium text-mauve-950 mb-3">You don't need an account</h2>
+      <p>You can connect Goodreads or upload a Goodreads CSV export and check library availability without signing up. In that case nothing about you is written to our database. Your shelves, any uploaded library and your results are held in our server's memory for about 15 minutes and then discarded.</p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-medium text-mauve-950 mb-3">What we store if you create an account</h2>
+      <ul class="list-disc list-outside pl-5 space-y-2">
+        <li><strong class="text-mauve-950">Your email address</strong> and a hashed password (Argon2; we can't read it). If you only sign in with emailed links, there is no password.</li>
+        <li><strong class="text-mauve-950">Short-lived sign-in records</strong>: links for verifying your email, resetting a password or signing in, failed sign-in counts used to lock out password guessing, and your active sessions.</li>
+        <li><strong class="text-mauve-950">Your Goodreads connection</strong>, if you make one: your Goodreads user ID and the access token Goodreads issues, so we can read your shelves.</li>
+        <li><strong class="text-mauve-950">A library you import</strong> from a Goodreads CSV export: each book's title, author, ISBN, publication year, your rating, the date you added it and its shelves. We keep it so you don't have to upload it again.</li>
+        <li><strong class="text-mauve-950">Which books you've sent to BookMooch</strong>, if you use that feature, so we don't send the same ones twice.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-medium text-mauve-950 mb-3">What we only hold while you use it</h2>
+      <p class="mb-3">These stay in memory on our server, or briefly in a temporary file, for about 30 minutes (15 without an account), and are never written to the database:</p>
+      <ul class="list-disc list-outside pl-5 space-y-2">
+        <li>shelves fetched from Goodreads, and availability results</li>
+        <li>the libraries you picked and the zip code you searched</li>
+        <li>your BookMooch username and password, only while an import to BookMooch is running</li>
+      </ul>
+      <p class="mt-3">"Use my location" sends your coordinates to our server, which matches them to the nearest zip code in its own table. They aren't stored or sent anywhere else.</p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-medium text-mauve-950 mb-3">Cookies</h2>
+      <p>We set one cookie, an encrypted session cookie, which the site needs to work. Our analytics use no cookies. The chat widget (below) sets its own.</p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-medium text-mauve-950 mb-3">Services we rely on</h2>
+      <ul class="list-disc list-outside pl-5 space-y-2">
+        <li><strong class="text-mauve-950">Render</strong> hosts the site and the database. Their request logs include IP addresses for a limited time.</li>
+        <li><strong class="text-mauve-950">Fathom Analytics</strong> counts page views and a few actions (like checking availability) in aggregate, without cookies or personal data.</li>
+        <li><strong class="text-mauve-950">Sentry</strong> receives error reports. They can include your account number, but are configured not to include personal details.</li>
+        <li><strong class="text-mauve-950">Resend</strong> sends our emails (verification, password reset, sign-in links), so it receives your email address.</li>
+        <li><strong class="text-mauve-950">Tawk.to</strong> runs the chat widget on every page. It sets cookies, and receives whatever you write in a chat.</li>
+        <li><strong class="text-mauve-950">OverDrive</strong> receives the titles and authors we search for, and the zip code you enter to find libraries.</li>
+        <li><strong class="text-mauve-950">Goodreads</strong>, if you connect it: you sign in on their site, and we request your shelves from them.</li>
+        <li><strong class="text-mauve-950">BookMooch</strong>, if you use it: we send them your BookMooch sign-in and the books to add.</li>
+        <li><strong class="text-mauve-950">Open Library</strong> receives ISBNs when we look up other editions for BookMooch.</li>
+        <li><strong class="text-mauve-950">Google Fonts, jsDelivr and Unsplash</strong> serve fonts, a chart library and the homepage image, so your browser contacts them directly, which shares your IP address with them.</li>
+      </ul>
+      <p class="mt-3">We don't sell your data, show ads, or use affiliate links.</p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-medium text-mauve-950 mb-3">Deleting your data</h2>
+      <ul class="list-disc list-outside pl-5 space-y-2">
+        <li><strong class="text-mauve-950">Everything:</strong> sign in and go to <a class="text-mauve-950 underline hover:no-underline" href="/account">Account</a>, then <em>Delete my account</em>. That removes your account and everything listed above, immediately.</li>
+        <li><strong class="text-mauve-950">Just Goodreads:</strong> disconnect it from <a class="text-mauve-950 underline hover:no-underline" href="/connections">Connections</a>.</li>
+        <li><strong class="text-mauve-950">Just an imported library:</strong> remove it from the <a class="text-mauve-950 underline hover:no-underline" href="/import">import page</a>.</li>
+      </ul>
+      <p class="mt-3">Error reports and logs already sent to the services above expire on their own schedules.</p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-medium text-mauve-950 mb-3">Children</h2>
+      <p>Yonderbook isn't directed at children under 13, and we don't knowingly collect their information.</p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-medium text-mauve-950 mb-3">Changes and questions</h2>
+      <p>If this changes, we'll update this page and the date at the top. For questions or requests, use the chat button in the corner of any page.</p>
+    </section>
+  </div>
+</div>
