@@ -69,7 +69,7 @@ class Overdrive
     @timings = {}
   end
 
-  attr_reader :collection_token, :website_id, :library_url, :timings
+  attr_reader :collection_token, :website_id, :library_url, :library_site, :timings
 
   def token
     client = OAuth2::Client.new KEY, SECRET, token_url: '/token', site: OAUTH_URI
@@ -93,10 +93,15 @@ class Overdrive
     # replaces never matched a JSON.parse result and @website_id was always
     # nil. views/availability.erb interpolates it straight into a borrow link,
     # so every availability result carried a "?websiteID=" pointing nowhere.
-    if (homepage = body.dig('links', 'dlrHomepage', 'href')) && (match = homepage.match(/websiteID=(\d+)/))
+    homepage = body.dig('links', 'dlrHomepage', 'href')
+    if homepage && (match = homepage.match(/websiteID=(\d+)/))
       @website_id = match[1]
       @library_url = "https://link.overdrive.com/?websiteID=#{@website_id}"
     end
+    # The library's own OverDrive site, e.g. https://seattle.overdrive.com. Its
+    # search can show titles the library doesn't own yet, for a reader to
+    # recommend it buy them (AvailabilityHelpers#purchase_suggestion_url).
+    @library_site = homepage[%r{\Ahttps://[a-z0-9-]+\.overdrive\.com}i] if homepage
 
     body['collectionToken']
   end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'uri'
+
 # Shared by the authenticated availability page and its anonymous twin. Both
 # read the same four cached values and split the titles the same four ways;
 # only where an incomplete flow sends the visitor back to differs, so that
@@ -47,6 +49,8 @@ module AvailabilityHelpers
   def load_cached_availability
     @titles = Cache.get session, :titles
     @library_url = Cache.get session, :library_url
+    @library_site = Cache.get session, :library_site
+    @library_site_name = Cache.get session, :library_site_name
     @library_names = Cache.get(session, :library_names) || []
   end
 
@@ -94,6 +98,15 @@ module AvailabilityHelpers
         }
       }
     end
+  end
+
+  # A search on the library's own OverDrive site that also shows titles it
+  # doesn't own yet (showAlternatives), each with a "Recommend" button for a
+  # reader signed in with their card. Libraries buy what readers ask for.
+  def purchase_suggestion_url book
+    return unless @library_site
+
+    "#{@library_site}/search?#{URI.encode_www_form(query: [book.title, book.author].compact.join(' '), showAlternatives: true)}"
   end
 
   # "Brooklyn" / "Brooklyn and NYPL" / "Brooklyn, NYPL and Queens".

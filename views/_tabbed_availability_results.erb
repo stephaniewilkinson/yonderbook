@@ -87,6 +87,7 @@
                       <% end %>
                       <% if book[:button] %>
                         <a href="<%= book[:button][:url] %>"
+                           <% if book[:button][:fathom_click] %>data-fathom-click="<%= book[:button][:fathom_click] %>"<% end %>
                            target="_blank"
                            rel="noopener noreferrer"
                            class="w-full inline-flex items-center justify-center px-3 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full transition-colors duration-200"

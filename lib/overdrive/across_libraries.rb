@@ -9,7 +9,8 @@ class Overdrive
   # What a multi-library check produced: every copy found, and each library's
   # OverDrive deep link, which is where "search your library" points for a book
   # nobody owns.
-  Availability = Data.define(:copies, :library_urls)
+  # library_sites: each library's own OverDrive site, by library name.
+  Availability = Data.define(:copies, :library_urls, :library_sites)
 
   # Check several libraries, cheapest-first rather than all at once.
   #
@@ -30,6 +31,7 @@ class Overdrive
     remaining = book_info
     copies = []
     library_urls = {}
+    library_sites = {}
 
     libraries.each do |consortium_id, library_name|
       break if remaining.empty?
@@ -38,11 +40,12 @@ class Overdrive
       found = overdrive.fetch_titles_availability(&)
       copies.concat(found.map { |copy| copy.with(library: library_name) })
       library_urls[library_name] = overdrive.library_url
+      library_sites[library_name] = overdrive.library_site
 
       settled = found.filter_map { |copy| book_key(copy.isbn, copy.title) if copy.copies_available.to_i.positive? }.to_set
       remaining = remaining.reject { |book| settled.include? book_key(book[:isbn], book[:title]) }
     end
 
-    Availability.new(copies: copies, library_urls: library_urls)
+    Availability.new(copies: copies, library_urls: library_urls, library_sites: library_sites)
   end
 end
