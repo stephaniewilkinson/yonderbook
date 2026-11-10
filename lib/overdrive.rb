@@ -134,6 +134,23 @@ class Overdrive
     consolidated.sort_by { |t| [t.copies_available, t.copies_owned] }.reverse
   end
 
+  # Copies available and owned for products already identified at this
+  # library, keyed by lowercased reserve id. For availability alerts (#1422):
+  # no title search, just the availability endpoint, 25 products a request.
+  # A product OverDrive no longer lists is simply absent from the result.
+  def availability_for reserve_ids
+    return {} if reserve_ids.empty?
+
+    async_availability_responses(reserve_ids.each_slice(25)).wait.each_with_object({}) do |(raw_body, status), found|
+      next if status >= 400
+
+      JSON.parse(raw_body)['availability']&.each do |result|
+        id = result['reserveId']&.downcase
+        found[id] = {available: result['copiesAvailable'].to_i, owned: result['copiesOwned'].to_i} if id
+      end
+    end
+  end
+
   private
 
   def process_chunk chunk, chunk_num, chunk_count

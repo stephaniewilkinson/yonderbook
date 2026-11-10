@@ -46,56 +46,17 @@ describe 'views/_anonymous_conversion.erb' do
     end
   end
 
-  describe 'the Kit email form' do
-    # The form posts straight to Kit, so a deploy without the URL configured
-    # should have no form at all rather than one that silently fails.
-    it 'is absent when KIT_FORM_ACTION_URL is unset' do
-      html = with_kit_url(nil) { render_conversion }
+  # #1422. Replaced the Kit form, which posted to nothing.
+  describe 'the alerts prompt' do
+    it 'offers alerts through a free account' do
+      html = render_conversion
 
-      refute_includes html, 'kit-notify-form'
-      refute_includes html, 'Notify me'
+      assert_includes html, 'Create a free account for alerts'
+      assert_includes html, 'href="/sign-up"'
     end
 
-    it 'is absent when KIT_FORM_ACTION_URL is set but empty' do
-      html = with_kit_url('') { render_conversion }
-
-      refute_includes html, 'kit-notify-form'
+    it 'has no email form left over from Kit' do
+      refute_includes render_conversion, 'kit-notify-form'
     end
-
-    it 'posts to the configured Kit endpoint when one is set' do
-      html = with_kit_url('https://app.kit.com/forms/123/subscriptions') { render_conversion }
-
-      assert_includes html, 'action="https://app.kit.com/forms/123/subscriptions"'
-      assert_includes html, 'name="email_address"'
-    end
-
-    it 'submits without leaving the results page' do
-      html = with_kit_url('https://app.kit.com/forms/123/subscriptions') { render_conversion }
-
-      assert_includes html, 'event.preventDefault()'
-      assert_includes html, 'fetch(form.action'
-    end
-
-    it 'reports both outcomes inline' do
-      html = with_kit_url('https://app.kit.com/forms/123/subscriptions') { render_conversion }
-
-      assert_includes html, 'Subscribed.'
-      assert_includes html, 'That did not go through'
-    end
-
-    it 'labels the email field for screen readers' do
-      html = with_kit_url('https://app.kit.com/forms/123/subscriptions') { render_conversion }
-
-      assert_includes html, 'for="kit-email"'
-      assert_includes html, 'aria-live="polite"'
-    end
-  end
-
-  def with_kit_url value
-    previous = ENV.fetch('KIT_FORM_ACTION_URL', nil)
-    value.nil? ? ENV.delete('KIT_FORM_ACTION_URL') : ENV['KIT_FORM_ACTION_URL'] = value
-    yield
-  ensure
-    previous.nil? ? ENV.delete('KIT_FORM_ACTION_URL') : ENV['KIT_FORM_ACTION_URL'] = previous
   end
 end

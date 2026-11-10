@@ -1,0 +1,41 @@
+<%# Availability alerts on the signed-in results page (#1422). %>
+<% subscription = AlertSubscription.for_user(@user.id) %>
+<% watching = subscription ? WatchedTitle.where(user_id: @user.id).count : 0 %>
+<div class="mt-6 max-w-5xl mx-auto">
+  <div class="glass-panel rounded-2xl p-6 border border-white/40" id="alerts-panel">
+    <% if subscription %>
+      <h3 class="font-display text-xl font-medium text-mauve-950 mb-2">Alerts are on</h3>
+      <p class="text-mauve-700 text-sm leading-relaxed mb-5">
+        Every morning we check <%= watching %> cop<%= watching == 1 ? 'y' : 'ies' %> at
+        <%= sentence(subscription.library_list.map(&:last)) %>, and email you when a book you're waiting on has one free.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <form method="post" action="/alerts">
+          <%== csrf_tag('/alerts') %>
+          <button type="submit" class="px-5 py-2.5 bg-mauve-950 text-white text-sm font-medium rounded-full hover:bg-mauve-900 transition-colors">
+            Watch these results instead
+          </button>
+        </form>
+        <form method="post" action="/alerts/off">
+          <%== csrf_tag('/alerts/off') %>
+          <input type="hidden" name="from" value="results">
+          <button type="submit" class="px-5 py-2.5 bg-mauve-950/10 text-mauve-950 text-sm font-medium rounded-full hover:bg-mauve-950/20 transition-colors">
+            Turn off alerts
+          </button>
+        </form>
+      </div>
+    <% else %>
+      <h3 class="font-display text-xl font-medium text-mauve-950 mb-2">Get an email when these come free</h3>
+      <p class="text-mauve-700 text-sm leading-relaxed mb-5">
+        Waitlists move. We'll check these libraries every morning and email you when a book you're waiting on has a copy free.
+        Only when something changes, and you can turn it off from any email.
+      </p>
+      <form method="post" action="/alerts">
+        <%== csrf_tag('/alerts') %>
+        <button type="submit" id="alerts-on" class="px-5 py-2.5 bg-mauve-950 text-white text-sm font-medium rounded-full hover:bg-mauve-900 transition-colors">
+          Email me when these become available
+        </button>
+      </form>
+    <% end %>
+  </div>
+</div>

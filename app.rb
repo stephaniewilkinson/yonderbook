@@ -10,6 +10,7 @@ require 'sentry-ruby'
 require 'tilt'
 # require 'zbar'
 
+require_relative 'lib/alert_routes'
 require_relative 'lib/auth'
 require_relative 'lib/availability_helpers'
 require_relative 'lib/bookmooch'
@@ -108,6 +109,7 @@ class App < Roda
   end
 
   compile_assets
+  include AlertRoutes
   include ImportRoutes
   include OauthHelpers
   include AvailabilityHelpers
@@ -224,6 +226,7 @@ class App < Roda
     end
 
     r.on('import') { handle_import_routes(r) }
+    r.on('alerts') { handle_alert_routes(r) }
 
     r.get 'home' do # route: GET /home
       rodauth.require_login
