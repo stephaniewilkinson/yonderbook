@@ -1,4 +1,7 @@
 <% content_for :title, "Check Your Email" %>
+<%# Only a real account creation sets pending_email: the honeypot sends bots
+    here too without one, and a reload has already consumed it. #1408 %>
+<% content_for :fathom_event, 'signup' if @pending_email %>
 <% content_for :description, "We sent you a verification email. Check your inbox to complete your Yonderbook account setup." %>
 
 <div class="max-w-md mx-auto">
@@ -10,7 +13,7 @@
       We sent a verification link to
     </p>
     <p class="text-lg font-medium text-mauve-950 mt-1">
-      <%= h @pending_email %>
+      <%= h(@pending_email || 'your email') %>
     </p>
   </div>
 
