@@ -121,11 +121,16 @@ module AvailabilityHelpers
 
   # A book lands in the tab its best copy earns: available anywhere beats
   # waitlisted anywhere, which beats owned nowhere.
+  #
+  # There used to be a fourth tab, "Could Not Match", for books Goodreads has
+  # no ISBN for. Since #1398 every book is searched by title, ISBN or not, so
+  # an ISBN-less book that was found also showed up there, blamed on its
+  # missing ISBN, while sitting in Available at the same time. One not found
+  # is simply not owned.
   def split_titles_by_availability
     books = group_copies_into_books @titles
     @available_books = sort_by_date_added(books.select { |book| book.best.copies_available.to_i.positive? })
     @waitlist_books = sort_by_date_added(books.select { |book| book.best.copies_available.to_i.zero? && book.best.copies_owned.to_i.positive? })
-    @no_isbn_books = sort_by_date_added(books.select(&:no_isbn))
-    @unavailable_books = sort_by_date_added(books.select { |book| book.best.copies_owned.to_i.zero? && !book.no_isbn })
+    @unavailable_books = sort_by_date_added(books.select { |book| book.best.copies_owned.to_i.zero? })
   end
 end
