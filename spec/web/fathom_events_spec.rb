@@ -168,4 +168,89 @@ describe 'Fathom funnel events' do
 
     assert_includes html, 'data-fathom-submit="library_selected"'
   end
+
+  # #1411, P2: drop-off and early warnings.
+  describe 'finding a library' do
+    def with_session(cached = {}, &)
+      values = ANON_CREDENTIALS.merge(shelf_name: 'to-read').merge(cached)
+      Cache.stub(:get, ->(_session, key) { values[key] }, &)
+    end
+
+    def events_after_zip zipcode
+      with_session do
+        get '/search/shelves/to-read/overdrive'
+        csrf = last_response.body[/name="_csrf" value="([^"]+)"/, 1]
+        post '/search/library', 'zipcode' => zipcode, '_csrf' => csrf
+        follow_redirect!
+        events_in last_response.body
+      end
+    end
+
+    it 'reports a zip code it does not recognize' do
+      assert_equal %w[zip_not_recognized], events_after_zip('00000')
+    end
+
+    it 'reports OverDrive failing to look up libraries, separately from a typo' do
+      stub_request(:get, HttpFixtures::FIND_LIBRARIES_URL).to_return(status: 403, body: '<html>Access Denied</html>')
+
+      assert_equal %w[library_lookup_failed], events_after_zip('94103')
+    end
+
+    it 'reports a zip code with no library near it' do
+      with_session(libraries: []) { get '/search/library' }
+
+      assert_equal %w[no_libraries_found], events_in(last_response.body)
+    end
+  end
+
+  it 'tells the visitor, and reports it, when Goodreads does not answer' do
+    stub_request(:post, HttpFixtures::REQUEST_TOKEN_URL).to_timeout
+
+    get '/connect'
+    follow_redirect!
+
+    assert_includes last_response.body, "Goodreads isn't responding"
+    assert_equal %w[goodreads_unreachable], events_in(last_response.body)
+  end
+
+  it 'reports a returning account holder logging in' do
+    email, password = create_account_direct
+    password_login email, password
+
+    assert_text 'Welcome back,'
+    assert_includes page_events, 'logged_in'
+  end
+
+  it 'reports results from an imported library as their own event too' do
+    email, password = create_account_direct
+    password_login email, password
+    title = Struct.new(:title, :author, :image, :copies_available, :copies_owned, :isbn, :url, :id, :format, :library, :no_isbn, :date_added)
+              .new('Sapiens',
+                   'Yuval Noah Harari',
+                   'cover.jpg',
+                   3,
+                   5,
+                   '9780062316097',
+                   'https://link.overdrive.com/?content=1',
+                   'id-1',
+                   'ebook',
+                   'Seattle Public Library',
+                   false,
+                   '2024-01-01')
+
+    ImportedBook.stub(:imported?, true) do
+      Cache.stub(:get, ->(_session, key) { [title] if key == :titles }) { visit '/goodreads/availability' }
+    end
+
+    assert_equal %w[results_viewed results_viewed_csv], page_events
+  end
+
+  it 'sends BookMooch outcomes and returning readers from the browser' do
+    progress = File.read(File.expand_path('../../views/bookmooch_progress.erb', __dir__))
+    script = File.read(File.expand_path('../../assets/js/fathom-events.js', __dir__))
+
+    assert_includes progress, "trackEvent('bookmooch_imported')"
+    assert_includes progress, "trackEvent('bookmooch_failed')"
+    assert_includes script, "track('results_viewed_again')"
+  end
 end

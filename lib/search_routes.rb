@@ -48,7 +48,7 @@ module SearchRoutes
       @shelf_name = Cache.get session, :shelf_name
       zip = Geolocation.normalize_zip request.params['zipcode']
       reject_zip request, 'You need to enter a zip code' if zip.empty?
-      reject_zip request, "We don't recognize that zip code. Please try another." unless Geolocation.known_zip?(zip)
+      reject_zip request, "We don't recognize that zip code. Please try another.", event: 'zip_not_recognized' unless Geolocation.known_zip?(zip)
 
       Cache.set session, libraries: fetch_local_libraries(request, zip, fallback: zip_form_path)
       request.redirect '/search/library'
@@ -126,8 +126,10 @@ module SearchRoutes
     @shelf_name ? "/search/shelves/#{@shelf_name}/overdrive" : '/search/shelves'
   end
 
-  def reject_zip request, message
+  # event: a Fathom event to report on the page the redirect lands on (#1411).
+  def reject_zip request, message, to: zip_form_path, event: nil
     flash[:error] = message
-    request.redirect zip_form_path
+    flash['fathom_event'] = event if event
+    request.redirect to
   end
 end

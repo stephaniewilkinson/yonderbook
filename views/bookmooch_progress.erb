@@ -83,6 +83,7 @@
         break;
 
       case 'complete':
+        if (window.fathom) window.fathom.trackEvent('bookmooch_imported');
         statusMessage.textContent = data.message;
         progressText.textContent = 'Import complete!';
         // Redirect to results page after a brief delay
@@ -92,6 +93,7 @@
         break;
 
       case 'error':
+        if (window.fathom) window.fathom.trackEvent('bookmooch_failed');
         showError(data.message);
         statusMessage.textContent = 'An error occurred';
         break;
@@ -99,6 +101,7 @@
   };
 
   ws.onerror = function(error) {
+    if (window.fathom) window.fathom.trackEvent('bookmooch_failed');
     console.error('WebSocket error:', error);
     showError('Connection error. Please try again.');
     statusMessage.textContent = 'Connection failed';
