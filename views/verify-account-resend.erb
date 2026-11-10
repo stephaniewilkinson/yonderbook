@@ -18,7 +18,7 @@
   <% end %>
 
   <form method="post" action="<%= rodauth.verify_account_resend_path %>" class="space-y-4">
-    <%= csrf_tag(rodauth.verify_account_resend_path) %>
+    <%== csrf_tag(rodauth.verify_account_resend_path) %>
 
     <div>
       <label for="login" class="block text-sm font-medium text-mauve-950 mb-1">

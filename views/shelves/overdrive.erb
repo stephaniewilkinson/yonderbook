@@ -18,7 +18,7 @@
         whichever action the form actually posts to costs one hidden input and
         means adding the check to POST /libraries cannot silently break it. %>
     <form action="<%= @library_action || '/libraries' %>" method="post" autocomplete="on">
-      <%= csrf_tag(@library_action || '/libraries') %>
+      <%== csrf_tag(@library_action || '/libraries') %>
       <div class="mb-6">
         <label for="zipcode" class="block text-sm font-medium text-mauve-950 mb-2">Enter your zip code:</label>
         <input type="text"

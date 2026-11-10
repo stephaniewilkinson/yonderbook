@@ -24,7 +24,7 @@
 
   <!-- Magic link login (primary) -->
   <form method="post" action="<%= rodauth.email_auth_request_path %>" class="space-y-4" id="magic-link-form">
-    <%= csrf_tag(rodauth.email_auth_request_path) %>
+    <%== csrf_tag(rodauth.email_auth_request_path) %>
 
     <div>
       <label for="magic-link-email" class="block text-sm font-medium text-mauve-950 mb-1">
@@ -58,7 +58,7 @@
 
   <!-- Password login (fallback) -->
   <form method="post" action="<%= rodauth.login_path %>" class="space-y-4" id="password-login-form">
-    <%= csrf_tag(rodauth.login_path) %>
+    <%== csrf_tag(rodauth.login_path) %>
 
     <div>
       <label for="password-email" class="block text-sm font-medium text-mauve-950 mb-1">

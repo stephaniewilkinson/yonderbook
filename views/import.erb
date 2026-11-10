@@ -26,7 +26,7 @@
           Browse your shelves
         </a>
         <form action="/import/clear" method="post" onsubmit="return confirm('Remove your imported library? Your shelves will no longer be available until you upload again.')">
-          <%= csrf_tag('/import/clear') %>
+          <%== csrf_tag('/import/clear') %>
           <button type="submit" class="inline-flex items-center px-4 py-2 bg-mauve-950/10 hover:bg-mauve-950/20 text-mauve-950 text-sm font-medium rounded-full transition-colors duration-200">
             Remove it
           </button>
@@ -44,7 +44,7 @@
     </ol>
 
     <form action="/import" method="post" enctype="multipart/form-data">
-      <%= csrf_tag('/import') %>
+      <%== csrf_tag('/import') %>
       <div class="mb-6">
         <label for="library" class="block text-sm font-medium text-mauve-950 mb-2">Your Goodreads CSV export:</label>
         <input type="file"

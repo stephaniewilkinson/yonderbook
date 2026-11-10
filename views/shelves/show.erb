@@ -72,7 +72,8 @@
   Chart.defaults.plugins.datalabels.display = false;
 
   // Prepare book data once for all charts
-  const booksData = <%= @book_info.to_json %>;
+  <%# json_for_script: a title containing "</script>" must not end this block. #1415 %>
+  const booksData = <%== json_for_script(@book_info) %>;
 
   /* TODO: Re-enable gender distribution chart once reliable male/female detection is implemented
   // Chart.js Gender Stacked Bar Chart

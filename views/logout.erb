@@ -18,7 +18,7 @@
   <% end %>
 
   <form method="post" action="<%= rodauth.logout_path %>" class="space-y-4">
-    <%= csrf_tag(rodauth.logout_path) %>
+    <%== csrf_tag(rodauth.logout_path) %>
 
     <div class="flex gap-3">
       <button type="submit" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">

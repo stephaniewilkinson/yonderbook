@@ -23,7 +23,7 @@
   <% end %>
 
   <form method="post" action="<%= rodauth.create_account_path %>" class="space-y-4">
-    <%= csrf_tag(rodauth.create_account_path) %>
+    <%== csrf_tag(rodauth.create_account_path) %>
 
     <!-- Honeypot field - hidden from humans, catches bots -->
     <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;">

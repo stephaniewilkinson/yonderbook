@@ -28,9 +28,12 @@ describe 'site copy' do
     before { get '/faq' }
 
     it 'renders every answer in the visible page' do
+      # The visible text, not the raw HTML: output is escaped, so an apostrophe
+      # in an answer arrives as &#39;.
+      text = Nokogiri::HTML(last_response.body).text
       SiteCopy::FAQ.each do |entry|
-        assert_includes last_response.body, entry[:question]
-        assert_includes last_response.body, entry[:answer]
+        assert_includes text, entry[:question]
+        assert_includes text, entry[:answer]
       end
     end
 

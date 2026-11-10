@@ -35,7 +35,7 @@
     <link rel="icon" type="image/svg+xml" href="/svg/favicon.svg?v=2">
 
     <!-- Preload critical resources for faster loading -->
-    <%= preload_assets_link_tags(:css) %>
+    <%== preload_assets_link_tags(:css) %>
 
     <!-- Google Fonts: Inter + Mona Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +43,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mona+Sans:ital,wdth,wght@0,112.5,200..900;1,112.5,200..900&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS (pre-built) -->
-    <%= assets(:css) %>
+    <%== assets(:css) %>
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -222,11 +222,11 @@
         </div>
       </nav>
 
-      <%= partial 'flash_notifications' %>
-      <%= partial 'import_toast' %>
+      <%== partial 'flash_notifications' %>
+      <%== partial 'import_toast' %>
 
       <div class="max-w-2xl md:max-w-3xl lg:max-w-7xl mx-auto px-6 lg:px-10 py-16">
-        <%= yield %>
+        <%== yield %>
       </div>
     </main>
 
