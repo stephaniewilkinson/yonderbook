@@ -18,6 +18,12 @@ module OauthHelpers
   # fallback keeps a dead Goodreads from redirecting the visitor to nowhere.
   def redirect_to_goodreads_authorization request
     request_token = fetch_and_cache_request_token
+    unless request_token
+      # Was silent: the visitor landed back on the homepage with no idea why.
+      # Also the earliest warning that the deprecated Goodreads API is going. #1411
+      flash['error'] = "Goodreads isn't responding right now. Try again in a minute, or upload a CSV export instead."
+      flash['fathom_event'] = 'goodreads_unreachable'
+    end
     request.redirect request_token&.authorize_url || '/'
   end
 
@@ -47,6 +53,7 @@ module OauthHelpers
     request.redirect '/search/shelves'
   rescue OAuth::Unauthorized
     flash[:error] = "Almost there — click 'Connect with Goodreads' one more time"
+    flash['fathom_event'] = 'connect_retry' # #1411
     request.redirect '/'
   end
 
@@ -65,7 +72,12 @@ module OauthHelpers
     # trying to connect Goodreads, which is the product's first-run path.
     #
     # Same wording as the anonymous twin above, because it is the same event.
+    #
+    # To /goodreads, not '/': for a logged-in user '/' redirects again to
+    # /home, and that extra hop consumed the flash, so this message (and the
+    # connect_retry event) never showed. /goodreads is where the button is.
     flash[:error] = "Almost there — click 'Connect with Goodreads' one more time"
-    request.redirect '/'
+    flash['fathom_event'] = 'connect_retry' # #1411
+    request.redirect '/goodreads'
   end
 end

@@ -64,6 +64,16 @@ class RodauthConfig < Rodauth::Auth
     logout_redirect '/'
     verify_account_redirect '/home'
 
+    # signup counts form submits; only a verified account is a real one. #1411
+    after_verify_account do
+      flash['fathom_event'] = 'account_verified'
+    end
+
+    # Returning account holders, by password or magic link. #1411
+    after_login do
+      flash['fathom_event'] = 'logged_in'
+    end
+
     # Session expiration: 30 min inactivity, 24 hour max lifetime
     session_inactivity_timeout 1800
     max_session_lifetime 86_400

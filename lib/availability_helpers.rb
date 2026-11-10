@@ -87,7 +87,10 @@ module AvailabilityHelpers
           url: copy.url,
           icon: '/svg/book.svg',
           label: action == :reserve ? 'Reserve' : action_label(copy),
-          class: 'bg-mauve-950 hover:bg-mauve-900'
+          class: 'bg-mauve-950 hover:bg-mauve-900',
+          # The click out to OverDrive is the last thing Yonderbook sees before
+          # someone borrows: the north star in gtm.md. #1411
+          fathom_click: action == :reserve ? 'hold_clicked' : 'borrow_clicked'
         }
       }
     end

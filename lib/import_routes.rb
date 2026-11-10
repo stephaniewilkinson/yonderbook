@@ -28,6 +28,7 @@ module ImportRoutes
       count = import_csv_upload request
       request.redirect '/import' unless count
 
+      flash['fathom_event'] = 'csv_uploaded'
       flash[:notice] = "Imported #{count} book#{'s' unless count == 1} from your Goodreads export."
       request.redirect '/goodreads/shelves'
     end

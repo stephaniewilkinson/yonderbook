@@ -60,6 +60,8 @@ module RouteHelpers
   rescue Overdrive::ApiError => e
     Sentry.capture_exception(e)
     flash[:error] = 'We could not reach OverDrive to look up libraries. Please try again in a little while.'
+    # Early warning for the scraped library lookup. #1411
+    flash['fathom_event'] = 'library_lookup_failed'
     request.redirect fallback || (@shelf_name ? "/goodreads/shelves/#{@shelf_name}/overdrive" : '/goodreads/shelves')
   end
 
