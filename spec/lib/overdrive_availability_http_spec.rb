@@ -238,4 +238,35 @@ describe 'Overdrive availability over HTTP' do
       assert_equal 'comic', Overdrive.format_label('comic')
     end
   end
+
+  # #1422. The daily alert check asks only for availability of products it
+  # already knows: no title search, keyed by lowercased reserve id.
+  describe '#availability_for' do
+    it 'reads availability for known products without searching' do
+      stub_token
+      stub_library
+      stub_availability copies_available: 2, copies_owned: 4
+
+      found = Overdrive.new([], '1135').availability_for [RESERVE_ID.downcase]
+
+      assert_equal({RESERVE_ID.downcase => {available: 2, owned: 4}}, found)
+      assert_not_requested :get, %r{/v1/collections/.*/products}
+    end
+
+    it 'leaves out a library that answers with an error' do
+      stub_token
+      stub_library
+      stub_availability status: 500
+
+      assert_empty Overdrive.new([], '1135').availability_for([RESERVE_ID.downcase])
+    end
+
+    it 'asks for nothing when there is nothing to check' do
+      stub_token
+      stub_library
+
+      assert_empty Overdrive.new([], '1135').availability_for([])
+      assert_not_requested :get, %r{/availability}
+    end
+  end
 end

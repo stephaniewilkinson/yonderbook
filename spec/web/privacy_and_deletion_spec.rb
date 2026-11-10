@@ -37,7 +37,9 @@ describe 'privacy, terms and deleting an account' do
       goodreads_connections: DB[:goodreads_connections].where(user_id: id).count,
       imported_books: DB[:imported_books].where(user_id: id).count,
       bookmooch_imports: DB[:bookmooch_imports].where(user_id: id).count,
-      account_password_reset_keys: DB[:account_password_reset_keys].where(id:).count
+      account_password_reset_keys: DB[:account_password_reset_keys].where(id:).count,
+      alert_subscriptions: DB[:alert_subscriptions].where(user_id: id).count,
+      watched_titles: DB[:watched_titles].where(user_id: id).count
     }
   end
 
@@ -48,6 +50,8 @@ describe 'privacy, terms and deleting an account' do
     DB[:bookmooch_imports].insert(user_id: id, isbn: '9780062316097')
     # A leftover reset link: the row that would block the delete without the hook.
     DB[:account_password_reset_keys].insert(id:, key: 'k', deadline: Time.now + 3600)
+    DB[:alert_subscriptions].insert(user_id: id, unsubscribe_token: "t#{id}")
+    DB[:watched_titles].insert(user_id: id, consortium_id: '1135', reserve_id: 'r', title: 'T')
     password_login email, password
     visit '/import'
     attach_file 'library', File.expand_path('../fixtures/goodreads_export.csv', __dir__)

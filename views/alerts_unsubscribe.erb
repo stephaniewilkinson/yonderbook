@@ -1,0 +1,23 @@
+<% content_for :title, "Availability Alerts" %>
+<% content_for :robots, 'noindex' %>
+<%# #1422. GET shows a button rather than unsubscribing: mail scanners open
+    links, and would turn alerts off by themselves. %>
+
+<div class="max-w-md mx-auto text-center">
+  <h1 class="font-display text-3xl sm:text-4xl font-medium tracking-tight text-mauve-950 mb-4">Availability alerts</h1>
+
+  <% if @unsubscribed %>
+    <p class="text-lg text-mauve-700 mb-6">Alerts are off, and the list they were watching has been deleted. You won't get any more of these emails.</p>
+    <a href="/" class="inline-flex items-center px-6 py-3 bg-mauve-950/10 text-mauve-950 font-medium rounded-full hover:bg-mauve-950/20 transition-colors">Back to Yonderbook</a>
+  <% elsif request.post? %>
+    <p class="text-lg text-mauve-700 mb-6">Those alerts were already off.</p>
+    <a href="/" class="inline-flex items-center px-6 py-3 bg-mauve-950/10 text-mauve-950 font-medium rounded-full hover:bg-mauve-950/20 transition-colors">Back to Yonderbook</a>
+  <% else %>
+    <p class="text-lg text-mauve-700 mb-6">Stop emailing me when books on my list become available.</p>
+    <form method="post" action="/alerts/unsubscribe/<%= @unsubscribe_token %>">
+      <button type="submit" id="alerts-unsubscribe" class="inline-flex items-center px-6 py-3 bg-mauve-950 text-white font-medium rounded-full hover:bg-mauve-900 transition-colors">
+        Turn off alerts
+      </button>
+    </form>
+  <% end %>
+</div>

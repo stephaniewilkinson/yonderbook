@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'cgi/escape' # CGI.escapeHTML; Ruby 4 keeps only this part of cgi
+
 # Branded HTML email templates for Rodauth transactional emails
 module EmailTemplates
   COLORS = {button_bg: '#211d21', button_hover: '#312c31', body_text: '#575057', light_text: '#857a86', border: '#d6d0d6', background: '#fbfafb'}.freeze
@@ -55,6 +57,52 @@ module EmailTemplates
               </td></tr>
               <tr><td align="center" style="padding-top:24px;">
                 <p style="margin:0;font-family:system-ui,sans-serif;font-size:12px;color:#{COLORS[:light_text]};">You're receiving this because you signed up at yonderbook.com.</p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body>
+      </html>
+    HTML
+  end
+
+  # Availability alert (#1422). Titles and authors come from Goodreads or an
+  # uploaded CSV, so every value is escaped: this HTML is built by
+  # interpolation, not by the escaping view layer.
+  def availability_alert_body books, unsubscribe_url:
+    h = ->(value) { CGI.escapeHTML value.to_s }
+    items = books.map do |book|
+      links = book[:copies].map do |copy|
+        %(<a href="#{h[copy[:url]]}" style="color:#{COLORS[:button_bg]};font-weight:500;">#{h["#{copy[:format]} at #{copy[:library_name]}"]}</a>)
+      end
+      <<~ITEM
+        <tr><td style="padding:0 0 18px;">
+          <p style="margin:0;font-family:system-ui,sans-serif;font-size:16px;font-weight:600;color:#{COLORS[:button_bg]};">#{h[book[:title]]}</p>
+          <p style="margin:2px 0 6px;font-family:system-ui,sans-serif;font-size:14px;color:#{COLORS[:light_text]};">#{h[book[:author]]}</p>
+          <p style="margin:0;font-family:system-ui,sans-serif;font-size:14px;line-height:22px;">#{links.join(' &middot; ')}</p>
+        </td></tr>
+      ITEM
+    end
+    <<~HTML
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"></head>
+      <body style="margin:0;padding:0;background-color:#{COLORS[:background]};font-family:system-ui,sans-serif;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#{COLORS[:background]};">
+          <tr><td align="center" style="padding:40px 20px;">
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+              <tr><td align="center" style="padding-bottom:32px;">
+                <span style="font-family:system-ui,sans-serif;font-size:24px;font-weight:600;color:#{COLORS[:button_bg]};">Yonderbook</span>
+              </td></tr>
+              <tr><td style="background-color:#ffffff;border:1px solid #{COLORS[:border]};border-radius:8px;padding:40px 32px;">
+                <h1 style="margin:0 0 8px;font-family:system-ui,sans-serif;font-size:22px;font-weight:600;color:#{COLORS[:button_bg]};">Available to borrow now</h1>
+                <p style="margin:0 0 24px;font-family:system-ui,sans-serif;font-size:16px;line-height:24px;color:#{COLORS[:body_text]};">#{books.one? ? 'A book' : 'Books'} on your list had no copy free when you last checked. #{books.one? ? 'It has' : 'They have'} one now. Copies go quickly, so borrow soon.</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  #{items.join}
+                </table>
+              </td></tr>
+              <tr><td align="center" style="padding-top:24px;">
+                <p style="margin:0;font-family:system-ui,sans-serif;font-size:12px;line-height:18px;color:#{COLORS[:light_text]};">You're receiving this because you turned on availability alerts at yonderbook.com.<br><a href="#{h[unsubscribe_url]}" style="color:#{COLORS[:light_text]};">Turn off these emails</a></p>
               </td></tr>
             </table>
           </td></tr>

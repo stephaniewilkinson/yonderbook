@@ -28,6 +28,7 @@
         <li><strong class="text-mauve-950">Your Goodreads connection</strong>, if you make one: your Goodreads user ID and the access token Goodreads issues, so we can read your shelves.</li>
         <li><strong class="text-mauve-950">A library you import</strong> from a Goodreads CSV export: each book's title, author, ISBN, publication year, your rating, the date you added it and its shelves. We keep it so you don't have to upload it again.</li>
         <li><strong class="text-mauve-950">Which books you've sent to BookMooch</strong>, if you use that feature, so we don't send the same ones twice.</li>
+        <li><strong class="text-mauve-950">Availability alerts</strong>, if you turn them on: the libraries you picked, and the copies we're watching for you (title, author, format, library and OverDrive's id for it), so we can check them each morning. Turning alerts off deletes all of it.</li>
       </ul>
     </section>
 
@@ -53,9 +54,9 @@
         <li><strong class="text-mauve-950">Render</strong> hosts the site and the database. Their request logs include IP addresses for a limited time.</li>
         <li><strong class="text-mauve-950">Fathom Analytics</strong> counts page views and a few actions (like checking availability) in aggregate, without cookies or personal data.</li>
         <li><strong class="text-mauve-950">Sentry</strong> receives error reports. They can include your account number, but are configured not to include personal details.</li>
-        <li><strong class="text-mauve-950">Resend</strong> sends our emails (verification, password reset, sign-in links), so it receives your email address.</li>
+        <li><strong class="text-mauve-950">Resend</strong> sends our emails (verification, password reset, sign-in links, and availability alerts if you turn them on), so it receives your email address and, for alerts, the books in the email.</li>
         <li><strong class="text-mauve-950">Tawk.to</strong> runs the chat widget on every page. It sets cookies, and receives whatever you write in a chat.</li>
-        <li><strong class="text-mauve-950">OverDrive</strong> receives the titles and authors we search for, and the zip code you enter to find libraries.</li>
+        <li><strong class="text-mauve-950">OverDrive</strong> receives the titles and authors we search for, the zip code you enter to find libraries, and, for alerts, the ids of the copies we're watching.</li>
         <li><strong class="text-mauve-950">Goodreads</strong>, if you connect it: you sign in on their site, and we request your shelves from them.</li>
         <li><strong class="text-mauve-950">BookMooch</strong>, if you use it: we send them your BookMooch sign-in and the books to add.</li>
         <li><strong class="text-mauve-950">Open Library</strong> receives ISBNs when we look up other editions for BookMooch.</li>
@@ -69,6 +70,7 @@
       <ul class="list-disc list-outside pl-5 space-y-2">
         <li><strong class="text-mauve-950">Everything:</strong> sign in and go to <a class="text-mauve-950 underline hover:no-underline" href="/account">Account</a>, then <em>Delete my account</em>. That removes your account and everything listed above, immediately.</li>
         <li><strong class="text-mauve-950">Just Goodreads:</strong> disconnect it from <a class="text-mauve-950 underline hover:no-underline" href="/connections">Connections</a>.</li>
+        <li><strong class="text-mauve-950">Just alerts:</strong> turn them off from <a class="text-mauve-950 underline hover:no-underline" href="/account">Account</a> or the link in any alert email.</li>
         <li><strong class="text-mauve-950">Just an imported library:</strong> remove it from the <a class="text-mauve-950 underline hover:no-underline" href="/import">import page</a>.</li>
       </ul>
       <p class="mt-3">Error reports and logs already sent to the services above expire on their own schedules.</p>

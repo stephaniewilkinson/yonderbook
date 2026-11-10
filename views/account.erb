@@ -41,6 +41,20 @@
       </div>
     <% end %>
 
+    <%# Availability alerts (#1422) %>
+    <% if (subscription = AlertSubscription.for_user(@user.id)) %>
+      <div class="rounded-xl bg-mauve-950/[.025] p-4">
+        <p class="text-sm font-semibold text-mauve-950 mb-1">Availability alerts are on</p>
+        <p class="text-sm text-mauve-700 mb-3">Checked every morning at <%= sentence(subscription.library_list.map(&:last)) %>.</p>
+        <form method="post" action="/alerts/off">
+          <%== csrf_tag('/alerts/off') %>
+          <button type="submit" class="inline-flex items-center px-4 py-2 bg-mauve-950/10 text-mauve-950 font-medium text-sm rounded-full hover:bg-mauve-950/20 transition-colors duration-200">
+            Turn off alerts
+          </button>
+        </form>
+      </div>
+    <% end %>
+
     <div class="pt-4 space-y-3">
       <a href="<%= rodauth.reset_password_request_path %>"
          class="w-full inline-flex items-center justify-center px-6 py-3 bg-mauve-950/10 text-mauve-950 font-medium text-lg rounded-full hover:bg-mauve-950/20 transition-colors duration-200">
