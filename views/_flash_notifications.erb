@@ -1,10 +1,9 @@
 <!-- Flash Messages -->
-<%# The app sets these as both flash[:error] and flash['error'], and a symbol
-    key can reach the next request still a symbol, so read either. Reading
-    only the string key dropped every flash[:error] message after a redirect
-    in the anonymous flow, e.g. "You need to enter a zip code". %>
-<% error = flash['error'] || flash[:error] %>
-<% notice = flash['notice'] || flash[:notice] %>
+<%# String keys only. Roda keeps a flash key's type across the redirect, so a
+    message set as a symbol key was never found here, and many were silently
+    dropped (#1428). spec/web/flash_keys_spec.rb keeps symbol keys out. %>
+<% error = flash['error'] %>
+<% notice = flash['notice'] %>
 <% if error || notice %>
   <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6 z-50">
     <div class="flex w-full flex-col items-center space-y-4 sm:items-end">

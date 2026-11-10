@@ -65,7 +65,7 @@ module SearchRoutes
       @shelf_name = Cache.get session, :shelf_name
       @local_libraries = Cache.get session, :libraries
       unless @local_libraries
-        flash[:error] = @shelf_name ? 'Please enter your zip code first' : 'Please choose a shelf first'
+        flash['error'] = @shelf_name ? 'Please enter your zip code first' : 'Please choose a shelf first'
         request.redirect @shelf_name ? zip_form_path : '/search/shelves'
       end
       @availability_action = '/search/availability'
@@ -101,7 +101,7 @@ module SearchRoutes
         # authenticated page does.
         @shelf_name = Cache.get session, :shelf_name
         libraries = Cache.get session, :libraries
-        flash[:error] = libraries ? 'Please choose a library first' : 'Please choose a shelf first'
+        flash['error'] = libraries ? 'Please choose a library first' : 'Please choose a shelf first'
         request.redirect libraries ? '/search/library' : '/search/shelves'
       end
       split_titles_by_availability
@@ -117,7 +117,7 @@ module SearchRoutes
     libraries = chosen_libraries request
     reject_library request, 'Please choose at least one library' if libraries.empty?
     unless @shelf_name
-      flash[:error] = 'Please choose a shelf first'
+      flash['error'] = 'Please choose a shelf first'
       request.redirect '/search/shelves'
     end
 
@@ -141,7 +141,7 @@ module SearchRoutes
   end
 
   def reject_library request, message
-    flash[:error] = message
+    flash['error'] = message
     request.redirect '/search/library'
   end
 
@@ -152,7 +152,7 @@ module SearchRoutes
 
   # event: a Fathom event to report on the page the redirect lands on (#1411).
   def reject_zip request, message, to: zip_form_path, event: nil
-    flash[:error] = message
+    flash['error'] = message
     flash['fathom_event'] = event if event
     request.redirect to
   end

@@ -45,7 +45,7 @@ module AlertRoutes
     request.post 'off' do
       check_csrf!
       AvailabilityAlerts.unsubscribe @user.id
-      flash[:notice] = 'Alerts are off, and the list they were watching has been deleted.'
+      flash['notice'] = 'Alerts are off, and the list they were watching has been deleted.'
       request.redirect(request.params['from'] == 'results' ? '/goodreads/availability' : '/account')
     end
   end
@@ -55,7 +55,7 @@ module AlertRoutes
     titles = Cache.get session, :titles
     libraries = Cache.get session, :availability_libraries
     unless titles && libraries
-      flash[:error] = 'Those results have expired. Check your libraries again, then turn on alerts.'
+      flash['error'] = 'Those results have expired. Check your libraries again, then turn on alerts.'
       request.redirect '/goodreads/shelves'
     end
 
@@ -65,7 +65,7 @@ module AlertRoutes
                                  books: Cache.get(session, :availability_book_info),
                                  shelf_name: Cache.get(session, :shelf_name)
     flash['fathom_event'] = 'notify_subscribed'
-    flash[:notice] = "Alerts are on. We'll email you when a book on your list has a copy free."
+    flash['notice'] = "Alerts are on. We'll email you when a book on your list has a copy free."
     request.redirect '/goodreads/availability'
   end
 

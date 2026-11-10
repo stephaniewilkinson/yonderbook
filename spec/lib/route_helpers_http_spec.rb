@@ -64,7 +64,7 @@ describe 'RouteHelpers over HTTP' do
       helper.fetch_local_libraries(request, '98101', fallback: '/search/library')
 
       assert_equal '/search/library', request.redirected_to
-      assert_includes helper.flash[:error], 'could not reach OverDrive'
+      assert_includes helper.flash['error'], 'could not reach OverDrive'
     end
 
     it 'falls back to the shelf list when no fallback path is given' do
