@@ -112,6 +112,17 @@ class RodauthConfig < Rodauth::Auth
           Sentry.capture_exception(e)
         end
       end
+
+      # The same for a library uploaded before signing up (#1414). It is only in
+      # the session cache, which the login after verification replaces, so this
+      # is the one moment it can be kept.
+      if (library = Cache.get(session, :anonymous_library))
+        begin
+          ImportedBook.replace_library(account[account_id_column], library, max: ImportRoutes::MAX_IMPORT_BOOKS)
+        rescue StandardError => e
+          Sentry.capture_exception(e)
+        end
+      end
     end
 
     # Email configuration

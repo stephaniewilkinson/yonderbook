@@ -16,7 +16,7 @@
         Connect your Goodreads shelf, pick your library, and find out what you can borrow right now. No account needed.
       </p>
 
-      <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      <div class="flex flex-col sm:flex-row sm:flex-wrap gap-4 items-start sm:items-center">
         <%# Links to /connect rather than a pre-fetched authorize URL. Building
             one here would mean writing to the session on a route that runs
             before the session id exists -- every visitor would share the cache
@@ -29,6 +29,12 @@
         <a href="/connect" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-indigo-800 to-violet-800 text-white font-medium text-lg rounded-full shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
           <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
           Connect with Goodreads
+        </a>
+
+        <%# The route that keeps working while the Goodreads API fails, and needs
+            no account (#1414). %>
+        <a href="/import" class="inline-flex items-center justify-center px-8 py-4 glass-panel text-mauve-950 font-medium text-lg rounded-full hover:bg-white/80 transition-colors duration-200">
+          Upload a CSV export
         </a>
 
         <a href="/authenticate" class="inline-flex items-center justify-center px-8 py-4 glass-panel text-mauve-950 font-medium text-lg rounded-full hover:bg-white/80 transition-colors duration-200">
