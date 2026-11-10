@@ -95,6 +95,15 @@ describe 'Fathom funnel events' do
     end
   end
 
+  # The logged-in Connect button links straight to goodreads.com, not /connect,
+  # so the script's /connect click rule never sees it. #1411
+  it 'marks the logged-in Connect button' do
+    html = File.read(File.expand_path('../../views/connect_goodreads.erb', __dir__))
+
+    assert_includes html, 'data-fathom-click="connect_started"'
+    assert_includes File.read(File.expand_path('../../assets/js/fathom-events.js', __dir__)), 'data-fathom-click'
+  end
+
   it 'marks the library form so submitting it is reported' do
     html = File.read(File.expand_path('../../views/library.erb', __dir__))
 
