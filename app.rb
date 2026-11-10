@@ -324,22 +324,28 @@ class App < Roda
             end
           end
 
+          # route: GET /goodreads/shelves/:id/overdrive/continue
+          # Waits for the shelf on the loading page, then runs the check (ShelfLoading).
+          r.get('overdrive', 'continue') { continue_availability r, progress_path: '/goodreads/availability/progress', libraries_path: '/libraries' }
+
           r.is 'overdrive' do
-            # Renders a zip code form and nothing else. Deliberately does NOT
-            # load the shelf: doing so timed out on large shelves (#1333), and
-            # the "Get Books" link on the shelf index comes straight here, so
-            # nothing has warmed the cache yet.
-            r.get(true) { view 'shelves/overdrive' } # route: GET /goodreads/shelves/:id/overdrive
+            # The zip code form. Never loads the shelf inline -- that timed out on
+            # large shelves (#1333) -- but starts it loading in the background, so
+            # it is usually in by the time libraries are picked.
+            r.get true do # route: GET /goodreads/shelves/:id/overdrive
+              preload_shelf r
+              view 'shelves/overdrive'
+            end
             r.post do # route: POST /goodreads/shelves/:id/overdrive?consortium=1047
-              @book_info ||= fetch_shelf_blocking(@shelf_name)
               libraries = chosen_libraries r
               if libraries.empty?
                 flash[:error] = 'Please choose at least one library'
                 r.redirect "/goodreads/shelves/#{@shelf_name}/overdrive"
               end
+              book_info = shelf_or_wait r, libraries, "/goodreads/shelves/#{@shelf_name}/overdrive/continue"
               # The OverDrive check does not fit in a request (#1347), so hand it
               # to the WebSocket and send the browser somewhere that can wait.
-              queue_availability_check @book_info, libraries
+              queue_availability_check book_info, libraries
               r.redirect '/goodreads/availability/progress'
             end
           end

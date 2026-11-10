@@ -22,8 +22,12 @@ module SearchRoutes
       Cache.set session, shelf_name: @shelf_name
 
       # route: GET /search/shelves/:name
+      # Loaded in the background like the signed-in stats page: a large
+      # shelf fetched inline ran past the request timeout.
       request.get true do
-        @book_info = anonymous_shelf_books
+        @book_info = anonymous_ready_books || load_or_start_shelf_import(@shelf_name, return_to: request.path)
+        next view('shelves/loading') unless @book_info
+
         @histogram_dataset = Goodreads.plot_books_over_time @book_info
         @ratings = Goodreads.rating_stats @book_info
         view 'shelves/show'
@@ -31,10 +35,12 @@ module SearchRoutes
 
       # route: GET /search/shelves/:name/overdrive
       #
-      # Renders a zip code form and nothing else, so it deliberately does not
-      # load the shelf -- doing that is what timed out the authenticated
-      # equivalent in #1333.
+      # The zip code form. Never loads the shelf inline -- that is what timed
+      # out the authenticated equivalent in #1333 -- but starts it loading in
+      # the background, so it is usually in by the time libraries are picked.
       request.get 'overdrive' do
+        @book_info = anonymous_ready_books
+        preload_shelf request
         @library_action = '/search/library'
         view 'shelves/overdrive'
       end
@@ -69,22 +75,14 @@ module SearchRoutes
 
   def anonymous_availability_routes request
     # route: POST /search/availability?consortium=1047
-    request.post true do
-      check_csrf!
-      @shelf_name = Cache.get session, :shelf_name
-      libraries = chosen_libraries request
-      reject_library request, 'Please choose at least one library' if libraries.empty?
+    request.post(true) { start_anonymous_availability request }
 
-      book_info = anonymous_shelf_books
-      if book_info.nil? || book_info.empty?
-        flash[:error] = "We couldn't read that shelf from Goodreads. Please pick a shelf and try again."
-        request.redirect '/search/shelves'
-      end
-
-      # Same reason as the authenticated twin: the OverDrive check does not fit
-      # in a request (#1347), so the WebSocket runs it.
-      queue_availability_check book_info, libraries
-      request.redirect '/search/availability/progress'
+    # route: GET /search/availability/continue
+    # Waits for the shelf on the loading page, then runs the check (ShelfLoading).
+    request.get 'continue' do
+      @shelf_name = Cache.get(session, :shelf_name) or request.redirect('/search/shelves')
+      @book_info = anonymous_ready_books
+      continue_availability request, progress_path: '/search/availability/progress', libraries_path: '/search/library'
     end
 
     # route: GET /search/availability/progress
@@ -113,12 +111,37 @@ module SearchRoutes
     end
   end
 
-  # An uploaded export wins over a Goodreads connection, as it does for an
-  # account: the visitor chose it, and it never touches the deprecated API.
-  def anonymous_shelf_books
+  def start_anonymous_availability request
+    check_csrf!
+    @shelf_name = Cache.get session, :shelf_name
+    libraries = chosen_libraries request
+    reject_library request, 'Please choose at least one library' if libraries.empty?
+    unless @shelf_name
+      flash[:error] = 'Please choose a shelf first'
+      request.redirect '/search/shelves'
+    end
+
+    @book_info = anonymous_ready_books
+    book_info = shelf_or_wait request, libraries, '/search/availability/continue'
+    if book_info.empty?
+      flash[:error] = "We couldn't read that shelf from Goodreads. Please pick a shelf and try again."
+      request.redirect '/search/shelves'
+    end
+
+    # Same reason as the authenticated twin: the OverDrive check does not fit
+    # in a request (#1347), so the WebSocket runs it.
+    queue_availability_check book_info, libraries
+    request.redirect '/search/availability/progress'
+  end
+
+  # The shelf if it is already to hand, or nil. An uploaded export wins over a
+  # Goodreads connection, as it does for an account: the visitor chose it, and
+  # it never touches the deprecated API. Otherwise it is whatever is cached or
+  # a background fetch has finished; nothing here fetches from Goodreads.
+  def anonymous_ready_books
     return GoodreadsCsv.books_on(anonymous_library, @shelf_name) if anonymous_library
 
-    cached_or_fetch(@shelf_name.to_sym) { Goodreads.get_books(@shelf_name, @goodreads_user_id, @anon_access_token) }
+    Cache.get(session, @shelf_name.to_sym) || load_background_shelf_data
   end
 
   def reject_library request, message

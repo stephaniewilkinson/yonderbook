@@ -53,8 +53,6 @@ module ImportRoutes
     end
   end
 
-  def shelves_path = @user ? '/goodreads/shelves' : '/search/shelves'
-
   # Reads an uploaded Goodreads CSV export and replaces the account's library.
   # Returns the number of books stored, or nil after setting a flash error.
   def import_csv_upload request
