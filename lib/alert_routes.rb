@@ -59,9 +59,13 @@ module AlertRoutes
       request.redirect '/goodreads/shelves'
     end
 
-    AvailabilityAlerts.subscribe @user.id, titles: titles, libraries: libraries, shelf_name: Cache.get(session, :shelf_name)
+    AvailabilityAlerts.subscribe @user.id,
+                                 titles: titles,
+                                 libraries: libraries,
+                                 books: Cache.get(session, :availability_book_info),
+                                 shelf_name: Cache.get(session, :shelf_name)
     flash['fathom_event'] = 'notify_subscribed'
-    flash[:notice] = "Alerts are on. We'll email you when a book on your waitlist has a copy free."
+    flash[:notice] = "Alerts are on. We'll email you when a book on your list has a copy free."
     request.redirect '/goodreads/availability'
   end
 

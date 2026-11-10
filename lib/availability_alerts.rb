@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require_relative 'library_additions'
 
 # Availability alerts (#1422): email a reader when a book on their list that
 # their library owns, but had no copy free, comes free.
@@ -15,13 +16,21 @@ module AvailabilityAlerts
   # Turns alerts on for an account from the results it was just shown, or
   # replaces what it was watching. `titles` are Overdrive::Title copies, whose
   # `library` is the library's name; `libraries` is [[consortium_id, name], ...]
-  # as checked. Only copies a library owns are watched: one it doesn't own
-  # can't come free (that's the weekly "library added it" check, PR 2).
-  # Returns the number of copies watched.
-  def subscribe user_id, titles:, libraries:, shelf_name: nil
+  # as checked. Copies a library owns are watched; books on the list that no
+  # library had (`books`, the shelf as searched) are kept for the weekly
+  # search instead. Returns the number of copies watched.
+  def subscribe user_id, titles:, libraries:, books: [], shelf_name: nil
     rows = watch_rows user_id, titles, libraries
+    wanted = LibraryAdditions.wanted_rows user_id, books, titles
     DB.transaction do
-      attributes = {libraries: JSON.generate(libraries), shelf_name: shelf_name, enabled: true, updated_at: Time.now}
+      attributes = {
+        libraries: JSON.generate(libraries),
+        shelf_name: shelf_name,
+        enabled: true,
+        updated_at: Time.now,
+        # The results being saved are a search, just now.
+        last_searched_at: Time.now
+      }
       if (subscription = AlertSubscription.for_user user_id)
         subscription.update attributes
       else
@@ -29,6 +38,8 @@ module AvailabilityAlerts
       end
       WatchedTitle.where(user_id: user_id).delete
       WatchedTitle.dataset.multi_insert rows unless rows.empty?
+      WantedBook.where(user_id: user_id).delete
+      WantedBook.dataset.multi_insert wanted unless wanted.empty?
     end
     rows.length
   end
@@ -61,6 +72,7 @@ module AvailabilityAlerts
     DB.transaction do
       AlertSubscription.where(user_id: user_id).delete
       WatchedTitle.where(user_id: user_id).delete
+      WantedBook.where(user_id: user_id).delete
     end
   end
 
@@ -72,31 +84,47 @@ module AvailabilityAlerts
   # Checks every subscription that is due. One reader's failure must not stop
   # the rest, so each is rescued and reported on its own. Returns how many
   # copies readers were emailed about.
-  def run_due now: Time.now, availability: method(:overdrive_availability), deliver: method(:deliver)
+  def run_due now: Time.now,
+              availability: method(:overdrive_availability),
+              deliver: method(:deliver),
+              search: LibraryAdditions.method(:overdrive_search)
     AlertSubscription.due(now: now).all.sum do |subscription|
-      check(subscription, now: now, availability: availability, deliver: deliver)
+      check(subscription, now: now, availability: availability, deliver: deliver, search: search)
     rescue StandardError => e
       Sentry.capture_exception e
       0
     end
   end
 
-  # Re-checks one subscription and emails it about copies that came free.
-  # Returns how many copies the email covered (0 when none was sent).
+  # Re-checks one subscription and emails it about copies that came free:
+  # watched copies that went from none free to some and, when the weekly
+  # search is due, copies of wanted books a library has added that are free
+  # now. Returns how many copies the email covered (0 when none was sent).
   #
   # The email goes out before anything is saved: if sending fails, nothing
   # changes and tomorrow's check finds the same copies newly free and tries
   # again, rather than having already recorded them as seen.
-  def check subscription, now: Time.now, availability: method(:overdrive_availability), deliver: method(:deliver)
+  def check subscription,
+            now: Time.now,
+            availability: method(:overdrive_availability),
+            deliver: method(:deliver),
+            search: LibraryAdditions.method(:overdrive_search)
     updates, newly_free = refreshed_copies subscription, availability
-    sent = newly_free.any? && deliver.call(subscription, newly_free)
+    searched = LibraryAdditions.due? subscription, now
+    additions, found_wanted = searched ? LibraryAdditions.find(subscription, search) : [[], []]
+    announce = newly_free + additions.select { |row| row.copies_available.positive? }
+    sent = announce.any? && deliver.call(subscription, announce)
 
     DB.transaction do
       updates.each { |row, counts| row.update counts.merge(last_checked_at: now) }
       WatchedTitle.where(id: newly_free.map(&:id)).update(notified_at: now) if sent
-      subscription.update({last_checked_at: now}.merge(sent ? {last_emailed_at: now} : {}))
+      LibraryAdditions.save additions, now: now, notified: sent
+      WantedBook.where(id: found_wanted).delete
+      subscription.update(
+        {last_checked_at: now}.merge(sent ? {last_emailed_at: now} : {}).merge(searched ? {last_searched_at: now} : {})
+      )
     end
-    sent ? newly_free.length : 0
+    sent ? announce.length : 0
   end
 
   # [[row, {copies_available:, copies_owned:}], ...] for every copy OverDrive
