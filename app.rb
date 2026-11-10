@@ -199,9 +199,12 @@ class App < Roda
 
     r.on('search') { handle_search_routes(r) }
 
-    r.get('about') { view 'about' } # route: GET /about
-    r.get('faq') { view 'faq' } # route: GET /faq
-    r.get('how-it-works') { view 'how_it_works' } # route: GET /how-it-works
+    # route: GET /about
+    # route: GET /faq
+    # route: GET /how-it-works
+    # route: GET /privacy
+    # route: GET /terms
+    r.get(%w[about faq how-it-works privacy terms]) { |page| view page.tr('-', '_') }
 
     r.on 'account' do
       # route: POST /account/disconnect-goodreads
