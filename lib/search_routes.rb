@@ -13,7 +13,7 @@ module SearchRoutes
   def anonymous_shelf_routes request
     # route: GET /search/shelves
     request.get true do
-      @shelves = Goodreads.fetch_shelves @goodreads_user_id
+      @shelves = anonymous_library ? GoodreadsCsv.shelf_counts(anonymous_library) : Goodreads.fetch_shelves(@goodreads_user_id)
       view 'search/shelves'
     end
 
@@ -113,7 +113,11 @@ module SearchRoutes
     end
   end
 
+  # An uploaded export wins over a Goodreads connection, as it does for an
+  # account: the visitor chose it, and it never touches the deprecated API.
   def anonymous_shelf_books
+    return GoodreadsCsv.books_on(anonymous_library, @shelf_name) if anonymous_library
+
     cached_or_fetch(@shelf_name.to_sym) { Goodreads.get_books(@shelf_name, @goodreads_user_id, @anon_access_token) }
   end
 

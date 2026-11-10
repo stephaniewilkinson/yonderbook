@@ -46,10 +46,20 @@ module RouteHelpers
     true
   end
 
-  def require_goodreads_session request
-    return if goodreads_session_present?
+  # A visitor's uploaded library, held in the session cache (#1414). Only call
+  # this after the session id is assigned (app.rb), never from the root route.
+  def anonymous_library
+    return @anonymous_library if defined?(@anonymous_library)
 
-    flash[:error] = 'Please connect your Goodreads account first'
+    @anonymous_library = @user ? nil : Cache.get(session, :anonymous_library)
+  end
+
+  # The anonymous flow runs on either a Goodreads connection or an uploaded
+  # CSV export held in the session (#1414).
+  def require_goodreads_session request
+    return if anonymous_library || goodreads_session_present?
+
+    flash[:error] = 'Connect Goodreads or upload a CSV export to get started'
     request.redirect '/'
   end
 

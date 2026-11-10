@@ -35,10 +35,11 @@ describe 'Goodreads CSV import' do
     assert_current_path '/goodreads/shelves' unless rejected
   end
 
-  it 'requires a login' do
+  # #1414: no account needed any more; see anonymous_import_spec.rb.
+  it 'is open without a login' do
     visit '/import'
 
-    refute_text 'How to get your export'
+    assert_text 'How to get your export'
   end
 
   it 'stores the library and sends the user to their shelves' do

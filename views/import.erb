@@ -13,6 +13,10 @@
     <div class="rounded-xl bg-mauve-950/[.025] p-6">
       <h6 class="text-lg font-semibold text-mauve-950 mb-2">Your imported library</h6>
       <p class="text-mauve-700 mb-4"><%= @book_count %> book<%= 's' if @book_count != 1 %> across <%= @shelf_counts.length %> shelf<%= 'ves' if @shelf_counts.length != 1 %>.</p>
+      <% unless @user %>
+        <%# #1414: an anonymous upload lives in the session cache only. %>
+        <p class="text-sm text-mauve-600 mb-4">Kept for this visit only. <a class="text-mauve-950 underline hover:no-underline" href="/sign-up">Create a free account</a> to keep it for next time.</p>
+      <% end %>
 
       <div class="flex flex-wrap gap-2 mb-6">
         <% @shelf_counts.first(8).each do |name, count| %>
@@ -21,7 +25,7 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
-        <a class="inline-flex items-center px-4 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full transition-colors duration-200" href="/goodreads/shelves">
+        <a class="inline-flex items-center px-4 py-2 bg-mauve-950 hover:bg-mauve-900 text-white text-sm font-medium rounded-full transition-colors duration-200" href="<%= @shelves_path %>">
           <img src="/svg/book.svg" alt="" class="w-4 h-4 mr-2">
           Browse your shelves
         </a>
@@ -42,6 +46,7 @@
       <li>Click <strong class="text-mauve-950">Export Library</strong> and wait a moment for Goodreads to build the file</li>
       <li>Download the CSV it offers you, then upload it here</li>
     </ol>
+    <p class="text-sm text-mauve-600 -mt-3 mb-6">Goodreads only offers the export on its website, not in the mobile app. On a phone, open goodreads.com in your browser.</p>
 
     <form action="/import" method="post" enctype="multipart/form-data">
       <%== csrf_tag('/import') %>
