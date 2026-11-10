@@ -35,8 +35,11 @@ module SiteCopy
   # Figures on the homepage stats bar. `source` is not rendered -- it records
   # where each number came from so the next person can re-check it rather than
   # guess. A number a reader can tell is invented costs more than no number.
+  #
+  # "4,800+ Readers served" was removed: its source was a Universal Analytics
+  # tag that stopped collecting on 1 July 2023, so it could not be re-checked.
+  # Fathom (since August 2026) can supply a real figure once there is history.
   STATS = [
-    {figure: '4,800+', label: 'Readers served', source: 'Google Analytics'},
     {figure: -> { years_running.to_s }, label: 'Years running', source: "derived from LAUNCH_YEAR (#{LAUNCH_YEAR})"},
     {figure: '1,000+', label: 'Libraries searchable', source: "OverDrive's consortium list"},
     {figure: '$0', label: 'Cost to readers', source: 'see FAQ, "Is Yonderbook free to use?"'}
@@ -118,9 +121,11 @@ module SiteCopy
     },
     {
       question: 'Does Yonderbook store my Goodreads data?',
-      answer: 'Only the minimum needed to provide the service: your Goodreads user ID and secure connection credentials, and only if you create an account. ' \
-              'Your book lists are fetched fresh from Goodreads each time you use Yonderbook. ' \
-              'You can disconnect Goodreads and delete everything stored at any time from your Account page.'
+      answer: 'Only what the service needs. If you create an account and connect Goodreads, we store your Goodreads user ID and connection credentials. ' \
+              'Shelves fetched from Goodreads are kept in memory for a short while during your visit, not saved. ' \
+              'If you upload a Goodreads CSV export, that library is saved to your account so you do not have to upload it again. ' \
+              'You can remove it from the import page at any time. ' \
+              'You can disconnect Goodreads and delete the stored connection from your Account page.'
     },
     {
       question: 'Which libraries does Yonderbook support?',

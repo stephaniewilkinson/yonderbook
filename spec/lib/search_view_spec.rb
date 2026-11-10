@@ -68,7 +68,7 @@ describe 'views/search.erb' do
   it 'keeps the stats bar from the marketing page' do
     html = render_search
 
-    assert_includes html, 'Readers served'
+    assert_includes html, 'Years running'
     assert_includes html, 'Libraries searchable'
   end
 

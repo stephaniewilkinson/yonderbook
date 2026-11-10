@@ -14,7 +14,7 @@
   summary_lines = [
     "There are #{@available_books.size} books available to check out right now.",
     "You can join the waiting list for #{@waitlist_books.size} books.",
-    "#{@no_isbn_books.size} books could not be matched (missing ISBN)."
+    "#{@unavailable_books.size} books aren't owned by your library."
   ]
 
   header = {
@@ -78,30 +78,6 @@
           isbn: book.isbn,
           opacity: true,
           status_label: @library_names.size > 1 ? "Not owned by #{sentence(@library_names)}" : 'Not owned by library',
-          button: {
-            url: @library_url || AvailabilityHelpers::OVERDRIVE_HOME,
-            icon_svg: search_icon,
-            label: 'Search library',
-            title: "Search your library for: #{book.title} by #{book.author}",
-            class: 'bg-mauve-700 hover:bg-mauve-800'
-          }
-        }
-      end
-    },
-    {
-      label: 'Could Not Match',
-      title: 'Could not match to library catalog',
-      color: 'mauve',
-      count: @no_isbn_books.size,
-      description: "These books are missing ISBN information in Goodreads, so we couldn't search for them in your library's catalog. Try searching for them manually on your library's website.",
-      empty_message: 'All books on your shelf have ISBN numbers!',
-      books: @no_isbn_books.map do |book|
-        {
-          image: book.image,
-          title: book.title,
-          author: book.author,
-          opacity: true,
-          status_label: 'Missing ISBN',
           button: {
             url: @library_url || AvailabilityHelpers::OVERDRIVE_HOME,
             icon_svg: search_icon,
