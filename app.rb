@@ -177,7 +177,7 @@ class App < Roda
     end
 
     r.get('check-email') do # route: GET /check-email
-      @pending_email = session.delete('pending_email') || 'your email'
+      @pending_email = session.delete('pending_email')
       view 'check-email'
     end
 

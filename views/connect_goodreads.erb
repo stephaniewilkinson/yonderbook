@@ -79,7 +79,7 @@
     <!-- Action Buttons -->
     <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
       <% if @auth_url %>
-        <a href='<%= @auth_url %>' class="inline-flex items-center px-8 py-4 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">
+        <a href='<%= @auth_url %>' data-fathom-click="connect_started" class="inline-flex items-center px-8 py-4 bg-mauve-950 text-white font-medium text-lg rounded-full hover:bg-mauve-900 transition-colors duration-200">
           <img src="/img/goodreads-icon.png" alt="Goodreads" class="w-6 h-6 mr-3 filter brightness-0 invert">
           Connect with Goodreads
           <img src="/svg/external-link.svg" alt="External link" class="w-5 h-5 ml-3 opacity-80 filter brightness-0 invert">
