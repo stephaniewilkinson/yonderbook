@@ -47,6 +47,7 @@ module OauthHelpers
     request.redirect '/search/shelves'
   rescue OAuth::Unauthorized
     flash[:error] = "Almost there — click 'Connect with Goodreads' one more time"
+    flash['fathom_event'] = 'connect_retry' # #1411
     request.redirect '/'
   end
 
@@ -65,7 +66,12 @@ module OauthHelpers
     # trying to connect Goodreads, which is the product's first-run path.
     #
     # Same wording as the anonymous twin above, because it is the same event.
+    #
+    # To /goodreads, not '/': for a logged-in user '/' redirects again to
+    # /home, and that extra hop consumed the flash, so this message (and the
+    # connect_retry event) never showed. /goodreads is where the button is.
     flash[:error] = "Almost there — click 'Connect with Goodreads' one more time"
-    request.redirect '/'
+    flash['fathom_event'] = 'connect_retry' # #1411
+    request.redirect '/goodreads'
   end
 end

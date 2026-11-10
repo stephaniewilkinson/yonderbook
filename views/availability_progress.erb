@@ -88,6 +88,7 @@
         break;
 
       case 'error':
+        if (window.fathom) window.fathom.trackEvent('availability_failed');
         showError(data.message);
         statusMessage.textContent = 'An error occurred';
         break;
@@ -95,6 +96,7 @@
   };
 
   ws.onerror = function() {
+    if (window.fathom) window.fathom.trackEvent('availability_failed');
     showError('Connection error. Please try again.');
     statusMessage.textContent = 'Connection failed';
   };

@@ -1,7 +1,9 @@
 <% content_for :robots, 'noindex' %>
 <% content_for :title, "Library Availability" %>
-<%# The north star in gtm.md: results with at least one book to borrow now. %>
-<% content_for :fathom_event, 'results_viewed' if @available_books.any? %>
+<%# results_viewed: results with at least one book to borrow now, the step
+    before borrow_clicked. results_empty: nothing to borrow now, so the two
+    together give the hit rate. #1408, #1411 %>
+<% content_for :fathom_event, @available_books.any? ? 'results_viewed' : 'results_empty' %>
 <% content_for :description, "See which books from your Goodreads list are available at your library right now. Borrow free ebooks and audiobooks via Libby." %>
 
 <%
