@@ -54,6 +54,9 @@ module RouteHelpers
     @anonymous_library = @user ? nil : Cache.get(session, :anonymous_library)
   end
 
+  # Where a reader's shelves are listed: their account, or the anonymous flow.
+  def shelves_path = @user ? '/goodreads/shelves' : '/search/shelves'
+
   # The anonymous flow runs on either a Goodreads connection or an uploaded
   # CSV export held in the session (#1414).
   def require_goodreads_session request

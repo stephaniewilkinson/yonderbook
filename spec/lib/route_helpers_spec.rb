@@ -87,11 +87,31 @@ describe RouteHelpers do
       assert_nil redirecting_helper.session['pending_import_type']
     end
 
+    # The anonymous flow loads in the background too now; its shelves live
+    # under /search.
+    it 'sends an anonymous visitor back to their own shelves when the fetch failed' do
+      Cache.set_by_id sid, goodreads_shelf_ready: true, goodreads_shelf_error: 'timed out'
+
+      assert_equal '/search/shelves', catch(:halt) { redirecting_helper.load_background_shelf_data }
+    end
+
+    # Background results are per session. Loaded for one shelf and read for
+    # another, they used to be filed under the wrong name.
+    it 'drops a finished fetch for a different shelf instead of using it' do
+      Cache.set_by_id sid, goodreads_shelf_name: 'read', goodreads_shelf_data: [{title: 'A'}], goodreads_shelf_ready: true
+      redirecting_helper.session['pending_import_type'] = 'goodreads'
+
+      assert_nil redirecting_helper.load_background_shelf_data
+      assert_nil Cache.get_by_id(sid, :goodreads_shelf_data)
+      assert_nil redirecting_helper.session['pending_import_type']
+    end
+
     # A failed fetch still marks itself ready, and the loading page used to
     # reload into itself forever because nothing read the error.
     it 'stops the loading page and says why when the fetch failed' do
       Cache.set_by_id sid, goodreads_shelf_ready: true, goodreads_shelf_error: 'timed out'
       redirecting_helper.session['pending_import_type'] = 'goodreads'
+      redirecting_helper.instance_variable_set :@user, Object.new
 
       redirected_to = catch(:halt) { redirecting_helper.load_background_shelf_data }
 
