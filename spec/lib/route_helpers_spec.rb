@@ -5,6 +5,7 @@ require 'auth'
 require 'cache'
 require 'route_helpers'
 require 'securerandom'
+require 'shelf_loading'
 
 describe RouteHelpers do
   # Create a minimal test class that includes RouteHelpers,
@@ -12,6 +13,7 @@ describe RouteHelpers do
   let(:helper) do
     klass = Class.new do
       include RouteHelpers
+      include ShelfLoading
 
       attr_accessor :session
 
@@ -60,6 +62,43 @@ describe RouteHelpers do
       helper.require_goodreads_session(request)
 
       assert_equal '12345', helper.instance_variable_get(:@goodreads_user_id)
+    end
+  end
+  describe '#load_background_shelf_data' do
+    # Real Roda redirects by throwing; this one throws too, so nothing after the
+    # redirect runs, and records where it was going.
+    let(:redirecting_helper) do
+      helper.tap do |h|
+        h.instance_variable_set :@shelf_name, 'to-read'
+        h.define_singleton_method(:request) do
+          Object.new.tap { |r| r.define_singleton_method(:redirect) { |path| throw :halt, path } }
+        end
+      end
+    end
+
+    def sid = redirecting_helper.session['session_id']
+
+    it 'hands back the books once the background fetch is in' do
+      books = [{title: 'A'}]
+      Cache.set_by_id sid, goodreads_shelf_data: books, goodreads_shelf_ready: true
+      redirecting_helper.session['pending_import_type'] = 'goodreads'
+
+      assert_equal books, redirecting_helper.load_background_shelf_data
+      assert_nil redirecting_helper.session['pending_import_type']
+    end
+
+    # A failed fetch still marks itself ready, and the loading page used to
+    # reload into itself forever because nothing read the error.
+    it 'stops the loading page and says why when the fetch failed' do
+      Cache.set_by_id sid, goodreads_shelf_ready: true, goodreads_shelf_error: 'timed out'
+      redirecting_helper.session['pending_import_type'] = 'goodreads'
+
+      redirected_to = catch(:halt) { redirecting_helper.load_background_shelf_data }
+
+      assert_equal '/goodreads/shelves', redirected_to
+      assert_includes redirecting_helper.flash[:error], 'Goodreads'
+      assert_nil redirecting_helper.session['pending_import_type'], 'a pending import would bring the loading page straight back'
+      assert_nil Cache.get_by_id(sid, :goodreads_shelf_error)
     end
   end
 end

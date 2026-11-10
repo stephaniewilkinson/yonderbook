@@ -28,6 +28,7 @@ require_relative 'lib/route_helpers'
 require_relative 'lib/search_routes'
 require_relative 'lib/secrets'
 require_relative 'lib/sentry_capture'
+require_relative 'lib/shelf_loading'
 require_relative 'lib/site_copy'
 require_relative 'lib/websockets'
 
@@ -107,6 +108,7 @@ class App < Roda
   include OauthHelpers
   include AvailabilityHelpers
   include RouteHelpers
+  include ShelfLoading
   include SearchRoutes
 
   # TODO: figure out how to reroute 404s to /
@@ -261,7 +263,10 @@ class App < Roda
           # route: GET /goodreads/shelves/:id
           r.get true do
             @book_info ||= load_or_start_shelf_import(@shelf_name)
-            view('shelves/loading') unless @book_info
+            # `next`, because `view` only renders: without it the route carried
+            # on into get_gender(nil), and the loading page never showed.
+            next view('shelves/loading') unless @book_info
+
             @women, @men, @andy = Goodreads.get_gender @book_info
             @histogram_dataset = Goodreads.plot_books_over_time @book_info
             @ratings = Goodreads.rating_stats @book_info
@@ -275,15 +280,21 @@ class App < Roda
             end
 
             # route: GET /goodreads/shelves/:id/bookmooch
+            # Loads an uncached shelf in the background, as the stats page does.
             r.get true do
-              @book_info ||= fetch_shelf_blocking(@shelf_name)
+              @book_info ||= load_or_start_shelf_import(@shelf_name, return_to: r.path)
+              next view('shelves/loading') unless @book_info
+
               @new_count, @skip_count, @no_isbn_count = bookmooch_preview(@user.id, @book_info)
               view 'shelves/bookmooch'
             end
 
             # route: POST /goodreads/shelves/:id/bookmooch?username=foo&password=baz
             r.post do
-              @book_info ||= fetch_shelf_blocking(@shelf_name)
+              # The GET above loaded the shelf, so this is only missing once the
+              # cache has expired. Send them back to load it again rather than
+              # fetching it here, where a large shelf would time out.
+              redirect_to_reload_shelf r unless @book_info
               BookmoochImport.clear_imports(@user.id) if r.params['reimport'] == '1'
               filtered = filter_already_imported_books(@user.id, @book_info)
               cache_bookmooch_params(r, filtered, @user.id, @book_info.size - filtered.size)
