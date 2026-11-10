@@ -29,6 +29,15 @@ describe 'importing a library without an account' do
     assert_text 'to-read'
   end
 
+  it 'takes a StoryGraph export the same way' do
+    upload fixture('storygraph_export.csv')
+
+    assert_current_path '/search/shelves'
+    assert_text 'Imported 3 books'
+    assert_text 'to-read'
+    assert_text 'currently-reading'
+  end
+
   it 'opens an uploaded shelf without asking Goodreads for anything' do
     upload fixture('goodreads_export.csv')
     visit '/search/shelves/to-read'

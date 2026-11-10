@@ -1,10 +1,10 @@
-<% content_for :title, "Import Your Goodreads Library" %>
-<% content_for :description, "Upload your Goodreads CSV export to find your books free at the library. No Goodreads connection needed." %>
+<% content_for :title, "Import Your Library" %>
+<% content_for :description, "Upload a Goodreads or StoryGraph CSV export to find your books free at the library. No Goodreads connection needed." %>
 
 <div class="max-w-4xl mx-auto mb-8">
   <div class="text-center">
     <h3 class="font-display text-2xl font-medium text-mauve-950 mb-4">Import your library</h3>
-    <h5 class="text-xl font-medium text-mauve-700">Upload a Goodreads export and skip connecting your account</h5>
+    <h5 class="text-xl font-medium text-mauve-700">Upload a Goodreads or StoryGraph export and skip connecting an account</h5>
   </div>
 </div>
 
@@ -40,7 +40,7 @@
   <% end %>
 
   <div class="rounded-xl bg-mauve-950/[.025] p-6">
-    <h6 class="text-lg font-semibold text-mauve-950 mb-4">How to get your export</h6>
+    <h6 class="text-lg font-semibold text-mauve-950 mb-4">How to get your export from Goodreads</h6>
     <ol class="text-mauve-700 space-y-3 mb-6 list-decimal list-inside">
       <li>Go to <a class="text-mauve-950 underline hover:no-underline" href="https://www.goodreads.com/review/import" rel="noopener">goodreads.com/review/import</a></li>
       <li>Click <strong class="text-mauve-950">Export Library</strong> and wait a moment for Goodreads to build the file</li>
@@ -48,10 +48,18 @@
     </ol>
     <p class="text-sm text-mauve-600 -mt-3 mb-6">Goodreads only offers the export on its website, not in the mobile app. On a phone, open goodreads.com in your browser.</p>
 
+    <%# Steps checked 2026-11-10 against a published guide; StoryGraph doesn't document them. %>
+    <h6 class="text-lg font-semibold text-mauve-950 mb-4">From StoryGraph instead</h6>
+    <ol class="text-mauve-700 space-y-3 mb-6 list-decimal list-inside">
+      <li>On <a class="text-mauve-950 underline hover:no-underline" href="https://app.thestorygraph.com" rel="noopener">thestorygraph.com</a>, open your profile and choose <strong class="text-mauve-950">Manage Account</strong></li>
+      <li>Under <strong class="text-mauve-950">Manage Your Data</strong>, click <strong class="text-mauve-950">Export StoryGraph Library</strong>, then <strong class="text-mauve-950">Generate export</strong></li>
+      <li>StoryGraph emails you when it's ready. Download the CSV and upload it here. Your "to-read" list becomes the to-read shelf, and tags become shelves too.</li>
+    </ol>
+
     <form action="/import" method="post" enctype="multipart/form-data">
       <%== csrf_tag('/import') %>
       <div class="mb-6">
-        <label for="library" class="block text-sm font-medium text-mauve-950 mb-2">Your Goodreads CSV export:</label>
+        <label for="library" class="block text-sm font-medium text-mauve-950 mb-2">Your Goodreads or StoryGraph CSV export:</label>
         <input type="file"
                id="library"
                name="library"

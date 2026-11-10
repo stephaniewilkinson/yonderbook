@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require 'csv'
+require_relative 'storygraph_csv'
 
-# Parses a Goodreads CSV library export into the same book hash shape
+# Parses a Goodreads or StoryGraph CSV library export (StorygraphCsv maps the
+# latter's rows) into the same book hash shape
 # lib/goodreads.rb builds from the API, so an imported shelf can feed OverDrive
 # availability and BookMooch without touching the deprecated Goodreads API.
 #
@@ -18,7 +20,8 @@ module GoodreadsCsv
   # distinctly Goodreads column has to appear alongside it.
   SIGNATURE_COLUMNS = ['Book Id', 'Exclusive Shelf'].freeze
   BYTE_ORDER_MARK = '﻿'
-  FORMAT_HELP = "That does not look like a Goodreads library export. Download yours from goodreads.com/review/import using the 'Export Library' button."
+  FORMAT_HELP = 'That does not look like a Goodreads or StoryGraph library export. Download yours from goodreads.com/review/import ' \
+                "('Export Library'), or from StoryGraph's Manage Account page ('Export StoryGraph Library')."
 
   module_function
 
@@ -41,9 +44,9 @@ module GoodreadsCsv
 
     csv = CSV.new decode(source), headers: true
     row = csv.shift
-    validate_headers csv.headers
+    reader = validate_headers csv.headers
     while row
-      book = book_from row
+      book = reader.book_from row
       yield book if book
       row = csv.shift
     end
@@ -67,10 +70,15 @@ module GoodreadsCsv
     raw.dup.force_encoding(Encoding::UTF_8).scrub.delete_prefix BYTE_ORDER_MARK
   end
 
+  # Returns the module that reads this export's rows: this one for Goodreads,
+  # StorygraphCsv for StoryGraph.
   def validate_headers headers
     present = Array(headers).compact
     raise InvalidFormat, FORMAT_HELP unless present.include? 'Title'
+    return StorygraphCsv if StorygraphCsv.matches? present
     raise InvalidFormat, FORMAT_HELP if SIGNATURE_COLUMNS.none? { |column| present.include? column }
+
+    self
   end
 
   def book_from row

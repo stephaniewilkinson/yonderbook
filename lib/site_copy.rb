@@ -136,8 +136,8 @@ module SiteCopy
     },
     {
       question: 'Can I use Yonderbook without Goodreads?',
-      answer: 'You can upload a Goodreads CSV export rather than connecting your account, but the book list still has to come from Goodreads. ' \
-              'Support for other book tracking platforms is not available yet.'
+      answer: 'Yes. Upload a CSV export from Goodreads or StoryGraph instead of connecting an account. ' \
+              'Other book trackers are not supported yet.'
     }
   ].freeze
 
