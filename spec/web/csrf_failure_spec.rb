@@ -26,10 +26,22 @@ describe 'A failed CSRF check' do
     refute_includes last_response.body, 'Imported'
   end
 
+  # A successful import redirects too, so the status alone would pass with the
+  # check switched off. The flash and the missing "Imported" notice are what
+  # show the request was refused.
+  def assert_refused
+    follow_redirect!
+
+    assert_includes last_response.body, 'Your session has expired'
+    refute_includes last_response.body, 'Imported'
+    refute_includes last_response.body, 'has been removed'
+  end
+
   it 'rejects a token that does not decode' do
     post '/import', {'library' => upload, '_csrf' => 'not-a-token'}, 'HTTP_REFERER' => 'http://example.org/import'
 
     assert_equal 302, last_response.status
+    assert_refused
   end
 
   # /import/clear has no GET route, so redirecting to the request path would 404.
@@ -37,6 +49,19 @@ describe 'A failed CSRF check' do
     post '/import/clear', {}, 'HTTP_REFERER' => 'http://example.org/import'
 
     assert_equal '/import', last_response.headers['location']
+    assert_refused
+  end
+
+  # Rodauth calls check_csrf! itself; it used to be the only caller with a rescue
+  # of its own, and now relies on the plugin's failure block like the rest.
+  it 'covers the Rodauth routes too' do
+    post '/authenticate', {'email' => 'a@example.com', 'password' => 'x'}, 'HTTP_REFERER' => 'http://example.org/authenticate'
+
+    assert_equal 302, last_response.status
+    assert_equal '/authenticate', last_response.headers['location']
+    follow_redirect!
+
+    assert_includes last_response.body, 'Your session has expired'
   end
 
   it 'falls back to the home page without a usable Referer' do
