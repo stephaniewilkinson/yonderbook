@@ -59,7 +59,14 @@ class App < Roda
   plugin :public, root: 'assets', headers: {'Cache-Control' => 'public, max-age=604800'}
   plugin :flash
   plugin :sessions, secret: SESSION_SECRET
-  plugin :route_csrf
+  # A missing, stale or forged token is a client problem, not a server error:
+  # a session that expired while the form sat open, or a script posting without
+  # the hidden field. Raising made each one a 500 and a Sentry issue
+  # (YONDERBOOK-38). This covers every check_csrf! call, Rodauth's included.
+  plugin :route_csrf do |r|
+    flash['error'] = 'Your session has expired. Please try again.'
+    r.redirect csrf_failure_path(r)
+  end
   plugin :slash_path_empty
   # escape: true makes <%= %> HTML-escape its output; <%== %> is for markup
   # the app builds itself (partials, csrf_tag, inline SVG, JSON-LD). Titles and
@@ -124,13 +131,7 @@ class App < Roda
     r.get('health') { 'ok' } # route: GET /health
     rodauth.check_session_expiration
     rodauth.check_active_session
-    csrf_redirect_path = r.path
-    begin
-      r.rodauth
-    rescue Roda::RodaPlugins::RouteCsrf::InvalidToken
-      flash['error'] = 'Your session has expired. Please try again.'
-      r.redirect csrf_redirect_path
-    end
+    r.rodauth
     @user = Account[rodauth.session_value] if rodauth.logged_in?
 
     # Serve homepage early with no session writes or Sentry enrichment.
