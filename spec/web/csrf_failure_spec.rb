@@ -64,6 +64,13 @@ describe 'A failed CSRF check' do
     assert_includes last_response.body, 'Your session has expired'
   end
 
+  # #1437
+  it 'keeps the query and matches the host case-insensitively' do
+    post '/import/clear', {}, 'HTTP_REFERER' => 'http://EXAMPLE.org/import?from=shelves'
+
+    assert_equal '/import?from=shelves', last_response.headers['location']
+  end
+
   it 'falls back to the home page without a usable Referer' do
     post '/import'
 
@@ -72,5 +79,26 @@ describe 'A failed CSRF check' do
     post '/import', {}, 'HTTP_REFERER' => 'https://evil.example.com/import'
 
     assert_equal '/', last_response.headers['location']
+  end
+
+  # #1435: a body Rack cannot parse raised from check_csrf!, and again from
+  # enrich_sentry_error inside the rescue, and came out as a 500 and a Sentry
+  # issue. It is the client's request that is broken.
+  describe 'with a body that does not parse' do
+    def refute_reported(&)
+      SentryCapture.stub(:capture_once, ->(e, **) { flunk "reported #{e.class}" }, &)
+    end
+
+    it 'answers a malformed form body with a 400' do
+      refute_reported { post '/import', 'a=%&b', 'CONTENT_TYPE' => 'application/x-www-form-urlencoded' }
+
+      assert_equal 400, last_response.status
+    end
+
+    it 'answers a truncated multipart upload with a 400' do
+      refute_reported { post '/import', "--x\r\nbroken", 'CONTENT_TYPE' => 'multipart/form-data; boundary=x' }
+
+      assert_equal 400, last_response.status
+    end
   end
 end

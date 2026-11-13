@@ -17,8 +17,9 @@
 </div>
 
 <div class="max-w-2xl mx-auto">
-  <form action="<%= @availability_action || "/goodreads/shelves/#{@shelf_name}/overdrive" %>" method="post" id="library-form" data-fathom-submit="library_selected">
-    <% if @availability_action %><%== csrf_tag(@availability_action) %><% end %>
+  <% library_form_action = @availability_action || "/goodreads/shelves/#{@shelf_name}/overdrive" %>
+  <form action="<%= library_form_action %>" method="post" id="library-form" data-fathom-submit="library_selected">
+    <%== csrf_tag(library_form_action) %>
     <div class="space-y-4">
       <% @local_libraries.each_with_index do |library, index| %>
         <label class="block rounded-xl bg-mauve-950/[.025] overflow-hidden cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-mauve-950">
