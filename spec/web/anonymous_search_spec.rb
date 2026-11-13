@@ -180,16 +180,17 @@ describe 'Anonymous search flow' do
       assert_equal '/', last_response.headers['location']
     end
 
-    # check_csrf! raises, and the error_handler plugin turns that into a 500, so
-    # this is what rejection looks like from outside. The status is the point:
-    # 404 would mean the route is missing, and a redirect would mean the POST
-    # ran without a token. Roda stops the request before any Goodreads or
-    # OverDrive call, which is what keeps this spec off the network.
+    # The route_csrf failure block redirects back with a flash rather than
+    # raising, so a forged or stale POST is neither a 500 nor a Sentry issue
+    # (YONDERBOOK-38). Roda stops the request before any Goodreads or OverDrive
+    # call, which is what keeps this spec off the network; a POST that ran would
+    # redirect to the availability page instead.
     it 'refuses a request with no CSRF token' do
       with_anonymous_session do
-        post '/search/availability', 'consortium' => '1047'
+        post '/search/availability', {'consortium' => '1047'}, 'HTTP_REFERER' => 'http://example.org/search/shelves'
 
-        assert_equal 500, last_response.status
+        assert_equal 302, last_response.status
+        assert_equal '/search/shelves', last_response.headers['location']
       end
     end
   end

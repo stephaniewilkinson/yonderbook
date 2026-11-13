@@ -10,6 +10,20 @@ module RouteHelpers
   # valid JSON and decode to the same strings. #1415
   JSON_SCRIPT_ESCAPES = {'<' => '\u003c', '>' => '\u003e', '&' => '\u0026', "\u2028" => '\u2028', "\u2029" => '\u2029'}.freeze
 
+  # Where to send a request whose CSRF check failed: back to the page the form
+  # was on, which is the Referer when it is ours. Many POST routes (/import/clear,
+  # /account/disconnect-goodreads) have no GET of their own, so the request path
+  # would 404. Anything else lands on the home page.
+  def csrf_failure_path request
+    referer = URI.parse(request.referer.to_s)
+    return '/' unless referer.host.nil? || referer.host == request.host
+    return '/' unless referer.path&.start_with?('/') && !referer.path.start_with?('//')
+
+    referer.path
+  rescue URI::InvalidURIError
+    '/'
+  end
+
   def json_for_script value
     JSON.generate(value).gsub(/[<>&\u2028\u2029]/, JSON_SCRIPT_ESCAPES)
   end
