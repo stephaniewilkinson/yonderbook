@@ -100,12 +100,21 @@ class App < Roda
     view 'not_found'
   end
   # Catches what the route-block rescue cannot: a template that raises during
-  # `view`, an error inside the rescue handler itself (enrich_sentry_error
-  # touches request.params, which can raise on a malformed body), and anything
+  # `view`, an error inside the rescue handler itself, and anything
   # a plugin raises above the routing tree. Those are the hardest errors to
   # reproduce from a stderr line, so they are the last ones that should be
   # reaching stderr alone.
   plugin :error_handler do |e|
+    # Rack tags every body and query-string parse failure with Rack::BadRequest:
+    # a truncated upload, a bad percent-escape, a broken multipart boundary. The
+    # first read of params raises it (usually check_csrf!), so it surfaces from
+    # whichever route happens to run. It is the client's request that is broken,
+    # so it is a 400, and not a Sentry issue. #1435
+    if e.is_a?(Rack::BadRequest)
+      response.status = 400
+      next 'Bad Request'
+    end
+
     SentryCapture.capture_once(e)
     # Redacted: the Goodreads key travels as a query parameter, so a failure
     # mid-request carries it in the message, and Render's log drain keeps
@@ -302,6 +311,7 @@ class App < Roda
 
             # route: POST /goodreads/shelves/:id/bookmooch?username=foo&password=baz
             r.post do
+              check_csrf!
               # The GET above loaded the shelf, so this is only missing once the
               # cache has expired. Send them back to load it again rather than
               # fetching it here, where a large shelf would time out.
@@ -338,6 +348,7 @@ class App < Roda
               view 'shelves/overdrive'
             end
             r.post do # route: POST /goodreads/shelves/:id/overdrive?consortium=1047
+              check_csrf!
               libraries = chosen_libraries r
               if libraries.empty?
                 flash['error'] = 'Please choose at least one library'
@@ -383,6 +394,7 @@ class App < Roda
       require_goodreads r
 
       r.post true do # route: POST /libraries?zipcode=90029
+        check_csrf!
         @shelf_name = Cache.get session, :shelf_name
         zip = Geolocation.normalize_zip r.params['zipcode']
 
@@ -411,6 +423,9 @@ class App < Roda
   rescue GoodreadsResponse::ApiError => e
     goodreads_failed r, e
   rescue OAuth::Unauthorized, StandardError => e
+    # Left for error_handler, which answers it with a 400. See there.
+    raise if e.is_a?(Rack::BadRequest)
+
     enrich_sentry_error(r)
     SentryCapture.capture_once(e)
 

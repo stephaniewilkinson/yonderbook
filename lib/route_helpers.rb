@@ -14,14 +14,28 @@ module RouteHelpers
   # was on, which is the Referer when it is ours. Many POST routes (/import/clear,
   # /account/disconnect-goodreads) have no GET of their own, so the request path
   # would 404. Anything else lands on the home page.
+  #
+  # Only the path and query ever reach Location, never the Referer's scheme or
+  # host, so a hostile Referer cannot send anyone off-site. Hostnames are
+  # case-insensitive, and the query is kept because some forms live on pages
+  # that need it (?consortium=). #1437
   def csrf_failure_path request
     referer = URI.parse(request.referer.to_s)
-    return '/' unless referer.host.nil? || referer.host == request.host
+    return '/' unless referer.host.nil? || referer.host.casecmp?(request.host)
     return '/' unless referer.path&.start_with?('/') && !referer.path.start_with?('//')
 
-    referer.path
+    referer.query ? "#{referer.path}?#{referer.query}" : referer.path
   rescue URI::InvalidURIError
     '/'
+  end
+
+  # Reading params parses the body, and a body that failed to parse once will
+  # fail again; inside a rescue that second raise would replace the error being
+  # reported. #1435
+  def param_names request
+    request.params.keys
+  rescue Rack::BadRequest
+    []
   end
 
   def json_for_script value
@@ -190,7 +204,7 @@ module RouteHelpers
   end
 
   def enrich_sentry_error request
-    Sentry.set_context('request', {method: request.request_method, path: request.path, params: request.params.keys})
+    Sentry.set_context('request', {method: request.request_method, path: request.path, params: param_names(request)})
     Sentry.set_context('goodreads', {user_id: @goodreads_user_id, shelf: @shelf_name}) if @goodreads_user_id
   end
 end
