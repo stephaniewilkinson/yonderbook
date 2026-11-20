@@ -35,7 +35,7 @@ services:
     # numInstances is omitted: a service with an attached persistent disk
     # cannot be scaled, and the live value is 1 (the default).
     #
-    # Ruby version comes from .ruby-version (currently ruby-4.0.6).
+    # Ruby version comes from .ruby-version (currently ruby-4.0.10).
     # Matches live. Note this does NOT run `rake precompile`, so Tailwind is not
     # rebuilt on deploy -- it works because assets/css/styles.css and
     # assets/compiled_assets.json are committed. README says otherwise; README
